@@ -98,19 +98,9 @@ if __name__ == "__main__" :
     #print(len(InFiles))
 
     # testInfile = indir+'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_0.root'
-    # testOutHDF = outdir+'/test.hdf5
-    # store = pd.HDFStore(testOutHDF, mode='w')
-
+    testOutHDF = outdir+'/test.hdf5'
     testOutCSV = outdir+'/test.csv'
-    testOutCSVPt = outdir+'/testPt.csv'
-    fieldnames = ['ev','i_eta','i_phi','i_em','i_had','i_et']
-    with open(testOutCSV, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-    fieldnamesPt = ['ev','jetPt']
-    with open(testOutCSVPt, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnamesPt)
-        writer.writeheader()
+    store = pd.HDFStore(testOutHDF, mode='w')
 
     keyEvents="l1EventTree/L1EventTree"
     keyTowers="l1CaloTowerEmuTree/L1CaloTowerTree"
@@ -131,7 +121,7 @@ if __name__ == "__main__" :
     problem_match = 0
     multiple_match = 0
 
-    for i, testInfile in enumerate(InFiles[:]):
+    for i, testInfile in enumerate(InFiles[0:1]):
 
         if testInfile in ['/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_175.root',
                           '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_256.root',
@@ -228,53 +218,43 @@ if __name__ == "__main__" :
         dfFlatEJ['jetIphi'] = FindIphi_vctd(dfFlatEJ['jetPhi'])
         dfFlatEJ.drop(['jetEta', 'jetPhi'], axis=1, inplace=True) # drop columns not needed anymore
 
-        # exclude events without matching
         # join the jet and the towers datasets -> this creates all the possible combination of towers and jets for each event
         dfFlatEJT  = dfFlatEJ.join(dfFlatET, on='event', how='left', rsuffix='_joined', sort=False)
+
+        # identify the central tower for each jet by looking for the tower with the same ieta/iphi as the jet
+        # FIXME - THIS NEEDS TO BE CHECKED!!! 
+        #  --> in the sense that after having fixed the FindIeta/FindIphi function we need to check if it really works
+        #  --> at a first look I would say that at least for ieta away from 29 it works
+
         dfFlatEJT['central'] = (CheckClose(dfFlatEJT.jetIeta,dfFlatEJT.ieta,dfFlatEJT.jetIphi,dfFlatEJT.iphi))
         if len(dfFlatEJT[dfFlatEJT['central'] == 1]) == 0:
-            continue
+            # print('\nNo matching found for file {}\n'.format(testInfile.split('appliedHCALpfa1p')[1]))
+            no_match = no_match + 1
 
-        jetIeta = dfFlatEJ['jetIeta'].values[0]
-        jetIphi = dfFlatEJ['jetIphi'].values[0]
-
-        with open(testOutCSVPt, 'a', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnamesPt)
-            writer.writerow({'ev': dfFlatEJ['jetPt'].index[0], 'jetPt': dfFlatEJ['jetPt'].values[0]})
-
-        # define the top left position of the chunky donut
-        ieta_start = jetIeta
-        iphi_start = jetIphi
-        for i in range(0,4):
-            ieta_start = PrevEtaTower(ieta_start)
-        for i in range(0,4):
-            iphi_start = PrevPhiTower(iphi_start)
-
-        ieta = ieta_start
-        iphi = iphi_start
-
-        l = 0 # numbered position of the chuncky donut [0,80]
-        for i in range(0,9): # scan eta direction
-            if i > 0:
-                ieta = NextEtaTower(ieta)
-            iphi = iphi_start # for every row in eta we restart from the iphi on the left
-            for j in range(0,9): # scan phi direction
-                if j > 0:
-                    iphi = NextPhiTower(iphi)
-                l = l+1
-                sel = (dfFlatET['ieta'] == ieta) & (dfFlatET['iphi'] == iphi)
-                if len(dfFlatET[sel]) == 1:
-                    with open(testOutCSV, 'a', newline='') as csvfile:
-                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                        # fieldnames = ['ev','i_eta','i_phi','i_em','i_had','i_et']
-                        text = {'ev': dfFlatET['iem'].index[0], 'i_eta': np.abs(ieta), 'i_phi': iphi, 'i_em': dfFlatET[sel]['iem'].values[0], 'i_had': dfFlatET[sel]['ihad'].values[0], 'i_et': dfFlatET[sel]['iet'].values[0]}
-                        writer.writerow(text)
+        elif len(dfFlatEJT[dfFlatEJT['central'] == True]) == 1:
+            try:
+                dfFlatEJT['itot'] = dfFlatEJT['iem'] + dfFlatEJT['ihad'] + dfFlatEJT['iet']
+                if (dfFlatEJT[dfFlatEJT['central'] == True].itot == dfFlatEJT['itot'].max()).any():
+                    # print('Good match for file {}\n'.format(testInfile.split('appliedHCALpfa1p')[1]))
+                    good_match = good_match + 1
+                elif (dfFlatEJT[dfFlatEJT['central'] == 'Eta'].itot == dfFlatEJT['itot'].max()).any():
+                    # print('Partial match for file {}\n'.format(testInfile.split('appliedHCALpfa1p')[1]))
+                    part_match_eta = part_match_eta + 1
+                elif (dfFlatEJT[dfFlatEJT['central'] == 'Phi'].itot == dfFlatEJT['itot'].max()).any():
+                    # print('Partial match for file {}\n'.format(testInfile.split('appliedHCALpfa1p')[1]))
+                    part_match_phi = part_match_phi + 1
+                elif (dfFlatEJT[dfFlatEJT['central'] == 'EtaPhi'].itot == dfFlatEJT['itot'].max()).any():
+                    # print('Partial match for file {}\n'.format(testInfile.split('appliedHCALpfa1p')[1]))
+                    part_match_etaphi = part_match_etaphi + 1
                 else:
-                    with open(testOutCSV, 'a', newline='') as csvfile:
-                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                        # fieldnames = ['ev','i_eta','i_phi','i_em','i_had','i_et']
-                        text = {'ev': dfFlatET['iem'].index[0], 'i_eta': np.abs(ieta), 'i_phi': iphi, 'i_em': 0, 'i_had': 0, 'i_et': 0}
-                        writer.writerow(text)
+                    print('Bad match for file {}\n'.format(testInfile.split('appliedHCALpfa1p')[1]))
+                    bad_match = bad_match + 1
+            except:
+                # print('Problem for file {}\n'.format(testInfile.split('appliedHCALpfa1p')[1]))
+                problem_match = problem_match + 1
+        else:
+            # print('More than one match for file {}\n'.format(testInfile.split('appliedHCALpfa1p')[1]))
+            multiple_match = multiple_match + 1
 
         # DEBUG 
         # print(dfFlatEJT)
@@ -284,13 +264,22 @@ if __name__ == "__main__" :
         # for i in range(81):
         #     dfFlatEJT['iTinCD'+str(i)] = np.zeros(dfFlatEJT.shape[0])
     
-    # save hdf5 file
-    # store = dfFlatEJT
+        # save hdf5 file
+        store = dfFlatEJT
+
+    print('no_match = ', no_match)
+    print('good_match = ', good_match)
+    print('part_match_eta = ', part_match_eta)
+    print('part_match_phi = ', part_match_phi)
+    print('part_match_etaphi = ', part_match_etaphi)
+    print('bad_match = ', bad_match)
+    print('problem_match = ', problem_match)
+    print('multiple_match = ', multiple_match)
+
     # store.close()
 
 
     # make the produced files accessible to the other people otherwise we cannot work together
-    # os.system('chmod 774 '+testOutHDF)
+    os.system('chmod 774 '+testOutHDF)
     os.system('chmod 774 '+testOutCSV)
-    os.system('chmod 774 '+testOutCSVPt)
 

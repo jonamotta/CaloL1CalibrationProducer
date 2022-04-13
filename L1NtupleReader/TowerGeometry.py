@@ -96,3 +96,83 @@ def FindIphi(jetPhi_off):
                     Iphi = key
                     IphiFound = True
         return Iphi
+
+############################################## Previous and next towers definition ##############################################
+
+def NextPhiTower(iphi):
+    if iphi in list(TowersPhi.keys()):
+        IkeyFound = False
+        Ikey = 0
+        if iphi == 72:
+            next_iphi = 1
+        else:
+            for i, key in enumerate(list(TowersPhi.keys())):
+                if IkeyFound == False:
+                    if iphi == key:
+                        next_iphi = list(TowersPhi.keys())[i+1]
+        return next_iphi
+    else:
+        print('{} not in range [1,72]'.format(iphi))
+
+def NextEtaTower(ieta):
+    if np.abs(ieta) in list(TowersEta.keys()):
+        IkeyFound = False
+        Ikey = 0
+        next_ieta = 0
+        if ieta == -1:
+            next_ieta = 1
+        elif ieta == 41:
+            print('{} not in range [-41,40]'.format(ieta))
+        else:
+            if ieta > 0:
+                for i, key in enumerate(list(TowersEta.keys())):
+                    if IkeyFound == False:
+                        if np.abs(ieta) == key:
+                            next_ieta = list(TowersEta.keys())[i+1]
+            else:
+                for i, key in enumerate(list(TowersEta.keys())):
+                    if IkeyFound == False:
+                        if np.abs(ieta) == key:
+                            next_ieta = -1*list(TowersEta.keys())[i-1]
+        return next_ieta
+    else:
+        print('{} not in range [-41,40]'.format(ieta))
+        
+def PrevPhiTower(iphi):
+    if iphi in list(TowersPhi.keys()):
+        IkeyFound = False
+        Ikey = 0
+        if iphi == 1:
+            next_iphi = 72
+        else:
+            for i, key in enumerate(list(TowersPhi.keys())):
+                if IkeyFound == False:
+                    if iphi == key:
+                        next_iphi = list(TowersPhi.keys())[i-1]
+        return next_iphi
+    else:
+        print('{} not in range [1,72]'.format(iphi))
+        
+def PrevEtaTower(ieta):
+    if np.abs(ieta) in list(TowersEta.keys()):
+        IkeyFound = False
+        Ikey = 0
+        next_ieta = 0
+        if ieta == 1:
+            next_ieta = -1
+        elif ieta == -41:
+            print('{} not in range [-40,41]'.format(ieta))
+        else:
+            if ieta > 0:
+                for i, key in enumerate(list(TowersEta.keys())):
+                    if IkeyFound == False:
+                        if np.abs(ieta) == key:
+                            next_ieta = list(TowersEta.keys())[i-1]
+            else:
+                for i, key in enumerate(list(TowersEta.keys())):
+                    if IkeyFound == False:
+                        if np.abs(ieta) == key:
+                            next_ieta = -1*list(TowersEta.keys())[i+1]
+        return next_ieta
+    else:
+        print('{} not in range [-40,41]'.format(ieta))
