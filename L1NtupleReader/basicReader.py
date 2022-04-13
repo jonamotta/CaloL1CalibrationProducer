@@ -56,6 +56,46 @@ def CheckClose(etas1,etas2,phis1,phis2):
         outs.append(out)
     return outs
 
+# returns an array with 81 entries, for each entry we have [eta,phi] number of the tower belonging to the chunky donut
+def ChunkyDonutTowers(jetIeta, jetIphi):
+
+    ieta_start = jetIeta
+    iphi_start = jetIphi
+
+    # define the top left position of the chunky donut
+    for i in range(0,4):
+        ieta_start = PrevEtaTower(ieta_start)
+    for i in range(0,4):
+        iphi_start = PrevPhiTower(iphi_start)
+
+    ieta = ieta_start
+    iphi = iphi_start
+
+    CD = []
+    for i in range(0,9): # scan eta direction
+        if i > 0:
+            ieta = NextEtaTower(ieta)
+        iphi = iphi_start # for every row in eta we restart from the iphi on the left
+        for j in range(0,9): # scan phi direction
+            if j > 0:
+                iphi = NextPhiTower(iphi)
+            CD.append([ieta,iphi])
+    return CD
+
+def CheckInCD(row):
+    CD = ChunkyDonutTowers(row.jetIeta,row.jetIphi)
+    foundTower = False
+    check_CD = False
+    for tower in CD:
+        if foundTower == False:
+            if (row.ieta == tower[0] & row.iphi == tower[1]):
+                check_CD = True
+                foundTower = True
+        else:
+            break
+    print(row.jetId)
+    return check_CD
+
 #######################################################################
 ######################### SCRIPT BODY #################################
 #######################################################################
@@ -98,16 +138,18 @@ if __name__ == "__main__" :
     #print(len(InFiles))
 
     # testInfile = indir+'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_0.root'
-    # testOutHDF = outdir+'/test.hdf5
-    # store = pd.HDFStore(testOutHDF, mode='w')
+    testOutHDF_jet = outdir+'/test_jet.hdf5'
+    store_jet = pd.HDFStore(testOutHDF_jet, mode='w')
+    testOutHDF = outdir+'/test.hdf5'
+    store = pd.HDFStore(testOutHDF, mode='w')
 
-    testOutCSV = outdir+'/test.csv'
-    testOutCSVPt = outdir+'/testPt.csv'
-    fieldnames = ['ev','i_eta','i_phi','i_em','i_had','i_et']
+    testOutCSV = outdir+'/test_complete.csv'
+    testOutCSVPt = outdir+'/testPt_complete.csv'
+    fieldnames = ['jetId','i_eta','i_phi','i_em','i_had','i_et']
     with open(testOutCSV, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-    fieldnamesPt = ['ev','jetPt']
+    fieldnamesPt = ['jetId','jetPt']
     with open(testOutCSVPt, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnamesPt)
         writer.writeheader()
@@ -122,16 +164,10 @@ if __name__ == "__main__" :
 
     InFiles.sort()
 
-    no_match = 0
-    good_match = 0
-    part_match_eta = 0
-    part_match_phi = 0
-    part_match_etaphi = 0
-    bad_match = 0
-    problem_match = 0
-    multiple_match = 0
+    dfJets = pd.DataFrame()
+    dfTowers = pd.DataFrame()
 
-    for i, testInfile in enumerate(InFiles[:]):
+    for i, testInfile in enumerate(InFiles[0:2]):
 
         if testInfile in ['/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_175.root',
                           '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_256.root',
@@ -159,7 +195,7 @@ if __name__ == "__main__" :
             continue
 
         # see progress
-        if i%100 == 0:
+        if i%1 == 0:
             print(testInfile)
 
         ##################### READ TTREES AND MATCH EVENTS ####################
@@ -179,9 +215,9 @@ if __name__ == "__main__" :
         dfET = pd.concat([dfE, dfT], axis=1)
         dfEJ = pd.concat([dfE, dfJ], axis=1)
 
-        ## DEBUG
-        dfET = dfET.head(1)
-        dfEJ = dfEJ.head(1)
+        # ## DEBUG
+        # dfET = dfET.head(1)
+        # dfEJ = dfEJ.head(1)
 
         if len(dfET) == 0 or len(dfEJ) == 0:
             print('\nZero data for file {}\n'.format(testInfile))
@@ -228,53 +264,52 @@ if __name__ == "__main__" :
         dfFlatEJ['jetIphi'] = FindIphi_vctd(dfFlatEJ['jetPhi'])
         dfFlatEJ.drop(['jetEta', 'jetPhi'], axis=1, inplace=True) # drop columns not needed anymore
 
-        # exclude events without matching
         # join the jet and the towers datasets -> this creates all the possible combination of towers and jets for each event
-        dfFlatEJT  = dfFlatEJ.join(dfFlatET, on='event', how='left', rsuffix='_joined', sort=False)
-        dfFlatEJT['central'] = (CheckClose(dfFlatEJT.jetIeta,dfFlatEJT.ieta,dfFlatEJT.jetIphi,dfFlatEJT.iphi))
-        if len(dfFlatEJT[dfFlatEJT['central'] == 1]) == 0:
-            continue
+        dfFlatEJT = dfFlatEJ.join(dfFlatET, on='event', how='left', rsuffix='_joined', sort=False)
 
-        jetIeta = dfFlatEJ['jetIeta'].values[0]
-        jetIphi = dfFlatEJ['jetIphi'].values[0]
+        # exclude events without matching
+        # dfFlatEJT['central'] = (CheckClose(dfFlatEJT.jetIeta,dfFlatEJT.ieta,dfFlatEJT.jetIphi,dfFlatEJT.iphi))
+        # if len(dfFlatEJT[dfFlatEJT['central'] == 1]) == 0:
+        #     continue
 
-        with open(testOutCSVPt, 'a', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnamesPt)
-            writer.writerow({'ev': dfFlatEJ['jetPt'].index[0], 'jetPt': dfFlatEJ['jetPt'].values[0]})
+        dfFlatEJT.drop(['jetPt'], axis=1, inplace=True)
+        dfFlatEJT['CD'] = dfFlatEJT.apply(lambda row: CheckInCD(row), axis=1)
+        dfFlatEJT = dfFlatEJT[dfFlatEJT['CD'] == True]
+        dfFlatEJT.drop(['jetIeta','jetIphi'], axis=1, inplace=True)
+        print('done')
 
-        # define the top left position of the chunky donut
-        ieta_start = jetIeta
-        iphi_start = jetIphi
-        for i in range(0,4):
-            ieta_start = PrevEtaTower(ieta_start)
-        for i in range(0,4):
-            iphi_start = PrevPhiTower(iphi_start)
+        dfTowers.append(dfFlatEJT)
 
-        ieta = ieta_start
-        iphi = iphi_start
+        # jetIeta = dfFlatEJ['jetIeta'].values[0]
+        # jetIphi = dfFlatEJ['jetIphi'].values[0]
 
-        l = 0 # numbered position of the chuncky donut [0,80]
-        for i in range(0,9): # scan eta direction
-            if i > 0:
-                ieta = NextEtaTower(ieta)
-            iphi = iphi_start # for every row in eta we restart from the iphi on the left
-            for j in range(0,9): # scan phi direction
-                if j > 0:
-                    iphi = NextPhiTower(iphi)
-                l = l+1
-                sel = (dfFlatET['ieta'] == ieta) & (dfFlatET['iphi'] == iphi)
-                if len(dfFlatET[sel]) == 1:
-                    with open(testOutCSV, 'a', newline='') as csvfile:
-                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                        # fieldnames = ['ev','i_eta','i_phi','i_em','i_had','i_et']
-                        text = {'ev': dfFlatET['iem'].index[0], 'i_eta': np.abs(ieta), 'i_phi': iphi, 'i_em': dfFlatET[sel]['iem'].values[0], 'i_had': dfFlatET[sel]['ihad'].values[0], 'i_et': dfFlatET[sel]['iet'].values[0]}
-                        writer.writerow(text)
-                else:
-                    with open(testOutCSV, 'a', newline='') as csvfile:
-                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                        # fieldnames = ['ev','i_eta','i_phi','i_em','i_had','i_et']
-                        text = {'ev': dfFlatET['iem'].index[0], 'i_eta': np.abs(ieta), 'i_phi': iphi, 'i_em': 0, 'i_had': 0, 'i_et': 0}
-                        writer.writerow(text)
+        # dfFlatEJ.drop(['jetId','jetIeta','jetIphi'], axis=1, inplace=True)
+        # dfJets.append(dfFlatEJ)
+        # print("appended jet pd")
+
+        # with open(testOutCSVPt, 'a', newline='') as csvfile:
+        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnamesPt)
+        #     writer.writerow({'jetId': dfFlatEJ['jetPt'].index[0], 'jetPt': dfFlatEJ['jetPt'].values[0]})
+
+        # # define the top left position of the chunky donut
+        # ChunkyDonutTowers(jetIeta, jetIphi)
+        # df[(df>=0)&(df<=20)].dropna()
+
+        # dfFlatET[]
+
+        #         sel = (dfFlatET['ieta'] == ieta) & (dfFlatET['iphi'] == iphi)
+        #         if len(dfFlatET[sel]) == 1:
+        #             with open(testOutCSV, 'a', newline='') as csvfile:
+        #                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        #                 # fieldnames = ['jetId','i_eta','i_phi','i_em','i_had','i_et']
+        #                 text = {'jetId': dfFlatET['iem'].index[0], 'i_eta': np.abs(ieta), 'i_phi': iphi, 'i_em': dfFlatET[sel]['iem'].values[0], 'i_had': dfFlatET[sel]['ihad'].values[0], 'i_et': dfFlatET[sel]['iet'].values[0]}
+        #                 writer.writerow(text)
+        #         else:
+        #             with open(testOutCSV, 'a', newline='') as csvfile:
+        #                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        #                 # fieldnames = ['jetId','i_eta','i_phi','i_em','i_had','i_et']
+        #                 text = {'jetId': dfFlatET['iem'].index[0], 'i_eta': np.abs(ieta), 'i_phi': iphi, 'i_em': 0, 'i_had': 0, 'i_et': 0}
+        #                 writer.writerow(text)
 
         # DEBUG 
         # print(dfFlatEJT)
@@ -285,8 +320,10 @@ if __name__ == "__main__" :
         #     dfFlatEJT['iTinCD'+str(i)] = np.zeros(dfFlatEJT.shape[0])
     
     # save hdf5 file
-    # store = dfFlatEJT
-    # store.close()
+    store_jet = dfJets
+    store_jet.close()
+    store = dfTowers
+    store.close()
 
 
     # make the produced files accessible to the other people otherwise we cannot work together
