@@ -150,7 +150,7 @@ if __name__ == "__main__" :
     dfJets = pd.DataFrame()
     dfTowers = pd.DataFrame()
 
-    for i, testInfile in enumerate(InFiles[0:1]):
+    for i, testInfile in enumerate(InFiles[0:10]):
 
         if testInfile in ['/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_175.root',
                           '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_256.root',
@@ -268,13 +268,11 @@ if __name__ == "__main__" :
         dfFlatEJT['deltaI1'] = 1 - dfFlatEJT['jetIeta']
         dfFlatEJT['deltaIm1'] = -1 - dfFlatEJT['jetIeta']
         # define full OR condition in order to select the correct towers for each jet
-        # the onditions (in coordinates wrt the jetIeta) are the following:
-        #       if 0<=deltaIx<=4 then the lower bound of the chunky donut should extend from -4 to +5
-        #       if 0<=deltaImx<=4 then the lower bound of the chunky donut should extend from -4 to +5
-        #       if -4<=deltaIx<=0 then the lower bound of the chunky donut should extend from -5 to +4
-        #       if -4<=deltaImx<=0 then the lower bound of the chunky donut should extend from -5 to +4
-        dfFlatEJT = dfFlatEJT[((dfFlatEJT['deltaI29']<=4)&(dfFlatEJT['deltaI29']>0)&(dfFlatEJT['deltaIeta']>=-4)) | ((dfFlatEJT['deltaI29']>=-4)&(dfFlatEJT['deltaI29']<0)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm29']<=4)&(dfFlatEJT['deltaIm29']>0)&(dfFlatEJT['deltaIeta']>=-4)) | ((dfFlatEJT['deltaIm29']>=-4)&(dfFlatEJT['deltaIm29']<0)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm29']<-5)|(dfFlatEJT['deltaIm29']>5)&(abs(dfFlatEJT['deltaIeta'])<=4)) | ((dfFlatEJT['deltaI29']<-5)|(dfFlatEJT['deltaI29']>5)&(abs(dfFlatEJT['deltaIeta'])<=4))]
-        dfFlatEJT = dfFlatEJT[((dfFlatEJT['deltaI1']<=4)&(dfFlatEJT['deltaI1']>0)&(dfFlatEJT['deltaIeta']>=-4)) | ((dfFlatEJT['deltaI1']>=-4)&(dfFlatEJT['deltaI1']<0)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm1']<=4)&(dfFlatEJT['deltaIm1']>0)&(dfFlatEJT['deltaIeta']>=-4)) | ((dfFlatEJT['deltaIm1']>=-4)&(dfFlatEJT['deltaIm1']<0)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm1']<-5)|(dfFlatEJT['deltaIm1']>5)&(abs(dfFlatEJT['deltaIeta'])<=4)) | ((dfFlatEJT['deltaI1']<-5)|(dfFlatEJT['deltaI1']>5)&(abs(dfFlatEJT['deltaIeta'])<=4))]
+        # the onditions (in coordinates wrt the jetIeta) are summarized in teh file bigORtowers.txt
+        dfFlatEJT = dfFlatEJT[( ((dfFlatEJT['deltaI29']<5)&(dfFlatEJT['deltaI29']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaI29']>-5)&(dfFlatEJT['deltaI29']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaI29']<-5)|(dfFlatEJT['deltaI29']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm29']<5)&(dfFlatEJT['deltaIm29']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaIm29']>-5)&(dfFlatEJT['deltaIm29']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaIm29']<-5)|(dfFlatEJT['deltaIm29']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) )]
+        dfFlatEJT = dfFlatEJT[( ((dfFlatEJT['deltaI1']<5)&(dfFlatEJT['deltaI1']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaI1']>-5)&(dfFlatEJT['deltaI1']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaI1']<-5)|(dfFlatEJT['deltaI1']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm1']<5)&(dfFlatEJT['deltaIm1']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaIm1']>-5)&(dfFlatEJT['deltaIm1']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaIm1']<-5)|(dfFlatEJT['deltaIm1']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) )]
+
+
         # drop what is no longer needed
         dfFlatEJT.drop(['deltaI29', 'deltaIm29', 'deltaI1', 'deltaIm1', 'deltaIphi', 'deltaIeta'], axis=1, inplace=True)
 

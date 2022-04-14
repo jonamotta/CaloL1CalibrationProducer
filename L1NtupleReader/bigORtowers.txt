@@ -1,0 +1,82 @@
+deltaI29 := 29 - jetIeta             deltaI1 := 1 - jetIeta
+deltaIm29 := -29 - jetIeta           deltaIm1 := -1 - jetIeta
+
+deltaIeta := ieta - jetIeta
+
+
+  -41  -40  -39  -38  -37  -36  -35  -34  -33  -32  -31  -30 || -28  -27  -26  -25  -24  -23  -22  -21  -20  -19  -18  -17  -16  -15  -14  -13  -12  -11  -10  -9  -8  -7  -6  -5  -4  -3  -2  -1 || 1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  ||  30  31  32  33  34  35  36  37  38  39  40  41
+
+
+
+
+                                      deltaI29                        deltaIeta
+                    
+central tower below 29               0 < x < 5                    -4 <= x <= 5                   (deltaI29<5)&(deltaI29>0)&(deltaIeta>=-4)&(deltaIeta<=5)
+              
+central tower above 29              -5 < x < 0                    -5 <= x <= 4      -->          (deltaI29>-5)&(deltaI29<0)&(deltaIeta>=-5)&(deltaIeta<=4)
+              
+central tower away from 29        x < -5 | x > 5                  -4 <= x <= 4                   ((deltaI29<-5)|(deltaI29>5))&(deltaIeta>=-4)&(deltaIeta<=4)
+
+
+
+
+
+                                      deltaIm29                      deltaIeta
+                    
+central tower below -29               0 < x < 5                    -4 <= x <= 5                   (deltaIm29<5)&(deltaIm29>0)&(deltaIeta>=-4)&(deltaIeta<=5)
+              
+central tower above -29              -5 < x < 0                    -5 <= x <= 4     -->           (deltaIm29>-5)&(deltaIm29<0)&(deltaIeta>=-5)&(deltaIeta<=4)
+              
+central tower away from -29        x < -5 | x > 5                  -4 <= x <= 4                   ((deltaIm29<-5)|(deltaIm29>5))&(deltaIeta>=-4)&(deltaIeta<=4)
+
+
+----------------------------------------------------------------------------------------------------
+
+
+                                      deltaI1                        deltaIeta
+                    
+central tower below 1               0 < x < 5                     -4 <= x <= 5                   (deltaI1<5)&(deltaI1>0)&(deltaIeta>=-4)&(deltaIeta<=5)
+              
+central tower above 1              -5 < x < 0                     -5 <= x <= 4      -->          (deltaI1>-5)&(deltaI1<0)&(deltaIeta>=-5)&(deltaIeta<=4)
+              
+central tower away from 1        x < -5 | x > 5                   -4 <= x <= 4                   ((deltaI1<-5)|(deltaI1>5))&(deltaIeta>=-4)&(deltaIeta<=4)
+
+
+
+
+
+
+                                      deltaIm1                      deltaIeta
+                    
+central tower below -1               0 < x < 5                     -4 <= x <= 5                   (deltaIm1<5)&(deltaIm1>0)&(deltaIeta>=-4)&(deltaIeta<=5)
+              
+central tower above -1              -5 < x < 0                     -5 <= x <= 4      -->          (deltaIm1>-5)&(deltaIm1<0)&(deltaIeta>=-5)&(deltaIeta<=4)
+              
+central tower away from -1        x < -5 | x > 5                  -4 <= x <= 4                    ((deltaIm1<-5)|(deltaIm1>5))&(deltaIeta>=-4)&(deltaIeta<=4)
+
+
+
+
+
+
+dfFlatEJT = dfFlatEJT[( ((dfFlatEJT['deltaI29']<5)&(dfFlatEJT['deltaI29']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaI29']>-5)&(dfFlatEJT['deltaI29']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaI29']<-5)|(dfFlatEJT['deltaI29']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm29']<5)&(dfFlatEJT['deltaIm29']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaIm29']>-5)&(dfFlatEJT['deltaIm29']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaIm29']<-5)|(dfFlatEJT['deltaIm29']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) )]
+
+
+dfFlatEJT = dfFlatEJT[( ((dfFlatEJT['deltaI1']<5)&(dfFlatEJT['deltaI1']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaI1']>-5)&(dfFlatEJT['deltaI1']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaI1']<-5)|(dfFlatEJT['deltaI1']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm1']<5)&(dfFlatEJT['deltaIm1']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaIm1']>-5)&(dfFlatEJT['deltaIm1']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaIm1']<-5)|(dfFlatEJT['deltaIm1']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) )]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
