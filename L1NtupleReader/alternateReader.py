@@ -63,7 +63,7 @@ def ChunkyDonutTowers(jetIeta, jetIphi):
 def padDataFrame( dfFlatEJT ):
     padded = dfFlatEJT
     for uniqueIdx in dfFlatEJT.index.unique():
-        #print(dfFlatEJT['jetIeta'][uniqueIdx])
+        #print(uniqueIdx)
         try:
             len(dfFlatEJT['jetIeta'][uniqueIdx])
             jetIeta = dfFlatEJT['jetIeta'][uniqueIdx].unique()[0]
@@ -85,8 +85,7 @@ def padDataFrame( dfFlatEJT ):
         padder[['ieta','iphi']] = ChunkyDonutTowers(jetIeta,jetIphi)
 
         padded = padded.append(padder)
-        #padded.sort_values('iet', inplace=True)
-        padded.drop_duplicates(['uniqueId', 'ieta', 'iphi'], keep='first', inplace=True)
+        del padder
         
     return padded
 
@@ -115,8 +114,8 @@ if __name__ == "__main__" :
 
     # define the two paths where to store the hdf5 files
     saveTo = {
-        'towers'  : outdir+'/test_towers.hdf5',
-        'jets'    : outdir+'/test_jets.hdf5'
+        'towers'  : outdir+'/test_towers',
+        'jets'    : outdir+'/test_jets'
     }
 
     # choose ECAL of HCAL folder according to option v
@@ -272,7 +271,6 @@ if __name__ == "__main__" :
         dfFlatEJT = dfFlatEJT[( ((dfFlatEJT['deltaI29']<5)&(dfFlatEJT['deltaI29']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaI29']>-5)&(dfFlatEJT['deltaI29']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaI29']<-5)|(dfFlatEJT['deltaI29']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm29']<5)&(dfFlatEJT['deltaIm29']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaIm29']>-5)&(dfFlatEJT['deltaIm29']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaIm29']<-5)|(dfFlatEJT['deltaIm29']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) )]
         dfFlatEJT = dfFlatEJT[( ((dfFlatEJT['deltaI1']<5)&(dfFlatEJT['deltaI1']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaI1']>-5)&(dfFlatEJT['deltaI1']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaI1']<-5)|(dfFlatEJT['deltaI1']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm1']<5)&(dfFlatEJT['deltaIm1']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaIm1']>-5)&(dfFlatEJT['deltaIm1']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaIm1']<-5)|(dfFlatEJT['deltaIm1']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) )]
 
-
         # drop what is no longer needed
         dfFlatEJT.drop(['deltaI29', 'deltaIm29', 'deltaI1', 'deltaIm1', 'deltaIphi', 'deltaIeta'], axis=1, inplace=True)
 
@@ -287,6 +285,7 @@ if __name__ == "__main__" :
 
         # do the padding of the dataframe to have 81 rows for each jet        
         paddedEJT = padDataFrame(dfFlatEJT)
+        paddedEJT.drop_duplicates(['uniqueId', 'ieta', 'iphi'], keep='first', inplace=True)
         paddedEJT.reset_index(inplace=True)
 
         # append the DFs from the different files to one single big DF
@@ -304,15 +303,20 @@ if __name__ == "__main__" :
     print(len(dfTowers), 'rows')
 
     # save hdf5 files
-    storeT = pd.HDFStore(saveTo['towers'], mode='w')
+    storeT = pd.HDFStore(saveTo['towers']+'.hdf5', mode='w')
     storeT['towers'] = dfTowers
     storeT.close()
 
-    storeJ = pd.HDFStore(saveTo['jets'], mode='w')
+    storeJ = pd.HDFStore(saveTo['jets']+'.hdf5', mode='w')
     storeJ['jets'] = dfJets
     storeJ.close()
 
+    dfTowers.to_csv(saveTo['towers']+'.csv')
+    dfJets.to_csv(saveTo['jets']+'.csv')
+
 
     # make the produced files accessible to the other people otherwise we cannot work together
-    os.system('chmod 774 '+saveTo['towers'])
-    os.system('chmod 774 '+saveTo['jets'])
+    os.system('chmod 774 '+saveTo['towers']+'.hdf5')
+    os.system('chmod 774 '+saveTo['towers']+'.csv')
+    os.system('chmod 774 '+saveTo['jets']+'.hdf5')
+    os.system('chmod 774 '+saveTo['jets']+'.csv')
