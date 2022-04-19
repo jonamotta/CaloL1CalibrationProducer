@@ -200,10 +200,10 @@ if __name__ == "__main__" :
 
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
 
-    #model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
+    model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
 
-    #model1.save('ECAL_coeffs/model')
-    #couche.save('ECAL_coeffs/couche')
+    model1.save('ECAL_coeffs/model')
+    couche.save('ECAL_coeffs/couche')
 
     # loading the model again
     model1 = keras.models.load_model("ECAL_coeffs/model", compile=False)

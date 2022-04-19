@@ -175,54 +175,14 @@ def custom_loss(y_true, y_pred):
 model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss)
 
 if __name__ == "__main__" :
-
-    # define the two path where to read the hdf5 files from
-    indir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes_alternate'
-    readFrom = {
-        'towers'  : indir+'/test_towers.hdf5',
-        'jets'    : indir+'/test_jets.hdf5'
-    }
-
-    # open the dataframes with the training input
-    print('** INFO: reading hdf5 files for towers and jets')
-    storeT = pd.HDFStore(readFrom['towers'], mode='r')
-    df = storeT['towers']
-    storeT.close()
-
-    storeJ = pd.HDFStore(readFrom['jets'], mode='r')
-    dfjetPt = storeJ['jets']
-    storeJ.close()
-
-    ## DEBUG
-    df = df.head(10)
-    dfjetPt = dfjetPt.head(10)
-
-    # define some variables on top
-    print('** INFO: done reading, calculating some variables')
-    df["iesum"] = df["iem"] + df["ihad"]
-    df.set_index('uniqueId',inplace=True)
-    df_e = df[['ieta','iesum']]
-    dfjetPt.set_index('uniqueId', inplace=True)
     
-    # do the one hot encoding of ieta
-    print('** INFO: done calculating, performing one-hot encoding of ieta')
-    dfOneHotEncoded = pd.get_dummies(df_e, columns=['ieta'])
-    for i in range(35,42):
-        dfOneHotEncoded['ieta_'+str(i)] = 0
+    # read testing and training datasets
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0'
+    X_train = np.load(indir+'/ECALtrainingInput/X_train.npz')['arr_0']
+    X_test  = np.load(indir+'/ECALtrainingInput/X_test.npz')['arr_0']
+    Y_train = np.load(indir+'/ECALtrainingInput/Y_train.npz')['arr_0']
+    Y_test  = np.load(indir+'/ECALtrainingInput/Y_test.npz')['arr_0']
 
-    print('** INFO: done one-hot encoding, converting to array input')
-    # X = np.array([df_dummies.loc[i].to_numpy() for i in df.index.drop_duplicates(keep='first')])
-    #Y = np.array([dfjetPt.loc[i].array[0] for i in dfjetPt.index])                                <--------- HERE I SUPPOSE IT SHOULD HAVE BEEN array[1] OTHERWISE WE ARE TRAINING AGAINST EVT NUMBER AND NOT PT
-    X = np.array([list(dfOneHotEncoded.to_numpy())])
-    Y = dfjetPt['jetPt'].to_numpy()
-
-    print(len(X))
-    print(len(Y))
-
-    print('** INFO: done converting, splitting train and test')
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
-
-    print('** INFO: done splitting, training')
     model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
 
     model1.save('ECAL_coeffs/model')
