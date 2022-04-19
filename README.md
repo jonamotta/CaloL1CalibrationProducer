@@ -37,12 +37,11 @@ After this we need to merge the batches into one single file containing the inpu
 ```bash
 python batchMerger.py
 ```
-this will create the following four output files:
+this will create the following four output files that are to be used for the training of the NNs:
 * `X_train.npz`
 * `X_test.npz`
 * `Y_train.npz`
 * `Y_test.npz`
-that are to be used for the training of the NNs.
 
 When the four inputs files above are produced the model can be trained with:
 ```bash
