@@ -24,15 +24,28 @@ To produce the L1NTuples on Tier3, go in `L1NtupleLauncher` and run:
 python submitOnTier3.py
 ```
 
-After the production of the L1NTuples the production of the `.csv`/`.hdf5` files is done by going to `L1NtupleReader` and running:
+After the production of the L1NTuples the production of the input files to the NNs is done by going to `L1NtupleReader` and running:
 ```bash
-python basicReader.py
+python batchMaker.py --v {ECAL/HCAL}
 ```
-
-**STILL UNDER DEVELOPMENT**
-Whe the inputs are produced the model can be trained with:
+this will batch the L1NTuples in `.hdf5` files containing no more then 5000 events each. After this bacthing the Padding of the chunky donut needs to be performed with:
 ```bash
-python Model4.py
+python batchSubmitOnTier3.py --v {gamma1/gamma2/qcd}
+```
+this will run the padding of the chunky donut on the Tier3 so that it will fast. It will produce the same number of output files as the number of input ones.
+After this we need to merge the batches into one single file containing the input to the NNs, this is one with:
+```bash
+python batchMerger.py
+```
+this will create the following four output files that are to be used for the training of the NNs:
+* `X_train.npz`
+* `X_test.npz`
+* `Y_train.npz`
+* `Y_test.npz`
+
+When the four inputs files above are produced the model can be trained with:
+```bash
+python alternateModel4ECAL.py
 ```
 
 ## Pyhton version

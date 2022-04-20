@@ -165,7 +165,7 @@ def coeffs(model, bins):
     plt.title('CMS Simulation', fontsize = 40)
     #plt.show()
     print("before save")
-    plt.savefig('calib_coeffs.png')
+    plt.savefig('ECAL_coeffs/calib_coeffs.png')
     print("calib_coeffs.png figure saved")
     return C
 
@@ -177,11 +177,11 @@ model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom
 if __name__ == "__main__" :
     
     # read testing and training datasets
-    indir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0'
-    X_train = np.load(indir+'/ECALtrainingInput/X_train.npz')['arr_0']
-    X_test  = np.load(indir+'/ECALtrainingInput/X_test.npz')['arr_0']
-    Y_train = np.load(indir+'/ECALtrainingInput/Y_train.npz')['arr_0']
-    Y_test  = np.load(indir+'/ECALtrainingInput/Y_test.npz')['arr_0']
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/ECALtraining'
+    X_train = np.load(indir+'/X_train.npz')['arr_0']
+    X_test  = np.load(indir+'/X_test.npz')['arr_0']
+    Y_train = np.load(indir+'/Y_train.npz')['arr_0']
+    Y_test  = np.load(indir+'/Y_test.npz')['arr_0']
 
     model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
 
@@ -189,8 +189,8 @@ if __name__ == "__main__" :
     couche.save('ECAL_coeffs/couche')
 
     # loading the model again
-    model1 = keras.models.load_model("ECAL_coeffs/model", compile=False)
-    couche = keras.models.load_model("ECAL_coeffs/couche", compile=False)
+    model1 = keras.models.load_model(indir+"/ECAL_coeffs/model", compile=False)
+    couche = keras.models.load_model(indir+"/ECAL_coeffs/couche", compile=False)
 
     coeffs_full_ECAL = coeffs(couche,bins0)
     

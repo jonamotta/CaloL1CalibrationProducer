@@ -59,8 +59,8 @@ if __name__ == "__main__" :
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
 
     #save them
-    os.system('mkdir -p '+indir+'/ECALtrainingInput')
-    np.savez_compressed(indir+'/ECALtrainingInput/X_train.npz', X_train)
-    np.savez_compressed(indir+'/ECALtrainingInput/X_test.npz', X_test)
-    np.savez_compressed(indir+'/ECALtrainingInput/Y_train.npz', Y_train)
-    np.savez_compressed(indir+'/ECALtrainingInput/Y_test.npz', Y_test)
+    os.system('mkdir -p '+indir+'/ECALtraining')
+    np.savez_compressed(indir+'/ECALtraining/X_train.npz', X_train)
+    np.savez_compressed(indir+'/ECALtraining/X_test.npz', X_test)
+    np.savez_compressed(indir+'/ECALtraining/Y_train.npz', Y_train)
+    np.savez_compressed(indir+'/ECALtraining/Y_test.npz', Y_test)
