@@ -38,7 +38,7 @@ parser.add_option("--jetcut",   dest="jetcut",  default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
 (options, args) = parser.parse_args()
 
-basedir = '/data_CMS/cms/motta/CaloL1calibraton'
+basedir = '/data_CMS/cms/motta/CaloL1calibraton/'
 indir = basedir + '/2022_04_02_NtuplesV0'
 odir = basedir + '/2022_04_21_NtuplesV1'
 
@@ -77,7 +77,7 @@ for idx, tag in enumerate(tags):
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
-    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder+" >& "+outLogName+"--jetcut "+options.jetcut+" --etacut "+options.etacut
+    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder+" >& "+outLogName+" --jetcut "+options.jetcut+" --etacut "+options.etacut
     
     skimjob = open (outJobName, 'w')
     skimjob.write ('#!/bin/bash\n')
@@ -90,6 +90,8 @@ for idx, tag in enumerate(tags):
 
     os.system ('chmod u+rwx ' + outJobName)
     # command = ('/home/llr/cms/motta/t3submit -long \'' + outJobName +"\'")
-    command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
+    # command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
+    command = ('/home/llr/cms/davignon/t3submit -short \'' + outJobName +"\'")
     print(command)
     os.system (command)
+    break
