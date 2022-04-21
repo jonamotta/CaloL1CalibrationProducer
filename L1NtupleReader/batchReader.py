@@ -3,7 +3,6 @@ from TowerGeometry import *
 import pandas as pd
 import numpy as np
 import argparse
-import uproot3
 import glob
 import sys
 import csv
