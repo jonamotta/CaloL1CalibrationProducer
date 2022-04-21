@@ -77,7 +77,7 @@ for idx, tag in enumerate(tags):
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
-    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder+" >& "+outLogName+"--jetcut "+options.jetcut+" --etacut "+options.etacut
+    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder+" >& "+outLogName+" --jetcut "+options.jetcut+" --etacut "+options.etacut
     
     skimjob = open (outJobName, 'w')
     skimjob.write ('#!/bin/bash\n')
