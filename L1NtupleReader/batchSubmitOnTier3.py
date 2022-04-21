@@ -29,7 +29,7 @@ def splitInBlocks (l, n):
 #######################################################################
 
 ### To run:
-### python3 batchSubmitOnTier3.py --v gamma1 --jetcut 60 --etacut 24
+### python batchSubmitOnTier3.py --v gamma1 --jetcut 60 --etacut 24
 
 from optparse import OptionParser
 parser = OptionParser()
