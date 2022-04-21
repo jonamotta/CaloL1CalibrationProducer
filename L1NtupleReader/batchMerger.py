@@ -10,9 +10,22 @@ import sys
 import csv
 import os
 
+#######################################################################
+######################### SCRIPT BODY #################################
+#######################################################################
+
+### To run:
+### python3 batchMerger.py --v (ECAL or HCAL)
 
 if __name__ == "__main__" :
+
     # read the batched input tensors to the NN and merge them
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("--v",    dest="v",   help="Ntuple type ('ECAL' or 'HCAL')", default='ECAL')
+    (options, args) = parser.parse_args()
+    print(options)
+
     indir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0'
     taglist1 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_gamma0-200.txt')
     taglist2 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_gamma200-500.txt')
@@ -27,10 +40,12 @@ if __name__ == "__main__" :
         'jets'    : indir+'/hdf5dataframes_gamma{}_batches/paddedAndReadyToMerge/dataframes/jets'
     }
 
+    training_folder = indir + '/{}training'.format(options.v)     
+    os.system('mkdir -p ' + training_folder)
     # define the paths where to save the hdf5 files
     saveto = {
-        'X'  : indir+'/ECALtraining/dataframes/X.hdf5',
-        'Y'    : indir+'/ECALtraining/dataframes/Y.hdf5',
+        'X'  : training_folder+'/dataframes/X.hdf5',
+        'Y'  : training_folder+'/dataframes/Y.hdf5',
     }
 
     dfX = pd.DataFrame()
@@ -102,11 +117,10 @@ if __name__ == "__main__" :
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
 
     # save them
-    os.system('mkdir -p '+indir+'/ECALtraining/dataframes')
-    np.savez_compressed(indir+'/ECALtraining/X_train.npz', X_train)
-    np.savez_compressed(indir+'/ECALtraining/X_test.npz', X_test)
-    np.savez_compressed(indir+'/ECALtraining/Y_train.npz', Y_train)
-    np.savez_compressed(indir+'/ECALtraining/Y_test.npz', Y_test)
+    np.savez_compressed(training_folder+'/X_train.npz', X_train)
+    np.savez_compressed(training_folder+'/X_test.npz', X_test)
+    np.savez_compressed(training_folder+'/Y_train.npz', Y_train)
+    np.savez_compressed(training_folder+'/Y_test.npz', Y_test)
 
     # save hdf5 files with dataframe formatted datasets
     storeT = pd.HDFStore(saveto['X'], mode='w')

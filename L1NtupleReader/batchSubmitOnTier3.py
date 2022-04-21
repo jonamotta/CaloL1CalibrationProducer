@@ -24,11 +24,18 @@ def splitInBlocks (l, n):
 
     return blocks
 
-###########
+#######################################################################
+######################### SCRIPT BODY #################################
+#######################################################################
+
+### To run:
+### python3 batchSubmitOnTier3.py --v gamma1 --jetcut 60 --etacut 24
 
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--v", dest="v", default='gamma1')
+parser.add_option("--jetcut",   dest="jetcut",  default=False)
+parser.add_option("--etacut",   dest="etacut",  default=False)
 (options, args) = parser.parse_args()
 
 if options.v == 'gamma1':
@@ -66,7 +73,7 @@ for idx, tag in enumerate(tags):
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
-    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder+" >& "+outLogName
+    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder+" >& "+outLogName+"--jetcut "+options.jetcut+" --etacut "+options.etacut
     
     skimjob = open (outJobName, 'w')
     skimjob.write ('#!/bin/bash\n')

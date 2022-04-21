@@ -75,11 +75,11 @@ def padDataFrame( dfFlatEJT ):
     return padded
 
 
-def mainReader( dfET, dfEJ, saveToDFs, saveToTensors ):
+def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
     if len(dfET) == 0 or len(dfEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
-    
+
     # flatten out the dataframes so that ech entry of the dataframe is a number and not a vector
     dfFlatET = pd.DataFrame({
         'event': np.repeat(dfET[b'event'].values, dfET[b'ieta'].str.len()), # event IDs are copied to keep proper track of what is what
@@ -97,6 +97,28 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors ):
         'jetPt' : list(chain.from_iterable(dfEJ[b'jetPt']))
         })
     dfFlatEJ['jetId'] = dfFlatEJ.index # each jet gets an identifier based on a progressive value independent of event -> this allows further flexibility of ID on top of event
+
+    #########################################################################
+    ########################## Application of cuts ##########################
+
+    # Apply cut on jetPt, useful at the beginning to train on a good sample [jetPt < 60]
+    if jetPtcut != False:
+        dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] < float(jetPtcut)]
+
+    # For ECAL we consider just jets having a chunky donuts completely inside the barrel [jetEta < 24]
+    if iEtacut != False:
+        dfFlatEJ = dfFlatEJ[(dfFlatEJ['jetIeta'] < float(iEtacut))]
+
+    # Apply cut on saturated towers, with energy deposit [iem < 255] and [ihad < 255]
+    dfFlatET = dfFlatET[dfFlatET['iem'] < 255]
+    dfFlatET = dfFlatET[dfFlatET['ihad'] < 255]
+    # Apply cut for noisy towers: ieta=26 -> iem>=6, ieta=27 -> iem>=12, ieta=28 -> iem>=18
+    dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 26) & (dfFlatET['iem'] < 6)].index, inplace = True)
+    dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 27) & (dfFlatET['iem'] < 12)].index, inplace = True)
+    dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 28) & (dfFlatET['iem'] < 18)].index, inplace = True)
+
+    #########################################################################
+    #########################################################################
 
     # reset indeces to be the event number to be able to join the DFs later
     dfFlatET.set_index('event', inplace=True)
@@ -123,7 +145,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors ):
     FindIphi_vctd = np.vectorize(FindIphi)
     dfFlatEJ['jetIeta'] = FindIeta_vctd(dfFlatEJ['jetEta'])
     dfFlatEJ['jetIphi'] = FindIphi_vctd(dfFlatEJ['jetPhi'])
-    dfFlatEJ.drop(['jetEta', 'jetPhi'], axis=1, inplace=True) # drop columns not needed anymore
+    dfFlatEJ.drop(['jetPhi'], axis=1, inplace=True) # drop columns not needed anymore
 
     # join the jet and the towers datasets -> this creates all the possible combination of towers and jets for each event
     dfFlatEJT = dfFlatEJ.join(dfFlatET, on='event', how='left', rsuffix='_joined', sort=False)
@@ -168,7 +190,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors ):
 
     # append the DFs from the different files to one single big DF
     dfTowers = paddedEJT[['uniqueId','ieta','iem','ihad','iet']]
-    dfJets = paddedEJT[['uniqueId','jetPt']]
+    dfJets = paddedEJT[['uniqueId','jetPt','jetIeta']]
 
     ## DEBUG
     # print(dfFlatEJT)
@@ -208,7 +230,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors ):
     for i in range(35,42):
         dfEOneHotEncoded['ieta_'+str(i)] = 0
 
-    # convert to tensor input for the NN
+    # convert to tensor for plotting
     Y = np.array([dfJets.loc[i].values[0] for i in dfJets.index]).reshape(-1,1)
     X = np.array([dfEOneHotEncoded.loc[i].to_numpy() for i in dfE.index.drop_duplicates(keep='first')])
 
@@ -228,7 +250,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors ):
 #######################################################################
 
 ### To run:
-### python3 batchReader.py --fin <fileIN_path> --tag <batch_tag> --fout <fileOUT_path>
+### python3 batchReader.py --fin <fileIN_path> --tag <batch_tag> --fout <fileOUT_path> [--jetcut 60 --etacut 24]
 ### OR
 ### python batchSubmitOnTier3.py (after appropriate modifications)
 
@@ -236,9 +258,11 @@ if __name__ == "__main__" :
 
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("--fin", dest="fin", default='')
-    parser.add_option("--tag", dest="tag", default='')
-    parser.add_option("--fout", dest="fout", default='')
+    parser.add_option("--fin",      dest="fin",     default='')
+    parser.add_option("--tag",      dest="tag",     default='')
+    parser.add_option("--fout",     dest="fout",    default='')
+    parser.add_option("--jetcut",   dest="jetcut",  default=False)
+    parser.add_option("--etacut",   dest="etacut",  default=False)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.tag=='' or options.fout==''): print('** ERROR: wonrg input options --> EXITING!!'); exit()
@@ -271,6 +295,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.jetcut, options.iEtacut)
     print("DONE!")
 
