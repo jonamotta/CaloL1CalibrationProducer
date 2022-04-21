@@ -38,20 +38,24 @@ parser.add_option("--jetcut",   dest="jetcut",  default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
 (options, args) = parser.parse_args()
 
+basedir = '/data_CMS/cms/motta/CaloL1calibraton'
+indir = basedir + '/2022_04_02_NtuplesV0'
+odir = basedir + '/2022_04_21_NtuplesV1'
+
 if options.v == 'gamma1':
     taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_gamma0-200.txt')
-    filedir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes_gamma0-200_batches/'
-    folder = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes_gamma0-200_batches/paddedAndReadyToMerge'
+    filedir = indir + '/hdf5dataframes_gamma0-200_batches/'
+    folder = odir + '/hdf5dataframes_gamma0-200_batches/paddedAndReadyToMerge'
 
 elif options.v == 'gamma2':
     taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_gamma200-500.txt')
-    filedir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes_gamma200-500_batches/'
-    folder = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes_gamma200-500_batches/paddedAndReadyToMerge'
+    filedir = indir + '/hdf5dataframes_gamma200-500_batches/'
+    folder = odir + '/hdf5dataframes_gamma200-500_batches/paddedAndReadyToMerge'
 
 elif options.v == 'qcd':
     taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU.txt')
-    filedir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes_qcdNoPU_batches/'
-    folder = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes_qcdNoPU_batches/paddedAndReadyToMerge'
+    filedir = idir + '/hdf5dataframes_qcdNoPU_batches/'
+    folder = odir + '/hdf5dataframes_qcdNoPU_batches/paddedAndReadyToMerge'
 
 else:
     print(' ** WARNING: wrong request --> EXITING!')
