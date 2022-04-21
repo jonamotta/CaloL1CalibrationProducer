@@ -30,7 +30,9 @@ python batchMaker.py --v {ECAL/HCAL}
 ```
 this will batch the L1NTuples in `.hdf5` files containing no more then 5000 events each. After this bacthing the Padding of the chunky donut needs to be performed with:
 ```bash
-python batchSubmitOnTier3.py --v {gamma1/gamma2/qcd}
+module use /opt/exp_soft/vo.llr.in2p3.fr/modulefiles_el7
+module load python/3.7.0
+python batchSubmitOnTier3.py --v {gamma1/gamma2/qcd} {--jetcut 60} {--etacut 24}
 ```
 this will run the padding of the chunky donut on the Tier3 so that it will fast. It will produce the same number of output files as the number of input ones.
 After this we need to merge the batches into one single file containing the input to the NNs, this is one with:
