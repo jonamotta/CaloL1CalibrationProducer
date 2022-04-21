@@ -16,8 +16,25 @@ if __name__ == "__main__" :
     indir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0'
     taglist1 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_gamma0-200.txt')
     taglist2 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_gamma200-500.txt')
-    X = np.array([[np.zeros(41) for i in range(81)]]) # dummy array filled with zeros
-    Y = np.array([[0]]) # dummy array filled with zeros
+    
+    # dummy arrays filled with zeros
+    X = np.array([[np.zeros(41) for i in range(81)]])
+    Y = np.array([[0]])
+
+    # define the two paths where to read the hdf5 files
+    readfrom = {
+        'towers'  : indir+'/hdf5dataframes_gamma{}_batches/paddedAndReadyToMerge/dataframes/towers',
+        'jets'    : indir+'/hdf5dataframes_gamma{}_batches/paddedAndReadyToMerge/dataframes/jets'
+    }
+
+    # define the paths where to save the hdf5 files
+    saveto = {
+        'X'  : indir+'/ECALtraining/dataframes/X.hdf5',
+        'Y'    : indir+'/ECALtraining/dataframes/Y.hdf5',
+    }
+
+    dfX = pd.DataFrame()
+    dfY = pd.DataFrame()
 
     # concatenate low energy photons
     for idx,tag in enumerate(taglist1):
@@ -26,6 +43,19 @@ if __name__ == "__main__" :
         try:
             X = np.concatenate([X,np.load(indir+'/hdf5dataframes_gamma0-200_batches/paddedAndReadyToMerge/tensors/towers'+tag+'.npz')['arr_0']])
             Y = np.concatenate([Y,np.load(indir+'/hdf5dataframes_gamma0-200_batches/paddedAndReadyToMerge/tensors/jets'+tag+'.npz')['arr_0']])
+
+            # read hdf5 files
+            readT = pd.HDFStore(readfrom['towers'].format('0-200')+tag+'.hdf5', mode='r')
+            dfET = readT['towers']
+            readT.close()
+
+            readJ = pd.HDFStore(readfrom['jets'].format('0-200')+tag+'.hdf5', mode='r')
+            dfEJ = readJ['jets']
+            readJ.close()
+
+            dfX.append(dfET)
+            dfY.append(dfEJ)
+
         except FileNotFoundError:
             print('** INFO: towers'+tag+' not found --> skipping')
             continue
@@ -42,6 +72,19 @@ if __name__ == "__main__" :
         try:
             X = np.concatenate([X,np.load(indir+'/hdf5dataframes_gamma200-500_batches/paddedAndReadyToMerge/tensors/towers'+tag+'.npz')['arr_0']])
             Y = np.concatenate([Y,np.load(indir+'/hdf5dataframes_gamma200-500_batches/paddedAndReadyToMerge/tensors/jets'+tag+'.npz')['arr_0']])
+        
+            # read hdf5 files
+            readT = pd.HDFStore(readfrom['towers'].format('200-500')+tag+'.hdf5', mode='r')
+            dfET = readT['towers']
+            readT.close()
+
+            readJ = pd.HDFStore(readfrom['jets'].format('200-500')+tag+'.hdf5', mode='r')
+            dfEJ = readJ['jets']
+            readJ.close()
+
+            dfX.append(dfET)
+            dfY.append(dfEJ)
+
         except FileNotFoundError:
             print('** INFO: towers'+tag+' not found --> skipping')
             continue
@@ -58,9 +101,18 @@ if __name__ == "__main__" :
     # split train and testing datasets
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
 
-    #save them
-    os.system('mkdir -p '+indir+'/ECALtraining')
+    # save them
+    os.system('mkdir -p '+indir+'/ECALtraining/dataframes')
     np.savez_compressed(indir+'/ECALtraining/X_train.npz', X_train)
     np.savez_compressed(indir+'/ECALtraining/X_test.npz', X_test)
     np.savez_compressed(indir+'/ECALtraining/Y_train.npz', Y_train)
     np.savez_compressed(indir+'/ECALtraining/Y_test.npz', Y_test)
+
+    # save hdf5 files with dataframe formatted datasets
+    storeT = pd.HDFStore(saveto['X'], mode='w')
+    storeT['X'] = dfX
+    storeT.close()
+
+    storeJ = pd.HDFStore(saveto['Y'], mode='w')
+    storeJ['Y'] = dfY
+    storeJ.close()
