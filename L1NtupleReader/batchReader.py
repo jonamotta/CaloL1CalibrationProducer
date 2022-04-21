@@ -105,10 +105,6 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
     if jetPtcut != False:
         dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] < float(jetPtcut)]
 
-    # For ECAL we consider just jets having a chunky donuts completely inside the barrel [jetEta < 24]
-    if iEtacut != False:
-        dfFlatEJ = dfFlatEJ[(dfFlatEJ['jetIeta'] < float(iEtacut))]
-
     # Apply cut on saturated towers, with energy deposit [iem < 255] and [ihad < 255]
     dfFlatET = dfFlatET[dfFlatET['iem'] < 255]
     dfFlatET = dfFlatET[dfFlatET['ihad'] < 255]
@@ -146,6 +142,16 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
     dfFlatEJ['jetIeta'] = FindIeta_vctd(dfFlatEJ['jetEta'])
     dfFlatEJ['jetIphi'] = FindIphi_vctd(dfFlatEJ['jetPhi'])
     dfFlatEJ.drop(['jetPhi'], axis=1, inplace=True) # drop columns not needed anymore
+
+    #########################################################################
+    ########################## Application of cuts ##########################
+
+    # For ECAL we consider just jets having a chunky donuts completely inside the barrel [jetEta < 24]
+    if iEtacut != False:
+        dfFlatEJ = dfFlatEJ[(dfFlatEJ['jetIeta'] < float(iEtacut))]
+
+    #########################################################################
+    #########################################################################
 
     # join the jet and the towers datasets -> this creates all the possible combination of towers and jets for each event
     dfFlatEJT = dfFlatEJ.join(dfFlatET, on='event', how='left', rsuffix='_joined', sort=False)
@@ -295,6 +301,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.jetcut, options.iEtacut)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.jetcut, options.etacut)
     print("DONE!")
 

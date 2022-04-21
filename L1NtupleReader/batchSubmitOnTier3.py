@@ -1,6 +1,6 @@
 import os
 import json
-from subprocess import Popen, PIPE
+# from subprocess import Popen, PIPE
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -90,6 +90,6 @@ for idx, tag in enumerate(tags):
 
     os.system ('chmod u+rwx ' + outJobName)
     # command = ('/home/llr/cms/motta/t3submit -long \'' + outJobName +"\'")
-    command = ('/home/llr/cms/motta/t3submit -short \'' + outJobName +"\'")
+    command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
     os.system (command)
