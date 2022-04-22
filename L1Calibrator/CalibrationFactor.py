@@ -38,7 +38,7 @@ def ExtractSF (model, bins):
     return SF_matrix
 
 ### To run:
-### python3 CalibrationFactor.py --model data_ECAL/Model_ECAL
+### python3 CalibrationFactor.py --model data_ECAL/Model_ECAL 
 
 if __name__ == "__main__" :
 
@@ -55,7 +55,7 @@ if __name__ == "__main__" :
     if options.model:
         modeldir = options.model
     else:
-        modeldir = os.getcwd() + '/data_ECAL/Model_ECAL'
+        modeldir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining/model_ECAL'
     print('\nTrained model = {}\n'.format(modeldir))
 
     model1 = keras.models.load_model(modeldir + '/model', compile=False)

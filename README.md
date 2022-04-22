@@ -37,7 +37,7 @@ python batchSubmitOnTier3.py --v {gamma1/gamma2/qcd} {--jetcut 60} {--etacut 24}
 this will run the padding of the chunky donut on the Tier3 so that it will fast. It will produce the same number of output files as the number of input ones.
 After this we need to merge the batches into one single file containing the input to the NNs, this is one with:
 ```bash
-python batchMerger.py
+python3 batchMerger.py {--dir /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1}
 ```
 this will create the following four output files that are to be used for the training of the NNs:
 * `X_train.npz`
@@ -47,8 +47,19 @@ this will create the following four output files that are to be used for the tra
 
 When the four inputs files above are produced the model can be trained with:
 ```bash
-python alternateModel4ECAL.py
+python3 alternateModel4ECAL.py --in /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining --out /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining/model_ECAL --v ECAL
 ```
+
+To produce the Scale Factors matrix:
+```bash
+python3 CalibrationFactor.py --model /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining/model_ECAL --out data_ECAL
+```
+
+To make plots:
+```bash
+python3 ModelPlots.py --model /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining/model_ECAL --out data_ECAL/plots --SF data_ECAL/ScaleFactors_ECAL.csv
+```
+
 
 ## Pyhton version
 All of this should work with the Python version already given by the CMSSW environment.

@@ -159,7 +159,7 @@ def PlotResolution_bins(df_uncalib,df_calib,odir,v_sample,energy_bins):
         plt.xlabel('Resolution')
         plt.ylabel('A.U.')
         plt.legend(loc='upper left', fontsize=15)
-        plt.title(f'Jets of {bin_label} Gev')
+        plt.title(f'Jets of {bin_label} IET')
         savefile = odir + '/Resolution_{}_{}.png'.format(v_sample, bin_label)
         plt.savefig(savefile)
         print(savefile)
@@ -172,10 +172,11 @@ def PlotResolution_bins(df_uncalib,df_calib,odir,v_sample,energy_bins):
     resolution = resolution.sort_values('energy', axis=0)
 
     fig = plt.figure(figsize = [18,10])
-    plt.bar(resolution['bins'], resolution['uncalib_std'], width=0.4, alpha=0.7, align='center', label='Uncalib', color=c_uncalib)
-    plt.bar(resolution['bins'], resolution['calib_std'], width=0.4, alpha=0.7, align='edge', label='Calib', color=c_calib)
-    plt.xlabel('Energy bins')
-    plt.ylabel('Standard Deviation')
+    plt.bar(resolution['bins'], resolution['uncalib_std']/resolution['uncalib_mean'], width=0.4, alpha=0.7, align='center', label='Uncalib', color=c_uncalib)
+    plt.bar(resolution['bins'], resolution['calib_std']/resolution['calib_mean'], width=0.4, alpha=0.7, align='edge', label='Calib', color=c_calib)
+    plt.xlabel('Energy bins [IET]')
+    plt.ylabel('Standard Deviation / Mean')
+    plt.title(f'Jets resolution')
     plt.legend(loc='upper left')
     savefile = odir + '/Resolution_std_{}.png'.format(v_sample)
     plt.savefig(savefile)
@@ -187,9 +188,9 @@ def PlotGenJetPtSpectrum(df_uncalib,df_calib,odir,v_sample):
     
     plt.figure(figsize=(12,8))
     text_1 = r'Uncalib: $\mu = {:.1f}, \sigma = {:.1f}$'.format(df_uncalib['jetPt'].mean(), df_uncalib['jetPt'].std())
-    plt.hist(df_uncalib['jetPt'], bins=100, label=text_1, histtype='step', density=True, stacked=True, linewidth=2)
+    plt.hist(df_uncalib['jetPt'], bins=100, label=text_1, histtype='step', density=True, stacked=True, linewidth=2, color=c_uncalib)
     text_2 = r'Calib: $\mu = {:.1f}, \sigma = {:.1f}$'.format(df_calib['jetPt'].mean(), df_calib['jetPt'].std())
-    plt.hist(df_calib['jetPt'], bins=100, label=text_2, histtype='step', density=True, stacked=True, linewidth=2)
+    plt.hist(df_calib['jetPt'], bins=100, label=text_2, histtype='step', density=True, stacked=True, linewidth=2, color=c_calib)
     plt.xlabel('Jet Pt [GeV]')
     plt.ylabel('A.U.')
     plt.legend(loc='upper right',fontsize=12)
@@ -200,7 +201,7 @@ def PlotGenJetPtSpectrum(df_uncalib,df_calib,odir,v_sample):
 
 
 ### To run:
-### python3 ModelPlots.py --model /data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/ECALtraining/ECAL_coeffs --out data_ECAL_Jona/plots --SF data_ECAL_Jona/ScaleFactors_ECAL.csv
+### python3 ModelPlots.py --model /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining/model_ECAL --out data_ECAL/plots --SF data_ECAL/ScaleFactors_ECAL.csv
 
 if __name__ == "__main__" :
 
@@ -246,7 +247,7 @@ if __name__ == "__main__" :
     # Build the two pandas for the training (uncalibrated) and testing (calibrated)
 
     print('\nLoad data')
-    indir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/ECALtraining'
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining'
     X_train = np.load(indir+'/X_train.npz')['arr_0']
     X_test = np.load(indir+'/X_test.npz')['arr_0']
     Y_train = np.load(indir+'/Y_train.npz')['arr_0']
@@ -266,7 +267,7 @@ if __name__ == "__main__" :
     if options.model:
         modeldir = options.model
     else:
-        modeldir = os.getcwd() + '/data_ECAL/Model_ECAL'
+        modeldir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining/model_ECAL'
 
     model1 = keras.models.load_model(modeldir + '/model', compile=False)
     couche = keras.models.load_model(modeldir + '/couche', compile=False)
@@ -276,8 +277,8 @@ if __name__ == "__main__" :
 
     print('\nBuild pandas')
     # Produce the pandas dataframe
-    df_uncalib = pd.DataFrame(data = {'jetPt': Y_train.ravel(), 'jetEnergy': X_train_energy_sum})
-    df_calib   = pd.DataFrame(data = {'jetPt': Y_test.ravel(), 'jetEnergy': X_test_calib_sum.ravel()})
+    df_uncalib = pd.DataFrame(data = {'jetPt': Y_train[:,0].ravel(), 'jetEta': Y_train[:,1].ravel(), 'jetEnergy': X_train_energy_sum})
+    df_calib   = pd.DataFrame(data = {'jetPt': Y_test[:,0].ravel(),  'jetEta': Y_test[:,1].ravel(),  'jetEnergy': X_test_calib_sum.ravel()})
 
     # Compute resolution
     print('\nCompute resolution')

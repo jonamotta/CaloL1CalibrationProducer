@@ -53,14 +53,17 @@ def padDataFrame( dfFlatEJT ):
             jetIeta = dfFlatEJT['jetIeta'][uniqueIdx].unique()[0]
             jetIphi = dfFlatEJT['jetIphi'][uniqueIdx].unique()[0]
             jetPt = dfFlatEJT['jetPt'][uniqueIdx].unique()[0]
+            jetEta = dfFlatEJT['jetEta'][uniqueIdx].unique()[0]
         except TypeError:
             jetIeta = dfFlatEJT['jetIeta'][uniqueIdx]
             jetIphi = dfFlatEJT['jetIphi'][uniqueIdx]
             jetPt = dfFlatEJT['jetPt'][uniqueIdx]
+            jetEta = dfFlatEJT['jetEta'][uniqueIdx]
 
         padder = pd.DataFrame(columns=dfFlatEJT.columns, index=range(0,81))
         padder['uniqueId'] = uniqueIdx
         padder['jetPt'] = jetPt
+        padder['jetEta'] = jetEta
         padder['jetIeta'] = jetIeta
         padder['jetIphi'] = jetIphi
         padder['iem'] = 0
@@ -145,7 +148,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
     #########################################################################
     ########################## Application of cuts ##########################
 
-    # For ECAL we consider just jets having a chunky donuts completely inside the barrel [jetEta < 24]
+    # For ECAL we consider just jets having a chunky donuts completely inside the barrel [jetIEta < 24]
     if iEtacut != False:
         dfFlatEJ = dfFlatEJ[(dfFlatEJ['jetIeta'] < float(iEtacut))]
 
@@ -195,7 +198,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
 
     # append the DFs from the different files to one single big DF
     dfTowers = paddedEJT[['uniqueId','ieta','iem','ihad','iet']]
-    dfJets = paddedEJT[['uniqueId','jetPt','jetIeta']]
+    dfJets = paddedEJT[['uniqueId','jetPt','jetEta']]
 
     ## DEBUG
     # print(dfFlatEJT)
@@ -236,7 +239,9 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
         dfEOneHotEncoded['ieta_'+str(i)] = 0
 
     # convert to tensor for plotting
-    Y = np.array([dfJets.loc[i].values[0] for i in dfJets.index]).reshape(-1,1)
+    # Y = np.array([dfJets.loc[i].values[0] for i in dfJets.index]).reshape(-1,1)
+    # To keep both the information on jetPt and jetEta
+    Y = np.array([dfJets.loc[i].values for i in dfJets.index])
     X = np.array([dfEOneHotEncoded.loc[i].to_numpy() for i in dfE.index.drop_duplicates(keep='first')])
 
     # save .npz files with tensor formatted datasets
@@ -246,9 +251,6 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
     # make the produced files accessible to the other people otherwise we cannot work together
     os.system('chmod 774 '+saveToTensors['towers']+'.npz')
     os.system('chmod 774 '+saveToTensors['jets']+'.npz')
-
-
-
 
 #######################################################################
 ######################### SCRIPT BODY #################################

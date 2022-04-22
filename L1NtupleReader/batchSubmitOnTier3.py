@@ -40,21 +40,34 @@ parser.add_option("--etacut",   dest="etacut",  default=False)
 
 basedir = '/data_CMS/cms/motta/CaloL1calibraton'
 indir = basedir + '/2022_04_02_NtuplesV0'
-odir = basedir + '/2022_04_21_NtuplesV1'
+# odir = basedir + '/2022_04_21_NtuplesV0_jetcut'
+# odir = basedir + '/2022_04_21_NtuplesV0_etacut'
+# odir = basedir + '/2022_04_21_NtuplesV0_saturation'
+# odir = basedir + '/2022_04_21_NtuplesV0_noise'
+# odir = basedir + '/2022_04_21_NtuplesV1'
+odir = basedir + '/2022_04_21_NtuplesV2'
+
+os.system('mkdir -p ' + odir)
 
 if options.v == 'gamma1':
     taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_gamma0-200.txt')
     filedir = indir + '/hdf5dataframes_gamma0-200_batches/'
+    os.system('mkdir -p ' + odir + '/hdf5dataframes_gamma0-200_batches')
+    os.system('mkdir -p ' + odir + '/hdf5dataframes_gamma0-200_batches/paddedAndReadyToMerge')
     folder = odir + '/hdf5dataframes_gamma0-200_batches/paddedAndReadyToMerge'
 
 elif options.v == 'gamma2':
     taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_gamma200-500.txt')
     filedir = indir + '/hdf5dataframes_gamma200-500_batches/'
+    os.system('mkdir -p ' + odir + '/hdf5dataframes_gamma200-500_batches')
+    os.system('mkdir -p ' + odir + '/hdf5dataframes_gamma200-500_batches/paddedAndReadyToMerge')
     folder = odir + '/hdf5dataframes_gamma200-500_batches/paddedAndReadyToMerge'
 
 elif options.v == 'qcd':
     taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU.txt')
-    filedir = idir + '/hdf5dataframes_qcdNoPU_batches/'
+    filedir = indir + '/hdf5dataframes_qcdNoPU_batches/'
+    os.system('mkdir -p ' + odir + '/hdf5dataframes_qcdNoPU_batches')
+    os.system('mkdir -p ' + odir + '/hdf5dataframes_qcdNoPU_batches/paddedAndReadyToMerge')
     folder = odir + '/hdf5dataframes_qcdNoPU_batches/paddedAndReadyToMerge'
 
 else:
@@ -77,8 +90,12 @@ for idx, tag in enumerate(tags):
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
-    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder+" >& "+outLogName+" --jetcut "+options.jetcut+" --etacut "+options.etacut
-    
+    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder+" >& "+outLogName
+    if options.jetcut != False:
+        cmsRun = cmsRun + " --jetcut "+options.jetcut
+    if options.etacut != False:
+        cmsRun = cmsRun + " --etacut "+options.etacut
+
     skimjob = open (outJobName, 'w')
     skimjob.write ('#!/bin/bash\n')
     skimjob.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
