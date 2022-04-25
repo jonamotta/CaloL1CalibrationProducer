@@ -1,15 +1,16 @@
 #librairies utiles
 import numpy as np
-from math import *
-from itertools import product
 import copy
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+from math import *
+from itertools import product
 
+import sklearn
 import tensorflow as tf
 from tensorflow import keras
-import sklearn
+
 # Regression import
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
@@ -21,6 +22,10 @@ from tensorflow.keras.constraints import max_norm
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 
+##############################################################################
+############################## Model definition ##############################
+##############################################################################
+
 inputs = keras.Input(shape = (81,41), name = 'chunky_donut')
 
 enc = OneHotEncoder()
@@ -30,10 +35,9 @@ enc.fit(values)
 #OH = keras.layers.Lambda(lambda x : enc.transform(x).toarray(), name='one_hot_encoder')
 
 #inputs = OH(inputs)
-layer1 = Dense(164,input_dim=41, activation = 'softplus', name = 'NN1', kernel_initializer='normal',bias_initializer='zeros', bias_constraint = max_norm(0.))
-cache = Dense(512, name = 'cache', activation = 'softplus', kernel_initializer='normal',bias_initializer='zeros', bias_constraint = max_norm(0.))
-layer2 = Dense(1, name = 'NN2',activation = 'softplus',kernel_initializer='normal',bias_initializer='zeros', bias_constraint = max_norm(0.))
-
+layer1 = Dense(164, name = 'NN1',   input_dim=41,   activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
+cache =  Dense(512, name = 'cache',                 activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
+layer2 = Dense(1,   name = 'NN2',                   activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
 #layer1 = Dense(128, input_dim=2, activation='softplus', name = 'NN1', kernel_initializer='normal',bias_initializer='zeros')
 #layer2 = Dense(1, activation='softplus', name = 'NN2',kernel_initializer='normal',bias_initializer='zeros')
 
@@ -129,46 +133,19 @@ separation_l.append(couche(keras.layers.Lambda(lambda x : x[:,80,:],name=f"tour_
 
 outputs = keras.layers.Add()(separation_l)
 model1 = keras.Model(inputs, outputs, name = 'CMS')
-#model1.summary()
-#keras.utils.plot_model(model1, "model1.png")
-
-# def coeffs(model, bins):
-#     n = len(bins) - 1
-#     ietas = [i for i in range(1,29)]
-#     C = np.zeros((28,n))
-#     for j in range(n):
-#         print("processing bin = ",j)
-#         lower, upper = bins[j], bins[j+1]
-#         ies = [ie for ie in range(lower,upper)]
-#         for ieta in ietas:
-#             print("processing ieta = ",ieta)
-#             entree = np.array([[ie]+[0 if i!=ieta else 1 for i in range(1,41)] for ie in range(lower,upper)])
-#             predictions = model.predict(entree).ravel()
-#             for i,ie in enumerate(ies):
-#                 if ie==0:
-#                     predictions[i]=0
-#                 else:
-#                     predictions[i]=predictions[i]/ie*2
-#             C[(ieta - 1),j] = np.mean(predictions)
-#     colors = [(0.1 + 0.9*x//n, 0.5*(1-x//n), 0.3-0.1*x//n) for x in range(n)]
-#     plt.figure(figsize=(10,6))
-#     for i in range(n):
-#         plt.plot(ietas, C[:,i], label = f"{bins[i]} $\leq E_T <$ {bins[i+1]}", marker = 'v', linestyle='dashed')
-#     plt.xlabel('Trigger tower ring #', fontsize=20)
-#     plt.ylabel('ECAL and HCAL calibration constant', fontsize=20)
-#     plt.legend(fontsize = 10, ncol=2, loc = 'upper center',bbox_to_anchor=(0.25,1))
-#     plt.grid(linestyle='dotted')
-#     plt.title('CMS Simulation', fontsize = 40)
-#     #plt.show()
-#     print("before save")
-#     plt.savefig('ECAL_coeffs/calib_coeffs.png')
-#     print("calib_coeffs.png figure saved")
-#     return C
 
 def custom_loss(y_true, y_pred):
     return tf.nn.l2_loss((y_true - y_pred)/(y_true+0.1))
 
 model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss)
+
+
+#######################################################################
+######################### SCRIPT BODY #################################
+#######################################################################
+
+### To run:
+### python3 alternateModel4ECAL.py --in /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining --v ECAL
 
 if __name__ == "__main__" :
     
@@ -182,46 +159,22 @@ if __name__ == "__main__" :
 
     if options.indir:
         indir = options.indir
-    else:
-        indir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining'
 
     if options.outdir:
         odir = options.outdir
     else:
-        odir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining/model_' + options.v
+        odir = indir + '/model_' + options.v
     os.system('mkdir -p '+ odir)
 
     # read testing and training datasets
     X_train = np.load(indir+'/X_train.npz')['arr_0']
     Y_train = np.load(indir+'/Y_train.npz')['arr_0'][:,0]
-    # Need to remove the second entry in the Y vectors with [:,0]
+    # Need to remove the second entry in the Y vectors with [:,0] (eta information)
 
     model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
 
     model1.save(odir + '/model')
     couche.save(odir + '/couche')
 
-    print('Trained model saved to folder: {}'.format(odir))
+    print('\nTrained model saved to folder: {}'.format(odir))
 
-    # # loading the model again
-    # model1 = keras.models.load_model(indir+"/ECAL_coeffs/model", compile=False)
-    # couche = keras.models.load_model(indir+"/ECAL_coeffs/couche", compile=False)
-
-    # coeffs_full_ECAL = coeffs(couche,bins0)
-    
-    # bins0 = [i for i in range(0,510)]
-    # bins0 = [0, 5, 10, 50, 100, 510]
-    # #bins0 = [i for i in range(0,510)]
-
-    # predictions = model1.predict(X_test)
-    # predictions = predictions.ravel()
-
-    # resolution_calibrated = predictions/Y_test
-    #C_resolution = pd.DataFrame(np.array([predictions.T, resolution_calibrated]).T,columns=("jet_fit","resolution"))
-    #C_resolution.to_csv("data/resol_ECAL.csv")
-    
-    #C_resolution['classes'] = pd.cut(C_resolution['jet_fit'], bins=[0,5, 20, 30, 40, 60, 100, 500],labels = ["0-5","5-20","20-30","30-40","40-60","60-100","100-500"])
-    #C_resolution["resolution"].hist(by=C_resolution["classes"], bins='auto')
-    #plt.savefig('resolution_histo.png')
-
-    #C_resolution["resolution"].groupby(C_resolution["classes"]).describe()
