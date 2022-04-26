@@ -139,6 +139,19 @@ def custom_loss(y_true, y_pred):
 
 model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss)
 
+def convert_samples(X_train, Y_train):
+
+    # convert samples for training
+    print('\nConvert samples to X_train and Y_train')
+    # Need to train on iesum = iem+ihad
+    X_train = np.delete(X_train, 2, axis=2)   # delete iem solumn
+    X_train = np.delete(X_train, 1, axis=2)   # delete ihad column
+    # X_train = X_train[:, :, 2:]
+    
+    # Need to remove the second entry in the Y vectors with [:,0] (eta information)
+    Y_train = Y_train[:,0]
+    return X_train, Y_train
+
 
 #######################################################################
 ######################### SCRIPT BODY #################################
@@ -167,9 +180,14 @@ if __name__ == "__main__" :
     os.system('mkdir -p '+ odir)
 
     # read testing and training datasets
-    X_train = np.load(indir+'/X_train.npz')['arr_0']
-    Y_train = np.load(indir+'/Y_train.npz')['arr_0'][:,0]
-    # Need to remove the second entry in the Y vectors with [:,0] (eta information)
+    # Inside X_vec: matrix n_ev x 81 x 43 ([81 for the chucky donut towers][43 for iem, ihad, iesum, ieta])
+    # Inside Y_vec: matrx n_ev x 2 (jetPt, jetEta)
+    X_vec = np.load(indir+'/X_train.npz')['arr_0']
+    Y_vec = np.load(indir+'/Y_train.npz')['arr_0']
+
+    # Inside X_train: matrix n_ev x 81 x 41 ([81 for the chucky donut towers][41 for iesum, ieta])
+    # Inside Y_train: vector n_ev (jetPt)
+    X_train, Y_train = convert_samples(X_vec, Y_vec)
 
     model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
 

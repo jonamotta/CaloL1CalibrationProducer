@@ -34,7 +34,7 @@ def ExtractSF (model, bins):
                 # Reproduce an one-hot tower with the information required by the model, i.e. value of the tower energy and eta position
                 one_hot_tower = np.array([[i_energy] + [0 if i != i_eta else 1 for i in eta_towers]])
                 # Apply the model to the one-hot tower to get the expected converted energy, multiply by 2 to convert from GeV to towers energy units
-                predictions.append(model.predict(one_hot_tower).ravel()/i_energy*2)
+                predictions.append(model.predict(one_hot_tower).ravel()/i_energy*2) # [ET]
 
             # Compute the mean over all the energies for each bin
             SF_matrix[i,i_bin] = np.mean(predictions)
@@ -94,5 +94,6 @@ if __name__ == "__main__" :
     for i in range(len(bins_energy)-1):
         head_text = head_text + ',{}-{}'.format(bins_energy[i], bins_energy[i+1])
     np.savetxt(SFOutFile, ScaleFactors_index, delimiter=",", header=head_text, fmt=','.join(['%i'] + ['%1.22f']*(len(bins_energy)-1)))
+    # Units of scale factor is [ET] since the LUT will convert ET to ET, not GeV
 
     print('\nScale Factors saved to: {}'.format(SFOutFile))

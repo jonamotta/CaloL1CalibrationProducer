@@ -14,7 +14,7 @@ import os
 #######################################################################
 
 ### To run:
-### python3 batchMerger.py --dir /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV2 --v (ECAL or HCAL)
+### python3 batchMerger.py --dir /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV2 --v (ECAL or HCAL) (--jetcut 60)
 
 if __name__ == "__main__" :
 
@@ -44,7 +44,7 @@ if __name__ == "__main__" :
         dataframe_dir = [indir + '/hdf5dataframes_qcdNoPU_batches/paddedAndReadyToMerge/dataframes/']
     
     # dummy arrays filled with zeros
-    X = np.array([[np.zeros(41) for i in range(81)]])
+    X = np.array([[np.zeros(43) for i in range(81)]])
     Y = np.array([[0,0]])
 
     # define the two paths where to read the hdf5 files

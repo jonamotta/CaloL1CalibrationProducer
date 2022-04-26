@@ -29,11 +29,12 @@ def splitInBlocks (l, n):
 #######################################################################
 
 ### To run:
-### python batchSubmitOnTier3.py --v gamma1 --jetcut 60 --etacut 24
+### python batchSubmitOnTier3.py --v gamma1 --jetcut 60 --etacut 24 --odir 2022_04_25_NtuplesV3
 
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("--v", dest="v", default='gamma1')
+parser.add_option("--v",        dest="v",       default='gamma1')
+parser.add_option("--odir",     dest="odir",    default=None)
 parser.add_option("--jetcut",   dest="jetcut",  default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
 (options, args) = parser.parse_args()
@@ -45,7 +46,9 @@ indir = basedir + '/2022_04_02_NtuplesV0'
 # odir = basedir + '/2022_04_21_NtuplesV0_saturation'
 # odir = basedir + '/2022_04_21_NtuplesV0_noise'
 # odir = basedir + '/2022_04_21_NtuplesV1'
-odir = basedir + '/2022_04_21_NtuplesV2'
+# odir = basedir + '/2022_04_21_NtuplesV2'
+# odir = basedir + '/2022_04_25_NtuplesV3'
+odir = basedir + '/' + options.odir
 
 os.system('mkdir -p ' + odir)
 

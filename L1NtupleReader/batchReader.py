@@ -226,7 +226,9 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
     # define some variables on top
     dfTowers['ieta'] = abs(dfTowers['ieta'])
     dfTowers['iesum'] = dfTowers['iem'] + dfTowers['ihad']
-    dfE = dfTowers[['uniqueId', 'ieta','iesum']]
+    # dfE = dfTowers[['uniqueId', 'ieta','iesum']] # I would like to keep the iem and ihad information separate
+    dfE = dfTowers[['uniqueId', 'ieta', 'iem', 'ihad', 'iesum']]
+
 
     # set the uniqueId indexing
     dfE.set_index('uniqueId',inplace=True)
