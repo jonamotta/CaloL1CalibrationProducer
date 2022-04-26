@@ -1,0 +1,36 @@
+Ntuples:
+
+2022_04_02_NtuplesV0:
+First version, no cuts at all
+
+2022_04_21_NtuplesV0_etacut:
+Cut jets with chucky donut partially or completely outside barrel
+'python batchSubmitOnTier3.py --v gamma1 --etacut 24’
+
+2022_04_21_NtuplesV0_jetcut:
+Cut jets with pt > 60 GeV
+'python batchSubmitOnTier3.py --v gamma1 --jetcut 60’
+
+2022_04_21_NtuplesV0_noise:
+Apply noise cut for TT with eta=26,27,28
+L111-113 of batchReader.py
+
+2022_04_21_NtuplesV0_saturation:
+Apply saturation cut for energy deposit bigger than 255 ieta
+L107-113 of batchReader.py
+
+2022_04_21_NtuplesV1:
+Apply all cuts: etacut, jetcut, noise, saturation
+
+2022_04_21_NtuplesV2:
+Apply all cuts on training sample: etacut, jetcut, noise, saturation
+Not apply jetcut on testing sample
+
+2022_04_25_NtuplesV3:
+Apply all cuts: etacut, jetcut, noise, saturation
+Keep information for the plots
+
+2022_04_26_NtuplesV4:
+Apply all cuts: etacut, jetcut, noise, saturation
+Add a new cut on the ECAL energy fraction: E/(E+H) > 0.8
+
