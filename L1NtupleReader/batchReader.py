@@ -7,6 +7,7 @@ import glob
 import sys
 import csv
 import os
+import matplotlib.pyplot as plt
 
 
 def deltarSelect( df, dRcut ):
@@ -77,7 +78,7 @@ def padDataFrame( dfFlatEJT ):
     return padded
 
 
-def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
+def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut):
     if len(dfET) == 0 or len(dfEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
@@ -115,12 +116,12 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 27) & (dfFlatET['iem'] < 12)].index, inplace = True)
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 28) & (dfFlatET['iem'] < 18)].index, inplace = True)
 
-    #########################################################################
-    #########################################################################
-
     # reset indeces to be the event number to be able to join the DFs later
     dfFlatET.set_index('event', inplace=True)
     dfFlatEJ.set_index('event', inplace=True)
+
+    #########################################################################
+    #########################################################################
 
     ## DEBUG
     # print(dfET.shape[0])
@@ -158,6 +159,20 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
     # join the jet and the towers datasets -> this creates all the possible combination of towers and jets for each event
     dfFlatEJT = dfFlatEJ.join(dfFlatET, on='event', how='left', rsuffix='_joined', sort=False)
 
+    #########################################################################
+    ########################## Application of cuts ##########################
+
+    # [FIXME] I'm not applying this cut here cause otherwise I end up having events with small Ecal energy fraction, to understand why
+    # Apply cut on the ECAL energy deposit fraction [E/(E+H) > 0.8]
+    # if Ecalcut != False:
+    #     sel = dfFlatEJT.groupby('event')['iem'].sum()/(dfFlatEJT.groupby('event')['iem'].sum()+dfFlatEJT.groupby('event')['ihad'].sum()) > 0.8
+    #     print('\nE/(E+H) = {}\n'.format(len(dfFlatEJT[sel].index.unique())/len(dfFlatEJT.index.unique())))
+    #     # E/(E+H) = 0.9873843566021867 vs 0.9543859649122807 for tag _0_0
+    #     dfFlatEJT = dfFlatEJT[sel]
+        
+    #########################################################################
+    #########################################################################
+
     # select only towers that are inside the +-4 range from jetIphi
     # since on phi the range is wrapped around 72 we need to take into account the cases with |deltaIphi|>68
     dfFlatEJT['deltaIphi'] = dfFlatEJT['iphi'] - dfFlatEJT['jetIphi']
@@ -191,12 +206,17 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
     # drop what is no longer needed
     dfFlatEJT.drop(['event', 'jetId'], axis=1, inplace=True)
 
+    if Ecalcut != False:
+        sel = dfFlatEJT.groupby('uniqueIdx')['iem'].sum()/(dfFlatEJT.groupby('uniqueIdx')['iem'].sum()+dfFlatEJT.groupby('uniqueIdx')['ihad'].sum()) > 0.8
+        dfFlatEJT = dfFlatEJT[sel]
+
     # do the padding of the dataframe to have 81 rows for each jet        
-    paddedEJT = padDataFrame(dfFlatEJT)
+    paddedEJT = padDataFrame(dfFlatEJT)    
     paddedEJT.drop_duplicates(['uniqueId', 'ieta', 'iphi'], keep='first', inplace=True)
-    paddedEJT.reset_index(inplace=True)
+    paddedEJT.set_index('uniqueId',inplace=True)
 
     # append the DFs from the different files to one single big DF
+    paddedEJT.reset_index(inplace=True)
     dfTowers = paddedEJT[['uniqueId','ieta','iem','ihad','iet']]
     dfJets = paddedEJT[['uniqueId','jetPt','jetEta']]
 
@@ -229,7 +249,6 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
     # dfE = dfTowers[['uniqueId', 'ieta','iesum']] # I would like to keep the iem and ihad information separate
     dfE = dfTowers[['uniqueId', 'ieta', 'iem', 'ihad', 'iesum']]
 
-
     # set the uniqueId indexing
     dfE.set_index('uniqueId',inplace=True)
     dfJets.drop_duplicates('uniqueId', keep='first', inplace=True)
@@ -237,14 +256,17 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut):
 
     # do the one hot encoding of ieta
     dfEOneHotEncoded = pd.get_dummies(dfE, columns=['ieta'])
-    for i in range(35,42):
-        dfEOneHotEncoded['ieta_'+str(i)] = 0
+    for i in list(TowersEta.keys()):
+        if 'ieta_'+str(i) not in dfEOneHotEncoded:
+            dfEOneHotEncoded['ieta_'+str(i)] = 0
 
     # convert to tensor for plotting
     # Y = np.array([dfJets.loc[i].values[0] for i in dfJets.index]).reshape(-1,1)
     # To keep both the information on jetPt and jetEta
     Y = np.array([dfJets.loc[i].values for i in dfJets.index])
     X = np.array([dfEOneHotEncoded.loc[i].to_numpy() for i in dfE.index.drop_duplicates(keep='first')])
+    if len(X != 43): 
+        print('Different lenght!')
 
     # save .npz files with tensor formatted datasets
     np.savez_compressed(saveToTensors['towers']+'.npz', X)
@@ -272,6 +294,7 @@ if __name__ == "__main__" :
     parser.add_option("--fout",     dest="fout",    default='')
     parser.add_option("--jetcut",   dest="jetcut",  default=False)
     parser.add_option("--etacut",   dest="etacut",  default=False)
+    parser.add_option("--ecalcut",  dest="ecalcut", default=False)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.tag=='' or options.fout==''): print('** ERROR: wonrg input options --> EXITING!!'); exit()
@@ -304,6 +327,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.jetcut, options.etacut)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.jetcut, options.etacut, options.ecalcut)
     print("DONE!")
 

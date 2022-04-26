@@ -29,7 +29,7 @@ def splitInBlocks (l, n):
 #######################################################################
 
 ### To run:
-### python batchSubmitOnTier3.py --v gamma1 --jetcut 60 --etacut 24 --odir 2022_04_25_NtuplesV3
+### python batchSubmitOnTier3.py --v gamma1 --jetcut 60 --etacut 24 --ecalcut True --odir 2022_04_25_NtuplesV3
 
 from optparse import OptionParser
 parser = OptionParser()
@@ -37,6 +37,7 @@ parser.add_option("--v",        dest="v",       default='gamma1')
 parser.add_option("--odir",     dest="odir",    default=None)
 parser.add_option("--jetcut",   dest="jetcut",  default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
+parser.add_option("--ecalcut",  dest="ecalcut", default=False)
 (options, args) = parser.parse_args()
 
 basedir = '/data_CMS/cms/motta/CaloL1calibraton'
@@ -98,6 +99,8 @@ for idx, tag in enumerate(tags):
         cmsRun = cmsRun + " --jetcut "+options.jetcut
     if options.etacut != False:
         cmsRun = cmsRun + " --etacut "+options.etacut
+    if options.ecalcut != False:
+        cmsRun = cmsRun + " --ecalcut "+options.ecalcut
 
     skimjob = open (outJobName, 'w')
     skimjob.write ('#!/bin/bash\n')

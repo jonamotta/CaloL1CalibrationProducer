@@ -33,4 +33,9 @@ Keep information for the plots
 2022_04_26_NtuplesV4:
 Apply all cuts: etacut, jetcut, noise, saturation
 Add a new cut on the ECAL energy fraction: E/(E+H) > 0.8
+'python batchSubmitOnTier3.py --v gamma1 --jetcut 60 --etacut 24 --ecalcut True'
 
+2022_04_26_NtuplesV5:
+In the batchReader.py I changed the place where I apply the cut on the ECAL energy fraction.
+We need to understand what happens between L176-198.
+I think that the problem is that I was using a groupby on 'event', while I should have done it on 'uniqueIdx'

@@ -14,7 +14,7 @@ import os
 #######################################################################
 
 ### To run:
-### python3 batchMerger.py --dir /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV2 --v (ECAL or HCAL) (--jetcut 60)
+### python3 batchMerger.py --dir /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV2 --sample train --v (ECAL or HCAL) (--jetcut 60)
 
 if __name__ == "__main__" :
 
@@ -24,6 +24,7 @@ if __name__ == "__main__" :
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",      default='ECAL')
     parser.add_option("--jetcut",   dest="jetcut",  help="JetPt cut in GeV",                    default=None)
     parser.add_option("--dir",      dest="dir",     help="Folder with npz files to be merged",  default='')
+    parser.add_option("--sample",   dest="sample",  help="Type of sample (train or test",       default='')
     (options, args) = parser.parse_args()
     print(options)
 
@@ -61,9 +62,18 @@ if __name__ == "__main__" :
     dfX = pd.DataFrame()
     dfY = pd.DataFrame()
 
+    # [FIXME] this will need to be changed in the taglist, splitting training and testing tags
+    if options.sample == 'train':
+        tags_range = [0,500]
+    elif options.sample == 'test':
+        tags_range = [501,1000]
+
+    i_samples = 0
     for i_fold, taglist in enumerate(taglists):
         # concatenate low energy photons
         for idx,tag in enumerate(taglist):
+            if idx not in range(tags_range[0],tags_range[1]):
+                continue
             if not idx%10: print('reading batch', idx)
             tag = tag.strip()
             try:
@@ -85,7 +95,8 @@ if __name__ == "__main__" :
             except FileNotFoundError:
                 print('** INFO: towers'+tag+' not found --> skipping')
                 continue
-            if idx == 60: break # break at the 30th file to speed up the process
+            i_samples = i_samples + 1
+            if i_samples == 100: break # break at the 30th file to speed up the process
         
         ## DEBUG
         print(len(X))
@@ -99,6 +110,13 @@ if __name__ == "__main__" :
     print(len(X))
     print(len(Y))
 
+    # We will produce one sample fot training and one for testing from different ntuples
+    np.savez_compressed(training_folder+'/X_'+options.sample+'.npz', X)
+    np.savez_compressed(training_folder+'/Y_'+options.sample+'.npz', Y)
+
+    print("Saved data samples in folder: {}".format(training_folder))    
+
+    '''
     # split train and testing datasets
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
 
@@ -123,6 +141,7 @@ if __name__ == "__main__" :
     np.savez_compressed(training_folder+'/Y_test.npz', Y_test)
 
     print("Saved data samples in folder: {}".format(training_folder))
+    '''
 
     # save hdf5 files with dataframe formatted datasets
     storeT = pd.HDFStore(saveto['X'], mode='w')

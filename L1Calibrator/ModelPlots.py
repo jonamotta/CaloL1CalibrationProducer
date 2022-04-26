@@ -31,7 +31,7 @@ def PlotSF (SF_matrix, bins, odir, v_sample, stop):
         plt.plot(eta_towers[:stop], SF_matrix[:stop,i], 'o--', color=colors[i], label = f"{bins[i]} $\leq E_T <$ {bins[i+1]}")
     plt.xlabel('L1T Eta Tower')
     plt.ylabel('{} Calibration Constant'.format(v_sample))
-    plt.legend(fontsize = 10, ncol=1, loc = 'upper right')
+    # plt.legend(fontsize = 10, ncol=1, loc = 'upper right')
     plt.grid(linestyle='dotted')
     plt.title('Calibration vs Eta')
     savefile = odir + '/Calib_vs_Eta.png'
@@ -138,6 +138,7 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bins, bin_type):
     labels_text = []
     for i in range(len(bins)-1):
         labels_text.append('{}-{}'.format(bins[i], bins[i+1]))
+    print(bins, labels_text)
     df_uncalib[column_bin] = pd.cut(df_uncalib[name], bins = bins, labels = labels_text)
     df_calib[column_bin]   = pd.cut(df_calib[name], bins = bins, labels = labels_text)
     bins_labels = np.unique(df_calib[column_bin])
@@ -191,6 +192,91 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bins, bin_type):
 
     return resolution
 
+def PlotResolution_vs_Pt_Etabin(df, odir, v_sample, ieta_values, calib):
+
+    plt.figure(figsize=(15,10))
+    # ieta_values = df['jetIeta'].unique()
+    colors = plt.cm.viridis(np.linspace(0,1,len(ieta_values)))
+    for i_eta, eta in enumerate(ieta_values):
+        prof = df[df['jetIeta']==eta].groupby('jetPt')['res'].mean()
+        plt.plot(prof.index, prof.values, '.', color=colors[i_eta], label=f'$\eta$ tower = {eta_towers[i_eta]}')
+        plt.xlabel('Jet Pt')
+        plt.ylabel('Resolution')
+        if calib == 'uncalib':  title = 'Uncalibrated'
+        else:                   title = 'Calibrated'
+        plt.title(title)
+        plt.legend(fontsize = 15, ncol=1, loc = 'upper right')
+    savefile = odir + '/Res_vs_Pt_Etabin_{}_{}.png'.format(calib, v_sample)
+    plt.savefig(savefile)
+    print(savefile)
+    plt.close()
+
+def PlotResolution_vs_Eta_Ptbin(df, odir, v_sample, pt_values, calib):
+
+    plt.figure(figsize=(15,10))
+    colors = plt.cm.viridis(np.linspace(0,1,len(pt_values)))
+    for i_pt in range(len(pt_values)-1):
+        prof = df[(df['jetPt']>pt_values[i_pt]) & (df['jetPt']<pt_values[i_pt+1])].groupby('jetEta')['res'].mean()
+        plt.plot(prof.index, prof.values, '.', color=colors[i_pt], label=f'${pt_values[i_pt]}<p_t<${pt_values[i_pt+1]}')
+        plt.xlabel('Jet Eta')
+        plt.ylabel('Resolution')
+        if calib == 'uncalib':  title = 'Uncalibrated'
+        else:                   title = 'Calibrated'
+        plt.title(title)
+        plt.legend(fontsize = 15, ncol=1, loc = 'upper right')
+    savefile = odir + '/Res_vs_Eta_Ptbin_{}_{}.png'.format(calib, v_sample)
+    plt.savefig(savefile)
+    print(savefile)
+    plt.close()
+
+def PlotResolution_vs_Pt_Etavalue(df_uncalib, df_calib, odir, v_sample, eta_values):
+
+    plt.figure(figsize=(15,10))
+    prof_uncalib = df_uncalib[(df_uncalib['jetEta']>eta_values[0]) & (df_uncalib['jetEta']<eta_values[1])].groupby('jetPt')['res'].mean()
+    prof_calib = df_calib[(df_calib['jetEta']>eta_values[0]) & (df_calib['jetEta']<eta_values[1])].groupby('jetPt')['res'].mean()
+    plt.plot(prof_uncalib.index, prof_uncalib.values, '.', color=c_uncalib, alpha=0.7, label='Uncalib')
+    plt.plot(prof_calib.index, prof_calib.values, '.', color=c_calib, alpha=0.7, label='Calib')
+    plt.xlabel('Jet Pt')
+    plt.ylabel('Resolution')
+    plt.title('Eta {}-{}'.format(eta_values[0], eta_values[1]))
+    plt.legend(fontsize = 15, ncol=1, loc = 'upper right')
+    savefile = odir + '/Res_vs_Pt_Eta{}-{}_{}.png'.format(eta_values[0], eta_values[1], v_sample)
+    plt.savefig(savefile)
+    print(savefile)
+    plt.close()
+
+def PlotResolution_vs_Eta_Ptvalue(df_uncalib, df_calib, odir, v_sample, pt_values):
+
+    plt.figure(figsize=(15,10))
+    prof_uncalib = df_uncalib[(df_uncalib['jetPt']>pt_values[0]) & (df_uncalib['jetPt']<pt_values[1])].groupby('jetEta')['res'].mean()
+    prof_calib = df_calib[(df_calib['jetPt']>pt_values[0]) & (df_calib['jetPt']<pt_values[1])].groupby('jetEta')['res'].mean()
+    plt.plot(prof_uncalib.index, prof_uncalib.values, '.', color=c_uncalib, alpha=0.7, label='Uncalib')
+    plt.plot(prof_calib.index, prof_calib.values, '.', color=c_calib, alpha=0.7, label='Calib')
+    plt.xlabel('Jet Eta')
+    plt.ylabel('Resolution')
+    plt.title('Pt {}-{}'.format(pt_values[0], pt_values[1]))
+    plt.legend(fontsize = 15, ncol=1, loc = 'upper right')
+    savefile = odir + '/Res_vs_Eta_Pt{}-{}_{}.png'.format(pt_values[0], pt_values[1], v_sample)
+    plt.savefig(savefile)
+    print(savefile)
+    plt.close()
+
+def PlotECALratio(df_uncalib):
+
+    df_uncalib['iem_ratio'] = df_uncalib['jetIem']/df_uncalib['jetEnergy']
+    plt.figure(figsize=(14,8))
+    plt.plot(df_uncalib['jetPt'], df_uncalib['iem_ratio'], '.')
+    plt.xlabel('Jet Pt')
+    plt.ylabel('E/(E+H)')
+    plt.title('ECAL energy fraction')
+    savefile = odir + '/Ecal_fraction_{}.png'.format(options.v)
+    plt.savefig(savefile)
+    print(savefile)
+    plt.close()
+
+    print('E/(E+H) = {}'.format(len(df_uncalib[df_uncalib['iem_ratio'] > 0.8])/len(df_uncalib)))
+
+
 ### To run:
 ### python3 ModelPlots.py --in /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining --out data_ECAL_V1/plots --v ECAL
 
@@ -230,8 +316,8 @@ if __name__ == "__main__" :
     with open(SF_filename) as f:
         header = f.readline().rstrip()
     bin_edges = header.split(',')[1:]
-    bins_energy = [int(edge.split('-')[0]) for edge in bin_edges] + [int(bin_edges[-1].split('-')[1])]
-    # bins_energy = [1, 2, 4, 10, 20, 50, 80, 100, 120, 164, 244, 510]
+    # bins_energy = [int(edge.split('-')[0]) for edge in bin_edges] + [int(bin_edges[-1].split('-')[1])]
+    bins_energy = np.linspace(1,120,120) # [IET]
     print('\nEnergy bins = {}'.format(bins_energy))
 
     # Definition of eta bin edges
@@ -250,20 +336,22 @@ if __name__ == "__main__" :
     ################## Resolution plots ###################
     #######################################################
 
+    bins_energy = [0.5] + [ x for x in range(1,61) if x%4==0] # [GeV]
+
     # Build the two pandas for the training (uncalibrated) and testing (calibrated)
     # X samples contain : iesum = iem + ihad, eta tower
     # Y samples contain : jetPt, jetEta
     print('\nLoad data')
     indir = options.indir
-    X_train = np.load(indir+'/X_train.npz')['arr_0']
+    # X_train = np.load(indir+'/X_train.npz')['arr_0']
     X_test = np.load(indir+'/X_test.npz')['arr_0']
-    Y_train = np.load(indir+'/Y_train.npz')['arr_0']
+    # Y_train = np.load(indir+'/Y_train.npz')['arr_0']
     Y_test = np.load(indir+'/Y_test.npz')['arr_0']
 
     # Define the uncalibrated jet energy (sum of the energies in each tower of the chuncky donut)
-    X_train_iem = np.sum(X_train,axis = 1)[:,0:1].ravel() # [ET]
-    X_train_ihad = np.sum(X_train,axis = 1)[:,1:2].ravel() # [ET]
-    X_train_iesum = X_train_iem + X_train_ihad # [ET]
+    X_test_iem = np.sum(X_test,axis = 1)[:,0:1].ravel() # [ET]
+    X_test_ihad = np.sum(X_test,axis = 1)[:,1:2].ravel() # [ET]
+    X_test_iesum = np.sum(X_test,axis = 1)[:,2:3].ravel() # [ET]
 
     # Define the calibrated jet energy (applying the model to the test samples)
     X_test_model, Y_test_model = convert_samples(X_test, Y_test)
@@ -271,8 +359,8 @@ if __name__ == "__main__" :
 
     print('\nBuild pandas')
     # Produce the pandas dataframes with jetPt, jetEta and jetEnergy (sum of the deposited energy in all the towers)
-    df_uncalib = pd.DataFrame(data = {'jetPt': Y_train[:,0].ravel(), 'jetEta': np.abs(Y_train[:,1].ravel()), 'jetIem': X_train_iem, 'jetIhad': X_train_ihad, 'jetEnergy': X_train_iesum})
-    df_calib   = pd.DataFrame(data = {'jetPt': Y_test[:,0].ravel(),  'jetEta': np.abs(Y_test[:,1].ravel()),  'jetEnergy': X_test_calib_sum.ravel()})
+    df_uncalib = pd.DataFrame(data = {'jetPt': Y_test[:,0].ravel(), 'jetEta': np.abs(Y_test[:,1].ravel()), 'jetIem': X_test_iem, 'jetIhad': X_test_ihad, 'jetEnergy': X_test_iesum})
+    df_calib   = pd.DataFrame(data = {'jetPt': Y_test[:,0].ravel(), 'jetEta': np.abs(Y_test[:,1].ravel()), 'jetEnergy': X_test_calib_sum.ravel()})
 
     # Compute resolution
     print('\nCompute resolution')
@@ -283,5 +371,27 @@ if __name__ == "__main__" :
     PlotGenJetPtSpectrum(df_uncalib,df_calib,odir,options.v)
     resolution = PlotResolution_bins(df_uncalib,df_calib,odir,options.v,bins_energy,'energy')
     resolution_eta = PlotResolution_bins(df_uncalib,df_calib,odir,options.v,bins_eta,'eta')
+
+    ### New plots ###
+
+    FindIeta_vctd = np.vectorize(FindIeta)
+    df_uncalib['jetIeta'] = FindIeta_vctd(df_uncalib['jetEta'])
+    df_calib['jetIeta'] = FindIeta_vctd(df_calib['jetEta'])
+
+    ieta_values = [1,2,3,4,5,6]
+    PlotResolution_vs_Pt_Etabin(df_uncalib, odir, options.v, ieta_values, 'uncalib')
+    PlotResolution_vs_Pt_Etabin(df_calib,   odir, options.v, ieta_values, 'calib')
+
+    pt_values = [1,5,10,15,20,25,30,35,40,60]
+    PlotResolution_vs_Eta_Ptbin(df_uncalib, odir, options.v, pt_values, 'uncalib')
+    PlotResolution_vs_Eta_Ptbin(df_calib,   odir, options.v, pt_values, 'calib')
+
+    eta_values = [1,1.5]
+    PlotResolution_vs_Pt_Etavalue(df_uncalib, df_calib, odir, options.v, eta_values)
+
+    pt_values = [10,20]
+    PlotResolution_vs_Eta_Ptvalue(df_uncalib, df_calib, odir, options.v, pt_values)
+
+    PlotECALratio(df_uncalib)
 
     print('\nDONE!!!\n')

@@ -21,8 +21,8 @@ def ExtractSF (model, bins):
     for i_bin in range(len(bins)-1):
 
         print('Running bin ', i_bin)
-        i_energy_start = bins[i_bin]
-        i_energy_stop = bins[i_bin+1]        
+        i_energy_start = int(bins[i_bin])
+        i_energy_stop = int(bins[i_bin+1])
 
         # Scan over eta towers
         for i, i_eta in enumerate(eta_towers):
@@ -73,7 +73,7 @@ if __name__ == "__main__" :
     if options.bins:
         bins_energy = options.bins.split(',')
     else:
-        bins_energy = [1,4,6,8,10,12,16,22,38,164,244,510]
+        bins_energy = np.linspace(1,120,120)
     print('\nEnergy bins = {}'.format(bins_energy))
 
     # Definition of the output folder
