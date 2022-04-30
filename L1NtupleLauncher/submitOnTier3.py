@@ -98,7 +98,6 @@ if __name__ == "__main__" :
             print('** WARNING: unbinned QCD samples not available at the moment, specify pt bin - EXITING!')
             exit()
 
-
     elif options.doEG0_200:
         ## signle photon 0-200 without pu
         filelist = open(filedir+"/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
@@ -122,6 +121,7 @@ if __name__ == "__main__" :
 
     os.system('mkdir -p ' + folder)
     os.system('cp '+config+' '+folder)
+    os.system('cp listall.sh /data_CMS/cms/motta/CaloL1calibraton/L1NTuples')
     files = [f.strip() for f in filelist]
     print "Input has" , len(files) , "files" 
     if njobs > len(files) : njobs = len(files)
