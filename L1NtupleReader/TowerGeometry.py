@@ -122,7 +122,8 @@ def NextEtaTower(ieta):
         if ieta == -1:
             next_ieta = 1
         elif ieta == 41:
-            print('{} not in range [-41,40]'.format(ieta))
+            print('{} not in range [-41,41]'.format(ieta))
+            return 0
         else:
             if ieta > 0:
                 for i, key in enumerate(list(TowersEta.keys())):
@@ -137,6 +138,7 @@ def NextEtaTower(ieta):
         return next_ieta
     else:
         print('{} not in range [-41,41]'.format(ieta))
+        return 0
         
 def PrevPhiTower(iphi):
     if iphi in list(TowersPhi.keys()):
