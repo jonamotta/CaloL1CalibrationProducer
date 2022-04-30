@@ -39,3 +39,8 @@ Add a new cut on the ECAL energy fraction: E/(E+H) > 0.8
 In the batchReader.py I changed the place where I apply the cut on the ECAL energy fraction.
 We need to understand what happens between L176-198.
 I think that the problem is that I was using a groupby on 'event', while I should have done it on 'uniqueIdx'
+
+2022_04_28_NtuplesV6:
+First version of HCAL ntuples.
+'python batchSubmitOnTier3.py --v qcd --jetcut 60 --etacut 24'
+

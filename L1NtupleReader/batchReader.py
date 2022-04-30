@@ -21,34 +21,55 @@ def deltarSelect( df, dRcut ):
 # returns an array with 81 entries, for each entry we have [eta,phi] number of the tower belonging to the chunky donut
 def ChunkyDonutTowers(jetIeta, jetIphi):
 
-    ieta_start = jetIeta
+    CD = []
     iphi_start = jetIphi
-
-    # define the top left position of the chunky donut
-    for i in range(0,4):
-        ieta_start = PrevEtaTower(ieta_start)
+    # define the top position of the chunky donut
     for i in range(0,4):
         iphi_start = PrevPhiTower(iphi_start)
+    
+    if jetIeta < 0:
+        ieta_start = jetIeta
+        # define the top right position of the chunky donut
+        for i in range(0,4):
+            ieta_start = NextEtaTower(ieta_start)
+        
+        ieta = ieta_start
+        iphi = iphi_start 
 
-    ieta = ieta_start
-    iphi = iphi_start
+        for i in range(0,9): # scan eta direction towards left
+            if i > 0:
+                ieta = PrevEtaTower(ieta)
+            iphi = iphi_start # for every row in eta we restart from the first iphi
+            for j in range(0,9): # scan phi direction
+                if j > 0:
+                    iphi = NextPhiTower(iphi)
+                CD.append([ieta,iphi])
+    
+    elif jetIeta > 0:
+        ieta_start = jetIeta
+        # define the top left position of the chunky donut
+        for i in range(0,4):
+            ieta_start = PrevEtaTower(ieta_start)
 
-    CD = []
-    for i in range(0,9): # scan eta direction
-        if i > 0:
-            ieta = NextEtaTower(ieta)
-        iphi = iphi_start # for every row in eta we restart from the iphi on the left
-        for j in range(0,9): # scan phi direction
-            if j > 0:
-                iphi = NextPhiTower(iphi)
-            CD.append([ieta,iphi])
+        ieta = ieta_start
+        iphi = iphi_start
+
+        for i in range(0,9): # scan eta direction towards right
+            if i > 0:
+                ieta = NextEtaTower(ieta)
+            iphi = iphi_start # for every row in eta we restart from the first iphi
+            for j in range(0,9): # scan phi direction
+                if j > 0:
+                    iphi = NextPhiTower(iphi)
+                CD.append([ieta,iphi])
     return CD
 
 
 def padDataFrame( dfFlatEJT ):
     padded = dfFlatEJT
-    for uniqueIdx in dfFlatEJT.index.unique():
-        #print(uniqueIdx)
+    for i, uniqueIdx in enumerate(dfFlatEJT.index.unique()):
+        if i%100 == 0:
+            print('{:.4f}%'.format(i/len(dfFlatEJT.index.unique())*100))
         try:
             len(dfFlatEJT['jetIeta'][uniqueIdx])
             jetIeta = dfFlatEJT['jetIeta'][uniqueIdx].unique()[0]
@@ -115,6 +136,9 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 26) & (dfFlatET['iem'] < 6)].index, inplace = True)
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 27) & (dfFlatET['iem'] < 12)].index, inplace = True)
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 28) & (dfFlatET['iem'] < 18)].index, inplace = True)
+
+    # For HCAL samples: sometimes eta value is very big (5.240944862365723), we just take jets inside the acceptance [|jetEta| < 5.191]
+    dfFlatEJ = dfFlatEJ[np.abs(dfFlatEJ['jetEta']) < 5.191]
 
     # reset indeces to be the event number to be able to join the DFs later
     dfFlatET.set_index('event', inplace=True)

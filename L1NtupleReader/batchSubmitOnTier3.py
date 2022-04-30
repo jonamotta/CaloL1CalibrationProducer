@@ -116,3 +116,4 @@ for idx, tag in enumerate(tags):
     command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
     os.system (command)
+    break
