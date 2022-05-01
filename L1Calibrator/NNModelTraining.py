@@ -150,19 +150,19 @@ def convert_samples(X_train, Y_train):
 #######################################################################
 
 ### To run:
-### python3 alternateModel4ECAL.py --in /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining --v ECAL
+### python3 NNModelTraining.py --in 2022_04_21_NtuplesV1 --v ECAL
 
 if __name__ == "__main__" :
     
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("--in",       dest="indir",   help="Input folder with csv",           default=None)
+    parser.add_option("--indir",       dest="indir",   help="Input folder with csv",           default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",  default='ECAL')
     (options, args) = parser.parse_args()
     print(options)
 
-    indir = options.indir
-    odir = indir + '/model_' + options.v
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training'
+    odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/model_' + options.v
     os.system('mkdir -p '+ odir)
 
     # read testing and training datasets

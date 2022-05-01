@@ -5,7 +5,7 @@ import sys
 import copy
 import pandas as pd
 import matplotlib.pyplot as plt
-from alternateModel4ECAL import *
+from NNModelTraining import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
@@ -47,13 +47,13 @@ def ExtractSF (model, bins):
 #######################################################################
 
 ### To run:
-### python3 CalibrationFactor.py --in /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining --v ECAL 
+### python3 CalibrationFactor.py --in 2022_04_21_NtuplesV1/ECALtraining --v ECAL 
 
 if __name__ == "__main__" :
 
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("--in",       dest="indir",   help="Input folder with trained model", default=None)
+    parser.add_option("--indir",    dest="indir",   help="Input folder with trained model", default=None)
     parser.add_option("--bins",     dest="bins",    help="Comma separated energy bins",     default=None)
     parser.add_option("--out",      dest="odir",    help="Output folder",                   default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",  default='ECAL')
@@ -61,7 +61,7 @@ if __name__ == "__main__" :
     print(options)
 
     # Definition of the trained model
-    indir = options.indir
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training'
     modeldir = indir + '/model_' + options.v
     print('\nModel dir = {}\n'.format(modeldir))
 

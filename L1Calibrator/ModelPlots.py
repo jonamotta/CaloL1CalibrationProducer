@@ -8,12 +8,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from math import *
 
-from alternateModel4ECAL import *
+from NNModelTraining import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
-import mplhep
-plt.style.use(mplhep.style.CMS)
+#import mplhep
+#plt.style.use(mplhep.style.CMS)
 
 c_uncalib = 'royalblue'
 c_calib = 'darkorange'
@@ -278,20 +278,20 @@ def PlotECALratio(df_uncalib):
 
 
 ### To run:
-### python3 ModelPlots.py --in /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV1/ECALtraining --out data_ECAL_V1/plots --v ECAL
+### python3 ModelPlots.py --in 2022_04_21_NtuplesV1/ECALtraining --out data_ECAL_V1/plots --v ECAL
 
 if __name__ == "__main__" :
 
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("--in",       dest="indir",   help="Input folder with trained model", default=None)
+    parser.add_option("--indir",    dest="indir",   help="Input folder with trained model", default=None)
     parser.add_option("--out",      dest="odir",    help="Output folder",                   default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",  default='ECAL')
     (options, args) = parser.parse_args()
     print(options)
 
     # Definition of the trained model
-    indir = options.indir
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training'
     modeldir = indir + '/model_' + options.v
     print('\nModel dir = {}'.format(modeldir))
 
@@ -342,7 +342,6 @@ if __name__ == "__main__" :
     # X samples contain : iesum = iem + ihad, eta tower
     # Y samples contain : jetPt, jetEta
     print('\nLoad data')
-    indir = options.indir
     # X_train = np.load(indir+'/X_train.npz')['arr_0']
     X_test = np.load(indir+'/X_test.npz')['arr_0']
     # Y_train = np.load(indir+'/Y_train.npz')['arr_0']
