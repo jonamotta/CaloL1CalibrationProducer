@@ -1,13 +1,9 @@
+from optparse import OptionParser
 from itertools import chain
 from TowerGeometry import *
 import pandas as pd
 import numpy as np
-import argparse
-import glob
-import sys
-import csv
 import os
-import matplotlib.pyplot as plt
 
 
 def deltarSelect( df, dRcut ):
@@ -182,7 +178,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut
     # For ECAL we consider just jets having a chunky donuts completely inside the ECAL detector [jetIEta <= 24]
     # For HCAL we consider just jets having a chunky donuts completely inside the HCAL detector [jetIEta <= 37]
     if iEtacut != False:
-        dfFlatEJ = dfFlatEJ[(dfFlatEJ['jetIeta'] <= float(iEtacut))]
+        dfFlatEJ = dfFlatEJ[abs(dfFlatEJ['jetIeta']) <= int(iEtacut)]
 
     # join the jet and the towers datasets -> this creates all the possible combination of towers and jets for each event
     dfFlatEJT = dfFlatEJ.join(dfFlatET, on='event', how='left', rsuffix='_joined', sort=False)
@@ -231,14 +227,14 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut
     print('starting padding') # DEBUG
 
     # do the padding of the dataframe to have 81 rows for each jet        
-    paddedEJT = padDataFrame(dfFlatEJT)    
+    paddedEJT = padDataFrame(dfFlatEJT)
     paddedEJT.drop_duplicates(['uniqueId', 'ieta', 'iphi'], keep='first', inplace=True)
     paddedEJT.set_index('uniqueId',inplace=True)
 
     # append the DFs from the different files to one single big DF
     paddedEJT.reset_index(inplace=True)
-    dfTowers = paddedEJT[['uniqueId','ieta','iem','ihad','iet']]
-    dfJets = paddedEJT[['uniqueId','jetPt','jetEta']]
+    dfTowers = paddedEJT[['uniqueId','ieta','iem','ihad','iet']].copy(deep=True)
+    dfJets = paddedEJT[['uniqueId','jetPt','jetEta']].copy(deep=True)
 
     ## DEBUG
     # print(dfFlatEJT)
@@ -289,12 +285,13 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut
     # To keep both the information on jetPt and jetEta
     Y = np.array([dfJets.loc[i].values for i in dfJets.index])
     X = np.array([dfEOneHotEncoded.loc[i].to_numpy() for i in dfE.index.drop_duplicates(keep='first')])
-    
+
+    print(X)
+
     ## DEBUG
     # if len(X != 43): 
     #     print('Different lenght!')
     print('storing')
-
 
     # save .npz files with tensor formatted datasets
     np.savez_compressed(saveToTensors['towers']+'.npz', X)
@@ -315,7 +312,6 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut
 
 if __name__ == "__main__" :
 
-    from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--fin",      dest="fin",     default='')
     parser.add_option("--tag",      dest="tag",     default='')

@@ -48,6 +48,7 @@ parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', defa
 parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
 parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
 parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
+parser.add_option("--FilesLim", dest="FilesLim", type=int, default=0)
 (options, args) = parser.parse_args()
 
 if options.indir == None:
@@ -92,8 +93,7 @@ elif options.doQCDnoPU:
         folder = filedir+'/paddedAndReadyToMerge'
 
     elif options.qcdPtBin=="50To80":
-        #taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt50To80.txt')
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/test.txt')
+        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt50To80.txt')
         filedir = filedir +'/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
         folder = filedir+'/paddedAndReadyToMerge'
 
@@ -136,7 +136,7 @@ os.system('mkdir -p ' + folder)
 
 ###########
 
-os.system ('source /opt/exp_soft/cms/t3/t3setup')
+#os.system ('source /opt/exp_soft/cms/t3/t3setup')
 
 os.system('mkdir -p ' + folder + '/dataframes ; mkdir -p ' + folder + '/tensors')
 tags = [tag.strip() for tag in taglist]
@@ -150,13 +150,15 @@ for idx, tag in enumerate(tags):
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
-    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder+" >& "+outLogName
+    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder
     if options.jetcut != False:
         cmsRun = cmsRun + " --jetcut "+options.jetcut
     if options.etacut != False:
         cmsRun = cmsRun + " --etacut "+options.etacut
     if options.ecalcut != False:
         cmsRun = cmsRun + " --ecalcut "+options.ecalcut
+
+    cmsRun = cmsRun + " >& "+outLogName
 
     skimjob = open (outJobName, 'w')
     skimjob.write ('#!/bin/bash\n')
@@ -171,5 +173,4 @@ for idx, tag in enumerate(tags):
     command = ('/home/llr/cms/motta/t3submit -long \'' + outJobName +"\'")
     # command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
-    #os.system (command)
-    break
+    os.system (command)
