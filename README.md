@@ -25,19 +25,21 @@ python submitOnTier3.py
 ```
 
 After the production of the L1NTuples the production of the input files to the NNs is done by going to `L1NtupleReader` and running:
+-> Change the name of the output folder at L70 of batchMaker.py (ex. 2022_05_03_NtuplesV10)
 ```bash
-python batchMaker.py --v {ECAL/HCAL}
+python3 batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 5000 --doEG0_200 --applyNoCalib
 ```
 this will batch the L1NTuples in `.hdf5` files containing no more then 5000 events each. After this bacthing the Padding of the chunky donut needs to be performed with:
+-> Crate the taglist file (Jona did it for me) and put it inside this folder '/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/'
 ```bash
 module use /opt/exp_soft/vo.llr.in2p3.fr/modulefiles_el7
 module load python/3.7.0
-python batchSubmitOnTier3.py --v {gamma1/gamma2/qcd} {--jetcut 60} {--etacut 24} {--ecalcut True} --odir 2022_04_26_NtuplesV4
+python batchSubmitOnTier3.py --doEG0_200 --jetcut 60 --etacut 24 --ecalcut True --indir 2022_05_03_NtuplesV10 --applyHCALpfa1p --applyNoCalib
 ```
 this will run the padding of the chunky donut on the Tier3 so that it will fast. It will produce the same number of output files as the number of input ones.
 After this we need to merge the batches into one single file containing the input to the NNs, this is one with:
 ```bash
-python3 batchMerger.py --dir /data_CMS/cms/motta/CaloL1calibraton/2022_04_26_NtuplesV4 --sample {train or test} --v {ECAL or HCAL} {--jetcut 60}
+python3 batchMerger.py --applyHCALpfa1 --indir 2022_05_03_NtuplesV10 --v ECAL --applyNoCalib --doEG --sample {train or test}
 ```
 this will create the following four output files that are to be used for the training of the NNs:
 * `X_train.npz`

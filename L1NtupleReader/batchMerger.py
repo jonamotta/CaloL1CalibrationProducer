@@ -9,7 +9,7 @@ import os
 #######################################################################
 
 ### To run:
-### python3 batchMerger.py --dir /data_CMS/cms/motta/CaloL1calibraton/2022_04_21_NtuplesV2 --sample train --v (ECAL or HCAL) (--jetcut 60)
+### python3 batchMerger.py --indir 2022_04_21_NtuplesV2 --sample train --v (ECAL or HCAL) 
 
 if __name__ == "__main__" :
 
@@ -94,15 +94,15 @@ if __name__ == "__main__" :
 
     elif options.doEG:
         ## signle photon 0-200 without pu
-        taglist0_200 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/_{0}.txt'.format(options.sample))
+        taglist0_200 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg0To200_{0}.txt'.format(options.sample))
         taglists.append(taglist0_200)
         tensordirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
         dataframedirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
 
-        taglist200_500 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/_{0}.txt'.format(options.sample))
-        taglists.append(taglist200_500)
-        tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-        dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+        # taglist200_500 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg200To500_{0}.txt'.format(options.sample))
+        # taglists.append(taglist200_500)
+        # tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
+        # dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
 
 
     else:

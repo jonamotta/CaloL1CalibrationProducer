@@ -67,7 +67,7 @@ if __name__ == "__main__" :
 
     ##################### DEFINE INPUTS AND OUTPUTS ####################
     indir  = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples'
-    outdir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_30_NtuplesV7'
+    outdir = '/data_CMS/cms/motta/CaloL1calibraton/2022_05_03_NtuplesV10'
 
     # choose ECAL of HCAL folder according to option v
     folder_names = []
