@@ -95,7 +95,7 @@ def padDataFrame( dfFlatEJT ):
     return padded
 
 
-def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut):
+def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, Ecalcut, trainingPtVersion):
     if len(dfET) == 0 or len(dfEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
@@ -125,9 +125,11 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut
 
     print('starting cuts') # DEBUG
 
-    # Apply cut on jetPt, useful at the beginning to train on a good sample [jetPt < 60]
-    if jetPtcut != False:
-        dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] < float(jetPtcut)]
+    # Apply cut on jetPt
+    if uJetPtcut != False:
+        dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] < float(uJetPtcut)]
+    if lJetPtcut != False:
+        dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] > float(lJetPtcut)]
 
     # remove jets outside L1 acceptance
     dfFlatEJ = dfFlatEJ[np.abs(dfFlatEJ['jetEta']) < 5.191]
@@ -233,8 +235,15 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut
 
     # append the DFs from the different files to one single big DF
     paddedEJT.reset_index(inplace=True)
+    
+    # subtract iem/ihad to jetPt in oprder to get the correct training Pt to be be used for the NN
+    if trainingPtVersion != False:
+        group = paddedEJT.groupby('uniqueIdx')
+        if trainingPtVersion=="ECAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['ihad'].sum()
+        if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['iem'].sum()
+
     dfTowers = paddedEJT[['uniqueId','ieta','iem','ihad','iet']].copy(deep=True)
-    dfJets = paddedEJT[['uniqueId','jetPt','jetEta']].copy(deep=True)
+    dfJets = paddedEJT[['uniqueId','trainingPt','jetEta']].copy(deep=True)
 
     ## DEBUG
     # print(dfFlatEJT)
@@ -286,8 +295,6 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut
     Y = np.array([dfJets.loc[i].values for i in dfJets.index])
     X = np.array([dfEOneHotEncoded.loc[i].to_numpy() for i in dfE.index.drop_duplicates(keep='first')])
 
-    print(X)
-
     ## DEBUG
     # if len(X != 43): 
     #     print('Different lenght!')
@@ -313,12 +320,14 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, jetPtcut, iEtacut, Ecalcut
 if __name__ == "__main__" :
 
     parser = OptionParser()
-    parser.add_option("--fin",      dest="fin",     default='')
-    parser.add_option("--tag",      dest="tag",     default='')
-    parser.add_option("--fout",     dest="fout",    default='')
-    parser.add_option("--jetcut",   dest="jetcut",  default=False)
-    parser.add_option("--etacut",   dest="etacut",  default=False)
-    parser.add_option("--ecalcut",  dest="ecalcut", default=False)
+    parser.add_option("--fin",       dest="fin",       default='')
+    parser.add_option("--tag",       dest="tag",       default='')
+    parser.add_option("--fout",      dest="fout",      default='')
+    parser.add_option("--v",         dest="v",         default=False)
+    parser.add_option("--uJetPtCut", dest="uJetPtCut", default=False)
+    parser.add_option("--lJetPtCut", dest="lJetPtCut", default=False)
+    parser.add_option("--etacut",    dest="etacut",    default=False)
+    parser.add_option("--ecalcut",   dest="ecalcut",   default=False)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.tag=='' or options.fout==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
@@ -351,6 +360,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.jetcut, options.etacut, options.ecalcut)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.v)
     print("DONE!")
 
