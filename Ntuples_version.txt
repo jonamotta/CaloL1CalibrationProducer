@@ -44,3 +44,20 @@ I think that the problem is that I was using a groupby on 'event', while I shoul
 First version of HCAL ntuples.
 'python batchSubmitOnTier3.py --v qcd --jetcut 60 --etacut 24'
 
+2022_04_30_NtuplesV7:
+Fixed errors in batchReader.py
+Update everything to have the new backup QCD datasets (50To80, 80To120, 120To170)
+
+2022_04_28_NtuplesV8:
+Introduce lower cut on jet pt for QCD:
+    - 30GeV for  QCD_Pt-50To80 
+    - 50GeV for  QCD_Pt-80To120 
+    - 60GeV for  QCD_Pt-120To170 
+
+2022_05_02_NtuplesV9:
+Introduce lower cut on jet pt for QCD:
+    - 30GeV for  QCD_Pt-50To80 
+    - 50GeV for  QCD_Pt-80To120 
+    - 60GeV for  QCD_Pt-120To170
+
+Introduce HCAl eta cut <= 24
