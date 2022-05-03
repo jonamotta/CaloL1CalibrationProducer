@@ -238,6 +238,8 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         group = paddedEJT.groupby('uniqueId')
         if trainingPtVersion=="ECAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['ihad'].sum()
         if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['iem'].sum()
+    else:
+        paddedEJT['trainingPt'] = paddedEJT['jetPt'].copy(deep=True)
 
     # append the DFs from the different files to one single big DF
     paddedEJT.reset_index(inplace=True)
