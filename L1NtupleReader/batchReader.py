@@ -233,14 +233,14 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     paddedEJT.drop_duplicates(['uniqueId', 'ieta', 'iphi'], keep='first', inplace=True)
     paddedEJT.set_index('uniqueId',inplace=True)
 
-    # append the DFs from the different files to one single big DF
-    paddedEJT.reset_index(inplace=True)
-    
     # subtract iem/ihad to jetPt in oprder to get the correct training Pt to be be used for the NN
     if trainingPtVersion != False:
         group = paddedEJT.groupby('uniqueId')
         if trainingPtVersion=="ECAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['ihad'].sum()
         if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['iem'].sum()
+
+    # append the DFs from the different files to one single big DF
+    paddedEJT.reset_index(inplace=True)
 
     dfTowers = paddedEJT[['uniqueId','ieta','iem','ihad','iet']].copy(deep=True)
     dfJets = paddedEJT[['uniqueId','trainingPt','jetEta']].copy(deep=True)
