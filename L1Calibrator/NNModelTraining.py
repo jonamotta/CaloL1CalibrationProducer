@@ -131,14 +131,19 @@ def custom_loss(y_true, y_pred):
 
 model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss)
 
-def convert_samples(X_train, Y_train):
 
+def convert_samples(X_train, Y_train, version='ECALpHCAL'):
     # convert samples for training
     print('\nConvert samples to X_train and Y_train')
-    # Need to train on iesum = iem+ihad
-    X_train = np.delete(X_train, 2, axis=2)   # delete iem column
-    X_train = np.delete(X_train, 1, axis=2)   # delete ihad column
-    # X_train = X_train[:, :, 2:]
+    if version=="ECAL":
+        X_train = np.delete(X_train, 2, axis=2)   # delete iesum column
+        X_train = np.delete(X_train, 1, axis=2)   # delete ihad column
+    elif version=="HCAL":
+        X_train = np.delete(X_train, 2, axis=2)   # delete iesum column
+        X_train = np.delete(X_train, 0, axis=2)   # delete iem column
+    else:
+        X_train = np.delete(X_train, 1, axis=2)   # delete ihad column
+        X_train = np.delete(X_train, 0, axis=2)   # delete iem column
     
     # Need to remove the second entry in the Y vectors with [:,0] (eta information)
     Y_train = Y_train[:,0]
