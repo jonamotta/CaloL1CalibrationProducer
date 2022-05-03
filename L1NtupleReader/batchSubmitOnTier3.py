@@ -39,6 +39,7 @@ parser.add_option("--uJetPtCut", dest="uJetPtCut", default=False)
 parser.add_option("--lJetPtCut", dest="lJetPtCut", default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
 parser.add_option("--ecalcut",  dest="ecalcut", default=False)
+parser.add_option("--trainPtVers", dest="trainPtVers", default=False)
 parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
 parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
 parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
@@ -160,6 +161,8 @@ for idx, tag in enumerate(tags):
         cmsRun = cmsRun + " --etacut "+options.etacut
     if options.ecalcut != False:
         cmsRun = cmsRun + " --ecalcut "+options.ecalcut
+    if options.trainPtVers != False:
+        cmsRun = cmsRun + " --trainPtVers "+options.trainPtVers
 
     cmsRun = cmsRun + " >& "+outLogName
 

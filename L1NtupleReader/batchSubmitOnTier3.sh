@@ -26,6 +26,6 @@ source /opt/exp_soft/cms/t3/t3setup
 # python batchSubmitOnTier3.py --doQCDpu --indir 2022_05_02_NtuplesV8 --odir --applyHCALpfa1p --applyNewECALcalib
 
 
-python batchSubmitOnTier3.py --doQCDnoPU --qcdPtBin "50To80" --etacut 24 --indir 2022_05_02_NtuplesV9 --applyHCALpfa1p --applyNewECALcalib --lJetPtCut 50 --uJetPtCut 150
-python batchSubmitOnTier3.py --doQCDnoPU --qcdPtBin "80To120" --etacut 24 --indir 2022_05_02_NtuplesV9 --applyHCALpfa1p --applyNewECALcalib --lJetPtCut 50 --uJetPtCut 150
-python batchSubmitOnTier3.py --doQCDnoPU --qcdPtBin "120To170" --etacut 24 --indir 2022_05_02_NtuplesV9 --applyHCALpfa1p --applyNewECALcalib --lJetPtCut 60 --uJetPtCut 150
+python batchSubmitOnTier3.py --doQCDnoPU --qcdPtBin "50To80" --etacut 24 --indir 2022_05_02_NtuplesV9 --applyHCALpfa1p --applyNewECALcalib --lJetPtCut 50 --uJetPtCut 150 --trainPtVers HCAL
+python batchSubmitOnTier3.py --doQCDnoPU --qcdPtBin "80To120" --etacut 24 --indir 2022_05_02_NtuplesV9 --applyHCALpfa1p --applyNewECALcalib --lJetPtCut 50 --uJetPtCut 150 --trainPtVers HCAL
+python batchSubmitOnTier3.py --doQCDnoPU --qcdPtBin "120To170" --etacut 24 --indir 2022_05_02_NtuplesV9 --applyHCALpfa1p --applyNewECALcalib --lJetPtCut 60 --uJetPtCut 150 --trainPtVers HCAL
