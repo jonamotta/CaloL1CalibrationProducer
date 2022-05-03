@@ -179,7 +179,7 @@ if __name__ == "__main__" :
 
     # Inside X_train: matrix n_ev x 81 x 41 ([81 for the chucky donut towers][41 for iesum, ieta])
     # Inside Y_train: vector n_ev (jetPt)
-    X_train, Y_train = convert_samples(X_vec, Y_vec, options.v)
+    X_train, Y_train = convert_samples(X_vec, Y_vec, options.trainVers)
 
     model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
 
