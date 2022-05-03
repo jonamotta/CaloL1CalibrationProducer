@@ -94,15 +94,15 @@ if __name__ == "__main__" :
 
     elif options.doEG:
         ## signle photon 0-200 without pu
-        taglist0_200 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg0To200_{0}.txt'.format(options.sample))
+        taglist0_200 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200_{0}.txt'.format(options.sample))
         taglists.append(taglist0_200)
         tensordirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
         dataframedirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
 
-        # taglist200_500 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg200To500_{0}.txt'.format(options.sample))
-        # taglists.append(taglist200_500)
-        # tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-        # dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+        taglist200_500 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500_{0}.txt'.format(options.sample))
+        taglists.append(taglist200_500)
+        tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
+        dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
 
 
     else:
@@ -121,8 +121,8 @@ if __name__ == "__main__" :
     os.system('mkdir -p ' + training_folder + '/dataframes')
     # define the paths where to save the hdf5 files
     saveto = {
-        'X'  : training_folder+'/dataframes/X.hdf5',
-        'Y'  : training_folder+'/dataframes/Y.hdf5',
+        'X'  : training_folder+'/dataframes/X_'+options.sample+'.hdf5',
+        'Y'  : training_folder+'/dataframes/Y_'+options.sample+'.hdf5',
     }
 
     dfX = pd.DataFrame()
@@ -132,7 +132,7 @@ if __name__ == "__main__" :
         # concatenate low energy photons
         for idx,tag in enumerate(taglist):
             tag = tag.strip()
-            if not idx%10: print('reading batch', idx, '- tag', tag)
+            if not idx%10: print('reading batch', idx, '- tag', tag, '- taglist', taglist)
             try:
                 X = np.concatenate([X,np.load(tensordirs[i_fold]+'/towers'+tag+'.npz', allow_pickle=True)['arr_0']])
                 Y = np.concatenate([Y,np.load(tensordirs[i_fold]+'/jets'+tag+'.npz', allow_pickle=True)['arr_0']])
@@ -153,7 +153,7 @@ if __name__ == "__main__" :
                 print('** INFO: towers'+tag+' not found --> skipping')
                 continue
 
-            if idx == 35: break # break at the n-th file to speed up the process
+            if idx == 40: break # break at the n-th file to speed up the process
         
         ## DEBUG
         print(len(X))

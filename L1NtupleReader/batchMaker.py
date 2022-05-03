@@ -35,6 +35,7 @@ if __name__ == "__main__" :
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--v",    dest="v",   help="Ntuple type ('ECAL' or 'HCAL')", default='ECAL')
+    parser.add_option("--outdir",    dest="outdir",   help="Ntuple version folder where to save", default='')
     parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
     parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
     parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
@@ -48,6 +49,10 @@ if __name__ == "__main__" :
     parser.add_option("--chunk_size", dest="chunk_size", type=int, default=5000)
     (options, args) = parser.parse_args()
     print(options)
+
+    if options.outdir=='':
+        print('** WARNING: no ntuple version output folder specified - EXITING!')
+        exit()
 
     if options.applyNoCalib == False and options.applyOldCalib == False and options.applyNewECALcalib == False and options.applyNewECALpHCALcalib == False:
         print('** WARNING: no calibration to be used specified - EXITING!')
@@ -67,7 +72,7 @@ if __name__ == "__main__" :
 
     ##################### DEFINE INPUTS AND OUTPUTS ####################
     indir  = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples'
-    outdir = '/data_CMS/cms/motta/CaloL1calibraton/2022_05_03_NtuplesV10'
+    outdir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.outdir
 
     # choose ECAL of HCAL folder according to option v
     folder_names = []

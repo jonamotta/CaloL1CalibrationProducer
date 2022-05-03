@@ -35,7 +35,8 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--indir",     dest="indir",    default=None)
 parser.add_option("--odir",     dest="odir",    default="")
-parser.add_option("--jetcut",   dest="jetcut",  default=False)
+parser.add_option("--uJetPtCut", dest="uJetPtCut", default=False)
+parser.add_option("--lJetPtCut", dest="lJetPtCut", default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
 parser.add_option("--ecalcut",  dest="ecalcut", default=False)
 parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
@@ -115,13 +116,13 @@ elif options.doQCDnoPU:
 
 elif options.doEG0_200:
     ## signle photon 0-200 without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg0To200.txt')
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200.txt')
     filedir = filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
     folder = filedir+'/paddedAndReadyToMerge'
 
 elif options.doEG200_500:
     ## signle photon 200-500 without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg200To500.txt')
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200.txt')
     filedir = filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
     folder = filedir+'/paddedAndReadyToMerge'
 
@@ -151,8 +152,10 @@ for idx, tag in enumerate(tags):
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
     cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder
-    if options.jetcut != False:
-        cmsRun = cmsRun + " --jetcut "+options.jetcut
+    if options.uJetPtCut != False:
+        cmsRun = cmsRun + " --uJetPtCut "+options.uJetPtCut
+    if options.lJetPtCut != False:
+        cmsRun = cmsRun + " --lJetPtCut "+options.lJetPtCut
     if options.etacut != False:
         cmsRun = cmsRun + " --etacut "+options.etacut
     if options.ecalcut != False:
