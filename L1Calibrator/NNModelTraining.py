@@ -162,7 +162,7 @@ if __name__ == "__main__" :
     print(options)
 
     indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training'
-    odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/model_' + options.v
+    odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + '/model_' + options.v
     os.system('mkdir -p '+ odir)
 
     # read testing and training datasets
