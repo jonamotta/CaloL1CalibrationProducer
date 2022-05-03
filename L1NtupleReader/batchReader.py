@@ -320,14 +320,14 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
 if __name__ == "__main__" :
 
     parser = OptionParser()
-    parser.add_option("--fin",       dest="fin",       default='')
-    parser.add_option("--tag",       dest="tag",       default='')
-    parser.add_option("--fout",      dest="fout",      default='')
-    parser.add_option("--v",         dest="v",         default=False)
-    parser.add_option("--uJetPtCut", dest="uJetPtCut", default=False)
-    parser.add_option("--lJetPtCut", dest="lJetPtCut", default=False)
-    parser.add_option("--etacut",    dest="etacut",    default=False)
-    parser.add_option("--ecalcut",   dest="ecalcut",   default=False)
+    parser.add_option("--fin",         dest="fin",         default='')
+    parser.add_option("--tag",         dest="tag",         default='')
+    parser.add_option("--fout",        dest="fout",        default='')
+    parser.add_option("--trainPtVers", dest="trainPtVers", default=False)
+    parser.add_option("--uJetPtCut",   dest="uJetPtCut",   default=False)
+    parser.add_option("--lJetPtCut",   dest="lJetPtCut",   default=False)
+    parser.add_option("--etacut",      dest="etacut",      default=False)
+    parser.add_option("--ecalcut",     dest="ecalcut",     default=False)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.tag=='' or options.fout==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
@@ -360,6 +360,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.v)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.trainPtVers)
     print("DONE!")
 
