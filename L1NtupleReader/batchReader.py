@@ -238,7 +238,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     
     # subtract iem/ihad to jetPt in oprder to get the correct training Pt to be be used for the NN
     if trainingPtVersion != False:
-        group = paddedEJT.groupby('uniqueIdx')
+        group = paddedEJT.groupby('uniqueId')
         if trainingPtVersion=="ECAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['ihad'].sum()
         if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['iem'].sum()
 
