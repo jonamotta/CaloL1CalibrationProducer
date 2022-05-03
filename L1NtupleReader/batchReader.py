@@ -241,6 +241,9 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     else:
         paddedEJT['trainingPt'] = paddedEJT['jetPt'].copy(deep=True)
 
+    # keep only the jets that have a meaningful trainingPt to be used
+    paddedEJT = paddedEJT[paddedEJT['trainingPt']>1]
+
     # append the DFs from the different files to one single big DF
     paddedEJT.reset_index(inplace=True)
 
