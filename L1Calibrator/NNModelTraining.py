@@ -163,6 +163,7 @@ if __name__ == "__main__" :
     parser = OptionParser()
     parser.add_option("--indir",       dest="indir",   help="Input folder with csv",           default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",  default='ECAL')
+    parser.add_option("--trainVers",        dest="trainVers",       help="Train agains ECAL/HCAL/ECAL+HCAL deposits",  default='ECALpHCAL')
     (options, args) = parser.parse_args()
     print(options)
 
@@ -178,7 +179,7 @@ if __name__ == "__main__" :
 
     # Inside X_train: matrix n_ev x 81 x 41 ([81 for the chucky donut towers][41 for iesum, ieta])
     # Inside Y_train: vector n_ev (jetPt)
-    X_train, Y_train = convert_samples(X_vec, Y_vec)
+    X_train, Y_train = convert_samples(X_vec, Y_vec, options.v)
 
     model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
 
