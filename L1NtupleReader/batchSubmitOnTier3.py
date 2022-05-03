@@ -179,5 +179,5 @@ for idx, tag in enumerate(tags):
     command = ('/home/llr/cms/motta/t3submit -long \'' + outJobName +"\'")
     # command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
-    # os.system (command)
-    break
+    os.system (command)
+    #break
