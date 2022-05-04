@@ -61,3 +61,15 @@ Introduce lower cut on jet pt for QCD:
     - 60GeV for  QCD_Pt-120To170
 
 Introduce HCAl eta cut <= 24
+
+
+2022_05_03_NtuplesV11:
+Introduce lower cut on jet pt for QCD:
+    - 50GeV for  QCD_Pt-50To80
+    - 50GeV for  QCD_Pt-80To120
+    - 60GeV for  QCD_Pt-120To170
+Introduce upper pt cut on jet pt:
+    - 150GeV
+HCAL eta cut <= 24
+Introduce firstsubtraction of iem deposit
+    --> this subtraction is bugged due to missing factor 2 in iem sum (0.5GeV units)
