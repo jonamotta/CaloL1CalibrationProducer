@@ -12,8 +12,8 @@ from NNModelTraining import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
-#import mplhep
-#plt.style.use(mplhep.style.CMS)
+import mplhep
+plt.style.use(mplhep.style.CMS)
 
 c_uncalib = 'royalblue'
 c_calib = 'darkorange'
@@ -31,16 +31,21 @@ def PlotSF (SF_matrix, bins, odir, v_sample, stop):
         plt.plot(eta_towers[:stop], SF_matrix[:stop,i], 'o--', color=colors[i], label = f"{bins[i]} $\leq E_T <$ {bins[i+1]}")
     plt.xlabel('L1T Eta Tower')
     plt.ylabel('{} Calibration Constant'.format(v_sample))
-    # plt.legend(fontsize = 10, ncol=1, loc = 'upper right')
     plt.grid(linestyle='dotted')
     plt.title('Calibration vs Eta')
     savefile = odir + '/Calib_vs_Eta.png'
     plt.savefig(savefile)
     print(savefile)
-
+    plt.ylim(0,4)
+    plt.legend(fontsize = 7, ncol=8, loc = 'upper center')
+    savefile = odir + '/Calib_vs_Eta_legend.png'
+    plt.savefig(savefile)
+    print(savefile)
+    
     # Plot 2) Calibration constant vs ET for a few ieta
 
     eta_towers_plot = [1,5,10,15,20] # to be chosen
+    eta_towers_plot = np.linspace(1,41,41)
 
     plt.figure(figsize=(12,8))
     colors = plt.cm.viridis_r(np.linspace(0,1,len(eta_towers)))
@@ -49,7 +54,7 @@ def PlotSF (SF_matrix, bins, odir, v_sample, stop):
             plt.plot(bins[:-1], SF_matrix[i,:], 'o--', color=colors[i], label = f"$\eta = ${eta_towers[i]}")
     plt.xlabel(f'Energy [$E_T$]')
     plt.ylabel('{} calibration constant'.format(v_sample))
-    plt.legend(fontsize = 10, ncol=1, loc = 'upper right')
+    plt.legend(fontsize = 9, ncol=2, loc = 'upper right')
     plt.grid(linestyle='dotted')
     plt.title('Calibration vs Energy')
     savefile = odir + '/Calib_vs_Energy.png'
@@ -120,7 +125,7 @@ def PlotGenJetPtSpectrum(df_uncalib,df_calib,odir,v_sample):
     plt.close()
 
 # Plot calibrated and uncalibrated resolution in bins of jetPt or jetEta (based on bin_type)
-def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bins, bin_type):
+def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bin_type, steps):
     
     if bin_type == 'energy':
         column_bin = 'bins_en'
@@ -135,10 +140,15 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bins, bin_type):
 
     data = []
     
+    values = np.unique(df_calib[name])
+    min_value = int(values.min())-1
+    max_value = int(values.max())+steps+1
+    bins = np.arange(min_value,max_value,steps)
+
     labels_text = []
     for i in range(len(bins)-1):
         labels_text.append('{}-{}'.format(bins[i], bins[i+1]))
-    print(bins, labels_text)
+    print(bins)
     df_uncalib[column_bin] = pd.cut(df_uncalib[name], bins = bins, labels = labels_text)
     df_calib[column_bin]   = pd.cut(df_calib[name], bins = bins, labels = labels_text)
     bins_labels = np.unique(df_calib[column_bin])
@@ -152,10 +162,10 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bins, bin_type):
         df_calib_bin = df_calib[df_calib[column_bin] == bin_label]
         
         data.append({column_bin: bin_label, 
-                           'uncalib_mean': df_uncalib_bin['res'].mean(), 
-                           'uncalib_std': df_uncalib_bin['res'].std(),
-                           'calib_mean': df_calib_bin['res'].mean(),
-                           'calib_std': df_calib_bin['res'].std()})
+                     'uncalib_mean': df_uncalib_bin['res'].mean(), 
+                     'uncalib_std' : df_uncalib_bin['res'].std(),
+                     'calib_mean'  : df_calib_bin['res'].mean(),
+                     'calib_std'   : df_calib_bin['res'].std()})
         
         text_1 = r'Uncalib: $\mu = {:.3f}, \sigma = {:.3f}$'.format(df_uncalib_bin['res'].mean(), df_uncalib_bin['res'].std())
         plt.hist(df_uncalib_bin['res'], bins=bins_res, label=text_1, histtype='step', density=True, stacked=True, linewidth=2, color=c_uncalib)
@@ -274,19 +284,21 @@ def PlotECALratio(df_uncalib):
     print(savefile)
     plt.close()
 
-    print('E/(E+H) = {}'.format(len(df_uncalib[df_uncalib['iem_ratio'] > 0.8])/len(df_uncalib)))
+    print('E/(E+H) > 0.8 = {}'.format(len(df_uncalib[df_uncalib['iem_ratio'] > 0.8])/len(df_uncalib)))
 
 
 ### To run:
-### python3 ModelPlots.py --in 2022_04_21_NtuplesV1/ECALtraining --out data_ECAL_V1/plots --v ECAL
+### python3 ModelPlots.py --in 2022_05_02_NtuplesV9 --v HCAL --etrain iesum --out data_ECAL_V1/plots
 
 if __name__ == "__main__" :
 
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("--indir",    dest="indir",   help="Input folder with trained model", default=None)
-    parser.add_option("--out",      dest="odir",    help="Output folder",                   default=None)
-    parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",  default='ECAL')
+    parser.add_option("--indir",    dest="indir",   help="Input folder with trained model",     default=None)
+    parser.add_option("--out",      dest="odir",    help="Output folder",                       default=None)
+    parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",      default='ECAL')
+    parser.add_option("--etrain",   dest="etrain",  help="Training energy (iem, ihad or iesum)",default='iesum')
+    parser.add_option("--maxeta",   dest="maxeta",  help="Eta max in the SF plot (None or 28)", default=None)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -316,13 +328,9 @@ if __name__ == "__main__" :
     with open(SF_filename) as f:
         header = f.readline().rstrip()
     bin_edges = header.split(',')[1:]
-    # bins_energy = [int(edge.split('-')[0]) for edge in bin_edges] + [int(bin_edges[-1].split('-')[1])]
-    bins_energy = np.linspace(1,120,120) # [IET]
-    print('\nEnergy bins = {}'.format(bins_energy))
-
-    # Definition of eta bin edges
-    bins_eta = [0, 0.5, 1, 1.5, 2, 2.5, 5]
-    print('\nEta bins = {}'.format(bins_eta))
+    bins_energy = [int(edge.split('-')[0].split('.')[0]) for edge in bin_edges] + [int(bin_edges[-1].split('-')[1].split('.')[0])] # [IET]
+    # bins_energy = np.linspace(1,120,120) # [IET]
+    print('\nEnergy bins for Scale Factors = {}'.format(bins_energy))
 
     #######################################################
     ################# Scale Factors plots #################
@@ -330,13 +338,16 @@ if __name__ == "__main__" :
 
     # Plot the scale factors
     print('\nPlot scale factors')
-    PlotSF(ScaleFactors, bins_energy, odir, options.v, 28)
+    PlotSF(ScaleFactors, bins_energy, odir, options.v, options.maxeta)
 
     #######################################################
     ################## Resolution plots ###################
     #######################################################
 
-    bins_energy = [0.5] + [ x for x in range(1,61) if x%4==0] # [GeV]
+    # Definition of eta bin edges
+    # bins_eta = [0, 0.5, 1, 1.5, 2, 2.5, 5]
+    # print('\nEta bins = {}'.format(bins_eta))
+    # bins_energy = [0.5] + [ x for x in range(1,61) if x%4==0] # [GeV]
 
     # Build the two pandas for the training (uncalibrated) and testing (calibrated)
     # X samples contain : iesum = iem + ihad, eta tower
@@ -353,7 +364,7 @@ if __name__ == "__main__" :
     X_test_iesum = np.sum(X_test,axis = 1)[:,2:3].ravel() # [ET]
 
     # Define the calibrated jet energy (applying the model to the test samples)
-    X_test_model, Y_test_model = convert_samples(X_test, Y_test)
+    X_test_model, Y_test_model = convert_samples(X_test, Y_test, options.etrain)
     X_test_calib_sum = model1.predict(X_test_model)*2 # [ET]
 
     print('\nBuild pandas')
@@ -368,8 +379,8 @@ if __name__ == "__main__" :
 
     PlotResolution(df_uncalib,df_calib,odir,options.v)
     PlotGenJetPtSpectrum(df_uncalib,df_calib,odir,options.v)
-    resolution = PlotResolution_bins(df_uncalib,df_calib,odir,options.v,bins_energy,'energy')
-    resolution_eta = PlotResolution_bins(df_uncalib,df_calib,odir,options.v,bins_eta,'eta')
+    resolution = PlotResolution_bins(df_uncalib,df_calib,odir,options.v,'energy',30)
+    resolution_eta = PlotResolution_bins(df_uncalib,df_calib,odir,options.v,'eta',0.5)
 
     ### New plots ###
 
@@ -388,9 +399,12 @@ if __name__ == "__main__" :
     eta_values = [1,1.5]
     PlotResolution_vs_Pt_Etavalue(df_uncalib, df_calib, odir, options.v, eta_values)
 
-    pt_values = [10,20]
+    pt_values = [50,100]
     PlotResolution_vs_Eta_Ptvalue(df_uncalib, df_calib, odir, options.v, pt_values)
 
     PlotECALratio(df_uncalib)
+
+    df_uncalib.to_csv('df_uncalib.csv')
+    df_calib.to_csv('df_calib.csv')
 
     print('\nDONE!!!\n')

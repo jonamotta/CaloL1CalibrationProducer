@@ -132,38 +132,51 @@ def custom_loss(y_true, y_pred):
 model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss)
 
 
-def convert_samples(X_train, Y_train, version='ECALpHCAL'):
+def convert_samples(X_vec, Y_vec, training_energy):
     # convert samples for training
-    print('\nConvert samples to X_train and Y_train')
-    if version=="ECAL":
-        X_train = np.delete(X_train, 2, axis=2)   # delete iesum column
-        X_train = np.delete(X_train, 1, axis=2)   # delete ihad column
-    elif version=="HCAL":
-        X_train = np.delete(X_train, 2, axis=2)   # delete iesum column
-        X_train = np.delete(X_train, 0, axis=2)   # delete iem column
-    else:
-        X_train = np.delete(X_train, 1, axis=2)   # delete ihad column
-        X_train = np.delete(X_train, 0, axis=2)   # delete iem column
-    
-    # Need to remove the second entry in the Y vectors with [:,0] (eta information)
-    Y_train = Y_train[:,0]
-    return X_train, Y_train
+    # Y vector columns: jetPt, jetEta
+    Y = Y_vec[:,0] # remove jetEta column
 
+    # X vector columns: iem, ihad, iesum, ieta
+    if training_energy == 'iem':
+        print('\nConvert X and Y vectors to keep iem')
+        X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+        X = np.delete(X, 1, axis=2)     # delete ihad column
+
+        X_ihad = np.sum(X_vec, axis = 1)[:,1:2].ravel() # [ET]
+        Y = Y - X_ihad*2 # [Gev] jetPt - HCAL_deposit 
+        # [FIXME] we are subtracting something which is uncalibrated
+
+    elif training_energy == 'ihad':
+        print('\nConvert X and Y vectors to keep ihad')
+        X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+        X = np.delete(X, 0, axis=2)     # delete iem column
+
+        X_iem = np.sum(X_vec,axis = 1)[:,0:1].ravel() # [ET]
+        Y = Y - X_iem*2 # [Gev] jetPt - ECAL_deposit 
+        # [FIXME] is this already calibrated?
+        
+    elif training_energy == 'iesum':
+        print('\nConvert X and Y vectors to keep iesum')
+        X = np.delete(X_vec, 1, axis=2) # delete ihad column (always start deleting from right columns)
+        X = np.delete(X, 0, axis=2)     # delete iem column
+        
+    return X, Y
 
 #######################################################################
 ######################### SCRIPT BODY #################################
 #######################################################################
 
 ### To run:
-### python3 NNModelTraining.py --in 2022_04_21_NtuplesV1 --v ECAL
+### python3 NNModelTraining.py --in 2022_05_02_NtuplesV9 --v HCAL --etrain iesum
 
 if __name__ == "__main__" :
     
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("--indir",       dest="indir",   help="Input folder with csv",           default=None)
-    parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",  default='ECAL')
-    parser.add_option("--trainVers",        dest="trainVers",       help="Train agains ECAL/HCAL/ECAL+HCAL deposits",  default='ECALpHCAL')
+    parser.add_option("--indir",        dest="indir",       help="Input folder with X_train.npx and Y_train.npz",   default=None)
+    parser.add_option("--v",            dest="v",           help="Ntuple type ('ECAL' or 'HCAL')",                  default=None)
+    parser.add_option("--etrain",       dest="etrain",      help="Trainining energy ('iem', 'ihad' or 'iesum')",    default=None)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -179,9 +192,9 @@ if __name__ == "__main__" :
 
     # Inside X_train: matrix n_ev x 81 x 41 ([81 for the chucky donut towers][41 for iesum, ieta])
     # Inside Y_train: vector n_ev (jetPt)
-    X_train, Y_train = convert_samples(X_vec, Y_vec, options.trainVers)
+    X_train, Y_train = convert_samples(X_vec, Y_vec, options.etrain)
 
-    model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
+    model1.fit(X_train, Y_train, epochs=20, batch_size=128, verbose=1)
 
     model1.save(odir + '/model')
     couche.save(odir + '/couche')

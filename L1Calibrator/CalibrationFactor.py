@@ -54,9 +54,10 @@ if __name__ == "__main__" :
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--indir",    dest="indir",   help="Input folder with trained model", default=None)
-    parser.add_option("--bins",     dest="bins",    help="Comma separated energy bins",     default=None)
     parser.add_option("--out",      dest="odir",    help="Output folder",                   default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",  default='ECAL')
+    parser.add_option("--start",    dest="start",   help="Initial energy",                  default=1)
+    parser.add_option("--stop",     dest="stop",    help="Final energy",                    default=120)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -70,8 +71,11 @@ if __name__ == "__main__" :
     
     # Definition of energy bins in units of 0.5 GeV, from 1 to 510
     # It will be optimized by a separated script
-    if options.bins:
-        bins_energy = options.bins.split(',')
+    if options.start and options.stop:
+        start_energy = options.start
+        stop_energy = options.stop
+        bins_number = start_energy - stop_energy + 1
+        bins_energy = np.linspace(start_energy,stop_energy,bins_number)
     else:
         bins_energy = np.linspace(1,120,120)
     print('\nEnergy bins = {}'.format(bins_energy))
