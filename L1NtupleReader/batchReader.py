@@ -96,7 +96,7 @@ def padDataFrame( dfFlatEJT ):
     return padded
 
 
-def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, Ecalcut):
+def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, Ecalcut, trainingPtVersion):
     if len(dfET) == 0 or len(dfEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
@@ -135,14 +135,15 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     # remove jets outside L1 acceptance
     dfFlatEJ = dfFlatEJ[np.abs(dfFlatEJ['jetEta']) < 5.191]
 
-    # Apply cut on saturated towers, with energy deposit [iem < 255] and [ihad < 255]
-    dfFlatET = dfFlatET[dfFlatET['iem'] < 255]
-    dfFlatET = dfFlatET[dfFlatET['ihad'] < 255]
-    dfFlatET = dfFlatET[dfFlatET['iet'] < 255]
     # Apply cut for noisy towers: ieta=26 -> iem>=6, ieta=27 -> iem>=12, ieta=28 -> iem>=18
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 26) & (dfFlatET['iem'] < 6)].index, inplace = True)
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 27) & (dfFlatET['iem'] < 12)].index, inplace = True)
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 28) & (dfFlatET['iem'] < 18)].index, inplace = True)
+
+    # Apply ECAL calibration
+    ## 
+    # TO BE DONE
+    ##
 
     # Define overall hcalET information, ihad for ieta < 29 and iet for ieta > 29
     dfFlatET['hcalET'] = dfFlatET['ihad']*(np.abs(dfFlatET['ieta'])<29) + dfFlatET['iet']*(np.abs(dfFlatET['ieta'])>29)
@@ -188,7 +189,19 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         dfFlatEJ = dfFlatEJ[abs(dfFlatEJ['jetIeta']) <= int(iEtacut)]
 
     # join the jet and the towers datasets -> this creates all the possible combination of towers and jets for each event
+    # important that dfFlatET is joined to dfFlatEJ and not viceversa --> this because dfFlatEJ contains the safe jets to be used and the safe event numbers
     dfFlatEJT = dfFlatEJ.join(dfFlatET, on='event', how='left', rsuffix='_joined', sort=False)
+
+    # make the unique ID for each jet across all the files
+    dfFlatEJT.reset_index(inplace=True)
+    dfFlatEJT['uniqueId'] = dfFlatEJT['event'].astype(str)+'_'+dfFlatEJT['jetId'].astype(str)
+    dfFlatEJT['uniqueIdx'] = dfFlatEJT['uniqueId'].copy(deep=True)
+    dfFlatEJT.set_index('uniqueIdx', inplace=True)
+
+    # Apply cut on saturated towers (we do not only drop the towers but we drop the full jet otherwise we train on chunky donuts with holes)
+    dfFlatEJT.drop(dfFlatEJT[dfFlatEJT['iem']>255].index, inplace=True)
+    dfFlatEJT.drop(dfFlatEJT[dfFlatEJT['ihad']>255].index, inplace=True)
+    dfFlatEJT.drop(dfFlatEJT[dfFlatEJT['iet']>255].index, inplace=True)
 
     ## DEBUG
     print('starting bigORtowers')
@@ -215,21 +228,14 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     dfFlatEJT = dfFlatEJT[( ((dfFlatEJT['deltaI1']<5)&(dfFlatEJT['deltaI1']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaI1']>-5)&(dfFlatEJT['deltaI1']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaI1']<-5)|(dfFlatEJT['deltaI1']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) | ((dfFlatEJT['deltaIm1']<5)&(dfFlatEJT['deltaIm1']>0)&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=5)) | ((dfFlatEJT['deltaIm1']>-5)&(dfFlatEJT['deltaIm1']<0)&(dfFlatEJT['deltaIeta']>=-5)&(dfFlatEJT['deltaIeta']<=4)) | (((dfFlatEJT['deltaIm1']<-5)|(dfFlatEJT['deltaIm1']>5))&(dfFlatEJT['deltaIeta']>=-4)&(dfFlatEJT['deltaIeta']<=4)) )]
 
     # drop what is no longer needed
-    dfFlatEJT.drop(['deltaI29', 'deltaIm29', 'deltaI1', 'deltaIm1', 'deltaIphi', 'deltaIeta'], axis=1, inplace=True)
-
-    # make the unique ID for each jet across all the files
-    dfFlatEJT.reset_index(inplace=True)
-    dfFlatEJT['uniqueId'] = dfFlatEJT['event'].astype(str)+'_'+dfFlatEJT['jetId'].astype(str)
-    dfFlatEJT['uniqueIdx'] = dfFlatEJT['uniqueId'].copy(deep=True)
-    dfFlatEJT.set_index('uniqueIdx', inplace=True)
-
-    # drop what is no longer needed
-    dfFlatEJT.drop(['event', 'jetId'], axis=1, inplace=True)
+    dfFlatEJT.drop(['event', 'jetId', 'deltaI29', 'deltaIm29', 'deltaI1', 'deltaIm1', 'deltaIphi', 'deltaIeta'], axis=1, inplace=True)
 
     if Ecalcut != False:
         group = dfFlatEJT.groupby('uniqueIdx')
         sel = group['iem'].sum()/(group['iem'].sum()+group['hcalET'].sum()) > 0.8
         dfFlatEJT = dfFlatEJT[sel]
+        # drop all photons that have a deposit in HF
+        dfFlatEJT.drop(dfFlatEJT[(dfFlatEJT['iet']>0)&(dfFlatEJT['ieta']>=30)].index, inplace=True)
 
     print('starting padding') # DEBUG
 
@@ -238,23 +244,24 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     paddedEJT.drop_duplicates(['uniqueId', 'ieta', 'iphi'], keep='first', inplace=True)
     paddedEJT.set_index('uniqueId',inplace=True)
 
-    # [FIXME] I had removed this part since I thought we would have just saved jetPt
-    # # subtract iem/ihad to jetPt in oprder to get the correct training Pt to be be used for the NN
-    # if trainingPtVersion != False:
-    #     group = paddedEJT.groupby('uniqueId')
-    #     if trainingPtVersion=="ECAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['ihad'].sum()
-    #     if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['iem'].sum()
-    # else:
-    #     paddedEJT['trainingPt'] = paddedEJT['jetPt'].copy(deep=True)
+    # subtract iem/ihad to jetPt in oprder to get the correct training Pt to be be used for the NN
+    if trainingPtVersion != False:
+        group = paddedEJT.groupby('uniqueId')
+        if trainingPtVersion=="ECAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['hcalET'].sum()/2
+        if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['iem'].sum()/2
+    else:
+        paddedEJT['trainingPt'] = paddedEJT['jetPt'].copy(deep=True)
 
-    # # keep only the jets that have a meaningful trainingPt to be used
-    # paddedEJT = paddedEJT[paddedEJT['trainingPt']>1]
+    # keep only the jets that have a meaningful trainingPt to be used
+    paddedEJT = paddedEJT[paddedEJT['trainingPt']>1]
 
     # append the DFs from the different files to one single big DF
     paddedEJT.reset_index(inplace=True)
+    # shuffle the rows so that no order of the chunky donut gets learned
+    paddedEJT = paddedEJT.sample(frac=1).copy(deep=True)
 
     dfTowers = paddedEJT[['uniqueId','ieta','iem','hcalET']].copy(deep=True)
-    dfJets = paddedEJT[['uniqueId','jetPt','jetEta']].copy(deep=True) # [FIXME] Change jetPt with trainingPt
+    dfJets = paddedEJT[['uniqueId','jetPt','jetEta', 'jetPhi', 'trainingPt']].copy(deep=True)
 
     ## DEBUG
     # print(dfFlatEJT)
@@ -334,6 +341,7 @@ if __name__ == "__main__" :
     parser.add_option("--fin",         dest="fin",         default='')
     parser.add_option("--tag",         dest="tag",         default='')
     parser.add_option("--fout",        dest="fout",        default='')
+    parser.add_option("--trainPtVers", dest="trainPtVers", default=False)
     parser.add_option("--uJetPtCut",   dest="uJetPtCut",   default=False)
     parser.add_option("--lJetPtCut",   dest="lJetPtCut",   default=False)
     parser.add_option("--etacut",      dest="etacut",      default=False)
@@ -370,6 +378,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.trainPtVers)
     print("DONE!")
 
