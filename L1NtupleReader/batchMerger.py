@@ -153,7 +153,7 @@ if __name__ == "__main__" :
                 print('** INFO: towers'+tag+' not found --> skipping')
                 continue
 
-            if idx == 40: break # break at the n-th file to speed up the process
+            if idx == 75: break # break at the n-th file to speed up the process
         
         ## DEBUG
         print(len(X))
