@@ -45,6 +45,7 @@ if __name__ == "__main__" :
     parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', default=False)
     parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
     parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
+    parser.add_option("--doNewQCD", dest="doNewQCD", action='store_true', default=False)
     parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
     parser.add_option("--chunk_size", dest="chunk_size", type=int, default=5000)
     (options, args) = parser.parse_args()
@@ -58,7 +59,7 @@ if __name__ == "__main__" :
         print('** WARNING: no calibration to be used specified - EXITING!')
         exit()
 
-    if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False and options.testRun == False:
+    if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False and options.doNewQCD == False:
         print('** WARNING: no dataset to be used specified - EXITING!')
         exit()
 
@@ -79,7 +80,7 @@ if __name__ == "__main__" :
 
     if   options.doQCDpu:
         ## qcd flat0-80 pu
-        #folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated"+tagCalib+tagHCALpfa1p)
+        folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated"+tagCalib+tagHCALpfa1p)
         print('** WARNING: unbinned QCD samples not available at the moment, specify pt bin - EXITING!')
         exit()
 
