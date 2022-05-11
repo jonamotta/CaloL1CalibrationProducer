@@ -66,8 +66,11 @@ if __name__ == "__main__" :
     if   options.doQCDpu:
         ## qcd flat0-80 pu
         filelist = open(filedir+"/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated"+tagCalib+tagHCALpfa1p
-    
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+        
+        print('** WARNING: unbinned QCD samples not available at the moment, specify pt bin - EXITING!')
+        exit()
+
     elif options.doQCDnoPU:
         ## qcd without pu - backup datasets
         if options.qcdPtBin=="20To30":
@@ -90,23 +93,23 @@ if __name__ == "__main__" :
             filelist = open(filedir+"/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
             folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
-        else:
-            ## qcd without pu
-            #filelist = open(filedir+"/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW.txt")
-            #folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated"+tagCalib+tagHCALpfa1p
+        elif options.qcdPtBin=="PUForTRK":
+            filelist = open(filedir+"/QCD_Pt-15to7000_TuneCP5_Flat_13p6TeV-pythia8__Run3Winter22DR-PUForTRK_DIGI_122X_mcRun3_2021_realistic_v9-v2__GEN-SIM-DIGI-RAW.txt")
+            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-15to7000_TuneCP5_Flat_13p6TeV-pythia8__Run3Winter22DR-PUForTRK_DIGI_122X_mcRun3_2021_realistic_v9-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
-            print('** WARNING: unbinned QCD samples not available at the moment, specify pt bin - EXITING!')
-            exit()
+        else:
+            filelist = open(filedir+"/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW.txt")
+            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
     elif options.doEG0_200:
         ## signle photon 0-200 without pu
         filelist = open(filedir+"/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated"+tagCalib+tagHCALpfa1p
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
     
     elif options.doEG200_500:
         ## signle photon 200-500 without pu
         filelist = open(filedir+"/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated"+tagCalib+tagHCALpfa1p
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
     elif options.testRun:
         # TEST 10 files from signle photon 0-200 without pu
