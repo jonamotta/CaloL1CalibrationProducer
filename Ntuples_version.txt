@@ -73,3 +73,33 @@ Introduce upper pt cut on jet pt:
 HCAL eta cut <= 24
 Introduce firstsubtraction of iem deposit
     --> this subtraction is bugged due to missing factor 2 in iem sum (0.5GeV units)
+
+2022_05_09_NtuplesV12:
+ECAL: 
+- ietacut = 28
+- uJetPtcut = 100 ?
+- lJetPtcut = None
+- Ecalcut = 0.8
+Training: python3 NNModelTraining.py --indir 2022_05_09_NtuplesV12 --v ECAL --etrain iem
+
+HCAL: 
+- ietacut = 28
+- lJetPtcut 50GeV for  QCD_Pt-50To80 
+- lJetPtcut 50GeV for  QCD_Pt-80To120 
+- lJetPtcut 60GeV for  QCD_Pt-120To170
+- uJetPtcut = 150 ?
+- Ecalcut = None
+Training: python3 NNModelTraining.py --indir 2022_05_09_NtuplesV12 --v HCAL --etrain ihad 
+--ECALModel /data_CMS/cms/motta/CaloL1calibraton/2022_05_09_NtuplesV12/ECALtraining
+
+2022_05_10_NtuplesV13
+HCAL:
+- New samples with no PU (/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW_uncalib_applyHCALpfa1p)
+- Add saturation cut on iet
+- HCAL information is ihad for ieta < 29 and iet for ieta > 29
+- readme is saving every information
+
+python3 batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 2500 --doNewQCD --outdir 2022_05_10_NtuplesV13 --applyNoCalib
+module use /opt/exp_soft/vo.llr.in2p3.fr/modulefiles_el7
+module load python/3.7.0
+python batchSubmitOnTier3.py --doNewQCD --etacut 37 --indir 2022_05_10_NtuplesV13 --applyHCALpfa1p --lJetPtCut 25 --uJetPtCut 150 --applyNoCalib
