@@ -133,9 +133,9 @@ model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom
 
 
 def convert_samples(X_vec, Y_vec, training_energy):
-    # convert samples for training
-    # Y vector columns: jetPt, jetEta
-    Y = Y_vec[:,0] # remove jetEta column
+    # Y vector columns: jetPt, jetEta, jetPhi, trainingPt
+    # keep only the trainingPt
+    Y = Y_vec[:,3]
 
     # X vector columns: iem, ihad, iesum, ieta
     if training_energy == 'iem':
@@ -143,18 +143,10 @@ def convert_samples(X_vec, Y_vec, training_energy):
         X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
         X = np.delete(X, 1, axis=2)     # delete ihad column
 
-        X_ihad = np.sum(X_vec, axis = 1)[:,1:2].ravel() # [ET]
-        Y = Y - X_ihad*2 # [Gev] jetPt - HCAL_deposit 
-        # [FIXME] we are subtracting something which is uncalibrated
-
     elif training_energy == 'ihad':
         print('\nConvert X and Y vectors to keep ihad')
         X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
         X = np.delete(X, 0, axis=2)     # delete iem column
-
-        X_iem = np.sum(X_vec,axis = 1)[:,0:1].ravel() # [ET]
-        Y = Y - X_iem*2 # [Gev] jetPt - ECAL_deposit 
-        # [FIXME] is this already calibrated?
         
     elif training_energy == 'iesum':
         print('\nConvert X and Y vectors to keep iesum')
