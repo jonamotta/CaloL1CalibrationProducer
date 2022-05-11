@@ -42,6 +42,35 @@ def ExtractSF (model, bins):
     return SF_matrix
 
 
+# Same as before but ieta columns and energy rows
+def ExtractSF_inverted (model, bins):
+
+    SF_matrix = np.zeros(((len(bins)-1),(len(eta_towers))))
+
+    # Scan over energy bins
+    for i_bin in range(len(bins)-1):
+
+        print('Running bin ', i_bin)
+        i_energy_start = int(bins[i_bin])
+        i_energy_stop = int(bins[i_bin+1])
+
+        # Scan over eta towers
+        for i, i_eta in enumerate(eta_towers):
+
+            predictions = []
+
+            # Scan over all the possible energies belongin to each bin
+            for i_energy in range(i_energy_start, i_energy_stop):
+                # Reproduce an one-hot tower with the information required by the model, i.e. value of the tower energy and eta position
+                one_hot_tower = np.array([[i_energy] + [0 if i != i_eta else 1 for i in eta_towers]])
+                # Apply the model to the one-hot tower to get the expected converted energy, multiply by 2 to convert from GeV to towers energy units
+                predictions.append(model.predict(one_hot_tower).ravel()/i_energy*2) # [ET]
+
+            # Compute the mean over all the energies for each bin
+            SF_matrix[i_bin,i] = np.mean(predictions)
+
+    return SF_matrix
+
 #######################################################################
 ######################### SCRIPT BODY #################################
 #######################################################################
@@ -56,8 +85,8 @@ if __name__ == "__main__" :
     parser.add_option("--indir",    dest="indir",   help="Input folder with trained model", default=None)
     parser.add_option("--out",      dest="odir",    help="Output folder",                   default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",  default='ECAL')
-    parser.add_option("--start",    dest="start",   help="Initial energy",                  default=1)
-    parser.add_option("--stop",     dest="stop",    help="Final energy",                    default=120)
+    parser.add_option("--start",    dest="start",   help="Initial energy",                  default=None)
+    parser.add_option("--stop",     dest="stop",    help="Final energy",                    default=None)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -72,12 +101,13 @@ if __name__ == "__main__" :
     # Definition of energy bins in units of 0.5 GeV, from 1 to 510
     # It will be optimized by a separated script
     if options.start and options.stop:
-        start_energy = options.start
-        stop_energy = options.stop
-        bins_number = start_energy - stop_energy + 1
+        start_energy = int(options.start)
+        stop_energy = int(options.stop)
+        bins_number = stop_energy - start_energy + 1
         bins_energy = np.linspace(start_energy,stop_energy,bins_number)
     else:
-        bins_energy = np.linspace(1,120,120)
+        # bins_energy = np.linspace(1,120,120)
+        bins_energy = [1,4,8,12,16,20,30,50,70,90,110,130,150,170,200]
     print('\nEnergy bins = {}'.format(bins_energy))
 
     # Definition of the output folder
@@ -89,8 +119,8 @@ if __name__ == "__main__" :
     print('\nOutput dir = {}\n'.format(odir))
 
     # produce scale factors for every bin and every eta tower (matrix 40 * nbins)
-    SFOutFile = odir + '/ScaleFactors_' + options.v + '.csv'
-    ScaleFactors = ExtractSF(couche, bins_energy)
+    SFOutFile = odir + '/ScaleFactors_' + options.v + '_LargeBin.csv'
+    ScaleFactors = ExtractSF_inverted(couche, bins_energy)
 
     # Add eta references and save to output csv file
     ScaleFactors_index = np.c_[eta_towers, ScaleFactors]
