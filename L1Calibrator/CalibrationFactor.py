@@ -119,15 +119,31 @@ if __name__ == "__main__" :
     print('\nOutput dir = {}\n'.format(odir))
 
     # produce scale factors for every bin and every eta tower (matrix 40 * nbins)
-    SFOutFile = odir + '/ScaleFactors_' + options.v + '_LargeBin.csv'
+    SFOutFile = odir + '/ScaleFactors_' + options.v + '.csv'
+
+    # eta rows and energy columns
+    # ScaleFactors = ExtractSF(couche, bins_energy)
+
+    # # Add eta references and save to output csv file
+    # ScaleFactors_index = np.c_[eta_towers, ScaleFactors]
+    # head_text = 'ieta'
+    # for i in range(len(bins_energy)-1):
+    #     head_text = head_text + ',{}-{}'.format(bins_energy[i], bins_energy[i+1])
+    # np.savetxt(SFOutFile, ScaleFactors_index, delimiter=",", header=head_text, fmt=','.join(['%i'] + ['%1.22f']*(len(bins_energy)-1)))
+    # # Units of scale factor is [ET] since the LUT will convert ET to ET, not GeV
+
+    # print('\nScale Factors saved to: {}'.format(SFOutFile))
+
+    # eta columns and energy rows
     ScaleFactors = ExtractSF_inverted(couche, bins_energy)
 
     # Add eta references and save to output csv file
-    ScaleFactors_index = np.c_[eta_towers, ScaleFactors]
-    head_text = 'ieta'
-    for i in range(len(bins_energy)-1):
-        head_text = head_text + ',{}-{}'.format(bins_energy[i], bins_energy[i+1])
-    np.savetxt(SFOutFile, ScaleFactors_index, delimiter=",", header=head_text, fmt=','.join(['%i'] + ['%1.22f']*(len(bins_energy)-1)))
+    # edges_energy = ','.join('{}-{}'.format(int(bins_energy[i]), int(bins_energy[i+1])) for i in range(len(bins_energy)-1))
+    ScaleFactors_index = np.c_[bins_energy[1:], ScaleFactors]
+    head_text = 'en'
+    for i in range(len(eta_towers)):
+        head_text = head_text + ',{}'.format(eta_towers[i])
+    np.savetxt(SFOutFile, ScaleFactors_index, delimiter=",", header=head_text, fmt=','.join(['%i'] + ['%1.22f']*(len(eta_towers))))
     # Units of scale factor is [ET] since the LUT will convert ET to ET, not GeV
 
     print('\nScale Factors saved to: {}'.format(SFOutFile))
