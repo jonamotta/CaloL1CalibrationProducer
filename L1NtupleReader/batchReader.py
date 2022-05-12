@@ -184,10 +184,8 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     FindIphi_vctd = np.vectorize(FindIphi)
     dfFlatEJ['jetIeta'] = FindIeta_vctd(dfFlatEJ['jetEta'])
     dfFlatEJ['jetIphi'] = FindIphi_vctd(dfFlatEJ['jetPhi'])
-    # dfFlatEJ.drop(['jetPhi'], axis=1, inplace=True) # drop columns not needed anymore
 
-    # For ECAL we consider just jets having a chunky donuts completely inside the ECAL detector [jetIEta <= 24]
-    # For HCAL we consider just jets having a chunky donuts completely inside the HCAL detector [jetIEta <= 37]
+    # For ECAL/HCAL we consider just jets having a chunky donuts completely inside the ECAL/HCAL detector
     if iEtacut != False:
         dfFlatEJ = dfFlatEJ[abs(dfFlatEJ['jetIeta']) <= int(iEtacut)]
 
@@ -201,7 +199,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     dfFlatEJT['uniqueIdx'] = dfFlatEJT['uniqueId'].copy(deep=True)
     dfFlatEJT.set_index('uniqueIdx', inplace=True)
 
-    # Apply cut on saturated towers (we do not only drop the towers but we drop the full jet otherwise we train on chunky donuts with holes)
+    # apply cut on saturated towers (we do not only drop the towers but we drop the full jet otherwise we train on chunky donuts with holes)
     dfFlatEJT.drop(dfFlatEJT[dfFlatEJT['iem']>255].index, inplace=True)
     dfFlatEJT.drop(dfFlatEJT[dfFlatEJT['ihad']>255].index, inplace=True)
     dfFlatEJT.drop(dfFlatEJT[dfFlatEJT['iet']>255].index, inplace=True)
@@ -234,11 +232,13 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     dfFlatEJT.drop(['event', 'jetId', 'deltaI29', 'deltaIm29', 'deltaI1', 'deltaIm1', 'deltaIphi', 'deltaIeta'], axis=1, inplace=True)
 
     if Ecalcut != False:
-        group = dfFlatEJT.groupby('uniqueIdx')
-        sel = group['iem'].sum()/(group['iem'].sum()+group['hcalET'].sum()) > 0.8
-        dfFlatEJT = dfFlatEJT[sel]
         # drop all photons that have a deposit in HF
         dfFlatEJT.drop(dfFlatEJT[(dfFlatEJT['iet']>0)&(dfFlatEJT['ieta']>=30)].index, inplace=True)
+
+        # drop all photons for which E/(E+H)<0.8
+        group = dfFlatEJT.groupby('uniqueIdx')
+        dfFlatEJT['eoh'] = group['iem'].sum()/(group['iem'].sum()+group['hcalET'].sum())
+        dfFlatEJT = dfFlatEJT[dfFlatEJT['eoh']>0.8]
 
     print('starting padding') # DEBUG
 
