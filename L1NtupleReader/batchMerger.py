@@ -99,10 +99,10 @@ if __name__ == "__main__" :
         tensordirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
         dataframedirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
 
-        taglist200_500 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500_{0}.txt'.format(options.sample))
-        taglists.append(taglist200_500)
-        tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-        dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+        # taglist200_500 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500_{0}.txt'.format(options.sample))
+        # taglists.append(taglist200_500)
+        # tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
+        # dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
 
 
     else:
@@ -112,7 +112,7 @@ if __name__ == "__main__" :
     
     # dummy arrays filled with zeros
     X = np.array([[np.zeros(43) for i in range(81)]])
-    Y = np.array([[0,0]])
+    Y = np.array([[0,0,0,0]])
 
     # define the two paths where to read the hdf5 files
 
@@ -153,7 +153,7 @@ if __name__ == "__main__" :
                 print('** INFO: towers'+tag+' not found --> skipping')
                 continue
 
-            if idx == 75: break # break at the n-th file to speed up the process
+            if idx == 100: break # break at the n-th file to speed up the process
         
         ## DEBUG
         print(len(X))

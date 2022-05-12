@@ -72,16 +72,19 @@ def padDataFrame( dfFlatEJT ):
             jetIphi = dfFlatEJT['jetIphi'][uniqueIdx].unique()[0]
             jetPt = dfFlatEJT['jetPt'][uniqueIdx].unique()[0]
             jetEta = dfFlatEJT['jetEta'][uniqueIdx].unique()[0]
+            jetPhi = dfFlatEJT['jetPhi'][uniqueIdx].unique()[0]
         except TypeError:
             jetIeta = dfFlatEJT['jetIeta'][uniqueIdx]
             jetIphi = dfFlatEJT['jetIphi'][uniqueIdx]
             jetPt = dfFlatEJT['jetPt'][uniqueIdx]
             jetEta = dfFlatEJT['jetEta'][uniqueIdx]
+            jetPhi = dfFlatEJT['jetPhi'][uniqueIdx]
 
         padder = pd.DataFrame(columns=dfFlatEJT.columns, index=range(0,81))
         padder['uniqueId'] = uniqueIdx
         padder['jetPt'] = jetPt
         padder['jetEta'] = jetEta
+        padder['jetPhi'] = jetPhi
         padder['jetIeta'] = jetIeta
         padder['jetIphi'] = jetIphi
         padder['iem'] = 0
@@ -181,7 +184,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     FindIphi_vctd = np.vectorize(FindIphi)
     dfFlatEJ['jetIeta'] = FindIeta_vctd(dfFlatEJ['jetEta'])
     dfFlatEJ['jetIphi'] = FindIphi_vctd(dfFlatEJ['jetPhi'])
-    dfFlatEJ.drop(['jetPhi'], axis=1, inplace=True) # drop columns not needed anymore
+    # dfFlatEJ.drop(['jetPhi'], axis=1, inplace=True) # drop columns not needed anymore
 
     # For ECAL we consider just jets having a chunky donuts completely inside the ECAL detector [jetIEta <= 24]
     # For HCAL we consider just jets having a chunky donuts completely inside the HCAL detector [jetIEta <= 37]
@@ -261,7 +264,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     paddedEJT = paddedEJT.sample(frac=1).copy(deep=True)
 
     dfTowers = paddedEJT[['uniqueId','ieta','iem','hcalET']].copy(deep=True)
-    dfJets = paddedEJT[['uniqueId','jetPt','jetEta', 'jetPhi', 'trainingPt']].copy(deep=True)
+    dfJets = paddedEJT[['uniqueId','jetPt','jetEta','jetPhi','trainingPt']].copy(deep=True)
 
     ## DEBUG
     # print(dfFlatEJT)

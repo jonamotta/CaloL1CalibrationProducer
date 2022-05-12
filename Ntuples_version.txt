@@ -77,10 +77,11 @@ Introduce firstsubtraction of iem deposit
 2022_05_09_NtuplesV12:
 ECAL: 
 - ietacut = 28
-- uJetPtcut = 100 ?
+- uJetPtcut = 100
 - lJetPtcut = None
 - Ecalcut = 0.8
 Training: python3 NNModelTraining.py --indir 2022_05_09_NtuplesV12 --v ECAL --etrain iem
+Targeting: jetPt - ihad
 
 HCAL: 
 - ietacut = 28
@@ -103,3 +104,16 @@ python3 batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 2500 --doNewQCD --o
 module use /opt/exp_soft/vo.llr.in2p3.fr/modulefiles_el7
 module load python/3.7.0
 python batchSubmitOnTier3.py --doNewQCD --etacut 37 --indir 2022_05_10_NtuplesV13 --applyHCALpfa1p --lJetPtCut 25 --uJetPtCut 150 --applyNoCalib
+
+2022_05_11_NtuplesV14
+ECAL:
+python3 batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 5000 --doEG0_200 --applyNoCalib --outdir 2022_05_11_NtuplesV14
+module use /opt/exp_soft/vo.llr.in2p3.fr/modulefiles_el7
+module load python/3.7.0
+python batchSubmitOnTier3.py --doEG0_200 --etacut 28 --indir 2022_05_11_NtuplesV14 --applyHCALpfa1p --uJetPtCut 100 --applyNoCalib --trainPtVers ECAL
+python3 batchMerger.py --applyHCALpfa1 --indir 2022_05_11_NtuplesV14 --v ECAL --applyNoCalib --doEG --sample {train or test}
+python3 NNModelTraining.py --indir 2022_05_11_NtuplesV14 --v ECAL
+python3 CalibrationFactor.py --indir 2022_05_11_NtuplesV14 --v ECAL --start 1 --stop 200 --maxeta 28
+python3 ModelPlots.py --indir 2022_05_11_NtuplesV14 --v ECAL --out data_ECAL_V14
+
+
