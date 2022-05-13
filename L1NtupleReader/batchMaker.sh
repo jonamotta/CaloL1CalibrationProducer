@@ -7,6 +7,8 @@
 # python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 5000 --doEG200_500 --applyOldCalib
 # python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 5000 --doEG200_500 --applyNoCalib
 
+python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 2500 --doQCDnoPU --outdir 2022_05_12_NtuplesV15 --applyNoCalib
+
 
 python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 2500 --doQCDnoPU --qcdPtBin "50To80" --outdir 2022_05_02_NtuplesV8 --applyNewECALcalib
 python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 2500 --doQCDnoPU --qcdPtBin "50To80" --outdir 2022_05_02_NtuplesV8 --applyOldCalib
