@@ -1,4 +1,5 @@
 from optparse import OptionParser
+from caloParamsOnTheFly import *
 from itertools import chain
 from TowerGeometry import *
 import pandas as pd
@@ -99,7 +100,7 @@ def padDataFrame( dfFlatEJT ):
     return padded
 
 
-def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, Ecalcut, trainingPtVersion):
+def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, Ecalcut, trainingPtVersion, whichECALcalib):
     if len(dfET) == 0 or len(dfEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
@@ -240,6 +241,27 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         dfFlatEJT['eoh'] = group['iem'].sum()/(group['iem'].sum()+group['hcalET'].sum())
         dfFlatEJT = dfFlatEJT[dfFlatEJT['eoh']>0.8]
 
+    # apply ECAL calibration on the fly
+    if whichECALcalib != False:
+        print("starting ECAL calibration")
+        dfFlatEJT.reset_index(inplace=True)
+        
+        # get the correct caloParams for the calibration on the fly
+        if whichECALcalib == "oldCalib":
+            energy_bins = layer1ECalScaleETBins_oldCalib
+            labels = layer1ECalScaleETLabels_oldCalib
+            SFs = layer1ECalScaleFactors_oldCalib
+        elif whichECALcalib == "newCalib":
+            energy_bins = layer1ECalScaleETBins_newCalib
+            labels = layer1ECalScaleETLabels_newCalib
+            SFs = layer1ECalScaleFactors_newCalib
+        
+        dfFlatEJT['iemBin'] = pd.cut(dfFlatEJT['iem'], bins = energy_bins, labels=labels)
+        #print(dfFlatEJT.loc[1482])
+        #exit()
+        dfFlatEJT['iem'] = dfFlatEJT.apply(lambda row: round(row['iem'] * SFs[int( abs(row['ieta']) + 28*(row['iemBin']-1) ) -1]), axis=1)
+        dfFlatEJT.set_index('uniqueIdx', inplace=True)
+
     print('starting padding') # DEBUG
 
     # do the padding of the dataframe to have 81 rows for each jet        
@@ -344,6 +366,7 @@ if __name__ == "__main__" :
     parser.add_option("--fin",         dest="fin",         default='')
     parser.add_option("--tag",         dest="tag",         default='')
     parser.add_option("--fout",        dest="fout",        default='')
+    parser.add_option("--calibrateECAL", dest="calibrateECAL", default=False, help="oldCalib or newCalib; not specified == noCalib")
     parser.add_option("--trainPtVers", dest="trainPtVers", default=False)
     parser.add_option("--uJetPtCut",   dest="uJetPtCut",   default=False)
     parser.add_option("--lJetPtCut",   dest="lJetPtCut",   default=False)
@@ -381,6 +404,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.trainPtVers)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.trainPtVers, options.calibrateECAL)
     print("DONE!")
 

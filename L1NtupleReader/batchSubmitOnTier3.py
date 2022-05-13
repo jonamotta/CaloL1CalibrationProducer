@@ -39,6 +39,7 @@ parser.add_option("--uJetPtCut", dest="uJetPtCut", default=False)
 parser.add_option("--lJetPtCut", dest="lJetPtCut", default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
 parser.add_option("--ecalcut",  dest="ecalcut", default=False)
+parser.add_option("--calibECALOnTheFly",  dest="calibECALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
 parser.add_option("--trainPtVers",  dest="trainPtVers", default=False)
 parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
 parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
@@ -111,9 +112,9 @@ elif options.doQCDnoPU:
 
     else:
         ## qcd without pu
-        #folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated"+tagCalib+tagHCALpfa1p)
-        print('** WARNING: unbinned QCD samples not available at the moment, specify pt bin - EXITING!')
-        exit()
+        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU.txt')
+        filedir = filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+        folder = filedir+'/paddedAndReadyToMerge'
 
 elif options.doEG0_200:
     ## signle photon 0-200 without pu
@@ -163,6 +164,8 @@ for idx, tag in enumerate(tags):
         cmsRun = cmsRun + " --ecalcut "+options.ecalcut
     if options.trainPtVers != False:
         cmsRun = cmsRun + " --trainPtVers "+options.trainPtVers
+    if options.calibECALOnTheFly != False:
+        cmsRun = cmsRun + " --calibrateECAL "+options.calibECALOnTheFly
 
     cmsRun = cmsRun + " >& "+outLogName
 
@@ -176,8 +179,7 @@ for idx, tag in enumerate(tags):
     skimjob.close ()
 
     os.system ('chmod u+rwx ' + outJobName)
-    # command = ('/home/llr/cms/motta/t3submit -long \'' + outJobName +"\'")
-    command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
+    command = ('/home/llr/cms/motta/t3submit -long \'' + outJobName +"\'")
+    #command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
     os.system (command)
-    # break
