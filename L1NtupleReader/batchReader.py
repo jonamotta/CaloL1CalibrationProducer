@@ -136,6 +136,9 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     if lJetPtcut != False:
         dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] > float(lJetPtcut)]
 
+    # transform jetPt in hardware units
+    dfFlatEJ['jetPt'] = dfFlatEJ['jetPt'] * 2
+
     # remove jets outside L1 acceptance
     dfFlatEJ = dfFlatEJ[np.abs(dfFlatEJ['jetEta']) < 5.191]
 
@@ -259,26 +262,11 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     if Hcalcut != False:
         group = dfFlatEJT.groupby('uniqueIdx')
         dfFlatEJT['hoe'] = group['hcalET'].sum()/(group['iem'].sum()+group['hcalET'].sum())
-        dfFlatEJT['hcalETSum'] = group['hcalET'].sum()
-
-        if Hcalcut=="1":
-            # drop all jets for which H/(E+H)<0.3
-            print('applying test 1')
-            dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.3]
-
-        elif Hcalcut=="2":
-            # drop all jets that have hadronic deposit < 2
-            print('applying test 2')
-            dfFlatEJT = dfFlatEJT[dfFlatEJT['hcalETSum']>1]
-
-        elif Hcalcut=="3":
-            # drop all jets that have hadronic deposit < 2 and H/(E+H)<0.5
-            print('applying test 3')
-            dfFlatEJT = dfFlatEJT[(dfFlatEJT['hcalETSum']>1) | (dfFlatEJT['hoe']>0.5)]
-
-        else:
-            print("ERRORE")
-            exit()
+        dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.5]
+        
+        # this might be a less biasing option in my opinion
+        # dfFlatEJT['hcalETSum'] = group['hcalET'].sum()
+        # dfFlatEJT = dfFlatEJT[(dfFlatEJT['hcalETSum']>1) | (dfFlatEJT['hoe']>0.5)]
 
     print('starting padding') # DEBUG
 
@@ -288,14 +276,15 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     paddedEJT.set_index('uniqueId',inplace=True)
 
     # subtract iem/ihad to jetPt in oprder to get the correct training Pt to be be used for the NN
+    # here the jetPt is already in hardware units so no */2 is needed
     if trainingPtVersion != False:
         group = paddedEJT.groupby('uniqueId')
-        if trainingPtVersion=="ECAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['hcalET'].sum()/2
-        if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['iem'].sum()/2
+        if trainingPtVersion=="ECAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['hcalET'].sum()
+        if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['jetPt'].mean() - group['iem'].sum()
     else:
         paddedEJT['trainingPt'] = paddedEJT['jetPt'].copy(deep=True)
 
-    # keep only the jets that have a meaningful trainingPt to be used
+    # keep only the jets that have a meaningful trainingPt to be used (this selection should actually be redundant with )
     paddedEJT = paddedEJT[paddedEJT['trainingPt']>1]
 
     # append the DFs from the different files to one single big DF
