@@ -39,6 +39,7 @@ parser.add_option("--uJetPtCut", dest="uJetPtCut", default=False)
 parser.add_option("--lJetPtCut", dest="lJetPtCut", default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
 parser.add_option("--ecalcut",  dest="ecalcut", default=False)
+parser.add_option("--hcalcut",  dest="hcalcut", default=False)
 parser.add_option("--calibECALOnTheFly",  dest="calibECALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
 parser.add_option("--trainPtVers",  dest="trainPtVers", default=False)
 parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
@@ -112,7 +113,7 @@ elif options.doQCDnoPU:
 
     else:
         ## qcd without pu
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU.txt')
+        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_tmp.txt')
         filedir = filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
         folder = filedir+'/paddedAndReadyToMerge'
 
@@ -162,6 +163,8 @@ for idx, tag in enumerate(tags):
         cmsRun = cmsRun + " --etacut "+options.etacut
     if options.ecalcut != False:
         cmsRun = cmsRun + " --ecalcut "+options.ecalcut
+    if options.hcalcut != False:
+        cmsRun = cmsRun + " --hcalcut "+options.hcalcut
     if options.trainPtVers != False:
         cmsRun = cmsRun + " --trainPtVers "+options.trainPtVers
     if options.calibECALOnTheFly != False:
@@ -183,3 +186,4 @@ for idx, tag in enumerate(tags):
     #command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
     os.system (command)
+    #break
