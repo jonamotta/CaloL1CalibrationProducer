@@ -100,7 +100,7 @@ def padDataFrame( dfFlatEJT ):
     return padded
 
 
-def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, Ecalcut, trainingPtVersion, whichECALcalib):
+def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, Ecalcut, Hcalcut, trainingPtVersion, whichECALcalib):
     if len(dfET) == 0 or len(dfEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
@@ -143,11 +143,6 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 26) & (dfFlatET['iem'] < 6)].index, inplace = True)
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 27) & (dfFlatET['iem'] < 12)].index, inplace = True)
     dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 28) & (dfFlatET['iem'] < 18)].index, inplace = True)
-
-    # Apply ECAL calibration
-    ## 
-    # TO BE DONE
-    ##
 
     # Define overall hcalET information, ihad for ieta < 29 and iet for ieta > 29
     dfFlatET['hcalET'] = dfFlatET['ihad']*(np.abs(dfFlatET['ieta'])<29) + dfFlatET['iet']*(np.abs(dfFlatET['ieta'])>29)
@@ -257,10 +252,33 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
             SFs = layer1ECalScaleFactors_newCalib
         
         dfFlatEJT['iemBin'] = pd.cut(dfFlatEJT['iem'], bins = energy_bins, labels=labels)
-        #print(dfFlatEJT.loc[1482])
-        #exit()
         dfFlatEJT['iem'] = dfFlatEJT.apply(lambda row: round(row['iem'] * SFs[int( abs(row['ieta']) + 28*(row['iemBin']-1) ) -1]), axis=1)
         dfFlatEJT.set_index('uniqueIdx', inplace=True)
+
+    # HCAL cuts depending on energy must come after the ECAl calibration (hoe depends on iem too!!)
+    if Hcalcut != False:
+        group = dfFlatEJT.groupby('uniqueIdx')
+        dfFlatEJT['hoe'] = group['hcalET'].sum()/(group['iem'].sum()+group['hcalET'].sum())
+        dfFlatEJT['hcalETSum'] = group['hcalET'].sum()
+
+        if Hcalcut=="1":
+            # drop all jets for which H/(E+H)<0.3
+            print('applying test 1')
+            dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.3]
+
+        elif Hcalcut=="2":
+            # drop all jets that have hadronic deposit < 2
+            print('applying test 2')
+            dfFlatEJT = dfFlatEJT[dfFlatEJT['hcalETSum']>1]
+
+        elif Hcalcut=="3":
+            # drop all jets that have hadronic deposit < 2 and H/(E+H)<0.5
+            print('applying test 3')
+            dfFlatEJT = dfFlatEJT[(dfFlatEJT['hcalETSum']>1) | (dfFlatEJT['hoe']>0.5)]
+
+        else:
+            print("ERRORE")
+            exit()
 
     print('starting padding') # DEBUG
 
@@ -372,6 +390,7 @@ if __name__ == "__main__" :
     parser.add_option("--lJetPtCut",   dest="lJetPtCut",   default=False)
     parser.add_option("--etacut",      dest="etacut",      default=False)
     parser.add_option("--ecalcut",     dest="ecalcut",     default=False)
+    parser.add_option("--hcalcut",     dest="hcalcut",     default=False)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.tag=='' or options.fout==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
@@ -404,6 +423,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.trainPtVers, options.calibrateECAL)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.hcalcut, options.trainPtVers, options.calibrateECAL)
     print("DONE!")
 
