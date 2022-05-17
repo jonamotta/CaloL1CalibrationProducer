@@ -33,8 +33,8 @@ def ExtractSF (model, bins, eta_towers):
             for i_energy in range(i_energy_start, i_energy_stop):
                 # Reproduce an one-hot tower with the information required by the model, i.e. value of the tower energy and eta position
                 one_hot_tower = np.array([[i_energy] + [0 if i != i_eta else 1 for i in real_eta_towers]])
-                # Apply the model to the one-hot tower to get the expected converted energy, multiply by 2 to convert from GeV to towers energy units
-                predictions.append(model.predict(one_hot_tower).ravel()/i_energy*2) # [ET]
+                # Apply the model to the one-hot tower to get the expected converted energy
+                predictions.append(model.predict(one_hot_tower).ravel()/i_energy) # [ET]
 
             # Compute the mean over all the energies for each bin
             SF_matrix[i,i_bin] = np.mean(predictions)
@@ -62,8 +62,8 @@ def ExtractSF_inverted (model, bins, eta_towers):
             for i_energy in range(i_energy_start, i_energy_stop):
                 # Reproduce an one-hot tower with the information required by the model, i.e. value of the tower energy and eta position
                 one_hot_tower = np.array([[i_energy] + [0 if i != i_eta else 1 for i in real_eta_towers]])
-                # Apply the model to the one-hot tower to get the expected converted energy, multiply by 2 to convert from GeV to towers energy units
-                predictions.append(model.predict(one_hot_tower).ravel()/i_energy*2) # [ET]
+                # Apply the model to the one-hot tower to get the expected converted energy
+                predictions.append(model.predict(one_hot_tower).ravel()/i_energy) # [ET]
 
             # Compute the mean over all the energies for each bin
             SF_matrix[i_bin,i] = np.mean(predictions)
@@ -75,7 +75,7 @@ def ExtractSF_inverted (model, bins, eta_towers):
 #######################################################################
 
 ### To run:
-### python3 CalibrationFactor.py --in 2022_04_21_NtuplesV1/ECALtraining --v ECAL 
+### python3 CalibrationFactor.py --in 2022_04_21_NtuplesV1 --v ECAL 
 
 if __name__ == "__main__" :
 

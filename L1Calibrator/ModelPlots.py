@@ -383,7 +383,7 @@ if __name__ == "__main__" :
 
     # Define the calibrated jet energy (applying the model to the test samples)
     X_test_model, Y_test_model = convert_samples(X_test, Y_test, options.v)
-    X_test_calib_sum = model1.predict(X_test_model)*2 # [ET]
+    X_test_calib_sum = model1.predict(X_test_model) # [ET]
 
     print('\nBuild pandas')
     # Produce the pandas dataframes with jetPt, jetEta and jetEnergy (sum of the deposited energy in all the towers)
