@@ -19,6 +19,7 @@ from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from tensorflow.keras.constraints import max_norm
+from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 
 ##############################################################################
@@ -27,6 +28,13 @@ from sklearn.model_selection import train_test_split
 
 inputs = keras.Input(shape = (81,41), name = 'chunky_donut')
 
+enc = OneHotEncoder()
+values = [[i%41 + 1, i] if (i%41 + 1 != 29) else [28,i] for i in range(513)]
+enc.fit(values)
+
+#OH = keras.layers.Lambda(lambda x : enc.transform(x).toarray(), name='one_hot_encoder')
+
+#inputs = OH(inputs)
 layer1 = Dense(164, name = 'NN1',   input_dim=41,   activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
 cache =  Dense(512, name = 'cache',                 activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
 layer2 = Dense(1,   name = 'NN2',                   activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
@@ -132,25 +140,20 @@ def custom_loss(y_true, y_pred):
 model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss)
 
 
-def convert_samples(X_vec, Y_vec, training_energy):
-    # Y vector columns: jetPt, jetEta, jetPhi, trainingPt
+def convert_samples(X_vec, Y_vec, version):
+    # Y vector columns: jetPt, jetEta, jetPhi, trainingPt (for ECAL jetPt - hcalET, for HCAL jetPt - calib(iem))
     # keep only the trainingPt
     Y = Y_vec[:,3]
 
     # X vector columns: iem, ihad, iesum, ieta
-    if training_energy == 'iem':
+    if version == 'ECAL':
         print('\nConvert X and Y vectors to keep iem')
         X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
         X = np.delete(X, 1, axis=2)     # delete ihad column
 
-    elif training_energy == 'ihad':
+    elif version == 'HCAL':
         print('\nConvert X and Y vectors to keep ihad')
         X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
-        X = np.delete(X, 0, axis=2)     # delete iem column
-        
-    elif training_energy == 'iesum':
-        print('\nConvert X and Y vectors to keep iesum')
-        X = np.delete(X_vec, 1, axis=2) # delete ihad column (always start deleting from right columns)
         X = np.delete(X, 0, axis=2)     # delete iem column
         
     return X, Y
@@ -160,7 +163,7 @@ def convert_samples(X_vec, Y_vec, training_energy):
 #######################################################################
 
 ### To run:
-### python3 NNModelTraining.py --in 2022_05_02_NtuplesV9 --v HCAL --etrain iesum
+### python3 NNModelTraining.py --in 2022_05_02_NtuplesV9 --v HCAL
 
 if __name__ == "__main__" :
     
@@ -168,7 +171,6 @@ if __name__ == "__main__" :
     parser = OptionParser()
     parser.add_option("--indir",        dest="indir",       help="Input folder with X_train.npx and Y_train.npz",   default=None)
     parser.add_option("--v",            dest="v",           help="Ntuple type ('ECAL' or 'HCAL')",                  default=None)
-    parser.add_option("--etrain",       dest="etrain",      help="Trainining energy ('iem', 'ihad' or 'iesum')",    default=None)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -178,13 +180,13 @@ if __name__ == "__main__" :
 
     # read testing and training datasets
     # Inside X_vec: matrix n_ev x 81 x 43 ([81 for the chucky donut towers][43 for iem, ihad, iesum, ieta])
-    # Inside Y_vec: matrx n_ev x 2 (jetPt, jetEta)
+    # Inside Y_vec: matrx n_ev x 2 (jetPt, jetPhi, jetEta, trainingPt)
     X_vec = np.load(indir+'/X_train.npz')['arr_0']
     Y_vec = np.load(indir+'/Y_train.npz')['arr_0']
 
     # Inside X_train: matrix n_ev x 81 x 41 ([81 for the chucky donut towers][41 for iesum, ieta])
     # Inside Y_train: vector n_ev (jetPt)
-    X_train, Y_train = convert_samples(X_vec, Y_vec, options.etrain)
+    X_train, Y_train = convert_samples(X_vec, Y_vec, options.v)
 
     model1.fit(X_train, Y_train, epochs=20, batch_size=128, verbose=1)
 
