@@ -7,6 +7,7 @@ import copy
 import pandas as pd
 import matplotlib.pyplot as plt
 from math import *
+from matplotlib.transforms import Affine2D
 
 from NNModelTraining import *
 sys.path.insert(0,'..')
@@ -22,13 +23,13 @@ eta_towers = list(TowersEta.keys())
 # Plot calibration constants (Scale Factors) 
 # 1. Calibration constants vs ieta for different ET [jetPt binning]
 # 2. Calibration constant vs ET for a few ieta
-def PlotSF (SF_matrix, bins, odir, v_sample, stop):
+def PlotSF (SF_matrix, bins, odir, v_sample, eta_towers):
 
     # Plot 1) Calibration constants vs ieta for different ET [jetPt binning]
     plt.figure(figsize=(12,8))
     colors = plt.cm.viridis_r(np.linspace(0,1,len(bins)))
     for i in range(len(bins) - 1):
-        plt.plot(eta_towers[:stop], SF_matrix[:stop,i], 'o--', color=colors[i], label = f"{bins[i]} $\leq E_T <$ {bins[i+1]}")
+        plt.plot(eta_towers, SF_matrix[:,i], 'o--', color=colors[i], label = f"{bins[i]} $\leq E_T <$ {bins[i+1]}")
     plt.xlabel('L1T Eta Tower')
     plt.ylabel('{} Calibration Constant'.format(v_sample))
     plt.grid(linestyle='dotted')
@@ -44,8 +45,8 @@ def PlotSF (SF_matrix, bins, odir, v_sample, stop):
     
     # Plot 2) Calibration constant vs ET for a few ieta
 
-    eta_towers_plot = [1,5,10,15,20] # to be chosen
-    eta_towers_plot = np.linspace(1,41,41)
+    # eta_towers_plot = [1,5,10,15,20] # to be chosen
+    eta_towers_plot = eta_towers
 
     plt.figure(figsize=(12,8))
     colors = plt.cm.viridis_r(np.linspace(0,1,len(eta_towers)))
@@ -139,11 +140,12 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bin_type, steps):
         sys.exit('[ERROR] PlotResolution_bins: choose bin_type between energy and eta')
 
     data = []
-    
+
     values = np.unique(df_calib[name])
-    min_value = int(values.min())-1
-    max_value = int(values.max())+steps+1
-    bins = np.arange(min_value,max_value,steps)
+    min_value = int(values.min())
+    max_value = int(values.max())+1
+    bins = np.arange(min_value, max_value, steps)
+    bins = np.append(bins, max_value)
 
     labels_text = []
     for i in range(len(bins)-1):
@@ -199,6 +201,20 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bin_type, steps):
     plt.savefig(savefile)
     print(savefile)
     plt.close()
+
+    fig, ax = plt.subplots(figsize = [18,10])
+    trans1 = Affine2D().translate(-0.05, 0.0) + ax.transData
+    trans2 = Affine2D().translate(+0.05, 0.0) + ax.transData
+    plt.errorbar(resolution[column_bin], resolution['uncalib_mean'], yerr=resolution['uncalib_std'], fmt='o', alpha=1, label='Uncalib', color=c_uncalib, markersize=15, capsize=8, elinewidth=3, capthick=5, transform=trans1)
+    plt.errorbar(resolution[column_bin], resolution['calib_mean'], yerr=resolution['calib_std'], fmt='o', alpha=1, label='Calib', color=c_calib, markersize=15, capsize=8, elinewidth=3, capthick=5, transform=trans2)
+    plt.axhline(y=1., color='black', linestyle='--')
+    plt.xlabel('{} bins {}'.format(name, units))
+    plt.ylabel(r'Mean $\pm$ Standard Deviation')
+    plt.title(f'Jets resolution')
+    plt.legend(loc='upper left')
+    savefile = odir + '/Res_vs_{}_{}_bars.png'.format(name.split('jet')[1], v_sample)
+    plt.savefig(savefile)
+    print(savefile)
 
     return resolution
 
@@ -288,7 +304,7 @@ def PlotECALratio(df_uncalib):
 
 
 ### To run:
-### python3 ModelPlots.py --in 2022_05_02_NtuplesV9 --v HCAL --etrain iesum --out data_ECAL_V1/plots
+### python3 ModelPlots.py --in 2022_05_02_NtuplesV9 --v HCAL --out data_ECAL_V1/plots
 
 if __name__ == "__main__" :
 
@@ -297,7 +313,6 @@ if __name__ == "__main__" :
     parser.add_option("--indir",    dest="indir",   help="Input folder with trained model",     default=None)
     parser.add_option("--out",      dest="odir",    help="Output folder",                       default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",      default='ECAL')
-    parser.add_option("--etrain",   dest="etrain",  help="Training energy (iem, ihad or iesum)",default='iesum')
     parser.add_option("--maxeta",   dest="maxeta",  help="Eta max in the SF plot (None or 28)", default=None)
     (options, args) = parser.parse_args()
     print(options)
@@ -322,6 +337,9 @@ if __name__ == "__main__" :
     os.system('mkdir -p '+ odir)
     print('\nOutput dir = {}'.format(odir))
 
+    eta_towers = np.loadtxt(open(SF_filename, "rb"), delimiter=',')[:,0]
+    print('\nEta Trigger Towers = {}'.format(eta_towers))
+
     # Takes the matrix removing the first column (eta values), the header is commented and automatically removed
     ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',')[:,1:]
     # Definition of energy bin edges from the header
@@ -338,7 +356,7 @@ if __name__ == "__main__" :
 
     # Plot the scale factors
     print('\nPlot scale factors')
-    PlotSF(ScaleFactors, bins_energy, odir, options.v, options.maxeta)
+    PlotSF(ScaleFactors, bins_energy, odir, options.v, eta_towers)
 
     #######################################################
     ################## Resolution plots ###################
@@ -364,7 +382,7 @@ if __name__ == "__main__" :
     X_test_iesum = np.sum(X_test,axis = 1)[:,2:3].ravel() # [ET]
 
     # Define the calibrated jet energy (applying the model to the test samples)
-    X_test_model, Y_test_model = convert_samples(X_test, Y_test, options.etrain)
+    X_test_model, Y_test_model = convert_samples(X_test, Y_test, options.v)
     X_test_calib_sum = model1.predict(X_test_model)*2 # [ET]
 
     print('\nBuild pandas')
@@ -379,7 +397,7 @@ if __name__ == "__main__" :
 
     PlotResolution(df_uncalib,df_calib,odir,options.v)
     PlotGenJetPtSpectrum(df_uncalib,df_calib,odir,options.v)
-    resolution = PlotResolution_bins(df_uncalib,df_calib,odir,options.v,'energy',30)
+    resolution = PlotResolution_bins(df_uncalib,df_calib,odir,options.v,'energy',15)
     resolution_eta = PlotResolution_bins(df_uncalib,df_calib,odir,options.v,'eta',0.5)
 
     ### New plots ###

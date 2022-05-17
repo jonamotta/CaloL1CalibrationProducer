@@ -9,11 +9,11 @@ from NNModelTraining import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
-eta_towers = list(TowersEta.keys())
+real_eta_towers = list(TowersEta.keys())
 
 # Returns matrix with scale factors for the trained model (couche)
 # The matrix has 40 rows, for all the eta towers, and as many columns as the number of the energy bins
-def ExtractSF (model, bins):
+def ExtractSF (model, bins, eta_towers):
 
     SF_matrix = np.zeros(((len(eta_towers)),(len(bins)-1)))
 
@@ -32,7 +32,7 @@ def ExtractSF (model, bins):
             # Scan over all the possible energies belongin to each bin
             for i_energy in range(i_energy_start, i_energy_stop):
                 # Reproduce an one-hot tower with the information required by the model, i.e. value of the tower energy and eta position
-                one_hot_tower = np.array([[i_energy] + [0 if i != i_eta else 1 for i in eta_towers]])
+                one_hot_tower = np.array([[i_energy] + [0 if i != i_eta else 1 for i in real_eta_towers]])
                 # Apply the model to the one-hot tower to get the expected converted energy, multiply by 2 to convert from GeV to towers energy units
                 predictions.append(model.predict(one_hot_tower).ravel()/i_energy*2) # [ET]
 
@@ -41,9 +41,8 @@ def ExtractSF (model, bins):
 
     return SF_matrix
 
-
 # Same as before but ieta columns and energy rows
-def ExtractSF_inverted (model, bins):
+def ExtractSF_inverted (model, bins, eta_towers):
 
     SF_matrix = np.zeros(((len(bins)-1),(len(eta_towers))))
 
@@ -62,7 +61,7 @@ def ExtractSF_inverted (model, bins):
             # Scan over all the possible energies belongin to each bin
             for i_energy in range(i_energy_start, i_energy_stop):
                 # Reproduce an one-hot tower with the information required by the model, i.e. value of the tower energy and eta position
-                one_hot_tower = np.array([[i_energy] + [0 if i != i_eta else 1 for i in eta_towers]])
+                one_hot_tower = np.array([[i_energy] + [0 if i != i_eta else 1 for i in real_eta_towers]])
                 # Apply the model to the one-hot tower to get the expected converted energy, multiply by 2 to convert from GeV to towers energy units
                 predictions.append(model.predict(one_hot_tower).ravel()/i_energy*2) # [ET]
 
@@ -87,6 +86,7 @@ if __name__ == "__main__" :
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",  default='ECAL')
     parser.add_option("--start",    dest="start",   help="Initial energy",                  default=None)
     parser.add_option("--stop",     dest="stop",    help="Final energy",                    default=None)
+    parser.add_option("--maxeta",   dest="maxeta",  help="Eta tower max",                   default=None)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -110,6 +110,11 @@ if __name__ == "__main__" :
         bins_energy = [1,4,8,12,16,20,30,50,70,90,110,130,150,170,200]
     print('\nEnergy bins = {}'.format(bins_energy))
 
+    if options.maxeta != None:
+        eta_towers = [i for i in range(1,int(options.maxeta)+1)]
+    else:
+        eta_towers = real_eta_towers
+
     # Definition of the output folder
     if options.odir:
         odir = options.odir
@@ -118,24 +123,27 @@ if __name__ == "__main__" :
     os.system('mkdir -p '+ odir)
     print('\nOutput dir = {}\n'.format(odir))
 
+    ################## Energy columns and eta rows ##################
     # produce scale factors for every bin and every eta tower (matrix 40 * nbins)
     SFOutFile = odir + '/ScaleFactors_' + options.v + '.csv'
 
     # eta rows and energy columns
-    # ScaleFactors = ExtractSF(couche, bins_energy)
+    ScaleFactors = ExtractSF(couche, bins_energy, eta_towers)
 
     # # Add eta references and save to output csv file
-    # ScaleFactors_index = np.c_[eta_towers, ScaleFactors]
-    # head_text = 'ieta'
-    # for i in range(len(bins_energy)-1):
-    #     head_text = head_text + ',{}-{}'.format(bins_energy[i], bins_energy[i+1])
-    # np.savetxt(SFOutFile, ScaleFactors_index, delimiter=",", header=head_text, fmt=','.join(['%i'] + ['%1.22f']*(len(bins_energy)-1)))
-    # # Units of scale factor is [ET] since the LUT will convert ET to ET, not GeV
+    ScaleFactors_index = np.c_[eta_towers, ScaleFactors]
+    head_text = 'ieta'
+    for i in range(len(bins_energy)-1):
+        head_text = head_text + ',{}-{}'.format(bins_energy[i], bins_energy[i+1])
+    np.savetxt(SFOutFile, ScaleFactors_index, delimiter=",", header=head_text, fmt=','.join(['%i'] + ['%1.22f']*(len(bins_energy)-1)))
+    # Units of scale factor is [ET] since the LUT will convert ET to ET, not GeV
 
-    # print('\nScale Factors saved to: {}'.format(SFOutFile))
+    ################## Energy columns and eta rows ##################
+    # produce scale factors for every bin and every eta tower (matrix 40 * nbins)
+    SFOutFile = odir + '/ScaleFactors_' + options.v + '_inverted.csv'
 
     # eta columns and energy rows
-    ScaleFactors = ExtractSF_inverted(couche, bins_energy)
+    ScaleFactors = ExtractSF_inverted(couche, bins_energy, eta_towers)
 
     # Add eta references and save to output csv file
     # edges_energy = ','.join('{}-{}'.format(int(bins_energy[i]), int(bins_energy[i+1])) for i in range(len(bins_energy)-1))
