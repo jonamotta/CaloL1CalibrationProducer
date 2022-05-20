@@ -16,6 +16,7 @@ if __name__ == "__main__" :
     # read the batched input tensors to the NN and merge them
     parser = OptionParser()
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",      default='ECAL')
+    parser.add_option("--odir",     dest="odir",    default="")
     parser.add_option("--jetcut",   dest="jetcut",  help="JetPt cut in GeV",                    default=None)
     parser.add_option("--indir",      dest="indir",     help="Folder with npz files to be merged",  default='')
     parser.add_option("--sample",   dest="sample",  help="Type of sample (train or test)",       default='')
@@ -27,6 +28,7 @@ if __name__ == "__main__" :
     parser.add_option("--doEG", dest="doEG", action='store_true', default=False)
     parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
     parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
+    parser.add_option("--applyOnTheFly", dest="applyOnTheFly", action='store_true', default=False)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -54,6 +56,9 @@ if __name__ == "__main__" :
 
     filedir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir
 
+    outputFolderName = 'paddedAndReadyToMerge'
+    if options.applyOnTheFly: outputFolderName = 'appliedOnTheFly'
+
     if   options.doQCDpu:
         ## qcd flat0-80 pu
         #folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated"+tagCalib+tagHCALpfa1p)
@@ -64,47 +69,47 @@ if __name__ == "__main__" :
         ## qcd without pu - backup datasets
             # taglist20To30 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt20To30_{0}.txt'.format(options.sample))
             # taglists.append(taglist20To30)
-            # tensordirs.append(filedir +'/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-            # dataframedirs.append(filedir +'/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+            # tensordirs.append(filedir +'/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/tensors'.format(outputFolderName))
+            # dataframedirs.append(filedir +'/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/dataframes'.format(outputFolderName))
 
             # taglist30To50 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt30To50_{0}.txt'.format(options.sample))
             # taglists.append(taglist30To50)
-            # tensordirs.append(filedir +'/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-            # dataframedirs.append(filedir +'/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+            # tensordirs.append(filedir +'/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/tensors'.format(outputFolderName))
+            # dataframedirs.append(filedir +'/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/dataframes'.format(outputFolderName))
 
             # taglist50To80 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt50To80_{0}.txt'.format(options.sample))
             # taglists.append(taglist50To80)
-            # tensordirs.append(filedir +'/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-            # dataframedirs.append(filedir +'/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+            # tensordirs.append(filedir +'/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/tensors'.format(outputFolderName))
+            # dataframedirs.append(filedir +'/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/dataframes'.format(outputFolderName))
 
             # taglist80To120 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt80To120_{0}.txt'.format(options.sample))
             # taglists.append(taglist80To120)
-            # tensordirs.append(filedir +'/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-            # dataframedirs.append(filedir +'/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+            # tensordirs.append(filedir +'/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/tensors'.format(outputFolderName))
+            # dataframedirs.append(filedir +'/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/dataframes'.format(outputFolderName))
 
             # taglist120To170 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt120To170_{0}.txt'.format(options.sample))
             # taglists.append(taglist120To170)
-            # tensordirs.append(filedir +'/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-            # dataframedirs.append(filedir +'/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+            # tensordirs.append(filedir +'/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/tensors'.format(outputFolderName))
+            # dataframedirs.append(filedir +'/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/dataframes'.format(outputFolderName))
 
             ## qcd without pu
-            taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_{0}_tmp.txt'.format(options.sample))
+            taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_{0}_subset.txt'.format(options.sample))
             taglists.append(taglist)
-            tensordirs.append(filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-            dataframedirs.append(filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+            tensordirs.append(filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/tensors'.format(outputFolderName,options.odir))
+            dataframedirs.append(filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/dataframes'.format(outputFolderName,options.odir))
 
 
     elif options.doEG:
         ## signle photon 0-200 without pu
-        taglist0_200 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200_{0}.txt'.format(options.sample))
+        taglist0_200 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200_{0}_subset.txt'.format(options.sample))
         taglists.append(taglist0_200)
-        tensordirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-        dataframedirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+        tensordirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/tensors'.format(outputFolderName,options.odir))
+        dataframedirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/dataframes'.format(outputFolderName,options.odir))
 
-        # taglist200_500 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500_{0}.txt'.format(options.sample))
-        # taglists.append(taglist200_500)
-        # tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/tensors')
-        # dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/paddedAndReadyToMerge/dataframes')
+        taglist200_500 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500_{0}.txt'.format(options.sample))
+        taglists.append(taglist200_500)
+        tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/tensors'.format(outputFolderName,options.odir))
+        dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/dataframes'.format(outputFolderName,options.odir))
 
 
     else:
@@ -114,11 +119,12 @@ if __name__ == "__main__" :
     
     # dummy arrays filled with zeros
     X = np.array([[np.zeros(43) for i in range(81)]])
+    if options.applyOnTheFly: X = np.array([[np.zeros(4) for i in range(81)]])
     Y = np.array([[0,0,0,0]])
 
     # define the two paths where to read the hdf5 files
 
-    training_folder = filedir + '/{}training'.format(options.v)
+    training_folder = filedir + '/{0}training{1}'.format(options.v, options.odir)
     os.system('mkdir -p ' + training_folder)
     os.system('mkdir -p ' + training_folder + '/dataframes')
     # define the paths where to save the hdf5 files
@@ -127,8 +133,8 @@ if __name__ == "__main__" :
         'Y'  : training_folder+'/dataframes/Y_'+options.sample+'.hdf5',
     }
 
-    dfX = pd.DataFrame()
-    dfY = pd.DataFrame()
+    # dfX = pd.DataFrame()
+    # dfY = pd.DataFrame()
 
     for i_fold, taglist in enumerate(taglists):
         # concatenate low energy photons
@@ -136,26 +142,29 @@ if __name__ == "__main__" :
             tag = tag.strip()
             if not idx%10: print('reading batch', idx, '- tag', tag, '- taglist', taglist)
             try:
+                #print(X)
+                #print(np.load(tensordirs[i_fold]+'/towers'+tag+'.npz', allow_pickle=True)['arr_0'])
+
                 X = np.concatenate([X,np.load(tensordirs[i_fold]+'/towers'+tag+'.npz', allow_pickle=True)['arr_0']])
                 Y = np.concatenate([Y,np.load(tensordirs[i_fold]+'/jets'+tag+'.npz', allow_pickle=True)['arr_0']])
 
-                # read hdf5 files
-                readT = pd.HDFStore(dataframedirs[i_fold]+'/towers'+tag+'.hdf5', mode='r')
-                dfET = readT['towers']
-                readT.close()
+                # # read hdf5 files
+                # readT = pd.HDFStore(dataframedirs[i_fold]+'/towers'+tag+'.hdf5', mode='r')
+                # dfET = readT['towers']
+                # readT.close()
 
-                readJ = pd.HDFStore(dataframedirs[i_fold]+'/jets'+tag+'.hdf5', mode='r')
-                dfEJ = readJ['jets']
-                readJ.close()
+                # readJ = pd.HDFStore(dataframedirs[i_fold]+'/jets'+tag+'.hdf5', mode='r')
+                # dfEJ = readJ['jets']
+                # readJ.close()
 
-                dfX.append(dfET)
-                dfY.append(dfEJ)
+                # dfX.append(dfET)
+                # dfY.append(dfEJ)
 
             except FileNotFoundError:
                 print('** INFO: towers'+tag+' not found --> skipping')
                 continue
 
-            if idx == 50: break # break at the n-th file to speed up the process
+            if idx == 150: break # break at the n-th file to speed up the process
         
         ## DEBUG
         print(len(X))
@@ -175,11 +184,11 @@ if __name__ == "__main__" :
 
     print("Saved data samples in folder: {}".format(training_folder))    
 
-    # save hdf5 files with dataframe formatted datasets
-    storeT = pd.HDFStore(saveto['X'], mode='w')
-    storeT['X'] = dfX
-    storeT.close()
+    # # save hdf5 files with dataframe formatted datasets
+    # storeT = pd.HDFStore(saveto['X'], mode='w')
+    # storeT['X'] = dfX
+    # storeT.close()
 
-    storeJ = pd.HDFStore(saveto['Y'], mode='w')
-    storeJ['Y'] = dfY
-    storeJ.close()
+    # storeJ = pd.HDFStore(saveto['Y'], mode='w')
+    # storeJ['Y'] = dfY
+    # storeJ.close()

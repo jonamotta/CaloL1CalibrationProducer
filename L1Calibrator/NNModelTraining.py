@@ -170,12 +170,13 @@ if __name__ == "__main__" :
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--indir",        dest="indir",       help="Input folder with X_train.npx and Y_train.npz",   default=None)
+    parser.add_option("--tag",          dest="tag",         help="tag of the training folder",                      default="")
     parser.add_option("--v",            dest="v",           help="Ntuple type ('ECAL' or 'HCAL')",                  default=None)
     (options, args) = parser.parse_args()
     print(options)
 
-    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training'
-    odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + '/model_' + options.v
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
+    odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/model_' + options.v
     os.system('mkdir -p '+ odir)
 
     # read testing and training datasets

@@ -40,7 +40,9 @@ parser.add_option("--lJetPtCut", dest="lJetPtCut", default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
 parser.add_option("--ecalcut",  dest="ecalcut", default=False)
 parser.add_option("--hcalcut",  dest="hcalcut", default=False)
+parser.add_option("--flatPtDist",     dest="flatPtDist",     default=False)
 parser.add_option("--calibECALOnTheFly",  dest="calibECALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
+parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
 parser.add_option("--trainPtVers",  dest="trainPtVers", default=False)
 parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
 parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
@@ -52,7 +54,7 @@ parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', defa
 parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
 parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
 parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
-parser.add_option("--FilesLim", dest="FilesLim", type=int, default=0)
+parser.add_option("--applyOnTheFly", dest="applyOnTheFly", action='store_true', default=False)
 (options, args) = parser.parse_args()
 
 if options.indir == None:
@@ -78,6 +80,9 @@ if   options.applyHCALpfa1p:         tagHCALpfa1p = "_applyHCALpfa1p"
 basedir = '/data_CMS/cms/motta/CaloL1calibraton'
 filedir = basedir + '/' + options.indir
 
+outputFolderName = 'paddedAndReadyToMerge'
+if options.applyOnTheFly: outputFolderName = 'appliedOnTheFly'
+
 if   options.doQCDpu:
     ## qcd flat0-80 pu
     #folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated"+tagCalib+tagHCALpfa1p)
@@ -89,45 +94,45 @@ elif options.doQCDnoPU:
     if options.qcdPtBin=="20To30":
         taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt20To30.txt')
         filedir = filedir +'/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/paddedAndReadyToMerge'
+        folder = filedir+'/'+outputFolderName
 
     elif options.qcdPtBin=="30To50":
         taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt30To50.txt')
         filedir = filedir +'/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/paddedAndReadyToMerge'
+        folder = filedir+'/'+outputFolderName
 
     elif options.qcdPtBin=="50To80":
         taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt50To80.txt')
         filedir = filedir +'/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/paddedAndReadyToMerge'
+        folder = filedir+'/'+outputFolderName
 
     elif options.qcdPtBin=="80To120":
         taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt80To120.txt')
         filedir = filedir +'/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/paddedAndReadyToMerge'
+        folder = filedir+'/'+outputFolderName
 
     elif options.qcdPtBin=="120To170":
         taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt120To170.txt')
         filedir = filedir +'/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/paddedAndReadyToMerge'
+        folder = filedir+'/'+outputFolderName
 
     else:
         ## qcd without pu
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_tmp.txt')
+        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_subset.txt')
         filedir = filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/paddedAndReadyToMerge'
+        folder = filedir+'/'+outputFolderName
 
 elif options.doEG0_200:
     ## signle photon 0-200 without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200.txt')
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200_subset.txt')
     filedir = filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
-    folder = filedir+'/paddedAndReadyToMerge'
+    folder = filedir+'/'+outputFolderName
 
 elif options.doEG200_500:
     ## signle photon 200-500 without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200.txt')
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500_subset.txt')
     filedir = filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
-    folder = filedir+'/paddedAndReadyToMerge'
+    folder = filedir+'/'+outputFolderName
 
 else:
     print(' ** WARNING: wrong request --> EXITING!')
@@ -154,7 +159,10 @@ for idx, tag in enumerate(tags):
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
-    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder
+    script = 'batchReader.py'
+    if options.applyOnTheFly: script = 'batchApplier.py'
+
+    cmsRun = "python "+script+" --fin "+filedir+" --tag "+tag+" --fout "+folder
     if options.uJetPtCut != False:
         cmsRun = cmsRun + " --uJetPtCut "+options.uJetPtCut
     if options.lJetPtCut != False:
@@ -169,6 +177,10 @@ for idx, tag in enumerate(tags):
         cmsRun = cmsRun + " --trainPtVers "+options.trainPtVers
     if options.calibECALOnTheFly != False:
         cmsRun = cmsRun + " --calibrateECAL "+options.calibECALOnTheFly
+    if options.calibHCALOnTheFly != False:
+        cmsRun = cmsRun + " --calibrateHCAL "+options.calibHCALOnTheFly
+    if options.flatPtDist != False:
+        cmsRun = cmsRun + " --flattenPtDistribution "+options.flatPtDist
 
     cmsRun = cmsRun + " >& "+outLogName
 
@@ -182,7 +194,7 @@ for idx, tag in enumerate(tags):
     skimjob.close ()
 
     os.system ('chmod u+rwx ' + outJobName)
-    command = ('/home/llr/cms/motta/t3submit -long \'' + outJobName +"\'")
+    command = ('/home/llr/cms/motta/t3submit -short \'' + outJobName +"\'")
     #command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
     os.system (command)

@@ -82,6 +82,7 @@ if __name__ == "__main__" :
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--indir",    dest="indir",   help="Input folder with trained model", default=None)
+    parser.add_option("--tag",      dest="tag",     help="tag of the training folder",      default="")
     parser.add_option("--out",      dest="odir",    help="Output folder",                   default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",  default='ECAL')
     parser.add_option("--start",    dest="start",   help="Initial energy",                  default=None)
@@ -91,7 +92,7 @@ if __name__ == "__main__" :
     print(options)
 
     # Definition of the trained model
-    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training'
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
     modeldir = indir + '/model_' + options.v
     print('\nModel dir = {}\n'.format(modeldir))
 
@@ -135,7 +136,7 @@ if __name__ == "__main__" :
     head_text = 'ieta'
     for i in range(len(bins_energy)-1):
         head_text = head_text + ',{}-{}'.format(bins_energy[i], bins_energy[i+1])
-    np.savetxt(SFOutFile, ScaleFactors_index, delimiter=",", header=head_text, fmt=','.join(['%i'] + ['%1.22f']*(len(bins_energy)-1)))
+    np.savetxt(SFOutFile, ScaleFactors_index, delimiter=",", header=head_text, fmt=','.join(['%i'] + ['%1.4f']*(len(bins_energy)-1)))
     # Units of scale factor is [ET] since the LUT will convert ET to ET, not GeV
 
     ################## Energy columns and eta rows ##################
@@ -151,7 +152,7 @@ if __name__ == "__main__" :
     head_text = 'en'
     for i in range(len(eta_towers)):
         head_text = head_text + ',{}'.format(eta_towers[i])
-    np.savetxt(SFOutFile, ScaleFactors_index, delimiter=",", header=head_text, fmt=','.join(['%i'] + ['%1.22f']*(len(eta_towers))))
+    np.savetxt(SFOutFile, ScaleFactors_index, delimiter=",", header=head_text, fmt=','.join(['%i'] + ['%1.4f']*(len(eta_towers))))
     # Units of scale factor is [ET] since the LUT will convert ET to ET, not GeV
 
     print('\nScale Factors saved to: {}'.format(SFOutFile))
