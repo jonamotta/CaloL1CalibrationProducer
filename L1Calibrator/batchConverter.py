@@ -1,14 +1,16 @@
 #librairies utiles
 import numpy as np
-from math import *
-from itertools import product
 import copy
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
+from math import *
+from itertools import product
 
+import sklearn
 import tensorflow as tf
 from tensorflow import keras
-import sklearn
+
 # Regression import
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
@@ -17,32 +19,26 @@ from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from tensorflow.keras.constraints import max_norm
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
+
+##############################################################################
+############################## Model definition ##############################
+##############################################################################
 
 inputs = keras.Input(shape = (81,41), name = 'chunky_donut')
 
-enc = OneHotEncoder()
-values = [[i%41 + 1, i] if (i%41 + 1 != 29) else [28,i] for i in range(513)]
-enc.fit(values)
-
-#OH = keras.layers.Lambda(lambda x : enc.transform(x).toarray(), name='one_hot_encoder')
-
-#inputs = OH(inputs)
-layer1 = Dense(164,input_dim=41, activation = 'softplus', name = 'NN1', kernel_initializer='normal',bias_initializer='zeros', bias_constraint = max_norm(0.))
-cache = Dense(512, name = 'cache', activation = 'softplus', kernel_initializer='normal',bias_initializer='zeros', bias_constraint = max_norm(0.))
-layer2 = Dense(1, name = 'NN2',activation = 'softplus',kernel_initializer='normal',bias_initializer='zeros', bias_constraint = max_norm(0.))
-
+layer1 = Dense(164, name = 'NN1',   input_dim=41,   activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
+cache =  Dense(512, name = 'cache',                 activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
+layer2 = Dense(1,   name = 'NN2',                   activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
 #layer1 = Dense(128, input_dim=2, activation='softplus', name = 'NN1', kernel_initializer='normal',bias_initializer='zeros')
 #layer2 = Dense(1, activation='softplus', name = 'NN2',kernel_initializer='normal',bias_initializer='zeros')
-
 
 couche = Sequential()
 couche.add(layer1)
 couche.add(cache)
 #couche.add(Dense(256, activation = 'relu', name = 'cache_2',kernel_initializer='ones',bias_initializer='zeros'))
 couche.add(layer2)
-#le reseau de neurone partagé par tous (inputs_dim = 2)
+#le reseau de neurone partage par tous (inputs_dim = 2)
 
 separation_l = []
 separation_l.append(couche(keras.layers.Lambda(lambda x : x[:,0,:],name=f"tour_{0}")(inputs)))
@@ -129,81 +125,141 @@ separation_l.append(couche(keras.layers.Lambda(lambda x : x[:,80,:],name=f"tour_
 
 outputs = keras.layers.Add()(separation_l)
 model1 = keras.Model(inputs, outputs, name = 'CMS')
-#model1.summary()
-#keras.utils.plot_model(model1, "model1.png")
-
-bins0 = [i for i in range(0,510)]
-bins0 = [0, 5, 10, 50, 100, 510]
-#bins0 = [i for i in range(0,510)]
-
-def coeffs(model, bins):
-    n = len(bins) - 1
-    ietas = [i for i in range(1,29)]
-    C = np.zeros((28,n))
-    for j in range(n):
-        print("processing bin = ",j)
-        lower, upper = bins[j], bins[j+1]
-        ies = [ie for ie in range(lower,upper)]
-        for ieta in ietas:
-            print("processing ieta = ",ieta)
-            entree = np.array([[ie]+[0 if i!=ieta else 1 for i in range(1,41)] for ie in range(lower,upper)])
-            predictions = model.predict(entree).ravel()
-            for i,ie in enumerate(ies):
-                if ie==0:
-                    predictions[i]=0
-                else:
-                    predictions[i]=predictions[i]/ie*2
-            C[(ieta - 1),j] = np.mean(predictions)
-    colors = [(0.1 + 0.9*x//n, 0.5*(1-x//n), 0.3-0.1*x//n) for x in range(n)]
-    plt.figure(figsize=(10,6))
-    for i in range(n):
-        plt.plot(ietas, C[:,i], label = f"{bins[i]} $\leq E_T <$ {bins[i+1]}", marker = 'v', linestyle='dashed')
-    plt.xlabel('Trigger tower ring #', fontsize=20)
-    plt.ylabel('ECAL and HCAL calibration constant', fontsize=20)
-    plt.legend(fontsize = 10, ncol=2, loc = 'upper center',bbox_to_anchor=(0.25,1))
-    plt.grid(linestyle='dotted')
-    plt.title('CMS Simulation', fontsize = 40)
-    #plt.show()
-    print("before save")
-    plt.savefig('ECAL_coeffs/calib_coeffs.png')
-    print("calib_coeffs.png figure saved")
-    return C
 
 def custom_loss(y_true, y_pred):
     return tf.nn.l2_loss((y_true - y_pred)/(y_true+0.1))
 
 model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss)
 
+# Apply ECAL model to iem for the HCAL calibration, return a 1D vector to subtract from Y
+def calibrate_iem(model_iem, X_vec):
+    print('Calibrating iem')
+    X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+    X = np.delete(X, 1, axis=2)     # delete ihad column
+    X_iem_calib = model_iem.predict(X) # [GeV]
+    del X_vec
+    return X_iem_calib # [GeV]
+
+# Apply HCAL model to ihad for the second ECAL calibration, return a 1D vector to subtract from Y
+def calibrate_ihad(model_ihad, X_vec):
+    print('Calibrating ihad')
+    X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+    X = np.delete(X, 0, axis=2)     # delete iem column
+    X_ihad_calib = model_ihad.predict(X) # [GeV]
+    return X_ihad_calib # [GeV]
+
+def convert_samples_X(X_vec, training_energy):
+    # convert samples for training
+    # X vector columns: iem, ihad, iesum, ieta
+    if training_energy == 'iem':
+        print('\nConvert X and Y vectors to keep iem')
+        X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+        X = np.delete(X, 1, axis=2)     # delete ihad column
+
+    elif training_energy == 'ihad':
+        print('\nConvert X and Y vectors to keep ihad')
+        X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+        X = np.delete(X, 0, axis=2)     # delete iem column
+
+    elif training_energy == 'iesum':
+        print('\nConvert X and Y vectors to keep iesum')
+        X = np.delete(X_vec, 1, axis=2) # delete ihad column (always start deleting from right columns)
+        X = np.delete(X, 0, axis=2)     # delete iem column
+        
+    return X
+
+def convert_samples_Y(X_vec, Y_vec, training_energy, model):
+    # convert samples for training
+    # Y vector columns: jetPt, jetEta
+    Y = Y_vec[:,0] # remove jetEta column
+    del Y_vec
+
+    # X vector columns: iem, ihad, iesum, ieta
+    if training_energy == 'iem':
+        print('Targeting jetPt - ihad')
+        X_ihad = np.sum(X_vec, axis = 1)[:,1:2].ravel() # [ET]
+        Y = Y - X_ihad*0.5 # [Gev] jetPt - HCAL_deposit
+        # After calibrating HCAL we could reperform the ECAL calibration targeting jetPt - X_ihad_calib
+        # if model != None:
+        #     Y = Y - calibrate_ihad(model, X_vec)
+        # else:
+        #     X_ihad = np.sum(X_vec, axis = 1)[:,1:2].ravel() # [ET]
+        #     Y = Y - X_ihad*0.5 # [Gev] jetPt - HCAL_deposit
+
+    elif training_energy == 'ihad':
+        if model != None:
+            print('Targeting jetPt - calibrated iem')
+            X_calib = calibrate_iem(model, X_vec)
+            Y = Y - X_calib
+        else: 
+            print('Targeting jetPt - iem')
+            X_iem = np.sum(X_vec,axis = 1)[:,0:1].ravel() # [ET]
+            Y = Y - X_iem*0.5 # [Gev] jetPt - ECAL_deposit 
+
+    elif training_energy == 'iesum':
+        print('Targeting jetPt')
+        
+    return Y
+
+#######################################################################
+######################### SCRIPT BODY #################################
+#######################################################################
+
+### To run:
+### python batchConverter.py --indir 2022_05_09_NtuplesV12 --v ECAL --etrain iem --ECALModel /data_CMS/cms/motta/CaloL1calibraton/2022_05_09_NtuplesV12/ECALtraining/model_ECAL/
+
 if __name__ == "__main__" :
     
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("--indir",        dest="indir",       help="Input folder with X_train.npx and Y_train.npz",   default=None)
+    parser.add_option("--v",            dest="v",           help="Ntuple type ('ECAL' or 'HCAL')",                  default=None)
+    parser.add_option("--etrain",       dest="etrain",      help="Trainining energy ('iem', 'ihad' or 'iesum')",    default=None)
+    parser.add_option("--ECALModel",    dest="ECALModel",   help="ECAL model directory",                            default=None)
+    (options, args) = parser.parse_args()
+    print(options)
+
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training'
+
+    print('Upload training vectors X and Y')
     # read testing and training datasets
-    indir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/ECALtraining'
-    X_train = np.load(indir+'/X_train.npz')['arr_0']
-    X_test  = np.load(indir+'/X_test.npz')['arr_0']
-    Y_train = np.load(indir+'/Y_train.npz')['arr_0']
-    Y_test  = np.load(indir+'/Y_test.npz')['arr_0']
+    # Inside X_vec: matrix n_ev x 81 x 43 ([81 for the chucky donut towers][43 for iem, ihad, iesum, ieta])
+    # Inside Y_vec: matrx n_ev x 2 (jetPt, jetEta)
+    X_vec = np.load(indir+'/X_train.npz')['arr_0'][:200000]
+    Y_vec = np.load(indir+'/Y_train.npz')['arr_0'][:200000]
 
-    model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
+    # upload ECAL model for HCAL training
+    couche_ECAL = None
+    if options.ECALModel != None:
+        print('Upload ECAL model')
+        model1_ECAL = keras.models.load_model(options.ECALModel + '/model', compile=False)
+        couche_ECAL = keras.models.load_model(options.ECALModel + '/couche', compile=False)
 
-    model1.save('ECAL_coeffs/model')
-    couche.save('ECAL_coeffs/couche')
+    # X_train = convert_samples_X(X_vec, options.etrain)
+    # print('Save X vector')
+    # np.savez_compressed(indir + '/X_train_NN.npz', X_train)
 
-    # loading the model again
-    model1 = keras.models.load_model(indir+"/ECAL_coeffs/model", compile=False)
-    couche = keras.models.load_model(indir+"/ECAL_coeffs/couche", compile=False)
+    if len(Y_vec) < 50000:
+        # Inside X_train: matrix n_ev x 81 x 41 ([81 for the chucky donut towers][41 for iesum, ieta])
+        # Inside Y_train: vector n_ev (jetPt)
+        Y_train = convert_samples_Y(X_vec, Y_vec, options.etrain, model)
+        np.savez_compressed(indir + '/Y_train_NN.npz', Y_train)
 
-    coeffs_full_ECAL = coeffs(couche,bins0)
-    
+    else:
+        Y_train = []
+        steps = int(len(Y_vec)/50000)
+        scan = [int(len(Y_vec)/steps*i) for i in range(steps)] + [len(Y_vec)]
+        print(scan)
+        for i in range(len(scan)-1):
+            print(scan[i],scan[i+1]-1)
+            Y_tmp = convert_samples_Y(X_vec[scan[i]:scan[i+1]-1], Y_vec[scan[i]:scan[i+1]-1], options.etrain, model1_ECAL)
+            Y_train = np.append(Y_train, Y_tmp)
+            print(Y_train[:2])
+            del Y_tmp
 
-    predictions = model1.predict(X_test)
-    predictions = predictions.ravel()
+        print('Save Y vector')
+        np.savez_compressed(indir + '/Y_train_NN.npz', Y_train)
 
-    resolution_calibrated = predictions/Y_test
-    #C_resolution = pd.DataFrame(np.array([predictions.T, resolution_calibrated]).T,columns=("jet_fit","resolution"))
-    #C_resolution.to_csv("data/resol_ECAL.csv")
-    
-    #C_resolution['classes'] = pd.cut(C_resolution['jet_fit'], bins=[0,5, 20, 30, 40, 60, 100, 500],labels = ["0-5","5-20","20-30","30-40","40-60","60-100","100-500"])
-    #C_resolution["resolution"].hist(by=C_resolution["classes"], bins='auto')
-    #plt.savefig('resolution_histo.png')
-
-    #C_resolution["resolution"].groupby(C_resolution["classes"]).describe()
+    print('\nConverted vectors saved to folder: {}'.format(indir))
+    print(indir + '/X_train_NN.npz')
+    print(indir + '/Y_train_NN.npz')

@@ -1,13 +1,16 @@
 #librairies utiles
 import numpy as np
+import copy
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
 from math import *
 from itertools import product
-import copy
-import pandas as pd
 
+import sklearn
 import tensorflow as tf
 from tensorflow import keras
-import sklearn
+
 # Regression import
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
@@ -19,6 +22,10 @@ from tensorflow.keras.constraints import max_norm
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 
+##############################################################################
+############################## Model definition ##############################
+##############################################################################
+
 inputs = keras.Input(shape = (81,41), name = 'chunky_donut')
 
 enc = OneHotEncoder()
@@ -28,13 +35,11 @@ enc.fit(values)
 #OH = keras.layers.Lambda(lambda x : enc.transform(x).toarray(), name='one_hot_encoder')
 
 #inputs = OH(inputs)
-layer1 = Dense(164,input_dim=41, activation = 'softplus', name = 'NN1', kernel_initializer='normal',bias_initializer='zeros', bias_constraint = max_norm(0.))
-cache = Dense(512, name = 'cache', activation = 'softplus', kernel_initializer='normal',bias_initializer='zeros', bias_constraint = max_norm(0.))
-layer2 = Dense(1, name = 'NN2',activation = 'softplus',kernel_initializer='normal',bias_initializer='zeros', bias_constraint = max_norm(0.))
-
+layer1 = Dense(164, name = 'NN1',   input_dim=41,   activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
+cache =  Dense(512, name = 'cache',                 activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
+layer2 = Dense(1,   name = 'NN2',                   activation = 'softplus', kernel_initializer = 'normal', bias_initializer='zeros', bias_constraint = max_norm(0.))
 #layer1 = Dense(128, input_dim=2, activation='softplus', name = 'NN1', kernel_initializer='normal',bias_initializer='zeros')
 #layer2 = Dense(1, activation='softplus', name = 'NN2',kernel_initializer='normal',bias_initializer='zeros')
-
 
 couche = Sequential()
 couche.add(layer1)
@@ -128,41 +133,66 @@ separation_l.append(couche(keras.layers.Lambda(lambda x : x[:,80,:],name=f"tour_
 
 outputs = keras.layers.Add()(separation_l)
 model1 = keras.Model(inputs, outputs, name = 'CMS')
-#model1.summary()
-#keras.utils.plot_model(model1, "model1.png")
 
 def custom_loss(y_true, y_pred):
     return tf.nn.l2_loss((y_true - y_pred)/(y_true+0.1))
 
-model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001),
-    loss=custom_loss)
+model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss)
+
+
+def convert_samples(X_vec, Y_vec, version):
+    # Y vector columns: jetPt, jetEta, jetPhi, trainingPt (for ECAL jetPt - hcalET, for HCAL jetPt - calib(iem))
+    # keep only the trainingPt
+    Y = Y_vec[:,3]
+
+    # X vector columns: iem, ihad, iesum, ieta
+    if version == 'ECAL':
+        print('\nConvert X and Y vectors to keep iem')
+        X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+        X = np.delete(X, 1, axis=2)     # delete ihad column
+
+    elif version == 'HCAL':
+        print('\nConvert X and Y vectors to keep ihad')
+        X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+        X = np.delete(X, 0, axis=2)     # delete iem column
+        
+    return X, Y
+
+#######################################################################
+######################### SCRIPT BODY #################################
+#######################################################################
+
+### To run:
+### python3 NNModelTraining.py --in 2022_05_02_NtuplesV9 --v HCAL
 
 if __name__ == "__main__" :
-
-    df = pd.read_csv('/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes/test.csv')
-    df = df[['ev','i_eta','i_em','i_had','i_et']]
-    df.set_index('ev',inplace=True)
-    df_e = df[['i_eta','i_em']]
-
-    dfjetPt = pd.read_csv('/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes/testPt.csv')
-    dfjetPt = dfjetPt[['ev','jetPt']]
-    dfjetPt.set_index('ev', inplace=True)
     
-    print('Step 1')
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("--indir",        dest="indir",       help="Input folder with X_train.npx and Y_train.npz",   default=None)
+    parser.add_option("--tag",          dest="tag",         help="tag of the training folder",                      default="")
+    parser.add_option("--v",            dest="v",           help="Ntuple type ('ECAL' or 'HCAL')",                  default=None)
+    (options, args) = parser.parse_args()
+    print(options)
 
-    df_dummies = pd.get_dummies(df_e, columns=['i_eta'])
-    for i in range(35,42):
-        df_dummies['i_eta_'+str(i)] = 0
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
+    odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/model_' + options.v
+    os.system('mkdir -p '+ odir)
 
-    X = np.array([df_dummies.loc[i].to_numpy() for i in df.index.drop_duplicates(keep='first')])
-    Y = np.array([dfjetPt.loc[i].array[0] for i in dfjetPt.index])
+    # read testing and training datasets
+    # Inside X_vec: matrix n_ev x 81 x 43 ([81 for the chucky donut towers][43 for iem, ihad, iesum, ieta])
+    # Inside Y_vec: matrx n_ev x 2 (jetPt, jetPhi, jetEta, trainingPt)
+    X_vec = np.load(indir+'/X_train.npz')['arr_0']
+    Y_vec = np.load(indir+'/Y_train.npz')['arr_0']
 
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
+    # Inside X_train: matrix n_ev x 81 x 41 ([81 for the chucky donut towers][41 for iesum, ieta])
+    # Inside Y_train: vector n_ev (jetPt)
+    X_train, Y_train = convert_samples(X_vec, Y_vec, options.v)
 
-    model1.fit(X_train, Y_train, epochs=20, batch_size=128,verbose=1)
+    model1.fit(X_train, Y_train, epochs=20, batch_size=128, verbose=1)
 
-    print('Step 2')
+    model1.save(odir + '/model')
+    couche.save(odir + '/couche')
 
-    model1 = keras.models.load_model("lr_0.001_n1_164_n2_512_15ep__bs_128_me_3.0/model/saved_model.pb", compile=False)
+    print('\nTrained model saved to folder: {}'.format(odir))
 
-    print('Step 3')

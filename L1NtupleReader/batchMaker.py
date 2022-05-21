@@ -1,4 +1,3 @@
-from mainReader import mainReader
 from itertools import chain
 import pandas as pd
 import numpy as np
@@ -36,28 +35,96 @@ if __name__ == "__main__" :
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--v",    dest="v",   help="Ntuple type ('ECAL' or 'HCAL')", default='ECAL')
+    parser.add_option("--outdir",    dest="outdir",   help="Ntuple version folder where to save", default='')
+    parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
+    parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
+    parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
+    parser.add_option("--applyNewECALcalib", dest="applyNewECALcalib", action='store_true', default=False)
+    parser.add_option("--applyNewECALpHCALcalib", dest="applyNewECALpHCALcalib", action='store_true', default=False)
+    parser.add_option("--doEG0_200", dest="doEG0_200", action='store_true', default=False)
+    parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', default=False)
+    parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
+    parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
+    parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
+    parser.add_option("--chunk_size", dest="chunk_size", type=int, default=5000)
     (options, args) = parser.parse_args()
     print(options)
 
-    ##################### DEFINE INPUTS AND OUTPUTS ####################
-    indir  = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0'
-    if options.v == 'ECAL': outdir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes_ECAL_batches'
-    else:                   outdir = '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/hdf5dataframes_HCAL_batches'
-    os.system('mkdir -p '+outdir+'/towers')
-    os.system('mkdir -p '+outdir+'/jets')
+    if options.outdir=='':
+        print('** WARNING: no ntuple version output folder specified - EXITING!')
+        exit()
 
-    # set output to go both to terminal and to file
-    sys.stdout = Logger(outdir+'/info.log')
+    if options.applyNoCalib == False and options.applyOldCalib == False and options.applyNewECALcalib == False and options.applyNewECALpHCALcalib == False:
+        print('** WARNING: no calibration to be used specified - EXITING!')
+        exit()
+
+    if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False:
+        print('** WARNING: no dataset to be used specified - EXITING!')
+        exit()
+
+    tagHCALpfa1p = ""
+    tagCalib = ""
+    if   options.applyNoCalib:           tagCalib = "_uncalib"
+    elif options.applyOldCalib:          tagCalib = "_oldCalib"
+    elif options.applyNewECALcalib:      tagCalib = "_newECALcalib" 
+    elif options.applyNewECALpHCALcalib: tagCalib = "_newECALpHCALcalib"
+    if   options.applyHCALpfa1p:         tagHCALpfa1p = "_applyHCALpfa1p"
+
+    ##################### DEFINE INPUTS AND OUTPUTS ####################
+    indir  = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples'
+    outdir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.outdir
 
     # choose ECAL of HCAL folder according to option v
     folder_names = []
-    if options.v == 'HCAL':
-        folder_names.append('QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated_appliedHCALpfa1p')
-    elif options.v == 'ECAL':
-        folder_names.append('SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p')
-        folder_names.append('SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p')
-    else:
-        sys.exit('basicReader.py: [ERROR] Wrong argument, choose ECAL or HCAL.'.format(os.getcwd()))
+
+    if   options.doQCDpu:
+        ## qcd flat0-80 pu
+        #folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated"+tagCalib+tagHCALpfa1p)
+        print('** WARNING: unbinned QCD samples not available at the moment, specify pt bin - EXITING!')
+        exit()
+
+    elif options.doQCDnoPU:
+        ## qcd without pu - backup datasets
+        if options.qcdPtBin=="20To30":
+            folder_names.append("QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+            outdir = outdir+'/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+
+        elif options.qcdPtBin=="30To50":
+            folder_names.append("QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+            outdir = outdir+'/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+
+        elif options.qcdPtBin=="50To80":
+            folder_names.append("QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+            outdir = outdir+'/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+
+        elif options.qcdPtBin=="80To120":
+            folder_names.append("QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+            outdir = outdir+'/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+
+        elif options.qcdPtBin=="120To170":
+            folder_names.append("QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+            outdir = outdir+'/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+
+        else:
+            ## qcd without pu
+            folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+            outdir = outdir+'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+
+    elif options.doEG0_200:
+        ## signle photon 0-200 without pu
+        folder_names.append("SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated"+tagCalib+tagHCALpfa1p)
+        outdir = outdir+'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
+    
+    elif options.doEG200_500:
+        ## signle photon 200-500 without pu
+        folder_names.append("SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated"+tagCalib+tagHCALpfa1p)
+        outdir = outdir+'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
+
+    os.system('mkdir -p '+outdir+'/towers')
+    os.system('mkdir -p '+outdir+'/jets')
+    
+    # set output to go both to terminal and to file
+    sys.stdout = Logger(outdir+'/info'+options.v+'.log')
 
     # list Ntuples
     InFiles = []
@@ -78,31 +145,6 @@ if __name__ == "__main__" :
     InFiles.sort()
 
     for i, testInfile in enumerate(InFiles[:]):
-
-        if testInfile in ['/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_175.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_256.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_278.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_31.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_363.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_371.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_38.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_388.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_407.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_41.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_430.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_433.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_453.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_459.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_462.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_466.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_470.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_478.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_491.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_498.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_51.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_84.root',
-                          '/data_CMS/cms/motta/CaloL1calibraton/2022_04_02_NtuplesV0/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated_appliedHCALpfa1p/Ntuple_240.root']:
-            continue
 
         # see progress
         if i%1 == 0:
@@ -142,7 +184,7 @@ if __name__ == "__main__" :
             for pos in range(0, len(seq), size):
                 yield seq.iloc[pos:pos + size] 
 
-        chunk_size = 5000
+        chunk_size = options.chunk_size
         j = 0
         for ET,JT in zip(chunker(dfET, chunk_size),chunker(dfEJ, chunk_size)):
             print('runnning on batch '+str(j)+' of Ntuple'+tag)
@@ -163,10 +205,9 @@ if __name__ == "__main__" :
             os.system('chmod 774 '+saveTo['towers']+tag+'_'+str(j)+'.hdf5')
             os.system('chmod 774 '+saveTo['jets']+tag+'_'+str(j)+'.hdf5')
 
-
-            #mainReader(ET, JT, outdir, tag+'_'+str(j))
             j+=1
 
     print('** INFO: ALL DONE!')
 
 
+                                                                                         

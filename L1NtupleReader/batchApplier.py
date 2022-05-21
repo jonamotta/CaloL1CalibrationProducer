@@ -103,7 +103,7 @@ def padDataFrame( dfFlatEJT ):
         
     return padded
 
-def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, Ecalcut, Hcalcut, trainingPtVersion, whichECALcalib, flattenPtDistribution):
+def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, Ecalcut, Hcalcut, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution):
     if len(dfET) == 0 or len(dfEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
@@ -140,7 +140,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] > float(lJetPtcut)]
 
     # flatten the pT distribution of the QCD samples
-    # ideally this flattening would go after the hoe cut by I was not able to make it work there :(
+    # ideally this flattening would go after the hoe cut by I was not able to make it work there :´(
     if flattenPtDistribution != False:
         print('flattening pT distribution')
         dfFlatEJ.sort_values('jetPt', ascending=False) # order largest to smallest
@@ -283,27 +283,32 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         dfFlatEJT['hoe'] = group['hcalET'].sum()/(group['iem'].sum()+group['hcalET'].sum())
         dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.95]
 
+    # apply HCAL calibration on the fly
+    if whichHCALcalib != False:
+        print("starting HCAL calibration")
+        dfFlatEJT.reset_index(inplace=True)
+        
+        # get the correct caloParams for the calibration on the fly
+        if whichHCALcalib == "oldCalib":
+            energy_bins = layer1HCalScaleETBins_oldCalib
+            labels = layer1HCalScaleETLabels_oldCalib
+            SFs = layer1HCalScaleFactors_oldCalib
+        elif whichHCALcalib == "newCalib":
+            energy_bins = layer1HCalScaleETBins_newCalib
+            labels = layer1HCalScaleETLabels_newCalib
+            SFs = layer1HCalScaleFactors_newCalib
+        
+        dfFlatEJT['ihadBin'] = pd.cut(dfFlatEJT['hcalET'], bins = energy_bins, labels=labels)
+        dfFlatEJT['hcalET'] = dfFlatEJT.apply(lambda row: math.floor(row['hcalET'] * SFs[int( abs(row['ieta']) + 40*(row['ihadBin']-1) ) -1]), axis=1)
+        dfFlatEJT.set_index('uniqueIdx', inplace=True)
+
     print('starting padding') # DEBUG
 
     # do the padding of the dataframe to have 81 rows for each jet        
     paddedEJT = padDataFrame(dfFlatEJT)
     paddedEJT.drop_duplicates(['uniqueId', 'ieta', 'iphi'], keep='first', inplace=True)
     paddedEJT.set_index('uniqueId',inplace=True)
-
-    # subtract iem/ihad to jetPt in oprder to get the correct training Pt to be be used for the NN
-    # here the jetPt is already in hardware units so no */2 is needed
-    if trainingPtVersion != False:
-        group = paddedEJT.groupby('uniqueId')
-        if trainingPtVersion=="ECAL": paddedEJT['trainingPt'] = group['trainingPt'].mean() - group['hcalET'].sum()
-        if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['trainingPt'].mean() - group['iem'].sum()
-
-    # keep only the jets that have a meaningful trainingPt to be used (this selection should actually be redundant with )
-    paddedEJT = paddedEJT[paddedEJT['trainingPt']>1]
-
-    # append the DFs from the different files to one single big DF
     paddedEJT.reset_index(inplace=True)
-    # shuffle the rows so that no order of the chunky donut gets learned
-    paddedEJT = paddedEJT.sample(frac=1).copy(deep=True)
 
     dfTowers = paddedEJT[['uniqueId','ieta','iem','hcalET']].copy(deep=True)
     dfJets = paddedEJT[['uniqueId','jetPt','jetEta','jetPhi','trainingPt']].copy(deep=True)
@@ -342,21 +347,12 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     dfJets.drop_duplicates('uniqueId', keep='first', inplace=True)
     dfJets.set_index('uniqueId', inplace=True)
 
-    # do the one hot encoding of ieta
-    dfEOneHotEncoded = pd.get_dummies(dfE, columns=['ieta'])
-    # pad the values of ieta that might be missing from the OHE
-    for i in list(TowersEta.keys()):
-        if 'ieta_'+str(i) not in dfEOneHotEncoded:
-            dfEOneHotEncoded['ieta_'+str(i)] = 0
-
     ## DEBUG
     print('starting tensorisation')
 
     # convert to tensor for plotting
-    # Y = np.array([dfJets.loc[i].values[0] for i in dfJets.index]).reshape(-1,1)
-    # To keep both the information on jetPt and jetEta
     Y = np.array([dfJets.loc[i].values for i in dfJets.index])
-    X = np.array([dfEOneHotEncoded.loc[i].to_numpy() for i in dfE.index.drop_duplicates(keep='first')])
+    X = np.array([dfE.loc[i].to_numpy() for i in dfE.index.drop_duplicates(keep='first')])
 
     ## DEBUG
     # if len(X != 43): 
@@ -387,6 +383,7 @@ if __name__ == "__main__" :
     parser.add_option("--tag",         dest="tag",         default='')
     parser.add_option("--fout",        dest="fout",        default='')
     parser.add_option("--calibrateECAL", dest="calibrateECAL", default=False, help="oldCalib or newCalib; not specified == noCalib")
+    parser.add_option("--calibrateHCAL", dest="calibrateHCAL", default=False, help="oldCalib or newCalib; not specified == noCalib")
     parser.add_option("--trainPtVers", dest="trainPtVers", default=False)
     parser.add_option("--uJetPtCut",   dest="uJetPtCut",   default=False)
     parser.add_option("--lJetPtCut",   dest="lJetPtCut",   default=False)
@@ -426,6 +423,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.hcalcut, options.trainPtVers, options.calibrateECAL, options.flattenPtDistribution)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.hcalcut, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution)
     print("DONE!")
 

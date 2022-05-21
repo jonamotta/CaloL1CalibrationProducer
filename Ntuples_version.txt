@@ -1,0 +1,119 @@
+Ntuples:
+
+2022_04_02_NtuplesV0:
+First version, no cuts at all
+
+2022_04_21_NtuplesV0_etacut:
+Cut jets with chucky donut partially or completely outside barrel
+'python batchSubmitOnTier3.py --v gamma1 --etacut 24’
+
+2022_04_21_NtuplesV0_jetcut:
+Cut jets with pt > 60 GeV
+'python batchSubmitOnTier3.py --v gamma1 --jetcut 60’
+
+2022_04_21_NtuplesV0_noise:
+Apply noise cut for TT with eta=26,27,28
+L111-113 of batchReader.py
+
+2022_04_21_NtuplesV0_saturation:
+Apply saturation cut for energy deposit bigger than 255 ieta
+L107-113 of batchReader.py
+
+2022_04_21_NtuplesV1:
+Apply all cuts: etacut, jetcut, noise, saturation
+
+2022_04_21_NtuplesV2:
+Apply all cuts on training sample: etacut, jetcut, noise, saturation
+Not apply jetcut on testing sample
+
+2022_04_25_NtuplesV3:
+Apply all cuts: etacut, jetcut, noise, saturation
+Keep information for the plots
+
+2022_04_26_NtuplesV4:
+Apply all cuts: etacut, jetcut, noise, saturation
+Add a new cut on the ECAL energy fraction: E/(E+H) > 0.8
+'python batchSubmitOnTier3.py --v gamma1 --jetcut 60 --etacut 24 --ecalcut True'
+
+2022_04_26_NtuplesV5:
+In the batchReader.py I changed the place where I apply the cut on the ECAL energy fraction.
+We need to understand what happens between L176-198.
+I think that the problem is that I was using a groupby on 'event', while I should have done it on 'uniqueIdx'
+
+2022_04_28_NtuplesV6:
+First version of HCAL ntuples.
+'python batchSubmitOnTier3.py --v qcd --jetcut 60 --etacut 24'
+
+2022_04_30_NtuplesV7:
+Fixed errors in batchReader.py
+Update everything to have the new backup QCD datasets (50To80, 80To120, 120To170)
+
+2022_04_28_NtuplesV8:
+Introduce lower cut on jet pt for QCD:
+    - 30GeV for  QCD_Pt-50To80 
+    - 50GeV for  QCD_Pt-80To120 
+    - 60GeV for  QCD_Pt-120To170 
+
+2022_05_02_NtuplesV9:
+Introduce lower cut on jet pt for QCD:
+    - 30GeV for  QCD_Pt-50To80 
+    - 50GeV for  QCD_Pt-80To120 
+    - 60GeV for  QCD_Pt-120To170
+
+Introduce HCAl eta cut <= 24
+
+
+2022_05_03_NtuplesV11:
+Introduce lower cut on jet pt for QCD:
+    - 50GeV for  QCD_Pt-50To80
+    - 50GeV for  QCD_Pt-80To120
+    - 60GeV for  QCD_Pt-120To170
+Introduce upper pt cut on jet pt:
+    - 150GeV
+HCAL eta cut <= 24
+Introduce firstsubtraction of iem deposit
+    --> this subtraction is bugged due to missing factor 2 in iem sum (0.5GeV units)
+
+2022_05_09_NtuplesV12:
+ECAL: 
+- ietacut = 28
+- uJetPtcut = 100
+- lJetPtcut = None
+- Ecalcut = 0.8
+Training: python3 NNModelTraining.py --indir 2022_05_09_NtuplesV12 --v ECAL --etrain iem
+Targeting: jetPt - ihad
+
+HCAL: 
+- ietacut = 28
+- lJetPtcut 50GeV for  QCD_Pt-50To80 
+- lJetPtcut 50GeV for  QCD_Pt-80To120 
+- lJetPtcut 60GeV for  QCD_Pt-120To170
+- uJetPtcut = 150 ?
+- Ecalcut = None
+Training: python3 NNModelTraining.py --indir 2022_05_09_NtuplesV12 --v HCAL --etrain ihad 
+--ECALModel /data_CMS/cms/motta/CaloL1calibraton/2022_05_09_NtuplesV12/ECALtraining
+
+2022_05_10_NtuplesV13
+HCAL:
+- New samples with no PU (/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW_uncalib_applyHCALpfa1p)
+- Add saturation cut on iet
+- HCAL information is ihad for ieta < 29 and iet for ieta > 29
+- readme is saving every information
+
+python3 batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 2500 --doNewQCD --outdir 2022_05_10_NtuplesV13 --applyNoCalib
+module use /opt/exp_soft/vo.llr.in2p3.fr/modulefiles_el7
+module load python/3.7.0
+python batchSubmitOnTier3.py --doNewQCD --etacut 37 --indir 2022_05_10_NtuplesV13 --applyHCALpfa1p --lJetPtCut 25 --uJetPtCut 150 --applyNoCalib
+
+2022_05_11_NtuplesV14
+ECAL:
+python3 batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 5000 --doEG0_200 --applyNoCalib --outdir 2022_05_11_NtuplesV14
+module use /opt/exp_soft/vo.llr.in2p3.fr/modulefiles_el7
+module load python/3.7.0
+python batchSubmitOnTier3.py --doEG0_200 --etacut 28 --indir 2022_05_11_NtuplesV14 --applyHCALpfa1p --uJetPtCut 100 --applyNoCalib --trainPtVers ECAL
+python3 batchMerger.py --applyHCALpfa1 --indir 2022_05_11_NtuplesV14 --v ECAL --applyNoCalib --doEG --sample {train or test}
+python3 NNModelTraining.py --indir 2022_05_11_NtuplesV14 --v ECAL
+python3 CalibrationFactor.py --indir 2022_05_11_NtuplesV14 --v ECAL --start 1 --stop 200 --maxeta 28
+python3 ModelPlots.py --indir 2022_05_11_NtuplesV14 --v ECAL --out data_ECAL_V14
+
+

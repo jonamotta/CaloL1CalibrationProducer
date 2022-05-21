@@ -2,7 +2,6 @@ import os
 import sys
 import glob
 import numpy as np
-import pandas as pd
 import argparse
 
 TowersEta = {
@@ -114,14 +113,17 @@ def NextPhiTower(iphi):
         print('{} not in range [1,72]'.format(iphi))
 
 def NextEtaTower(ieta):
-    if np.abs(ieta) in list(TowersEta.keys()):
+    if ieta == 41:
+        return 41
+    elif np.abs(ieta) in list(TowersEta.keys()):
         IkeyFound = False
         Ikey = 0
         next_ieta = 0
         if ieta == -1:
             next_ieta = 1
         elif ieta == 41:
-            print('{} not in range [-41,40]'.format(ieta))
+            print('{} not in range [-41,41]'.format(ieta))
+            return 0
         else:
             if ieta > 0:
                 for i, key in enumerate(list(TowersEta.keys())):
@@ -135,7 +137,8 @@ def NextEtaTower(ieta):
                             next_ieta = -1*list(TowersEta.keys())[i-1]
         return next_ieta
     else:
-        print('{} not in range [-41,40]'.format(ieta))
+        print('{} not in range [-41,41]'.format(ieta))
+        return 0
         
 def PrevPhiTower(iphi):
     if iphi in list(TowersPhi.keys()):
@@ -153,6 +156,8 @@ def PrevPhiTower(iphi):
         print('{} not in range [1,72]'.format(iphi))
         
 def PrevEtaTower(ieta):
+    if ieta == -41:
+        return -41
     if np.abs(ieta) in list(TowersEta.keys()):
         IkeyFound = False
         Ikey = 0

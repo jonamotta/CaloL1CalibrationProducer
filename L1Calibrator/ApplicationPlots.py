@@ -13,8 +13,8 @@ from NNModelTraining import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
-import mplhep
-plt.style.use(mplhep.style.CMS)
+# import mplhep
+# plt.style.use(mplhep.style.CMS)
 
 c_uncalib = 'royalblue'
 c_calib = 'darkorange'
@@ -225,7 +225,7 @@ def PlotResolution_vs_Pt_Etabin(df, odir, v_sample, ieta_values, calib):
     colors = plt.cm.viridis(np.linspace(0,1,len(ieta_values)))
     for i_eta, eta in enumerate(ieta_values):
         prof = df[df['jetIeta']==eta].groupby('jetPt')['res'].mean()
-        plt.plot(prof.index, prof.values, '.', color=colors[i_eta], label=f'$\eta$ tower = {eta_towers[i_eta]}')
+        plt.plot(prof.index, prof.values, '.', color=colors[i_eta], label=f'$\eta$ tower = {eta}')
         plt.xlabel('Jet Pt')
         plt.ylabel('Resolution')
         if calib == 'uncalib':  title = 'Uncalibrated'
@@ -311,6 +311,7 @@ if __name__ == "__main__" :
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--indir",    dest="indir",   help="Input folder with trained model",     default=None)
+    parser.add_option("--tag",      dest="tag",     help="tag of the training folder",      default="")
     parser.add_option("--out",      dest="odir",    help="Output folder",                       default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",      default='ECAL')
     parser.add_option("--maxeta",   dest="maxeta",  help="Eta max in the SF plot (None or 28)", default=None)
@@ -318,7 +319,7 @@ if __name__ == "__main__" :
     print(options)
 
     # Definition of the trained model
-    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training'
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
     modeldir = indir + '/model_' + options.v
     print('\nModel dir = {}'.format(modeldir))
 
@@ -362,28 +363,26 @@ if __name__ == "__main__" :
     ################## Resolution plots ###################
     #######################################################
 
-    # Definition of eta bin edges
-    # bins_eta = [0, 0.5, 1, 1.5, 2, 2.5, 5]
-    # print('\nEta bins = {}'.format(bins_eta))
-    # bins_energy = [0.5] + [ x for x in range(1,61) if x%4==0] # [GeV]
-
-    # Build the two pandas for the training (uncalibrated) and testing (calibrated)
-    # X samples contain : iesum = iem + ihad, eta tower
-    # Y samples contain : jetPt, jetEta
+    # X samples contain : iem, ihad, iesum, ieta
+    # Y samples contain : jetPt, jetEta, jetPhi, trainingPt
     print('\nLoad data')
-    # X_train = np.load(indir+'/X_train.npz')['arr_0']
-    X_test = np.load(indir+'/X_test.npz')['arr_0']
-    # Y_train = np.load(indir+'/Y_train.npz')['arr_0']
+    X_newCalib = np.load(indir+'/X_newCalib.npz')['arr_0']
+    X_oldCalib = np.load(indir+'/X_oldCalib.npz')['arr_0']
+    X_unCalib = np.load(indir+'/X_unCalib.npz')['arr_0']
     Y_test = np.load(indir+'/Y_test.npz')['arr_0']
 
     # Define the uncalibrated jet energy (sum of the energies in each tower of the chuncky donut)
-    X_test_iem = np.sum(X_test,axis = 1)[:,0:1].ravel() # [ET]
-    X_test_ihad = np.sum(X_test,axis = 1)[:,1:2].ravel() # [ET]
-    X_test_iesum = np.sum(X_test,axis = 1)[:,2:3].ravel() # [ET]
+    X_newCalib_iem = np.sum(X_newCalib,axis = 1)[:,0:1].ravel() # [ET]
+    X_newCalib_ihad = np.sum(X_newCalib,axis = 1)[:,1:2].ravel() # [ET]
+    X_newCalib_iesum = np.sum(X_newCalib,axis = 1)[:,2:3].ravel() # [ET]
 
-    # Define the calibrated jet energy (applying the model to the test samples)
-    X_test_model, Y_test_model = convert_samples(X_test, Y_test, options.v)
-    X_test_calib_sum = model1.predict(X_test_model) # [ET]
+    X_oldCalib_iem = np.sum(X_oldCalib,axis = 1)[:,0:1].ravel() # [ET]
+    X_oldCalib_ihad = np.sum(X_oldCalib,axis = 1)[:,1:2].ravel() # [ET]
+    X_oldCalib_iesum = np.sum(X_oldCalib,axis = 1)[:,2:3].ravel() # [ET]
+
+    X_unCalib_iem = np.sum(X_unCalib,axis = 1)[:,0:1].ravel() # [ET]
+    X_unCalib_ihad = np.sum(X_unCalib,axis = 1)[:,1:2].ravel() # [ET]
+    X_unCalib_iesum = np.sum(X_unCalib,axis = 1)[:,2:3].ravel() # [ET]
 
     print('\nBuild pandas')
     # Produce the pandas dataframes with jetPt, jetEta and jetEnergy (sum of the deposited energy in all the towers)
@@ -392,8 +391,8 @@ if __name__ == "__main__" :
 
     # Compute resolution
     print('\nCompute resolution')
-    df_uncalib['res'] = df_uncalib['jetEnergy']/df_uncalib['jetPt']*0.5
-    df_calib['res']   = df_calib['jetEnergy']/df_calib['jetPt']*0.5
+    df_uncalib['res'] = df_uncalib['jetEnergy']/(df_uncalib['jetPt']*2) # need *2 cause reading the GeV version of Pt
+    df_calib['res']   = df_calib['jetEnergy']/(df_calib['jetPt']*2)
 
     PlotResolution(df_uncalib,df_calib,odir,options.v)
     PlotGenJetPtSpectrum(df_uncalib,df_calib,odir,options.v)
@@ -406,7 +405,8 @@ if __name__ == "__main__" :
     df_uncalib['jetIeta'] = FindIeta_vctd(df_uncalib['jetEta'])
     df_calib['jetIeta'] = FindIeta_vctd(df_calib['jetEta'])
 
-    ieta_values = [1,2,3,4,5,6]
+    #ieta_values = [1,2,3,4,5,6]
+    ieta_values = [24,25,26,27,28,29,30]
     PlotResolution_vs_Pt_Etabin(df_uncalib, odir, options.v, ieta_values, 'uncalib')
     PlotResolution_vs_Pt_Etabin(df_calib,   odir, options.v, ieta_values, 'calib')
 
