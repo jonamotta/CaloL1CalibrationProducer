@@ -116,4 +116,34 @@ python3 NNModelTraining.py --indir 2022_05_11_NtuplesV14 --v ECAL
 python3 CalibrationFactor.py --indir 2022_05_11_NtuplesV14 --v ECAL --start 1 --stop 200 --maxeta 28
 python3 ModelPlots.py --indir 2022_05_11_NtuplesV14 --v ECAL --out data_ECAL_V14
 
+2022_05_12_NtuplesV15
+First HCAL training --> superseeded right after by V16
+
+2022_05_*_NtuplesVtest*
+Random tests that lead to the need for V16 and the extended studies in there
+
+2022_05_18_NtuplesV16
+Several HCAL tests to understand how to make things work:
+    - tried flattening pT distribution (no good results)
+    - tried different pT cuts on input (converged on having pT>30 for now)
+    - introduced HOE cuts (converged on applying HOE>95)
+    - tried to subtract iem to jetPt (no good results as it introduces very bad L1 resolution into gen resolution)
+    - removed 3-6-9 requirement for HCAL training (good results)
+    - introduced loss and root_mean_square_error evaluation and analysis
+    - worked on solving NN issues:
+        - introduced flooring in training
+        - introduced 'ignoring' of input if E=0
+
+2022_05_23_NtuplesV17
+SinglePion production for supposed HCAL training
+After all the improvements introduced in V16 a training woth this has never happened
+
+2022_05_27_NtuplesV18
+Rerun the full machinery to produce a final training and a final set of SFs both for ECAL and for HCAL
+These SFs will then be used for the re-emulation of the L1 NTuples
+
+
+
+
+
 
