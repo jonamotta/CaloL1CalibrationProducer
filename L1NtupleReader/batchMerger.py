@@ -93,7 +93,7 @@ if __name__ == "__main__" :
             # dataframedirs.append(filedir +'/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}/dataframes'.format(outputFolderName))
 
             ## qcd without pu
-            taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_{0}_subset.txt'.format(options.sample))
+            taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_{0}.txt'.format(options.sample))
             taglists.append(taglist)
             tensordirs.append(filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/tensors'.format(outputFolderName,options.odir))
             dataframedirs.append(filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/dataframes'.format(outputFolderName,options.odir))
@@ -101,7 +101,7 @@ if __name__ == "__main__" :
 
     elif options.doEG:
         ## signle photon 0-200 without pu
-        taglist0_200 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200_{0}_subset.txt'.format(options.sample))
+        taglist0_200 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200_{0}.txt'.format(options.sample))
         taglists.append(taglist0_200)
         tensordirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/tensors'.format(outputFolderName,options.odir))
         dataframedirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/dataframes'.format(outputFolderName,options.odir))
@@ -140,10 +140,11 @@ if __name__ == "__main__" :
         # concatenate low energy photons
         for idx,tag in enumerate(taglist):
             tag = tag.strip()
-            if not idx%10: print('reading batch', idx, '- tag', tag, '- taglist', taglist)
+            if not idx%10: print('reading batch', idx)
             try:
-                #print(X)
-                #print(np.load(tensordirs[i_fold]+'/towers'+tag+'.npz', allow_pickle=True)['arr_0'])
+                # print(tag)
+                # print(np.load(tensordirs[i_fold]+'/towers'+tag+'.npz', allow_pickle=True)['arr_0'])
+                # exit()
 
                 X = np.concatenate([X,np.load(tensordirs[i_fold]+'/towers'+tag+'.npz', allow_pickle=True)['arr_0']])
                 Y = np.concatenate([Y,np.load(tensordirs[i_fold]+'/jets'+tag+'.npz', allow_pickle=True)['arr_0']])

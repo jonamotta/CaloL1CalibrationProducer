@@ -76,6 +76,7 @@ def padDataFrame( dfFlatEJT ):
             trainingPt = dfFlatEJT['trainingPt'][uniqueIdx].unique()[0]
             jetEta = dfFlatEJT['jetEta'][uniqueIdx].unique()[0]
             jetPhi = dfFlatEJT['jetPhi'][uniqueIdx].unique()[0]
+            # nTT = dfFlatEJT['nTT'][uniqueIdx].unique()[0]
         except TypeError:
             jetIeta = dfFlatEJT['jetIeta'][uniqueIdx]
             jetIphi = dfFlatEJT['jetIphi'][uniqueIdx]
@@ -83,6 +84,7 @@ def padDataFrame( dfFlatEJT ):
             trainingPt = dfFlatEJT['trainingPt'][uniqueIdx]
             jetEta = dfFlatEJT['jetEta'][uniqueIdx]
             jetPhi = dfFlatEJT['jetPhi'][uniqueIdx]
+            # nTT = dfFlatEJT['nTT'][uniqueIdx]
 
         padder = pd.DataFrame(columns=dfFlatEJT.columns, index=range(0,81))
         padder['uniqueId'] = uniqueIdx
@@ -92,6 +94,7 @@ def padDataFrame( dfFlatEJT ):
         padder['jetPhi'] = jetPhi
         padder['jetIeta'] = jetIeta
         padder['jetIphi'] = jetIphi
+        # padder['nTT'] = nTT
         padder['iem'] = 0
         padder['ihad'] = 0
         padder['iet'] = 0
@@ -103,7 +106,52 @@ def padDataFrame( dfFlatEJT ):
         
     return padded
 
-def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, Ecalcut, Hcalcut, trainingPtVersion, whichECALcalib, flattenPtDistribution):
+def padDataFrameWithZeros( dfFlatEJT ):
+    padded = dfFlatEJT
+    for i, uniqueIdx in enumerate(dfFlatEJT.index.unique()):
+        if i%100 == 0:
+            print('{:.4f}%'.format(i/len(dfFlatEJT.index.unique())*100))
+        try:
+            N = len(dfFlatEJT['jetIeta'][uniqueIdx])
+            jetIeta = dfFlatEJT['jetIeta'][uniqueIdx].unique()[0]
+            jetIphi = dfFlatEJT['jetIphi'][uniqueIdx].unique()[0]
+            jetPt = dfFlatEJT['jetPt'][uniqueIdx].unique()[0]
+            trainingPt = dfFlatEJT['trainingPt'][uniqueIdx].unique()[0]
+            jetEta = dfFlatEJT['jetEta'][uniqueIdx].unique()[0]
+            jetPhi = dfFlatEJT['jetPhi'][uniqueIdx].unique()[0]
+            # nTT = dfFlatEJT['nTT'][uniqueIdx].unique()[0]
+        except TypeError:
+            N = 1
+            jetIeta = dfFlatEJT['jetIeta'][uniqueIdx]
+            jetIphi = dfFlatEJT['jetIphi'][uniqueIdx]
+            jetPt = dfFlatEJT['jetPt'][uniqueIdx]
+            trainingPt = dfFlatEJT['trainingPt'][uniqueIdx]
+            jetEta = dfFlatEJT['jetEta'][uniqueIdx]
+            jetPhi = dfFlatEJT['jetPhi'][uniqueIdx]
+            # nTT = dfFlatEJT['nTT'][uniqueIdx]
+
+        padder = pd.DataFrame(columns=dfFlatEJT.columns, index=range(0,81-N))
+        padder['uniqueId'] = uniqueIdx
+        padder['jetPt'] = jetPt
+        padder['trainingPt'] = trainingPt
+        padder['jetEta'] = jetEta
+        padder['jetPhi'] = jetPhi
+        padder['jetIeta'] = jetIeta
+        padder['jetIphi'] = jetIphi
+        # padder['nTT'] = nTT
+        padder['iem'] = 0
+        padder['ihad'] = 0
+        padder['iet'] = 0
+        padder['hcalET'] = 0
+        padder['ieta'] = 0
+        padder['iphi'] = 0
+
+        padded = padded.append(padder)
+        del padder
+        
+    return padded
+
+def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, applyOnTheFly):
     if len(dfET) == 0 or len(dfEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
@@ -162,9 +210,10 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     dfFlatEJ = dfFlatEJ[np.abs(dfFlatEJ['jetEta']) < 5.191]
 
     # Apply cut for noisy towers: ieta=26 -> iem>=6, ieta=27 -> iem>=12, ieta=28 -> iem>=18
-    #dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 26) & (dfFlatET['iem'] < 6)].index, inplace = True)
-    #dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 27) & (dfFlatET['iem'] < 12)].index, inplace = True)
-    #dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 28) & (dfFlatET['iem'] < 18)].index, inplace = True)
+    if applyCut_3_6_9:
+        dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 26) & (dfFlatET['iem'] < 6)].index, inplace = True)
+        dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 27) & (dfFlatET['iem'] < 12)].index, inplace = True)
+        dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 28) & (dfFlatET['iem'] < 18)].index, inplace = True)
 
     # Define overall hcalET information, ihad for ieta < 29 and iet for ieta > 29
     dfFlatET['hcalET'] = dfFlatET['ihad']*(np.abs(dfFlatET['ieta'])<29) + dfFlatET['iet']*(np.abs(dfFlatET['ieta'])>29)
@@ -283,11 +332,34 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         dfFlatEJT['hoe'] = group['hcalET'].sum()/(group['iem'].sum()+group['hcalET'].sum())
         dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.95]
 
+    # apply HCAL calibration on the fly
+    if whichHCALcalib != False:
+        print("starting HCAL calibration")
+        dfFlatEJT.reset_index(inplace=True)
+        
+        # get the correct caloParams for the calibration on the fly
+        if whichHCALcalib == "oldCalib":
+            energy_bins = layer1HCalScaleETBins_oldCalib
+            labels = layer1HCalScaleETLabels_oldCalib
+            SFs = layer1HCalScaleFactors_oldCalib
+        elif whichHCALcalib == "newCalib":
+            energy_bins = layer1HCalScaleETBins_newCalib
+            labels = layer1HCalScaleETLabels_newCalib
+            SFs = layer1HCalScaleFactors_newCalib
+        
+        dfFlatEJT['ihadBin'] = pd.cut(dfFlatEJT['hcalET'], bins = energy_bins, labels=labels)
+        dfFlatEJT['hcalET'] = dfFlatEJT.apply(lambda row: math.floor(row['hcalET'] * SFs[int( abs(row['ieta']) + 40*(row['ihadBin']-1) ) -1]), axis=1)
+        dfFlatEJT.set_index('uniqueIdx', inplace=True)
+
+    # store number of TT fired by the jet
+    # dfFlatEJT['nTT'] = dfFlatEJT.groupby('uniqueIdx').count()
+
     print('starting padding') # DEBUG
 
     # do the padding of the dataframe to have 81 rows for each jet        
-    paddedEJT = padDataFrame(dfFlatEJT)
-    paddedEJT.drop_duplicates(['uniqueId', 'ieta', 'iphi'], keep='first', inplace=True)
+    #paddedEJT = padDataFrame(dfFlatEJT)
+    #paddedEJT.drop_duplicates(['uniqueId', 'ieta', 'iphi'], keep='first', inplace=True)
+    paddedEJT = padDataFrameWithZeros(dfFlatEJT)
     paddedEJT.set_index('uniqueId',inplace=True)
 
     # subtract iem/ihad to jetPt in oprder to get the correct training Pt to be be used for the NN
@@ -298,11 +370,10 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['trainingPt'].mean() - group['iem'].sum()
 
     # keep only the jets that have a meaningful trainingPt to be used (this selection should actually be redundant with )
-    paddedEJT = paddedEJT[paddedEJT['trainingPt']>1]
+    paddedEJT = paddedEJT[paddedEJT['trainingPt']>=1]
 
-    # append the DFs from the different files to one single big DF
-    paddedEJT.reset_index(inplace=True)
     # shuffle the rows so that no order of the chunky donut gets learned
+    paddedEJT.reset_index(inplace=True)
     paddedEJT = paddedEJT.sample(frac=1).copy(deep=True)
 
     dfTowers = paddedEJT[['uniqueId','ieta','iem','hcalET']].copy(deep=True)
@@ -342,19 +413,21 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     dfJets.drop_duplicates('uniqueId', keep='first', inplace=True)
     dfJets.set_index('uniqueId', inplace=True)
 
-    # do the one hot encoding of ieta
-    dfEOneHotEncoded = pd.get_dummies(dfE, columns=['ieta'])
-    # pad the values of ieta that might be missing from the OHE
-    for i in list(TowersEta.keys()):
-        if 'ieta_'+str(i) not in dfEOneHotEncoded:
-            dfEOneHotEncoded['ieta_'+str(i)] = 0
+    if not applyOnTheFly:
+        # do the one hot encoding of ieta
+        dfEOneHotEncoded = pd.get_dummies(dfE, columns=['ieta'])
+        # pad the values of ieta that might be missing from the OHE
+        for i in list(TowersEta.keys()):
+            if 'ieta_'+str(i) not in dfEOneHotEncoded:
+                dfEOneHotEncoded['ieta_'+str(i)] = 0
+        dfEOneHotEncoded = dfEOneHotEncoded[['iem', 'hcalET', 'iesum', 'ieta_1', 'ieta_2', 'ieta_3', 'ieta_4', 'ieta_5', 'ieta_6', 'ieta_7', 'ieta_8', 'ieta_9', 'ieta_10', 'ieta_11', 'ieta_12', 'ieta_13', 'ieta_14', 'ieta_15', 'ieta_16', 'ieta_17', 'ieta_18', 'ieta_19', 'ieta_20', 'ieta_21', 'ieta_22', 'ieta_23', 'ieta_24', 'ieta_25', 'ieta_26', 'ieta_27', 'ieta_28', 'ieta_30', 'ieta_31', 'ieta_32', 'ieta_33', 'ieta_34', 'ieta_35', 'ieta_36', 'ieta_37', 'ieta_38', 'ieta_39', 'ieta_40', 'ieta_41']]
+    else:
+        dfEOneHotEncoded = dfE.copy(deep=True)
 
     ## DEBUG
     print('starting tensorisation')
 
-    # convert to tensor for plotting
-    # Y = np.array([dfJets.loc[i].values[0] for i in dfJets.index]).reshape(-1,1)
-    # To keep both the information on jetPt and jetEta
+    # convert to tensor
     Y = np.array([dfJets.loc[i].values for i in dfJets.index])
     X = np.array([dfEOneHotEncoded.loc[i].to_numpy() for i in dfE.index.drop_duplicates(keep='first')])
 
@@ -387,13 +460,16 @@ if __name__ == "__main__" :
     parser.add_option("--tag",         dest="tag",         default='')
     parser.add_option("--fout",        dest="fout",        default='')
     parser.add_option("--calibrateECAL", dest="calibrateECAL", default=False, help="oldCalib or newCalib; not specified == noCalib")
+    parser.add_option("--calibrateHCAL", dest="calibrateHCAL", default=False, help="oldCalib or newCalib; not specified == noCalib")
     parser.add_option("--trainPtVers", dest="trainPtVers", default=False)
     parser.add_option("--uJetPtCut",   dest="uJetPtCut",   default=False)
     parser.add_option("--lJetPtCut",   dest="lJetPtCut",   default=False)
     parser.add_option("--etacut",      dest="etacut",      default=False)
+    parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
     parser.add_option("--ecalcut",     dest="ecalcut",     default=False)
     parser.add_option("--hcalcut",     dest="hcalcut",     default=False)
     parser.add_option("--flattenPtDistribution",     dest="flattenPtDistribution",     default=False)
+    parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.tag=='' or options.fout==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
@@ -426,6 +502,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.ecalcut, options.hcalcut, options.trainPtVers, options.calibrateECAL, options.flattenPtDistribution)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.applyOnTheFly)
     print("DONE!")
 

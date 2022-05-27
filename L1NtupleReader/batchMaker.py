@@ -46,6 +46,7 @@ if __name__ == "__main__" :
     parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
     parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
     parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
+    parser.add_option("--doPi0_200", dest="doPi0_200", action='store_true', default=False)
     parser.add_option("--chunk_size", dest="chunk_size", type=int, default=5000)
     (options, args) = parser.parse_args()
     print(options)
@@ -58,7 +59,7 @@ if __name__ == "__main__" :
         print('** WARNING: no calibration to be used specified - EXITING!')
         exit()
 
-    if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False:
+    if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False and options.doPi0_200 == False:
         print('** WARNING: no dataset to be used specified - EXITING!')
         exit()
 
@@ -119,6 +120,11 @@ if __name__ == "__main__" :
         ## signle photon 200-500 without pu
         folder_names.append("SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated"+tagCalib+tagHCALpfa1p)
         outdir = outdir+'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
+
+    elif options.doPi0_200:
+        folder_names.append("SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+        outdir = outdir+'/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+
 
     os.system('mkdir -p '+outdir+'/towers')
     os.system('mkdir -p '+outdir+'/jets')

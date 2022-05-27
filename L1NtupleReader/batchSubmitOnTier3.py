@@ -38,6 +38,7 @@ parser.add_option("--odir",     dest="odir",    default="")
 parser.add_option("--uJetPtCut", dest="uJetPtCut", default=False)
 parser.add_option("--lJetPtCut", dest="lJetPtCut", default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
+parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
 parser.add_option("--ecalcut",  dest="ecalcut", default=False)
 parser.add_option("--hcalcut",  dest="hcalcut", default=False)
 parser.add_option("--flatPtDist",     dest="flatPtDist",     default=False)
@@ -54,7 +55,8 @@ parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', defa
 parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
 parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
 parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
-parser.add_option("--applyOnTheFly", dest="applyOnTheFly", action='store_true', default=False)
+parser.add_option("--doPi0_200", dest="doPi0_200", action='store_true', default=False)
+parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
 (options, args) = parser.parse_args()
 
 if options.indir == None:
@@ -65,7 +67,7 @@ if options.applyNoCalib == False and options.applyOldCalib == False and options.
     print('** WARNING: no calibration to be used specified - EXITING!')
     exit()
 
-if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False and options.testRun == False:
+if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False and options.doPi0_200 == False and options.testRun == False:
     print('** WARNING: no dataset to be used specified - EXITING!')
     exit()
 
@@ -118,20 +120,26 @@ elif options.doQCDnoPU:
 
     else:
         ## qcd without pu
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_subset.txt')
+        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU.txt')
         filedir = filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
         folder = filedir+'/'+outputFolderName
 
 elif options.doEG0_200:
     ## signle photon 0-200 without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200_subset.txt')
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200.txt')
     filedir = filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
     folder = filedir+'/'+outputFolderName
 
 elif options.doEG200_500:
     ## signle photon 200-500 without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500_subset.txt')
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500.txt')
     filedir = filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
+    folder = filedir+'/'+outputFolderName
+
+elif options.doPi0_200:
+    ## signle pion 0-200 without pu
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_pi_Pt0To200.txt')
+    filedir = filedir +'/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
     folder = filedir+'/'+outputFolderName
 
 else:
@@ -159,16 +167,15 @@ for idx, tag in enumerate(tags):
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
-    script = 'batchReader.py'
-    if options.applyOnTheFly: script = 'batchApplier.py'
-
-    cmsRun = "python "+script+" --fin "+filedir+" --tag "+tag+" --fout "+folder
+    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder
     if options.uJetPtCut != False:
         cmsRun = cmsRun + " --uJetPtCut "+options.uJetPtCut
     if options.lJetPtCut != False:
         cmsRun = cmsRun + " --lJetPtCut "+options.lJetPtCut
     if options.etacut != False:
         cmsRun = cmsRun + " --etacut "+options.etacut
+    if options.applyCut_3_6_9 != False:
+        cmsRun = cmsRun + " --applyCut_3_6_9 "+options.applyCut_3_6_9
     if options.ecalcut != False:
         cmsRun = cmsRun + " --ecalcut "+options.ecalcut
     if options.hcalcut != False:
@@ -181,6 +188,8 @@ for idx, tag in enumerate(tags):
         cmsRun = cmsRun + " --calibrateHCAL "+options.calibHCALOnTheFly
     if options.flatPtDist != False:
         cmsRun = cmsRun + " --flattenPtDistribution "+options.flatPtDist
+    if options.applyOnTheFly != False:
+        cmsRun = cmsRun + " --applyOnTheFly "+options.applyOnTheFly
 
     cmsRun = cmsRun + " >& "+outLogName
 
