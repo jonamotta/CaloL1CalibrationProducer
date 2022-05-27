@@ -203,7 +203,6 @@ for idx, tag in enumerate(tags):
     skimjob.close ()
 
     os.system ('chmod u+rwx ' + outJobName)
-
     command = ('/home/llr/cms/motta/t3submit -short \'' + outJobName +"\'")
     #command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)

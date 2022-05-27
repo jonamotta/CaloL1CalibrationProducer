@@ -396,10 +396,6 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     storeJ['jets'] = dfJets
     storeJ.close()
 
-    # make the produced files accessible to the other people otherwise we cannot work together
-    os.system('chmod 774 '+saveToDFs['towers']+'.hdf5')
-    os.system('chmod 774 '+saveToDFs['jets']+'.hdf5')
-
     ## DEBUG
     print('starting one hot encoding')
 
@@ -439,10 +435,6 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     # save .npz files with tensor formatted datasets
     np.savez_compressed(saveToTensors['towers']+'.npz', X)
     np.savez_compressed(saveToTensors['jets']+'.npz', Y)
-
-    # make the produced files accessible to the other people otherwise we cannot work together
-    os.system('chmod 774 '+saveToTensors['towers']+'.npz')
-    os.system('chmod 774 '+saveToTensors['jets']+'.npz')
 
 #######################################################################
 ######################### SCRIPT BODY #################################

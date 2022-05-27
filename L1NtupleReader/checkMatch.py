@@ -279,7 +279,3 @@ if __name__ == "__main__" :
     # store.close()
 
 
-    # make the produced files accessible to the other people otherwise we cannot work together
-    os.system('chmod 774 '+testOutHDF)
-    os.system('chmod 774 '+testOutCSV)
-
