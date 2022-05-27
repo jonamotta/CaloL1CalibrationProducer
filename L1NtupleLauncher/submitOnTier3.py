@@ -36,6 +36,7 @@ if __name__ == "__main__" :
     parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
     parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
     parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
+    parser.add_option("--doPi0_200", dest="doPi0_200", action='store_true', default=False)
     parser.add_option("--testRun", dest="testRun", action='store_true', default=False)
     parser.add_option("--no_exec", dest="no_exec", action='store_true', default=False)
     (options, args) = parser.parse_args()
@@ -45,7 +46,7 @@ if __name__ == "__main__" :
         print('** WARNING: no calibration to be used specified - EXITING!')
         exit()
 
-    if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False and options.testRun == False:
+    if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False and options.doPi0_200 == False and options.testRun == False:
         print('** WARNING: no dataset to be used specified - EXITING!')
         exit()
 
@@ -110,6 +111,11 @@ if __name__ == "__main__" :
         ## signle photon 200-500 without pu
         filelist = open(filedir+"/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
         folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+
+    elif options.doPi0_200:
+        ## signle pion 0-200 without pu
+        filelist = open(filedir+"/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW.txt")
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
     elif options.testRun:
         # TEST 10 files from signle photon 0-200 without pu
