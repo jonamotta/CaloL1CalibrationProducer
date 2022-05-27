@@ -5,13 +5,15 @@ import sys
 import copy
 import pandas as pd
 import matplotlib.pyplot as plt
-from NNModelTraining import *
+# from NNModelTraining import *
+# from NNModelTraining_FlooringAfterTTP import *
+from NNModelTraining_FlooringInTTP import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
 real_eta_towers = list(TowersEta.keys())
 
-# Returns matrix with scale factors for the trained model (couche)
+# Returns matrix with scale factors for the trained model (TTP)
 # The matrix has 40 rows, for all the eta towers, and as many columns as the number of the energy bins
 def ExtractSF (model, bins, eta_towers):
 
@@ -96,8 +98,10 @@ if __name__ == "__main__" :
     modeldir = indir + '/model_' + options.v
     print('\nModel dir = {}\n'.format(modeldir))
 
-    model1 = keras.models.load_model(modeldir + '/model', compile=False)
-    couche = keras.models.load_model(modeldir + '/couche', compile=False)
+    # model1 = keras.models.load_model(modeldir + '/model', compile=False)
+    # TTP = keras.models.load_model(modeldir + '/TTP', compile=False)
+    model1 = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'fgrad': fgrad})
+    TTP = keras.models.load_model(modeldir + '/TTP', compile=False, custom_objects={'fgrad': fgrad})
     
     # Definition of energy bins in units of 0.5 GeV, from 1 to 510
     # It will be optimized by a separated script
@@ -129,7 +133,7 @@ if __name__ == "__main__" :
     SFOutFile = odir + '/ScaleFactors_' + options.v + '.csv'
 
     # eta rows and energy columns
-    ScaleFactors = ExtractSF(couche, bins_energy, eta_towers)
+    ScaleFactors = ExtractSF(TTP, bins_energy, eta_towers)
 
     # # Add eta references and save to output csv file
     ScaleFactors_index = np.c_[eta_towers, ScaleFactors]
@@ -144,7 +148,7 @@ if __name__ == "__main__" :
     SFOutFile = odir + '/ScaleFactors_' + options.v + '_inverted.csv'
 
     # eta columns and energy rows
-    ScaleFactors = ExtractSF_inverted(couche, bins_energy, eta_towers)
+    ScaleFactors = ExtractSF_inverted(TTP, bins_energy, eta_towers)
 
     # Add eta references and save to output csv file
     # edges_energy = ','.join('{}-{}'.format(int(bins_energy[i]), int(bins_energy[i+1])) for i in range(len(bins_energy)-1))

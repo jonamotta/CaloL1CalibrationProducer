@@ -9,12 +9,14 @@ import matplotlib.pyplot as plt
 from math import *
 from matplotlib.transforms import Affine2D
 
-from NNModelTraining import *
+# from NNModelTraining import *
+# from NNModelTraining_FlooringAfterTTP import *
+from NNModelTraining_FlooringInTTP import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
-import mplhep
-plt.style.use(mplhep.style.CMS)
+# import mplhep
+# plt.style.use(mplhep.style.CMS)
 
 c_uncalib = 'royalblue'
 c_calib = 'darkorange'
@@ -193,10 +195,11 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bin_type, steps):
     fig = plt.figure(figsize = [18,10])
     plt.bar(resolution[column_bin], resolution['uncalib_std']/resolution['uncalib_mean'], width=0.4, alpha=0.7, align='center', label='Uncalib', color=c_uncalib)
     plt.bar(resolution[column_bin], resolution['calib_std']/resolution['calib_mean'], width=0.4, alpha=0.7, align='edge', label='Calib', color=c_calib)
+    plt.ylim(0.0,0.5)
     plt.xlabel('{} bins {}'.format(name, units))
     plt.ylabel('Standard Deviation / Mean')
     plt.title(f'Jets resolution')
-    plt.legend(loc='upper left')
+    plt.legend(loc='upper right')
     savefile = odir + '/Res_vs_{}_{}.png'.format(name.split('jet')[1], v_sample)
     plt.savefig(savefile)
     print(savefile)
@@ -208,10 +211,11 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bin_type, steps):
     plt.errorbar(resolution[column_bin], resolution['uncalib_mean'], yerr=resolution['uncalib_std'], fmt='o', alpha=1, label='Uncalib', color=c_uncalib, markersize=15, capsize=8, elinewidth=3, capthick=5, transform=trans1)
     plt.errorbar(resolution[column_bin], resolution['calib_mean'], yerr=resolution['calib_std'], fmt='o', alpha=1, label='Calib', color=c_calib, markersize=15, capsize=8, elinewidth=3, capthick=5, transform=trans2)
     plt.axhline(y=1., color='black', linestyle='--')
+    plt.ylim(0.4,1.6)
     plt.xlabel('{} bins {}'.format(name, units))
     plt.ylabel(r'Mean $\pm$ Standard Deviation')
     plt.title(f'Jets resolution')
-    plt.legend(loc='upper left')
+    plt.legend(loc='upper right')
     savefile = odir + '/Res_vs_{}_{}_bars.png'.format(name.split('jet')[1], v_sample)
     plt.savefig(savefile)
     print(savefile)
@@ -311,6 +315,7 @@ if __name__ == "__main__" :
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--indir",    dest="indir",   help="Input folder with trained model",     default=None)
+    parser.add_option("--tag",      dest="tag",     help="tag of the training folder",      default="")
     parser.add_option("--out",      dest="odir",    help="Output folder",                       default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",      default='ECAL')
     parser.add_option("--maxeta",   dest="maxeta",  help="Eta max in the SF plot (None or 28)", default=None)
@@ -318,12 +323,14 @@ if __name__ == "__main__" :
     print(options)
 
     # Definition of the trained model
-    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training'
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
     modeldir = indir + '/model_' + options.v
     print('\nModel dir = {}'.format(modeldir))
 
-    model1 = keras.models.load_model(modeldir + '/model', compile=False)
-    couche = keras.models.load_model(modeldir + '/couche', compile=False)
+    # model1 = keras.models.load_model(modeldir + '/model', compile=False)
+    # TTP = keras.models.load_model(modeldir + '/TTP', compile=False)
+    model1 = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'fgrad': fgrad})
+    TTP = keras.models.load_model(modeldir + '/TTP', compile=False, custom_objects={'fgrad': fgrad})
 
     # Definition of the Scale factors
     SF_filename = indir + '/data_' + options.v + '/ScaleFactors_' + options.v + '.csv'
@@ -389,6 +396,12 @@ if __name__ == "__main__" :
     # Produce the pandas dataframes with jetPt, jetEta and jetEnergy (sum of the deposited energy in all the towers)
     df_uncalib = pd.DataFrame(data = {'jetPt': Y_test[:,0].ravel(), 'jetEta': np.abs(Y_test[:,1].ravel()), 'jetIem': X_test_iem, 'jetIhad': X_test_ihad, 'jetEnergy': X_test_iesum})
     df_calib   = pd.DataFrame(data = {'jetPt': Y_test[:,0].ravel(), 'jetEta': np.abs(Y_test[:,1].ravel()), 'jetEnergy': X_test_calib_sum.ravel()})
+
+    df_calib['jetEnergyFloor'] = df_calib['jetEnergy'].apply(floor)
+
+    # df_calib.sort_values('jetPt', inplace=True)
+    # print(df_calib)
+    # exit()
 
     # Compute resolution
     print('\nCompute resolution')
