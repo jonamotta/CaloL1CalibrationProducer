@@ -1,6 +1,5 @@
 from itertools import chain
 from xml.dom.expatbuilder import parseString
-from TowerGeometry import *
 import pandas as pd
 import numpy as np
 import argparse
@@ -46,8 +45,25 @@ passing = []
 for threshold in thresholds:
         passing.append(ROOT.TH1F("passing"+str(threshold),"passing"+str(threshold),len(bins)-1, array('f',bins)))
 
-#dummy histogram for plotting
+#dummy histogram for plotting of turn-ons and resolutions_in_eta_bins
 empty = ROOT.TH1F("empty","empty",len(bins)-1, array('f',bins))
+empty_res = ROOT.TH1F("empty_res","empty_res",20,0.,2.)
+
+#resolution in bins of eta histograms
+resolution_inclusive = ROOT.TH1F("resolution_inclusive","resolution_inclusive",40,0.,2.)
+
+eta_bins = [0, 0.8, 1.5, 3., 5.]
+resolutions_in_eta_bins  = []
+
+pt_bins = [15, 30, 40, 50, 70., 100., 150., 250., 500.]
+resolutions_in_pt_bins  = []
+
+for i,eta_bin in enumerate(eta_bins):
+    if i<len(eta_bins)-1: resolutions_in_eta_bins.append(ROOT.TH1F("resolution_"+str(eta_bins[i])+"_"+str(eta_bins[i+1]),"resolution_"+str(eta_bins[i])+"_"+str(eta_bins[i+1]),40, 0., 2.))
+
+for i,pt_bin in enumerate(pt_bins):
+    if i<len(pt_bins)-1: resolutions_in_pt_bins.append(ROOT.TH1F("resolution_"+str(pt_bins[i])+"_"+str(pt_bins[i+1]),"resolution_"+str(pt_bins[i])+"_"+str(pt_bins[i+1]),40, 0., 2.))
+
 
 #pt spectrum
 pt = ROOT.TH1F("pt","pt",len(bins)-1, array('f',bins))
@@ -96,7 +112,15 @@ for i in range(0, nevents):
         #fill numerator histograms for every thresholds
         for i,ele in enumerate(thresholds): 
             if matched and highestL1Pt>float(ele): passing[i].Fill(Gen_jet.Pt())
-
+        if matched:
+            resolution_inclusive.Fill(highestL1Pt/Gen_jet.Pt())
+            for ieta,eta_bin in enumerate(eta_bins):
+                if ieta<len(eta_bins)-1:
+                    if Gen_jet.Eta()<eta_bins[ieta+1] and Gen_jet.Eta()>=eta_bins[ieta]: resolutions_in_eta_bins[ieta].Fill(highestL1Pt/Gen_jet.Pt())
+            for ipt,pt_bin in enumerate(pt_bins):
+                if ipt<len(pt_bins)-1:
+                    if Gen_jet.Pt()<pt_bins[ipt+1] and Gen_jet.Pt()>=pt_bins[ipt]: resolutions_in_pt_bins[ipt].Fill(highestL1Pt/Gen_jet.Pt())                    
+                
 #define TGraphAsymmErrors for efficiency turn-ons
 turnons = []
 
@@ -140,6 +164,87 @@ legend.Draw("same")
 
 canvas.SaveAs("turnOn_"+label+".pdf")
 canvas.SaveAs("turnOn_"+label+".root")
+
+
+#define canvas for plotting resolutions_in_eta_bins / inclusive
+canvas_res = ROOT.TCanvas("c_res","c_res",800,800)
+canvas_res.SetGrid(10,10);
+
+#use dummy histogram to define style
+empty_res.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{Gen jet}")
+empty_res.SetTitle("")
+
+empty_res.GetXaxis().SetRangeUser(0.,2.);
+empty_res.GetYaxis().SetRangeUser(0.,resolutions_in_eta_bins[0].GetMaximum()/resolutions_in_eta_bins[0].Integral()*1.3);
+
+empty_res.GetXaxis().SetTitleOffset(1.3);
+empty_res.GetYaxis().SetTitle("Integral normalized to unity");
+empty_res.GetYaxis().SetTitleOffset(1.45);
+empty_res.SetTitle("");
+empty_res.SetStats(0);
+
+#empty_res.SetMarkerStyle(2)
+empty_res.Draw("E");
+
+for i,ele in enumerate(resolutions_in_eta_bins):
+    #resolutions_in_eta_bins[i].SetMarkerStyle(2)
+    resolutions_in_eta_bins[i].SetMarkerColor(i+2)
+    resolutions_in_eta_bins[i].SetLineColor(i+2)
+    #resolutions_in_eta_bins[i].SetLineWidth(0)
+    resolutions_in_eta_bins[i].DrawNormalized("Esame")
+
+#resolution_inclusive.SetMarkerStyle(2)
+resolution_inclusive.SetMarkerColor(1)
+resolution_inclusive.SetLineColor(1)
+#resolution_inclusive.SetLineWidth(0)
+resolution_inclusive.DrawNormalized("Esame")
+
+legend_res = ROOT.TLegend(0.15,0.75,0.48,0.88)
+legend_res.SetBorderSize(0)
+legend_res.AddEntry(resolution_inclusive,"Inclusive","E")
+
+for i,ele in enumerate(eta_bins):
+    if i<len(eta_bins)-1: legend_res.AddEntry(resolutions_in_eta_bins[i],str(eta_bins[i])+" < |#eta| < "+str(eta_bins[i+1]),"EL")
+
+legend_res.Draw("same")
+
+canvas_res.SaveAs("resolution_in_eta_bins_"+label+".pdf")
+canvas_res.SaveAs("resolution_in_eta_bins_"+label+".root")
+
+print("--")
+
+#define canvas for plotting resolutions_in_pt_bins / inclusive
+canvas_res_pt = ROOT.TCanvas("c_res_pt","c_res_pt",800,800)
+canvas_res_pt.SetGrid(10,10);
+
+#use dummy histogram to define style
+empty_res.GetYaxis().SetRangeUser(0.,resolutions_in_pt_bins[len(resolutions_in_pt_bins)-1].GetMaximum()/resolutions_in_pt_bins[len(resolutions_in_pt_bins)-1].Integral()*1.2);
+empty_res.Draw("E");
+
+for i,ele in enumerate(resolutions_in_pt_bins):
+    #resolutions_in_eta_bins[i].SetMarkerStyle(2)
+    resolutions_in_pt_bins[i].SetMarkerColor(i+2)
+    resolutions_in_pt_bins[i].SetLineColor(i+2)
+    #resolutions_in_pt_bins[i].SetLineWidth(0)
+    resolutions_in_pt_bins[i].DrawNormalized("Esame")
+
+#resolution_inclusive.SetMarkerStyle(2)
+resolution_inclusive.SetMarkerColor(1)
+resolution_inclusive.SetLineColor(1)
+#resolution_inclusive.SetLineWidth(0)
+resolution_inclusive.DrawNormalized("Esame")
+
+legend_res_pt = ROOT.TLegend(0.62782,0.452196,0.860902,0.883721)
+legend_res_pt.SetBorderSize(0)
+legend_res_pt.AddEntry(resolution_inclusive,"Inclusive","E")
+
+for i,ele in enumerate(pt_bins):
+    if i<len(pt_bins)-1: legend_res_pt.AddEntry(resolutions_in_pt_bins[i],str(int(pt_bins[i]+0.1))+" < p_{T}^{Gen jet} < "+str(int(pt_bins[i+1]+0.1))+" GeV","EL")
+
+legend_res_pt.Draw("same")
+
+canvas_res_pt.SaveAs("resolution_in_pt_bins_"+label+".pdf")
+canvas_res_pt.SaveAs("resolution_in_pt_bins_"+label+".root")
 
 print("--")
 
