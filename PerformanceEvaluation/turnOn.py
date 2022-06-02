@@ -183,6 +183,17 @@ for i,ele in enumerate(thresholds):
 
 legend.Draw("same")
 
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03);
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex();
+tex2.SetTextSize(0.035);
+tex2.SetTextAlign(31);
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+tex2.Draw("same");
+
 canvas.SaveAs("turnOn_"+label+".pdf")
 canvas.SaveAs("turnOn_"+label+".root")
 
@@ -198,6 +209,7 @@ empty_res.SetTitle("")
 empty_res.GetXaxis().SetRangeUser(0.,2.);
 maximum_eta = -1.
 for res_plot in resolutions_in_eta_bins:
+    if res_plot.Integral()<0.0001: continue
     if res_plot.GetMaximum()/res_plot.Integral()>maximum_eta: maximum_eta = res_plot.GetMaximum()/res_plot.Integral()
 empty_res.GetYaxis().SetRangeUser(0.,maximum_eta*1.3);
 
@@ -232,6 +244,17 @@ for i,ele in enumerate(eta_bins):
 
 legend_res.Draw("same")
 
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03);
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex();
+tex2.SetTextSize(0.035);
+tex2.SetTextAlign(31);
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+tex2.Draw("same");
+
 canvas_res.SaveAs("resolution_in_eta_bins_"+label+".pdf")
 canvas_res.SaveAs("resolution_in_eta_bins_"+label+".root")
 
@@ -244,6 +267,7 @@ canvas_res_pt.SetGrid(10,10);
 #use dummy histogram to define style
 maximum_pt = -1.
 for res_plot in resolutions_in_pt_bins:
+    if res_plot.Integral()<0.0001: continue
     if res_plot.GetMaximum()/res_plot.Integral()>maximum_pt: maximum_pt = res_plot.GetMaximum()/res_plot.Integral()
 empty_res.GetYaxis().SetRangeUser(0.,maximum_pt*1.3);
 empty_res.Draw("E");
@@ -269,6 +293,17 @@ for i,ele in enumerate(pt_bins):
     if i<len(pt_bins)-1: legend_res_pt.AddEntry(resolutions_in_pt_bins[i],str(int(pt_bins[i]+0.1))+" < p_{T}^{Gen jet} < "+str(int(pt_bins[i+1]+0.1))+" GeV","EL")
 
 legend_res_pt.Draw("same")
+
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03);
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex();
+tex2.SetTextSize(0.035);
+tex2.SetTextAlign(31);
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+tex2.Draw("same");
 
 canvas_res_pt.SaveAs("resolution_in_pt_bins_"+label+".pdf")
 canvas_res_pt.SaveAs("resolution_in_pt_bins_"+label+".root")
