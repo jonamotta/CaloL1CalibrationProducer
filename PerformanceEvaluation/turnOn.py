@@ -95,6 +95,8 @@ for i in range(0, nevents):
         pt.Fill(Gen_jet.Pt())
 
         matched = False
+        FilledTurnOn = False
+        FilledReso = False
         highestL1Pt = -99.
 
         #loop on L1 jets to find match
@@ -110,16 +112,35 @@ for i in range(0, nevents):
                     highestL1Pt = L1_jet.Pt()
 
         #fill numerator histograms for every thresholds
-        for i,ele in enumerate(thresholds): 
-            if matched and highestL1Pt>float(ele): passing[i].Fill(Gen_jet.Pt())
+        if not FilledTurnOn:
+            FilledTurOn = True
+            for i,ele in enumerate(thresholds): 
+                if matched and highestL1Pt>float(ele): passing[i].Fill(Gen_jet.Pt())
+
         if matched:
-            resolution_inclusive.Fill(highestL1Pt/Gen_jet.Pt())
-            for ieta,eta_bin in enumerate(eta_bins):
-                if ieta<len(eta_bins)-1:
-                    if Gen_jet.Eta()<eta_bins[ieta+1] and Gen_jet.Eta()>=eta_bins[ieta]: resolutions_in_eta_bins[ieta].Fill(highestL1Pt/Gen_jet.Pt())
-            for ipt,pt_bin in enumerate(pt_bins):
-                if ipt<len(pt_bins)-1:
-                    if Gen_jet.Pt()<pt_bins[ipt+1] and Gen_jet.Pt()>=pt_bins[ipt]: resolutions_in_pt_bins[ipt].Fill(highestL1Pt/Gen_jet.Pt())                    
+            #if highestL1Pt<10.: continue
+            if not FilledReso:
+                FilledReso = True
+                resolution_inclusive.Fill(highestL1Pt/Gen_jet.Pt())
+                for ieta,eta_bin in enumerate(eta_bins):
+                    if ieta<len(eta_bins)-1:
+                        if abs(Gen_jet.Eta())<eta_bins[ieta+1] and abs(Gen_jet.Eta())>=eta_bins[ieta]:
+                            resolutions_in_eta_bins[ieta].Fill(highestL1Pt/Gen_jet.Pt())
+                            #print("Gen pT = ",Gen_jet.Pt(),", L1 pT = ",highestL1Pt)
+                for ipt,pt_bin in enumerate(pt_bins):
+                    if ipt<len(pt_bins)-1:
+                        if Gen_jet.Pt()<pt_bins[ipt+1] and Gen_jet.Pt()>=pt_bins[ipt]: resolutions_in_pt_bins[ipt].Fill(highestL1Pt/Gen_jet.Pt())
+        else:
+            if not FilledReso:
+                FilledReso = True    
+                resolution_inclusive.Fill(0.)
+                for ieta,eta_bin in enumerate(eta_bins):
+                    if ieta<len(eta_bins)-1:
+                        if abs(Gen_jet.Eta())<eta_bins[ieta+1] and abs(Gen_jet.Eta())>=eta_bins[ieta]:
+                            resolutions_in_eta_bins[ieta].Fill(0.)
+                for ipt,pt_bin in enumerate(pt_bins):
+                    if ipt<len(pt_bins)-1:
+                        if Gen_jet.Pt()<pt_bins[ipt+1] and Gen_jet.Pt()>=pt_bins[ipt]: resolutions_in_pt_bins[ipt].Fill(0.)                            
                 
 #define TGraphAsymmErrors for efficiency turn-ons
 turnons = []
@@ -175,7 +196,10 @@ empty_res.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{Gen jet}")
 empty_res.SetTitle("")
 
 empty_res.GetXaxis().SetRangeUser(0.,2.);
-empty_res.GetYaxis().SetRangeUser(0.,resolutions_in_eta_bins[0].GetMaximum()/resolutions_in_eta_bins[0].Integral()*1.3);
+maximum_eta = -1.
+for res_plot in resolutions_in_eta_bins:
+    if res_plot.GetMaximum()/res_plot.Integral()>maximum_eta: maximum_eta = res_plot.GetMaximum()/res_plot.Integral()
+empty_res.GetYaxis().SetRangeUser(0.,maximum_eta*1.3);
 
 empty_res.GetXaxis().SetTitleOffset(1.3);
 empty_res.GetYaxis().SetTitle("Integral normalized to unity");
@@ -201,7 +225,7 @@ resolution_inclusive.DrawNormalized("Esame")
 
 legend_res = ROOT.TLegend(0.15,0.75,0.48,0.88)
 legend_res.SetBorderSize(0)
-legend_res.AddEntry(resolution_inclusive,"Inclusive","E")
+legend_res.AddEntry(resolution_inclusive,"Inclusive","EL")
 
 for i,ele in enumerate(eta_bins):
     if i<len(eta_bins)-1: legend_res.AddEntry(resolutions_in_eta_bins[i],str(eta_bins[i])+" < |#eta| < "+str(eta_bins[i+1]),"EL")
@@ -218,7 +242,10 @@ canvas_res_pt = ROOT.TCanvas("c_res_pt","c_res_pt",800,800)
 canvas_res_pt.SetGrid(10,10);
 
 #use dummy histogram to define style
-empty_res.GetYaxis().SetRangeUser(0.,resolutions_in_pt_bins[len(resolutions_in_pt_bins)-1].GetMaximum()/resolutions_in_pt_bins[len(resolutions_in_pt_bins)-1].Integral()*1.2);
+maximum_pt = -1.
+for res_plot in resolutions_in_pt_bins:
+    if res_plot.GetMaximum()/res_plot.Integral()>maximum_pt: maximum_pt = res_plot.GetMaximum()/res_plot.Integral()
+empty_res.GetYaxis().SetRangeUser(0.,maximum_pt*1.3);
 empty_res.Draw("E");
 
 for i,ele in enumerate(resolutions_in_pt_bins):
@@ -232,11 +259,11 @@ for i,ele in enumerate(resolutions_in_pt_bins):
 resolution_inclusive.SetMarkerColor(1)
 resolution_inclusive.SetLineColor(1)
 #resolution_inclusive.SetLineWidth(0)
-resolution_inclusive.DrawNormalized("Esame")
+resolution_inclusive.DrawNormalized("ELsame")
 
 legend_res_pt = ROOT.TLegend(0.62782,0.452196,0.860902,0.883721)
 legend_res_pt.SetBorderSize(0)
-legend_res_pt.AddEntry(resolution_inclusive,"Inclusive","E")
+legend_res_pt.AddEntry(resolution_inclusive,"Inclusive","EL")
 
 for i,ele in enumerate(pt_bins):
     if i<len(pt_bins)-1: legend_res_pt.AddEntry(resolutions_in_pt_bins[i],str(int(pt_bins[i]+0.1))+" < p_{T}^{Gen jet} < "+str(int(pt_bins[i+1]+0.1))+" GeV","EL")
