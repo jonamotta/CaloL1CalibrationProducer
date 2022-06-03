@@ -75,6 +75,21 @@ def PlotSF (SF_matrix, bins, odir, v_sample, eta_towers):
     plt.savefig(savefile)
     print(savefile)
 
+    plt.figure(figsize=(12,8))
+    colors = plt.cm.viridis_r(np.linspace(0,1,len(eta_towers)))
+    for i in range(len(eta_towers)):
+        if eta_towers[i] in eta_towers_plot:
+            plt.plot(bins[:-1], [SF*IE for SF,IE in zip(SF_matrix[i,:],bins[:-1])], 'o--', color=colors[i], label = f"$\eta = ${eta_towers[i]}")
+    plt.xlabel(f'i$E_T$')
+    plt.ylabel('i$E_T$ calibrated')
+    plt.legend(fontsize = 9, ncol=2, loc = 'upper left')
+    plt.grid(linestyle='dotted')
+    # plt.title('Calibration vs Energy')
+    savefile = odir + '/CalibratedIet_vs_Energy.png'
+    mplhep.cms.label('', data=False, rlabel='(14 TeV)')
+    plt.savefig(savefile)
+    print(savefile)
+
     return True
 
 # Plot inclusive calibrated and uncalibrated resolution
@@ -346,8 +361,12 @@ if __name__ == "__main__" :
     parser.add_option("--out",      dest="odir",    help="Output folder",                       default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",      default='ECAL')
     parser.add_option("--maxeta",   dest="maxeta",  help="Eta max in the SF plot (None or 28)", default=None)
+    parser.add_option("--saturateAt", dest="saturateAt", help="saturate SFs at X value", type=float, default=None)
     (options, args) = parser.parse_args()
     print(options)
+
+    label = ''
+    if options.saturateAt: label = '_saturatedAt'+str(options.saturateAt).split('.')[0]+'p'+str(options.saturateAt).split('.')[1]
 
     # Definition of the trained model
     indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
@@ -360,14 +379,14 @@ if __name__ == "__main__" :
     TTP = keras.models.load_model(modeldir + '/TTP', compile=False, custom_objects={'fgrad': fgrad})
 
     # Definition of the Scale factors
-    SF_filename = indir + '/data_' + options.v + '/ScaleFactors_' + options.v + '.csv'
+    SF_filename = indir + '/data_' + options.v + '/ScaleFactors_' + options.v + label +'.csv'
     print('\nScale Factors file = {}'.format(SF_filename))
 
     # Definition of output folder
     if options.odir:
         odir = options.odir
     else: 
-        odir = indir + '/plots'
+        odir = indir + '/plots' + label
     os.system('mkdir -p '+ odir)
     print('\nOutput dir = {}'.format(odir))
 
