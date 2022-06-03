@@ -142,8 +142,11 @@ After all the improvements introduced in V16 a training woth this has never happ
 Rerun the full machinery to produce a final training and a final set of SFs both for ECAL and for HCAL
 These SFs will then be used for the re-emulation of the L1 NTuples
 
+    --> after doing everything noticed bug in cfg for L1NTuples --> fixed in next iteration
 
-
+2022_06_01_NtuplesV19
+Rerun the full machinery to produce a final training and a final set of SFs both for ECAL and for HCAL
+These SFs will then be used for the re-emulation of the L1 NTuples
 
 
 
