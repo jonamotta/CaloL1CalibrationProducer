@@ -1,14 +1,15 @@
 import random
 import math
 
-files = ['taglist_eg_Pt0To200', 'taglist_eg_Pt200To500', 'taglist_qcdNoPU', 'taglist_pi_Pt0To200', 'taglist_qcdNoPU_Pt50To80', 'taglist_qcdNoPU_Pt80To120', 'taglist_qcdNoPU_Pt120To170']
+files = ['taglist_eg_Pt0To200', 'taglist_eg_Pt200To500', 'taglist_qcdNoPU'] #, 'taglist_pi_Pt0To200', 'taglist_qcdNoPU_Pt50To80', 'taglist_qcdNoPU_Pt80To120', 'taglist_qcdNoPU_Pt120To170']
 
 for file in files:
+    print(file)
     f = open('inputBatches/'+file+'.txt', 'r')
 
     tags = [tag.strip() for tag in f]
     random.shuffle(tags)
-    dp = math.ceil(len(tags)/2)
+    dp = int(math.ceil(len(tags)/4*3))
 
     f.close()
 

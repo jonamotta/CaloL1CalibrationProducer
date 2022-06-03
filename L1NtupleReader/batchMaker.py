@@ -72,7 +72,7 @@ if __name__ == "__main__" :
     if   options.applyHCALpfa1p:         tagHCALpfa1p = "_applyHCALpfa1p"
 
     ##################### DEFINE INPUTS AND OUTPUTS ####################
-    indir  = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples'
+    indir  = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed'
     outdir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.outdir
 
     # choose ECAL of HCAL folder according to option v
@@ -113,13 +113,13 @@ if __name__ == "__main__" :
 
     elif options.doEG0_200:
         ## signle photon 0-200 without pu
-        folder_names.append("SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated"+tagCalib+tagHCALpfa1p)
-        outdir = outdir+'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
+        folder_names.append("SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+        outdir = outdir+'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
     
     elif options.doEG200_500:
         ## signle photon 200-500 without pu
-        folder_names.append("SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated"+tagCalib+tagHCALpfa1p)
-        outdir = outdir+'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches'
+        folder_names.append("SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+        outdir = outdir+'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
 
     elif options.doPi0_200:
         folder_names.append("SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)

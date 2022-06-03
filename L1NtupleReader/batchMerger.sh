@@ -18,9 +18,9 @@
 # python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --applyOnTheFly True --doQCDnoPU --odir _30_300_newTrainingSFapplied
 # python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --applyOnTheFly True --doQCDnoPU --odir _30_300_noSFapplied
 
-python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --applyOnTheFly True --doQCDnoPU --odir _30_300_flooringTrainingSFapplied
-python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --applyOnTheFly True --doQCDnoPU --odir _30_300_newTrainingSFapplied
-python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --applyOnTheFly True --doQCDnoPU --odir _30_300_noSFapplied
+# python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --applyOnTheFly True --doQCDnoPU --odir _30_300_flooringTrainingSFapplied
+# python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --applyOnTheFly True --doQCDnoPU --odir _30_300_newTrainingSFapplied
+# python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --applyOnTheFly True --doQCDnoPU --odir _30_300_noSFapplied
 
 
 # python batchMerger.py --indir 2022_05_20_NtuplesV17 --sample test --v Apply --applyHCALpfa1p --applyNoCalib --doQCDnoPU --odir _30_300_newCalibrationOnTheFly --applyOnTheFly True
@@ -42,3 +42,33 @@ python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample train --v HCAL --ap
 # python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample test --v Apply --applyHCALpfa1p --applyNoCalib --doEG --odir _200_500_newCalibrationOnTheFly --applyOnTheFly True
 # python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample test --v Apply --applyHCALpfa1p --applyNoCalib --doEG --odir _200_500_oldCalibrationOnTheFly --applyOnTheFly True
 # python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample test --v Apply --applyHCALpfa1p --applyNoCalib --doEG --odir _200_500_noCalibration --applyOnTheFly True
+
+
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample train --v ECAL --applyHCALpfa1p --applyNoCalib --doEG0_200   --filesLim 1000 --odir _0pt200
+# sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample train --v ECAL --applyHCALpfa1p --applyNoCalib --doEG        --filesLim 1000 --odir _0pt500
+# sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU   --filesLim 1000 --odir _30pt1000
+# sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU   --filesLim 1000 --odir _30pt1000_eta41
+# sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU   --filesLim 1000 --odir _30pt500
+# sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU   --filesLim 1000 --odir _20pt1000
+# sleep 5
+python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU    --filesLim 1000 --odir _30pt1000_eta41_newFeat
+sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample test --v ECAL --applyHCALpfa1p --applyNoCalib --doEG0_200    --filesLim 1000 --odir _0pt200
+# sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample test --v ECAL --applyHCALpfa1p --applyNoCalib --doEG         --filesLim 1000 --odir _0pt500
+# sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU    --filesLim 1000 --odir _30pt1000
+# sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU    --filesLim 1000 --odir _30pt1000_eta41
+# sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU    --filesLim 1000 --odir _30pt500
+# sleep 5
+# python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU    --filesLim 1000 --odir _20pt1000
+# sleep 5
+python batchMerger.py --indir 2022_06_01_NtuplesV19 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU    --filesLim 1000 --odir _30pt1000_eta41_newFeat
+sleep 5

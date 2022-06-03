@@ -46,32 +46,34 @@ source /opt/exp_soft/cms/t3/t3setup
 # python batchSubmitOnTier3.py --doQCDnoPU --etacut 37 --hcalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly oldCalib --calibHCALOnTheFly oldCalib --applyOnTheFly True --lJetPtCut 300 --uJetPtCut 600 --odir _300_600_oldCalibrationOnTheFly
 # python batchSubmitOnTier3.py --doQCDnoPU --etacut 37 --hcalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib                                                           --applyOnTheFly True --lJetPtCut 300 --uJetPtCut 600 --odir _300_600_noCalibration
 
-# python batchSubmitOnTier3.py --doEG0_200 --etacut 18 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly newCalib --calibHCALOnTheFly newCalib --applyOnTheFly True --uJetPtCut 100 --odir _0_100_newCalibrationOnTheFly
-# python batchSubmitOnTier3.py --doEG0_200 --etacut 18 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly oldCalib --calibHCALOnTheFly oldCalib --applyOnTheFly True --uJetPtCut 100 --odir _0_100_oldCalibrationOnTheFly
-# python batchSubmitOnTier3.py --doEG0_200 --etacut 18 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib                                                           --applyOnTheFly True --uJetPtCut 100 --odir _0_100_noCalibration
+# python batchSubmitOnTier3.py --doEG0_200 --etacut 28 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly newCalib --calibHCALOnTheFly newCalib --applyOnTheFly True --uJetPtCut 100 --odir _0_100_newCalibrationOnTheFly
+# python batchSubmitOnTier3.py --doEG0_200 --etacut 28 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly oldCalib --calibHCALOnTheFly oldCalib --applyOnTheFly True --uJetPtCut 100 --odir _0_100_oldCalibrationOnTheFly
+# python batchSubmitOnTier3.py --doEG0_200 --etacut 28 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib                                                           --applyOnTheFly True --uJetPtCut 100 --odir _0_100_noCalibration
 
-# python batchSubmitOnTier3.py --doEG0_200 --etacut 18 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly newCalib --calibHCALOnTheFly newCalib --applyOnTheFly True --lJetPtCut 100 --uJetPtCut 300 --odir _100_300_newCalibrationOnTheFly
-# python batchSubmitOnTier3.py --doEG0_200 --etacut 18 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly oldCalib --calibHCALOnTheFly oldCalib --applyOnTheFly True --lJetPtCut 100 --uJetPtCut 300 --odir _100_300_oldCalibrationOnTheFly
-# python batchSubmitOnTier3.py --doEG0_200 --etacut 18 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib                                                           --applyOnTheFly True --lJetPtCut 100 --uJetPtCut 300 --odir _100_300_noCalibration
+# python batchSubmitOnTier3.py --doEG0_200 --etacut 28 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly newCalib --calibHCALOnTheFly newCalib --applyOnTheFly True --lJetPtCut 100 --uJetPtCut 300 --odir _100_300_newCalibrationOnTheFly
+# python batchSubmitOnTier3.py --doEG0_200 --etacut 28 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly oldCalib --calibHCALOnTheFly oldCalib --applyOnTheFly True --lJetPtCut 100 --uJetPtCut 300 --odir _100_300_oldCalibrationOnTheFly
+# python batchSubmitOnTier3.py --doEG0_200 --etacut 28 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib                                                           --applyOnTheFly True --lJetPtCut 100 --uJetPtCut 300 --odir _100_300_noCalibration
 
-# python batchSubmitOnTier3.py --doEG200_500 --etacut 18 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly newCalib --calibHCALOnTheFly newCalib --applyOnTheFly True --lJetPtCut 200 --uJetPtCut 500 --odir _200_500_newCalibrationOnTheFly
-# python batchSubmitOnTier3.py --doEG200_500 --etacut 18 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly oldCalib --calibHCALOnTheFly oldCalib --applyOnTheFly True --lJetPtCut 200 --uJetPtCut 500 --odir _200_500_oldCalibrationOnTheFly
-# python batchSubmitOnTier3.py --doEG200_500 --etacut 18 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib                                                           --applyOnTheFly True --lJetPtCut 200 --uJetPtCut 500 --odir _200_500_noCalibration
+# python batchSubmitOnTier3.py --doEG200_500 --etacut 28 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly newCalib --calibHCALOnTheFly newCalib --applyOnTheFly True --lJetPtCut 200 --uJetPtCut 500 --odir _200_500_newCalibrationOnTheFly
+# python batchSubmitOnTier3.py --doEG200_500 --etacut 28 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly oldCalib --calibHCALOnTheFly oldCalib --applyOnTheFly True --lJetPtCut 200 --uJetPtCut 500 --odir _200_500_oldCalibrationOnTheFly
+# python batchSubmitOnTier3.py --doEG200_500 --etacut 28 --ecalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib                                                           --applyOnTheFly True --lJetPtCut 200 --uJetPtCut 500 --odir _200_500_noCalibration
 
 
-python batchSubmitOnTier3.py --doQCDnoPU --etacut 37 --hcalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly newCalib --calibHCALOnTheFly newCalib --applyOnTheFly True --lJetPtCut 30 --uJetPtCut 300 --odir _30_300_flooringTrainingSFapplied
+# python batchSubmitOnTier3.py --doQCDnoPU --etacut 37 --hcalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly newCalib --calibHCALOnTheFly newCalib --applyOnTheFly True --lJetPtCut 30 --uJetPtCut 300 --odir _30_300_flooringTrainingSFapplied
 # python batchSubmitOnTier3.py --doQCDnoPU --etacut 37 --hcalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib --calibECALOnTheFly newCalib --calibHCALOnTheFly newCalib --applyOnTheFly True --lJetPtCut 30 --uJetPtCut 300 --odir _30_300_newTrainingSFapplied
 # python batchSubmitOnTier3.py --doQCDnoPU --etacut 37 --hcalcut True --indir 2022_05_18_NtuplesV16 --applyHCALpfa1p --applyNoCalib                                                           --applyOnTheFly True --lJetPtCut 30 --uJetPtCut 300 --odir _30_300_noSFapplied
 
 
 
+# python batchSubmitOnTier3.py --doEG0_200   --etacut 28 --ecalcut True --indir 2022_06_01_NtuplesV19 --applyHCALpfa1p --applyNoCalib                                 --applyCut_3_6_9 True --odir _0pt200
+# python batchSubmitOnTier3.py --doEG200_500 --etacut 28 --ecalcut True --indir 2022_06_01_NtuplesV19 --applyHCALpfa1p --applyNoCalib                                 --applyCut_3_6_9 True --odir _200pt500
+# python batchSubmitOnTier3.py --doQCDnoPU   --etacut 37 --hcalcut True --indir 2022_06_01_NtuplesV19 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000
+# python batchSubmitOnTier3.py --doQCDnoPU   --etacut 37 --hcalcut True --indir 2022_06_01_NtuplesV19 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 500                        --odir _30pt500
+# python batchSubmitOnTier3.py --doQCDnoPU   --etacut 37 --hcalcut True --indir 2022_06_01_NtuplesV19 --applyHCALpfa1p --applyNoCalib --lJetPtCut 20 --uJetPtCut 1000                       --odir _20pt1000
 
+# python batchSubmitOnTier3.py --doQCDnoPU   --etacut 41 --hcalcut True --indir 2022_06_01_NtuplesV19 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000_eta41
 
-
-
-
-
-
+python batchSubmitOnTier3.py --doQCDnoPU   --etacut 41 --hcalcut True --indir 2022_06_01_NtuplesV19 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000_eta41_newFeat
 
 
 

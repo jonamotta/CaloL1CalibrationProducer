@@ -120,6 +120,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
             jetEta = dfFlatEJT['jetEta'][uniqueIdx].unique()[0]
             jetPhi = dfFlatEJT['jetPhi'][uniqueIdx].unique()[0]
             # nTT = dfFlatEJT['nTT'][uniqueIdx].unique()[0]
+            # contained = dfFlatEJT['contained'][uniqueIdx].unique()[0]
         except TypeError:
             N = 1
             jetIeta = dfFlatEJT['jetIeta'][uniqueIdx]
@@ -129,6 +130,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
             jetEta = dfFlatEJT['jetEta'][uniqueIdx]
             jetPhi = dfFlatEJT['jetPhi'][uniqueIdx]
             # nTT = dfFlatEJT['nTT'][uniqueIdx]
+            # contained = dfFlatEJT['contained'][uniqueIdx]
 
         padder = pd.DataFrame(columns=dfFlatEJT.columns, index=range(0,81-N))
         padder['uniqueId'] = uniqueIdx
@@ -139,6 +141,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
         padder['jetIeta'] = jetIeta
         padder['jetIphi'] = jetIphi
         # padder['nTT'] = nTT
+        # padder['contained'] = contained
         padder['iem'] = 0
         padder['ihad'] = 0
         padder['iet'] = 0
@@ -354,6 +357,8 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     # store number of TT fired by the jet
     # dfFlatEJT['nTT'] = dfFlatEJT.groupby('uniqueIdx').count()
 
+    #dfFlatEJT['contained'] = dfFlatEJT.apply(lambda row: 0 if row['jetIeta']<=37 else 1, axis=1)
+
     print('starting padding') # DEBUG
 
     # do the padding of the dataframe to have 81 rows for each jet        
@@ -416,7 +421,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         for i in list(TowersEta.keys()):
             if 'ieta_'+str(i) not in dfEOneHotEncoded:
                 dfEOneHotEncoded['ieta_'+str(i)] = 0
-        dfEOneHotEncoded = dfEOneHotEncoded[['iem', 'hcalET', 'iesum', 'ieta_1', 'ieta_2', 'ieta_3', 'ieta_4', 'ieta_5', 'ieta_6', 'ieta_7', 'ieta_8', 'ieta_9', 'ieta_10', 'ieta_11', 'ieta_12', 'ieta_13', 'ieta_14', 'ieta_15', 'ieta_16', 'ieta_17', 'ieta_18', 'ieta_19', 'ieta_20', 'ieta_21', 'ieta_22', 'ieta_23', 'ieta_24', 'ieta_25', 'ieta_26', 'ieta_27', 'ieta_28', 'ieta_30', 'ieta_31', 'ieta_32', 'ieta_33', 'ieta_34', 'ieta_35', 'ieta_36', 'ieta_37', 'ieta_38', 'ieta_39', 'ieta_40', 'ieta_41']]
+        dfEOneHotEncoded = dfEOneHotEncoded[['iem', 'hcalET', 'iesum', 'ieta_1', 'ieta_2', 'ieta_3', 'ieta_4', 'ieta_5', 'ieta_6', 'ieta_7', 'ieta_8', 'ieta_9', 'ieta_10', 'ieta_11', 'ieta_12', 'ieta_13', 'ieta_14', 'ieta_15', 'ieta_16', 'ieta_17', 'ieta_18', 'ieta_19', 'ieta_20', 'ieta_21', 'ieta_22', 'ieta_23', 'ieta_24', 'ieta_25', 'ieta_26', 'ieta_27', 'ieta_28', 'ieta_30', 'ieta_31', 'ieta_32', 'ieta_33', 'ieta_34', 'ieta_35', 'ieta_36', 'ieta_37', 'ieta_38', 'ieta_39', 'ieta_40', 'ieta_41']]#, 'contained']]
     else:
         dfEOneHotEncoded = dfE.copy(deep=True)
 

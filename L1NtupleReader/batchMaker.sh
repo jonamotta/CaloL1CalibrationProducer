@@ -10,7 +10,7 @@
 
 #python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCDnoPU --outdir 2022_05_12_NtuplesV15 --applyNoCalib
 
-python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 5000 --doPi0_200 --outdir 2022_05_23_NtuplesV18 --applyNoCalib
+# python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 5000 --doPi0_200 --outdir 2022_05_23_NtuplesV18 --applyNoCalib
 
 
 #python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 2500 --doQCDnoPU --qcdPtBin "50To80" --outdir 2022_05_02_NtuplesV8 --applyNewECALcalib
@@ -29,5 +29,6 @@ python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 5000 --doPi0_200 --o
 
 
 
-
-
+python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 10000 --doEG0_200 --outdir 2022_06_01_NtuplesV19 --applyNoCalib
+python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 10000 --doEG200_500 --outdir 2022_06_01_NtuplesV19 --applyNoCalib
+python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCDnoPU --outdir 2022_06_01_NtuplesV19 --applyNoCalib

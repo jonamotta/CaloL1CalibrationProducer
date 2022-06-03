@@ -25,10 +25,12 @@ if __name__ == "__main__" :
     parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
     parser.add_option("--applyNewECALcalib", dest="applyNewECALcalib", action='store_true', default=False)
     parser.add_option("--applyNewECALpHCALcalib", dest="applyNewECALpHCALcalib", action='store_true', default=False)
+    parser.add_option("--doEG0_200", dest="doEG0_200", action='store_true', default=False)
     parser.add_option("--doEG", dest="doEG", action='store_true', default=False)
     parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
     parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
     parser.add_option("--applyOnTheFly", dest="applyOnTheFly", action='store_true', default=False)
+    parser.add_option("--filesLim", dest="filesLim", type=int, default=150)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -37,7 +39,7 @@ if __name__ == "__main__" :
         print('** WARNING: no calibration to be used specified - EXITING!')
         exit()
 
-    if options.doEG == False and options.doQCDnoPU == False and options.doQCDpu == False:
+    if options.doEG0_200 == False and options.doEG == False and options.doQCDnoPU == False and options.doQCDpu == False:
         print('** WARNING: no dataset to be used specified - EXITING!')
         exit()
 
@@ -99,81 +101,58 @@ if __name__ == "__main__" :
             dataframedirs.append(filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/dataframes'.format(outputFolderName,options.odir))
 
 
+    elif options.doEG0_200:
+        ## signle photon 0-200 without pu
+        taglist0_200 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200_{0}.txt'.format(options.sample))
+        taglists.append(taglist0_200)
+        tensordirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/tensors'.format(outputFolderName,options.odir))
+        dataframedirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/dataframes'.format(outputFolderName,options.odir))
+
     elif options.doEG:
         ## signle photon 0-200 without pu
         taglist0_200 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200_{0}.txt'.format(options.sample))
         taglists.append(taglist0_200)
-        tensordirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/tensors'.format(outputFolderName,options.odir))
-        dataframedirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/dataframes'.format(outputFolderName,options.odir))
+        tensordirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}_0pt200/tensors'.format(outputFolderName,options.odir))
+        dataframedirs.append(filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}_0pt200/dataframes'.format(outputFolderName,options.odir))
 
         taglist200_500 = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500_{0}.txt'.format(options.sample))
         taglists.append(taglist200_500)
-        tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/tensors'.format(outputFolderName,options.odir))
-        dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__reEmulated'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/dataframes'.format(outputFolderName,options.odir))
+        tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}_200pt500/tensors'.format(outputFolderName,options.odir))
+        dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}_200pt500/dataframes'.format(outputFolderName,options.odir))
 
 
     else:
         print(' ** WARNING: wrong request --> EXITING!')
         exit()
 
-    
-    # dummy arrays filled with zeros
-    X = np.array([[np.zeros(43) for i in range(81)]])
-    if options.applyOnTheFly: X = np.array([[np.zeros(4) for i in range(81)]])
-    Y = np.array([[0,0,0,0]])
-
-    # define the two paths where to read the hdf5 files
+    XsToConcatenate = []
+    YsToConcatenate = []
 
     training_folder = filedir + '/{0}training{1}'.format(options.v, options.odir)
     os.system('mkdir -p ' + training_folder)
-    os.system('mkdir -p ' + training_folder + '/dataframes')
-    # define the paths where to save the hdf5 files
-    saveto = {
-        'X'  : training_folder+'/dataframes/X_'+options.sample+'.hdf5',
-        'Y'  : training_folder+'/dataframes/Y_'+options.sample+'.hdf5',
-    }
-
-    # dfX = pd.DataFrame()
-    # dfY = pd.DataFrame()
 
     for i_fold, taglist in enumerate(taglists):
-        # concatenate low energy photons
         for idx,tag in enumerate(taglist):
             tag = tag.strip()
             if not idx%10: print('reading batch', idx)
             try:
+                # DEBUG
                 # print(tag)
                 # print(np.load(tensordirs[i_fold]+'/towers'+tag+'.npz', allow_pickle=True)['arr_0'])
                 # exit()
 
-                X = np.concatenate([X,np.load(tensordirs[i_fold]+'/towers'+tag+'.npz', allow_pickle=True)['arr_0']])
-                Y = np.concatenate([Y,np.load(tensordirs[i_fold]+'/jets'+tag+'.npz', allow_pickle=True)['arr_0']])
-
-                # # read hdf5 files
-                # readT = pd.HDFStore(dataframedirs[i_fold]+'/towers'+tag+'.hdf5', mode='r')
-                # dfET = readT['towers']
-                # readT.close()
-
-                # readJ = pd.HDFStore(dataframedirs[i_fold]+'/jets'+tag+'.hdf5', mode='r')
-                # dfEJ = readJ['jets']
-                # readJ.close()
-
-                # dfX.append(dfET)
-                # dfY.append(dfEJ)
+                XsToConcatenate.append(np.load(tensordirs[i_fold]+'/towers'+tag+'.npz', allow_pickle=True)['arr_0'])
+                YsToConcatenate.append(np.load(tensordirs[i_fold]+'/jets'+tag+'.npz', allow_pickle=True)['arr_0'])
 
             except FileNotFoundError:
+                # DEBUG
                 print('** INFO: towers'+tag+' not found --> skipping')
                 continue
 
-            if idx == 150: break # break at the n-th file to speed up the process
-        
-        ## DEBUG
-        print(len(X))
-        print(len(Y))
+            if idx == options.filesLim: break # break at the n-th file to speed up the process
 
-    # remove the dummy array filled with zeros
-    X = X[1:]
-    Y = Y[1:]
+    X = np.concatenate(XsToConcatenate)
+    Y = np.concatenate(YsToConcatenate)
 
     ## DEBUG
     print(len(X))
@@ -184,12 +163,3 @@ if __name__ == "__main__" :
     np.savez_compressed(training_folder+'/Y_'+options.sample+'.npz', Y)
 
     print("Saved data samples in folder: {}".format(training_folder))    
-
-    # # save hdf5 files with dataframe formatted datasets
-    # storeT = pd.HDFStore(saveto['X'], mode='w')
-    # storeT['X'] = dfX
-    # storeT.close()
-
-    # storeJ = pd.HDFStore(saveto['Y'], mode='w')
-    # storeJ['Y'] = dfY
-    # storeJ.close()
