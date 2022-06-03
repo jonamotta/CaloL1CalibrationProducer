@@ -5,3 +5,6 @@ __pycache__
 */._*
 */.DS_Store
 *.ipynb
+*.pyc
+PerformanceEvaluation/PDFs/
+PerformanceEvaluation/ROOTs/
