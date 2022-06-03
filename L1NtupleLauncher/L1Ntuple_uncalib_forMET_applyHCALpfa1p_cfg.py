@@ -1,9 +1,5 @@
-# Auto generated configuration file
-# using: 
-# Revision: 1.19 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: l1Ntuple -s RAW2DIGI --python_filename=L1Ntuple_oldCalib_cfg.py -n 300 --no_output --era=Run3 --mc --conditions=123X_mcRun3_2021_realistic_v11 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulMCFromRAWSimCalTP --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleRAWEMUGEN_MC --customise=L1Trigger/Configuration/customiseSettings.L1TSettingsToCaloParams_2022_v0_1_modJ --filein=/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/24ceed17-25ac-4fba-a275-0821ad765052.root --no_exec
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 from Configuration.Eras.Era_Run3_cff import Run3
 
@@ -21,16 +17,41 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+
+options = VarParsing.VarParsing ('analysis')
+options.outputFile = 'L1Ntuple.root'
+options.inputFiles = []
+options.secondaryInputFiles = []
+options.maxEvents  = -999
+options.parseArguments()
+
+
+# process.options =  cms.untracked.PSet(
+#     SkipEvent = cms.untracked.vstring('ProductNotFound')
+# )
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(300),
-    output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
+    input = cms.untracked.int32(-1)
+    #output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
+
+if options.maxEvents >= 1:
+    process.maxEvents.input = cms.untracked.int32(options.maxEvents)
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/24ceed17-25ac-4fba-a275-0821ad765052.root'),
+    fileNames = cms.untracked.vstring(
+        # dummy for creation
+        '/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/24ceed17-25ac-4fba-a275-0821ad765052.root'
+    ),
     secondaryFileNames = cms.untracked.vstring()
 )
+
+if options.inputFiles:
+    process.source.fileNames = cms.untracked.vstring(options.inputFiles)
+
+if options.secondaryInputFiles:
+    process.source.secondaryFileNames = cms.untracked.vstring(options.secondaryInputFiles)
 
 process.options = cms.untracked.PSet(
     FailPath = cms.untracked.vstring(),
@@ -95,23 +116,79 @@ from L1Trigger.Configuration.customiseReEmul import L1TReEmulMCFromRAWSimHcalTP
 process = L1TReEmulMCFromRAWSimHcalTP(process)
 
 # Automatic addition of the customisation function from L1Trigger.L1TNtuples.customiseL1Ntuple
-from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleRAWEMUGEN_MC 
+from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleAODRAWEMUGEN_MC 
 
-#call to customisation function L1NtupleRAWEMUGEN_MC imported from L1Trigger.L1TNtuples.customiseL1Ntuple
-process = L1NtupleRAWEMUGEN_MC(process)
+#call to customisation function L1NtupleAODRAWEMUGEN_MC imported from L1Trigger.L1TNtuples.customiseL1Ntuple
+process = L1NtupleAODRAWEMUGEN_MC(process)
 
 # Automatic addition of the customisation function from L1Trigger.Configuration.customiseSettings
-from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_2022_v0_1_modJ 
+from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_2022_noL1calib 
 
-#call to customisation function L1TSettingsToCaloParams_2022_v0_1_modJ imported from L1Trigger.Configuration.customiseSettings
-process = L1TSettingsToCaloParams_2022_v0_1_modJ(process)
+#call to customisation function L1TSettingsToCaloParams_2022_noL1calib imported from L1Trigger.Configuration.customiseSettings
+process = L1TSettingsToCaloParams_2022_noL1calib(process)
 
 # End of customisation functions
 
+# Settings of the HCAL PFA1p
+process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
+
+process.simHcalTriggerPrimitiveDigis.overrideDBweightsAndFilterHB = cms.bool(True)
+process.simHcalTriggerPrimitiveDigis.overrideDBweightsAndFilterHE = cms.bool(True)
+
+process.HcalTPGCoderULUT.overrideDBweightsAndFilterHB = cms.bool(True)
+process.HcalTPGCoderULUT.overrideDBweightsAndFilterHE = cms.bool(True)
+
+process.simHcalTriggerPrimitiveDigis.numberOfFilterPresamplesHBQIE11 = 1
+process.simHcalTriggerPrimitiveDigis.numberOfFilterPresamplesHEQIE11 = 1
+process.simHcalTriggerPrimitiveDigis.weightsQIE11 = {
+    "ieta1" :  [-0.47, 1.0],
+    "ieta2" :  [-0.47, 1.0],
+    "ieta3" :  [-0.47, 1.0],
+    "ieta4" :  [-0.47, 1.0],
+    "ieta5" :  [-0.47, 1.0],
+    "ieta6" :  [-0.47, 1.0],
+    "ieta7" :  [-0.47, 1.0],
+    "ieta8" :  [-0.47, 1.0],
+    "ieta9" :  [-0.47, 1.0],
+    "ieta10" : [-0.47, 1.0],
+    "ieta11" : [-0.47, 1.0],
+    "ieta12" : [-0.47, 1.0],
+    "ieta13" : [-0.47, 1.0],
+    "ieta14" : [-0.47, 1.0],
+    "ieta15" : [-0.47, 1.0],
+    "ieta16" : [-0.47, 1.0],
+    "ieta17" : [-0.47, 1.0],
+    "ieta18" : [-0.47, 1.0],
+    "ieta19" : [-0.47, 1.0],
+    "ieta20" : [-0.47, 1.0],
+    "ieta21" : [-0.43, 1.0],
+    "ieta22" : [-0.43, 1.0],
+    "ieta23" : [-0.43, 1.0],
+    "ieta24" : [-0.43, 1.0],
+    "ieta25" : [-0.43, 1.0],
+    "ieta26" : [-0.43, 1.0],
+    "ieta27" : [-0.43, 1.0],
+    "ieta28" : [-0.43, 1.0]
+}
+
+process.HcalTPGCoderULUT.contain1TSHB = True
+process.HcalTPGCoderULUT.contain1TSHE = True
+# End of HCAL PFA1p settings
 
 # Customisation from command line
+
+#Have logErrorHarvester wait for the same EDProducers to finish as those providing data for the OutputModule
+from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands
+process = customiseLogErrorHarvesterUsingOutputCommands(process)
 
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
+
+# Silence output
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
+
+# Adding ntuplizer
+process.TFileService=cms.Service('TFileService',fileName=cms.string(options.outputFile))

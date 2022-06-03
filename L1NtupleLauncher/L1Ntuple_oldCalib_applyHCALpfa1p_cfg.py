@@ -115,10 +115,10 @@ from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleRAWEMUGEN_MC
 process = L1NtupleRAWEMUGEN_MC(process)
 
 # Automatic addition of the customisation function from L1Trigger.Configuration.customiseSettings
-from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_2022_v0_1 
+from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_2022_v0_1_modJ 
 
-#call to customisation function L1TSettingsToCaloParams_2022_v0_1 imported from L1Trigger.Configuration.customiseSettings
-process = L1TSettingsToCaloParams_2022_v0_1(process)
+#call to customisation function L1TSettingsToCaloParams_2022_v0_1_modJ imported from L1Trigger.Configuration.customiseSettings
+process = L1TSettingsToCaloParams_2022_v0_1_modJ(process)
 
 # End of customisation functions
 

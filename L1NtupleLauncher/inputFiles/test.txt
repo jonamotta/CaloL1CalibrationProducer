@@ -3,8 +3,3 @@
 /store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/1c5c4619-3211-4b5b-8320-f5874e257cf5.root
 /store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/55839a54-538e-4601-aadc-b3327b763bf7.root
 /store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/c4d8955a-7a93-4a2b-9ef9-9914e0a4f092.root
-/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/cf12f80c-f09b-4df5-a7e4-bb28313850ec.root
-/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/57459c83-1bcd-4cd2-8269-700e2b13585d.root
-/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/017e6649-9863-4fbd-b174-e182aa2c6aed.root
-/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/84c29b44-da4d-4fc1-91d7-c42e3bcde888.root
-/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/a69347c1-6c4f-4535-abbd-4bb16ddb8631.root

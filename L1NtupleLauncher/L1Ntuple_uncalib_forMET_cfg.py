@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: l1Ntuple -s RAW2DIGI --python_filename=L1Ntuple_oldCalib_cfg.py -n 300 --no_output --era=Run3 --mc --conditions=123X_mcRun3_2021_realistic_v11 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulMCFromRAWSimCalTP --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleRAWEMUGEN_MC --customise=L1Trigger/Configuration/customiseSettings.L1TSettingsToCaloParams_2022_v0_1_modJ --filein=/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/24ceed17-25ac-4fba-a275-0821ad765052.root --no_exec
+# with command line options: l1Ntuple -s RAW2DIGI --python_filename=L1Ntuple_unalib_forMET_cfg.py -n 300 --no_output --era=Run3 --mc --conditions=123X_mcRun3_2021_realistic_v11 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulMCFromRAWSimHcalTP --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleAODRAWEMUGEN_MC --customise=L1Trigger/Configuration/customiseSettings.L1TSettingsToCaloParams_2022_noL1calib --filein=/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/24ceed17-25ac-4fba-a275-0821ad765052.root --no_exec
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
@@ -95,21 +95,25 @@ from L1Trigger.Configuration.customiseReEmul import L1TReEmulMCFromRAWSimHcalTP
 process = L1TReEmulMCFromRAWSimHcalTP(process)
 
 # Automatic addition of the customisation function from L1Trigger.L1TNtuples.customiseL1Ntuple
-from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleRAWEMUGEN_MC 
+from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleAODRAWEMUGEN_MC 
 
-#call to customisation function L1NtupleRAWEMUGEN_MC imported from L1Trigger.L1TNtuples.customiseL1Ntuple
-process = L1NtupleRAWEMUGEN_MC(process)
+#call to customisation function L1NtupleAODRAWEMUGEN_MC imported from L1Trigger.L1TNtuples.customiseL1Ntuple
+process = L1NtupleAODRAWEMUGEN_MC(process)
 
 # Automatic addition of the customisation function from L1Trigger.Configuration.customiseSettings
-from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_2022_v0_1_modJ 
+from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_2022_noL1calib 
 
-#call to customisation function L1TSettingsToCaloParams_2022_v0_1_modJ imported from L1Trigger.Configuration.customiseSettings
-process = L1TSettingsToCaloParams_2022_v0_1_modJ(process)
+#call to customisation function L1TSettingsToCaloParams_2022_noL1calib imported from L1Trigger.Configuration.customiseSettings
+process = L1TSettingsToCaloParams_2022_noL1calib(process)
 
 # End of customisation functions
 
 
 # Customisation from command line
+
+#Have logErrorHarvester wait for the same EDProducers to finish as those providing data for the OutputModule
+from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands
+process = customiseLogErrorHarvesterUsingOutputCommands(process)
 
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
