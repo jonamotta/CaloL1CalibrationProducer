@@ -15,7 +15,7 @@ real_eta_towers = list(TowersEta.keys())
 
 # Returns matrix with scale factors for the trained model (TTP)
 # The matrix has 40 rows, for all the eta towers, and as many columns as the number of the energy bins
-def ExtractSF (model, bins, eta_towers):
+def ExtractSF (model, bins, eta_towers, padZeros):
 
     SF_matrix = np.zeros(((len(eta_towers)),(len(bins)-1)))
 
@@ -41,10 +41,15 @@ def ExtractSF (model, bins, eta_towers):
             # Compute the mean over all the energies for each bin
             SF_matrix[i,i_bin] = np.mean(predictions)
 
+            if padZeros:
+                if SF_matrix[i,i_bin] == 0.:
+                    if i == 0: SF_matrix[i,i_bin] = 1.0             # if first ieta bin just set to 1.0 the SF
+                    else: SF_matrix[i,i_bin] = SF_matrix[i-1,i_bin] # else set it to to the previous ieta value
+                    
     return SF_matrix
 
 # Same as before but ieta columns and energy rows
-def ExtractSF_inverted (model, bins, eta_towers):
+def ExtractSF_inverted (model, bins, eta_towers, padZeros):
 
     SF_matrix = np.zeros(((len(bins)-1),(len(eta_towers))))
 
@@ -70,6 +75,11 @@ def ExtractSF_inverted (model, bins, eta_towers):
             # Compute the mean over all the energies for each bin
             SF_matrix[i_bin,i] = np.mean(predictions)
 
+            if padZeros:
+                if SF_matrix[i_bin,i] == 0.:
+                    if i == 0: SF_matrix[i_bin,i] = 1.0             # if first ieta bin just set to 1.0 the SF
+                    else: SF_matrix[i_bin,i] = SF_matrix[i_bin,i-1] # else set it to to the previous ieta value
+
     return SF_matrix
 
 #######################################################################
@@ -90,6 +100,7 @@ if __name__ == "__main__" :
     parser.add_option("--start",    dest="start",   help="Initial energy",                  default=None)
     parser.add_option("--stop",     dest="stop",    help="Final energy",                    default=None)
     parser.add_option("--maxeta",   dest="maxeta",  help="Eta tower max",                   default=None)
+    parser.add_option("--padZeros", dest="padZeros", help="fill 0.0 SF to closest neighbour value", action='store_true', default=False)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -133,7 +144,7 @@ if __name__ == "__main__" :
     SFOutFile = odir + '/ScaleFactors_' + options.v + '.csv'
 
     # eta rows and energy columns
-    ScaleFactors = ExtractSF(TTP, bins_energy, eta_towers)
+    ScaleFactors = ExtractSF(TTP, bins_energy, eta_towers, options.padZeros)
 
     # # Add eta references and save to output csv file
     ScaleFactors_index = np.c_[eta_towers, ScaleFactors]
@@ -148,7 +159,7 @@ if __name__ == "__main__" :
     SFOutFile = odir + '/ScaleFactors_' + options.v + '_inverted.csv'
 
     # eta columns and energy rows
-    ScaleFactors = ExtractSF_inverted(TTP, bins_energy, eta_towers)
+    ScaleFactors = ExtractSF_inverted(TTP, bins_energy, eta_towers, options.padZeros)
 
     # Add eta references and save to output csv file
     # edges_energy = ','.join('{}-{}'.format(int(bins_energy[i]), int(bins_energy[i+1])) for i in range(len(bins_energy)-1))
