@@ -30,7 +30,7 @@ if __name__ == "__main__" :
     parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
     parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
     parser.add_option("--applyNewCalib", dest="applyNewCalib", action='store_true', default=False)
-    parser.add_option("--applyNewCalibNoZeros", dest="applyNewCalibNoZeros", action='store_true', default=False)
+    parser.add_option("--applyNewCalibSaturAt", dest="applyNewCalibSaturAt", type=float, default=None)
     parser.add_option("--doEG0_200", dest="doEG0_200", action='store_true', default=False)
     parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', default=False)
     parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
@@ -44,7 +44,7 @@ if __name__ == "__main__" :
     (options, args) = parser.parse_args()
     
 
-    if options.applyNoCalib == False and options.applyOldCalib == False and options.applyNewCalib == False and options.applyNewCalibNoZeros == False:
+    if options.applyNoCalib == False and options.applyOldCalib == False and options.applyNewCalib == False and options.applyNewCalibSaturAt == None:
         print('** WARNING: no calibration to be used specified - EXITING!')
         exit()
 
@@ -58,7 +58,7 @@ if __name__ == "__main__" :
     if   options.applyNoCalib:         config += "_uncalib"         ; tagCalib = "_uncalib"
     elif options.applyOldCalib:        config += "_oldCalib"        ; tagCalib = "_oldCalib"
     elif options.applyNewCalib:        config += "_newCalib"        ; tagCalib = "_newCalib" 
-    elif options.applyNewCalibNoZeros: config += "_newCalibNoZeros" ; tagCalib = "_newCalibNoZeros"
+    elif options.applyNewCalibSaturAt: config += "_newCalibSatur"+str(options.applyNewCalibSaturAt).split('.')[0]+'p'+str(options.applyNewCalibSaturAt).split('.')[1] ; tagCalib = "_newCalibSatur"+str(options.applyNewCalibSaturAt).split('.')[0]+'p'+str(options.applyNewCalibSaturAt).split('.')[1]
     if options.doMET:                  config += "_forMET"
     if options.applyHCALpfa1p:         config += "_applyHCALpfa1p"  ; tagHCALpfa1p = "_applyHCALpfa1p"
     config += "_cfg.py"
@@ -69,7 +69,7 @@ if __name__ == "__main__" :
     if   options.doQCDpu:
         ## qcd flat0-80 pu
         filelist = open(filedir+"/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
         
         print('** WARNING: unbinned QCD samples not available at the moment, specify pt bin - EXITING!')
         exit()
@@ -78,61 +78,61 @@ if __name__ == "__main__" :
         ## qcd without pu - backup datasets
         if options.qcdPtBin=="20To30":
             filelist = open(filedir+"/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
         
         elif options.qcdPtBin=="30To50":
             filelist = open(filedir+"/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
         
         elif options.qcdPtBin=="50To80":
             filelist = open(filedir+"/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
         
         elif options.qcdPtBin=="80To120":
             filelist = open(filedir+"/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
         
         elif options.qcdPtBin=="120To170":
             filelist = open(filedir+"/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
         elif options.qcdPtBin=="PUForTRK":
             filelist = open(filedir+"/QCD_Pt-15to7000_TuneCP5_Flat_13p6TeV-pythia8__Run3Winter22DR-PUForTRK_DIGI_122X_mcRun3_2021_realistic_v9-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/QCD_Pt-15to7000_TuneCP5_Flat_13p6TeV-pythia8__Run3Winter22DR-PUForTRK_DIGI_122X_mcRun3_2021_realistic_v9-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-15to7000_TuneCP5_Flat_13p6TeV-pythia8__Run3Winter22DR-PUForTRK_DIGI_122X_mcRun3_2021_realistic_v9-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
         else:
             filelist = open(filedir+"/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
     elif options.doEG0_200:
         ## signle photon 0-200 without pu
         filelist = open(filedir+"/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
     
     elif options.doEG200_500:
         ## signle photon 200-500 without pu
         filelist = open(filedir+"/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
     elif options.doPi0_200:
         ## signle pion 0-200 without pu
         filelist = open(filedir+"/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
     elif options.doNu:
         ## single neutrino with pu
         filelist = open(filedir+"/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
 
     elif options.doMET:
         ## H to invisible for MET
         filelist = open(filedir+"/VBFHToInvisible_M125_TuneCP5_14TeV-powheg-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__AODSIM.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/VBFHToInvisible_M125_TuneCP5_14TeV-powheg-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__AODSIM"+tagCalib+tagHCALpfa1p
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/VBFHToInvisible_M125_TuneCP5_14TeV-powheg-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__AODSIM"+tagCalib+tagHCALpfa1p
 
     elif options.testRun:
         # TEST 10 files from signle photon 0-200 without pu
         filelist = open(filedir+"/test.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed/test_"+tagCalib+tagHCALpfa1p
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/test_"+tagCalib+tagHCALpfa1p
 
 
     ###########
@@ -142,7 +142,7 @@ if __name__ == "__main__" :
 
     os.system('mkdir -p ' + folder)
     os.system('cp '+config+' '+folder)
-    os.system('cp listAll.sh /data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed')
+    os.system('cp listAll.sh /data_CMS/cms/motta/CaloL1calibraton/L1NTuples')
     files = [f.strip() for f in filelist]
     print "Input has" , len(files) , "files" 
     if njobs > len(files) : njobs = len(files)
