@@ -72,7 +72,7 @@ if __name__ == "__main__" :
     if   options.applyHCALpfa1p:         tagHCALpfa1p = "_applyHCALpfa1p"
 
     ##################### DEFINE INPUTS AND OUTPUTS ####################
-    indir  = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples_fixed'
+    indir  = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples'
     outdir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.outdir
 
     # choose ECAL of HCAL folder according to option v
