@@ -11,6 +11,7 @@ nevents = int(sys.argv[2])
 label = sys.argv[3]
 
 os.system('mkdir -p PDFs/'+label)
+os.system('mkdir -p PNGs/'+label)
 os.system('mkdir -p ROOTs/')
 
 print("defining input trees")
@@ -31,11 +32,11 @@ if (nevents > nEntries) or (nevents==-1): nevents = nEntries
 print("will process",nevents,"events...")
 
 #defining binning of histogram
-if "HCAL" in label: 
+if "HCAL_" in label: 
     ptBins  = [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200, 500]
     etaBins = [0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.191]
     signedEtaBins = [-5.191, -4.5, -4.0, -3.5, -3.0, -2.5, -2.0, -1.479, -1.305, -1.0, -0.5, 0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.191]
-if "ECAL" in label:
+if "ECAL_" in label:
     ptBins  = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200]
     etaBins = [0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
     signedEtaBins = [-3.0, -2.5, -2.0, -1.479, -1.305, -1.0, -0.5, 0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
@@ -75,7 +76,9 @@ for i in range(0, nevents):
     entry2 = emuTree.GetEntry(i)
     entry3 = genTree.GetEntry(i)
 
-    L1_nJets = emuTree.L1Upgrade.nJets
+    L1_nJets = 0
+    if "HCAL_" in label: L1_nJets = emuTree.L1Upgrade.nJets
+    if "ECAL_" in label: L1_nJets = emuTree.L1Upgrade.nEGs
     Gen_nJets = genTree.Generator.nJet
 
     #loop on generator jets
@@ -85,7 +88,7 @@ for i in range(0, nevents):
         Gen_jet.SetPtEtaPhiM(genTree.Generator.jetPt[igenJet], genTree.Generator.jetEta[igenJet], genTree.Generator.jetPhi[igenJet], 0)
 
         #reject very soft jets, usually poorly defined
-        if ("HCAL" in label) and Gen_jet.Pt()<15.: continue
+        if "HCAL_" in label and Gen_jet.Pt()<15.: continue
 
         matched = False
         highestL1Pt = -99.
@@ -93,7 +96,8 @@ for i in range(0, nevents):
         #loop on L1 jets to find match
         for ijet in range(0, L1_nJets):
             L1_jet = ROOT.TLorentzVector()
-            L1_jet.SetPtEtaPhiM(emuTree.L1Upgrade.jetEt[ijet], emuTree.L1Upgrade.jetEta[ijet], emuTree.L1Upgrade.jetPhi[ijet], 0)
+            if "HCAL_" in label: L1_jet.SetPtEtaPhiM(emuTree.L1Upgrade.jetEt[ijet], emuTree.L1Upgrade.jetEta[ijet], emuTree.L1Upgrade.jetPhi[ijet], 0)
+            if "ECAL_" in label: L1_jet.SetPtEtaPhiM(emuTree.L1Upgrade.egEt[ijet], emuTree.L1Upgrade.egEta[ijet], emuTree.L1Upgrade.egPhi[ijet], 0)
 
             #check matching
             if Gen_jet.DeltaR(L1_jet)<0.5:
@@ -247,6 +251,7 @@ for i in range(len(barrel_response_ptBins)):
     legend.Draw("same")
 
     canvas.SaveAs("PDFs/"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".png")
 
     del canvas, legend
 
@@ -294,6 +299,7 @@ for i in range(len(absEta_response_ptBins)):
     tex2.Draw("same");
 
     canvas.SaveAs("PDFs/"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".png")
 
     del canvas, legend
 
@@ -344,6 +350,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas.SaveAs("PDFs/"+label+"/resolution_ptBins"+label+".pdf")
+canvas.SaveAs("PNGs/"+label+"/resolution_ptBins"+label+".png")
 
 del canvas, legend
 
@@ -403,6 +410,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas.SaveAs("PDFs/"+label+"/resolution_etaBins"+label+".pdf")
+canvas.SaveAs("PNGs/"+label+"/resolution_etaBins"+label+".png")
 
 del canvas
 
@@ -462,6 +470,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas.SaveAs("PDFs/"+label+"/scale_etaBins"+label+".pdf")
+canvas.SaveAs("PNGs/"+label+"/scale_etaBins"+label+".png")
 
 del canvas
 
@@ -506,6 +515,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas.SaveAs("PDFs/"+label+"/scale_ptBins"+label+".pdf")
+canvas.SaveAs("PNGs/"+label+"/scale_ptBins"+label+".png")
 
 del canvas
 
@@ -562,6 +572,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas.SaveAs("PDFs/"+label+"/response_inclusive"+label+".pdf")
+canvas.SaveAs("PNGs/"+label+"/response_inclusive"+label+".png")
 
 del canvas
 
@@ -611,6 +622,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas_res_pt.SaveAs("PDFs/"+label+"/response_in_ptBins_"+label+".pdf")
+canvas_res_pt.SaveAs("PNGs/"+label+"/response_in_ptBins_"+label+".png")
 
 ##############
 
@@ -673,6 +685,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas_res.SaveAs("PDFs/"+label+"/response_in_eta_bins_"+label+".pdf")
+canvas_res.SaveAs("PNGs/"+label+"/response_in_eta_bins_"+label+".png")
 
 ##############
 

@@ -12,6 +12,7 @@ nevents = int(sys.argv[2])
 label = sys.argv[3]
 
 os.system('mkdir -p PDFs/'+label)
+os.system('mkdir -p PNGs/'+label)
 os.system('mkdir -p ROOTs/')
 
 print("defining input trees")
@@ -35,9 +36,9 @@ print("will process",nevents,"events...")
 bins = [0, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 100, 120, 150, 180, 250]
 
 #list the ET thresholds to be tested
-thresholds = np.linspace(20,100,81).tolist()
-thresholds.append(120)
-thresholds.append(150)
+thresholds = np.linspace(20,150,131).tolist()
+
+thresholds2plot = [20, 35, 50, 100, 150]
 
 #passing histograms (numerators)
 passing = []
@@ -61,9 +62,11 @@ for i in range(0, nevents):
     entry2 = emuTree.GetEntry(i)
     entry3 = genTree.GetEntry(i)
 
-    L1_nJets = emuTree.L1Upgrade.nJets
+    L1_nJets = 0
+    if "HCAL_" in label: L1_nJets = emuTree.L1Upgrade.nJets
+    if "ECAL_" in label: L1_nJets = emuTree.L1Upgrade.nEGs
     Gen_nJets = genTree.Generator.nJet
-
+    
     #loop on generator jets
     for igenJet in range(0,Gen_nJets):
 
@@ -71,7 +74,7 @@ for i in range(0, nevents):
         Gen_jet.SetPtEtaPhiM(genTree.Generator.jetPt[igenJet], genTree.Generator.jetEta[igenJet], genTree.Generator.jetPhi[igenJet], 0)
 
         #reject very soft jets, usually poorly defined
-        if ("HCAL" in label) and Gen_jet.Pt()<15.: continue
+        if "HCAL_" in label and Gen_jet.Pt()<15.: continue
 
         total.Fill(Gen_jet.Pt())
         pt.Fill(Gen_jet.Pt())
@@ -82,7 +85,8 @@ for i in range(0, nevents):
         #loop on L1 jets to find match
         for ijet in range(0, L1_nJets):
             L1_jet = ROOT.TLorentzVector()
-            L1_jet.SetPtEtaPhiM(emuTree.L1Upgrade.jetEt[ijet], emuTree.L1Upgrade.jetEta[ijet], emuTree.L1Upgrade.jetPhi[ijet], 0)
+            if "HCAL_" in label: L1_jet.SetPtEtaPhiM(emuTree.L1Upgrade.jetEt[ijet], emuTree.L1Upgrade.jetEta[ijet], emuTree.L1Upgrade.jetPhi[ijet], 0)
+            if "ECAL_" in label: L1_jet.SetPtEtaPhiM(emuTree.L1Upgrade.egEt[ijet], emuTree.L1Upgrade.egEta[ijet], emuTree.L1Upgrade.egPhi[ijet], 0)
 
             #check matching
             if Gen_jet.DeltaR(L1_jet)<0.5:
@@ -121,18 +125,18 @@ empty.SetStats(0);
 #use multigraph for plotting all turn-ons on the same canvas
 mg = ROOT.TMultiGraph("mg","")
 
-for i,ele in enumerate(thresholds):
-    mg.Add(turnons[i],"PE")
-    turnons[i].SetMarkerColor(i+1)
-    turnons[i].SetLineColor(i+1)
+for i,ele in enumerate(thresholds2plot):
+    mg.Add(turnons[thresholds.index(ele)],"PE")
+    turnons[thresholds.index(ele)].SetMarkerColor(i+1)
+    turnons[thresholds.index(ele)].SetLineColor(i+1)
 
 empty.Draw()
 mg.Draw()
 
 legend = ROOT.TLegend(0.15,0.75,0.48,0.88)
 legend.SetBorderSize(0)
-for i,ele in enumerate(thresholds):
-    legend.AddEntry(turnons[i],"p_{T}^{L1} > "+str(thresholds[i])+" GeV","LPE")
+for i,ele in enumerate(thresholds2plot):
+    legend.AddEntry(turnons[thresholds.index(ele)],"p_{T}^{L1} > "+str(thresholds[thresholds.index(ele)])+" GeV","LPE")
 
 legend.Draw("same")
 
@@ -148,7 +152,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas.SaveAs("PDFs/"+label+"/turnOn_"+label+".pdf")
-#canvas.SaveAs("turnOn_"+label+".root")
+canvas.SaveAs("PNGs/"+label+"/turnOn_"+label+".png")
 
 print("saving histograms and efficiencies in root file for later plotting if desired")
 fileout = ROOT.TFile("ROOTs/efficiency_graphs_"+label+".root","RECREATE")

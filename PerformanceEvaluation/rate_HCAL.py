@@ -11,6 +11,7 @@ nevents = int(sys.argv[2])
 label = sys.argv[3]
 
 os.system('mkdir -p PDFs/'+label)
+os.system('mkdir -p PNGs/'+label)
 os.system('mkdir -p ROOTs/')
 
 print("defining input trees")
@@ -107,7 +108,7 @@ for i in range(0, nevents):
 
     # restrict to nominal lumiPOG 47 PU +-5
     # (this distribution will be very unrealistic!! Need to "gaussianize it")
-    if eventTree.Event.nPV_True < 42 or eventTree.Event.nPV_True > 52: continue
+    #if eventTree.Event.nPV_True < 42 or eventTree.Event.nPV_True > 52: continue
 
     denominator += 1.
 
@@ -163,27 +164,22 @@ for i in range(0, nevents):
     ptJetsProgression150er2p5 = array('f',[-99.,-99.])
 
     L1_nJets = emuTree.L1Upgrade.nJets
-    Gen_nJets = genTree.Generator.nJet
 
     #loop on L1 jets to find match
     for ijet in range(0, L1_nJets):
-        #if abs(emuTree.L1Upgrade.jetEta[ijet])>2.1315: continue;
-
-        L1_jet = ROOT.TLorentzVector()
-        L1_jet.SetPtEtaPhiM(emuTree.L1Upgrade.jetEt[ijet], emuTree.L1Upgrade.jetEta[ijet], emuTree.L1Upgrade.jetPhi[ijet], 0)
-
+        
         # single
         if filledProgression0==False:
             ptProgression0.Fill(emuTree.L1Upgrade.jetEt[ijet])
             filledProgression0 = True
 
         # di
-        if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression0[0]:
+        if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression0[0]:
             IndexJetsProgression0[1]=IndexJetsProgression0[0]
             ptJetsProgression0[1]=ptJetsProgression0[0]
             IndexJetsProgression0[0]=ijet
             ptJetsProgression0[0]=emuTree.L1Upgrade.jetEt[ijet]
-        elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression0[1]:
+        elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression0[1]:
             IndexJetsProgression0[1]=ijet
             ptJetsProgression0[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -194,12 +190,12 @@ for i in range(0, nevents):
                 filledProgression20 = True
 
             # di
-            if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression20[0]:
+            if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression20[0]:
                 IndexJetsProgression20[1]=IndexJetsProgression20[0]
                 ptJetsProgression20[1]=ptJetsProgression20[0]
                 IndexJetsProgression20[0]=ijet
                 ptJetsProgression20[0]=emuTree.L1Upgrade.jetEt[ijet]
-            elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression20[1]:
+            elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression20[1]:
                 IndexJetsProgression20[1]=ijet
                 ptJetsProgression20[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -211,12 +207,12 @@ for i in range(0, nevents):
                 filledProgression35 = True
 
             # di
-            if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression35[0]:
+            if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression35[0]:
                 IndexJetsProgression35[1]=IndexJetsProgression35[0]
                 ptJetsProgression35[1]=ptJetsProgression35[0]
                 IndexJetsProgression35[0]=ijet
                 ptJetsProgression35[0]=emuTree.L1Upgrade.jetEt[ijet]
-            elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression35[1]:
+            elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression35[1]:
                 IndexJetsProgression35[1]=ijet
                 ptJetsProgression35[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -227,12 +223,12 @@ for i in range(0, nevents):
                 filledProgression50 = True
 
             # di
-            if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression50[0]:
+            if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression50[0]:
                 IndexJetsProgression50[1]=IndexJetsProgression50[0]
                 ptJetsProgression50[1]=ptJetsProgression50[0]
                 IndexJetsProgression50[0]=ijet
                 ptJetsProgression50[0]=emuTree.L1Upgrade.jetEt[ijet]
-            elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression50[1]:
+            elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression50[1]:
                 IndexJetsProgression50[1]=ijet
                 ptJetsProgression50[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -243,12 +239,12 @@ for i in range(0, nevents):
                 filledProgression100 = True
 
             # di
-            if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression100[0]:
+            if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression100[0]:
                 IndexJetsProgression100[1]=IndexJetsProgression100[0]
                 ptJetsProgression100[1]=ptJetsProgression100[0]
                 IndexJetsProgression100[0]=ijet
                 ptJetsProgression100[0]=emuTree.L1Upgrade.jetEt[ijet]
-            elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression100[1]:
+            elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression100[1]:
                 IndexJetsProgression100[1]=ijet
                 ptJetsProgression100[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -259,16 +255,17 @@ for i in range(0, nevents):
                 filledProgression150 = True
 
             # di
-            if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression150[0]:
+            if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression150[0]:
                 IndexJetsProgression150[1]=IndexJetsProgression150[0]
                 ptJetsProgression150[1]=ptJetsProgression150[0]
                 IndexJetsProgression150[0]=ijet
                 ptJetsProgression150[0]=emuTree.L1Upgrade.jetEt[ijet]
-            elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression150[1]:
+            elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression150[1]:
                 IndexJetsProgression150[1]=ijet
                 ptJetsProgression150[1]=emuTree.L1Upgrade.jetEt[ijet]
 
-        if abs(L1_jet.Eta()>2.5): continue
+        # if abs(emuTree.L1Upgrade.jetEta[ijet])>2.1315: continue;
+        if abs(emuTree.L1Upgrade.jetEta[ijet])>2.5000: continue
 
         # single
         if filledProgression0er2p5==False:
@@ -276,12 +273,12 @@ for i in range(0, nevents):
             filledProgression0er2p5 = True
 
         # di
-        if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression0er2p5[0]:
+        if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression0er2p5[0]:
             IndexJetsProgression0er2p5[1]=IndexJetsProgression0er2p5[0]
             ptJetsProgression0er2p5[1]=ptJetsProgression0er2p5[0]
             IndexJetsProgression0er2p5[0]=ijet
             ptJetsProgression0er2p5[0]=emuTree.L1Upgrade.jetEt[ijet]
-        elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression0er2p5[1]:
+        elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression0er2p5[1]:
             IndexJetsProgression0er2p5[1]=ijet
             ptJetsProgression0er2p5[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -292,12 +289,12 @@ for i in range(0, nevents):
                 filledProgression20er2p5 = True
 
             # di
-            if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression20er2p5[0]:
+            if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression20er2p5[0]:
                 IndexJetsProgression20er2p5[1]=IndexJetsProgression20er2p5[0]
                 ptJetsProgression20er2p5[1]=ptJetsProgression20er2p5[0]
                 IndexJetsProgression20er2p5[0]=ijet
                 ptJetsProgression20er2p5[0]=emuTree.L1Upgrade.jetEt[ijet]
-            elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression20er2p5[1]:
+            elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression20er2p5[1]:
                 IndexJetsProgression20er2p5[1]=ijet
                 ptJetsProgression20er2p5[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -309,12 +306,12 @@ for i in range(0, nevents):
                 filledProgression35er2p5 = True
 
             # di
-            if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression35er2p5[0]:
+            if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression35er2p5[0]:
                 IndexJetsProgression35er2p5[1]=IndexJetsProgression35er2p5[0]
                 ptJetsProgression35er2p5[1]=ptJetsProgression35er2p5[0]
                 IndexJetsProgression35er2p5[0]=ijet
                 ptJetsProgression35er2p5[0]=emuTree.L1Upgrade.jetEt[ijet]
-            elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression35er2p5[1]:
+            elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression35er2p5[1]:
                 IndexJetsProgression35er2p5[1]=ijet
                 ptJetsProgression35er2p5[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -325,12 +322,12 @@ for i in range(0, nevents):
                 filledProgression50er2p5 = True
 
             # di
-            if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression50er2p5[0]:
+            if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression50er2p5[0]:
                 IndexJetsProgression50er2p5[1]=IndexJetsProgression50er2p5[0]
                 ptJetsProgression50er2p5[1]=ptJetsProgression50er2p5[0]
                 IndexJetsProgression50er2p5[0]=ijet
                 ptJetsProgression50er2p5[0]=emuTree.L1Upgrade.jetEt[ijet]
-            elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression50er2p5[1]:
+            elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression50er2p5[1]:
                 IndexJetsProgression50er2p5[1]=ijet
                 ptJetsProgression50er2p5[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -341,12 +338,12 @@ for i in range(0, nevents):
                 filledProgression100er2p5 = True
 
             # di
-            if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression100er2p5[0]:
+            if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression100er2p5[0]:
                 IndexJetsProgression100er2p5[1]=IndexJetsProgression100er2p5[0]
                 ptJetsProgression100er2p5[1]=ptJetsProgression100er2p5[0]
                 IndexJetsProgression100er2p5[0]=ijet
                 ptJetsProgression100er2p5[0]=emuTree.L1Upgrade.jetEt[ijet]
-            elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression100er2p5[1]:
+            elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression100er2p5[1]:
                 IndexJetsProgression100er2p5[1]=ijet
                 ptJetsProgression100er2p5[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -357,12 +354,12 @@ for i in range(0, nevents):
                 filledProgression150er2p5 = True
 
             # di
-            if emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression150er2p5[0]:
+            if emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression150er2p5[0]:
                 IndexJetsProgression150er2p5[1]=IndexJetsProgression150er2p5[0]
                 ptJetsProgression150er2p5[1]=ptJetsProgression150er2p5[0]
                 IndexJetsProgression150er2p5[0]=ijet
                 ptJetsProgression150er2p5[0]=emuTree.L1Upgrade.jetEt[ijet]
-            elif emuTree.L1Upgrade.jetEt[ijet]>ptJetsProgression150er2p5[1]:
+            elif emuTree.L1Upgrade.jetEt[ijet]>=ptJetsProgression150er2p5[1]:
                 IndexJetsProgression150er2p5[1]=ijet
                 ptJetsProgression150er2p5[1]=emuTree.L1Upgrade.jetEt[ijet]
 
@@ -544,6 +541,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas.SaveAs("PDFs/"+label+"/rateSingleObj_"+label+".pdf")
+canvas.SaveAs("PNGs/"+label+"/rateSingleObj_"+label+".png")
 
 ####################
 
@@ -590,6 +588,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas1.SaveAs("PDFs/"+label+"/rateDiObj_"+label+".pdf")
+canvas1.SaveAs("PNGs/"+label+"/rateDiObj_"+label+".png")
 
 ####################
 
@@ -650,6 +649,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas2.SaveAs("PDFs/"+label+"/rate_"+label+".pdf")
+canvas2.SaveAs("PNGs/"+label+"/rate_"+label+".png")
 
 ####################
 
@@ -700,6 +700,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas.SaveAs("PDFs/"+label+"/rateSingleObjEr2p5_"+label+".pdf")
+canvas.SaveAs("PNGs/"+label+"/rateSingleObjEr2p5_"+label+".png")
 
 ####################
 
@@ -747,6 +748,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas1.SaveAs("PDFs/"+label+"/rateDiObjEr2p5_"+label+".pdf")
+canvas1.SaveAs("PNGs/"+label+"/rateDiObjEr2p5_"+label+".png")
 
 ####################
 
@@ -808,6 +810,7 @@ tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
 canvas2.SaveAs("PDFs/"+label+"/rateEr2p5_"+label+".pdf")
+canvas2.SaveAs("PNGs/"+label+"/rateEr2p5_"+label+".png")
 
 ####################
 
