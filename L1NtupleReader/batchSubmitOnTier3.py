@@ -51,8 +51,10 @@ parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', 
 parser.add_option("--applyNewECALcalib", dest="applyNewECALcalib", action='store_true', default=False)
 parser.add_option("--applyNewECALpHCALcalib", dest="applyNewECALpHCALcalib", action='store_true', default=False)
 parser.add_option("--doEG0_200", dest="doEG0_200", action='store_true', default=False)
+parser.add_option("--doEG0_200pu", dest="doEG0_200pu", action='store_true', default=False)
 parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', default=False)
-parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
+parser.add_option("--doEG200_500pu", dest="doEG200_500pu", action='store_true', default=False)
+parser.add_option("--doQCD", dest="doQCD", action='store_true', default=False)
 parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
 parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
 parser.add_option("--doPi0_200", dest="doPi0_200", action='store_true', default=False)
@@ -67,7 +69,7 @@ if options.applyNoCalib == False and options.applyOldCalib == False and options.
     print('** WARNING: no calibration to be used specified - EXITING!')
     exit()
 
-if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False and options.doPi0_200 == False and options.testRun == False:
+if options.doEG0_200 == False and options.doEG200_500 == False and options.doEG0_200pu == False and options.doEG200_500pu == False and options.doQCD == False and options.doQCDpu == False and options.doPi0_200 == False and options.testRun == False:
     print('** WARNING: no dataset to be used specified - EXITING!')
     exit()
 
@@ -86,13 +88,7 @@ outputFolderName = 'paddedAndReadyToMerge'
 if options.applyOnTheFly: outputFolderName = 'appliedOnTheFly'
 
 if   options.doQCDpu:
-    ## qcd flat0-80 pu
-    #folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated"+tagCalib+tagHCALpfa1p)
-    print('** WARNING: unbinned QCD samples not available at the moment, specify pt bin - EXITING!')
-    exit()
-
-elif options.doQCDnoPU:
-    ## qcd without pu - backup datasets
+    ## qcd with pu - backup datasets
     if options.qcdPtBin=="20To30":
         taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt20To30.txt')
         filedir = filedir +'/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
@@ -119,10 +115,16 @@ elif options.doQCDnoPU:
         folder = filedir+'/'+outputFolderName
 
     else:
-        ## qcd without pu
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU.txt')
-        filedir = filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+        ## qcd flat0-80 pu
+        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_QCDpu.txt')
+        filedir = filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
         folder = filedir+'/'+outputFolderName
+
+elif options.doQCD:
+    ## qcd without pu
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcd.txt')
+    filedir = filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+    folder = filedir+'/'+outputFolderName
 
 elif options.doEG0_200:
     ## signle photon 0-200 without pu
@@ -130,10 +132,22 @@ elif options.doEG0_200:
     filedir = filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
     folder = filedir+'/'+outputFolderName
 
+elif options.doEG0_200pu:
+    ## signle photon 0-200 with pu
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200pu.txt')
+    filedir = filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+    folder = filedir+'/'+outputFolderName
+
 elif options.doEG200_500:
     ## signle photon 200-500 without pu
     taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500.txt')
     filedir = filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+    folder = filedir+'/'+outputFolderName
+
+elif options.doEG200_500pu:
+    ## signle photon 200-500 with pu
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500pu.txt')
+    filedir = filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
     folder = filedir+'/'+outputFolderName
 
 elif options.doPi0_200:

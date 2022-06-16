@@ -42,8 +42,10 @@ if __name__ == "__main__" :
     parser.add_option("--applyNewECALcalib", dest="applyNewECALcalib", action='store_true', default=False)
     parser.add_option("--applyNewECALpHCALcalib", dest="applyNewECALpHCALcalib", action='store_true', default=False)
     parser.add_option("--doEG0_200", dest="doEG0_200", action='store_true', default=False)
+    parser.add_option("--doEG0_200pu", dest="doEG0_200pu", action='store_true', default=False)
     parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', default=False)
-    parser.add_option("--doQCDnoPU", dest="doQCDnoPU", action='store_true', default=False)
+    parser.add_option("--doEG200_500pu", dest="doEG200_500pu", action='store_true', default=False)
+    parser.add_option("--doQCD", dest="doQCD", action='store_true', default=False)
     parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
     parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
     parser.add_option("--doPi0_200", dest="doPi0_200", action='store_true', default=False)
@@ -59,7 +61,7 @@ if __name__ == "__main__" :
         print('** WARNING: no calibration to be used specified - EXITING!')
         exit()
 
-    if options.doEG0_200 == False and options.doEG200_500 == False and options.doQCDnoPU == False and options.doQCDpu == False and options.doPi0_200 == False:
+    if options.doEG0_200 == False and options.doEG200_500 == False and options.doEG0_200pu == False and options.doEG200_500pu == False and options.doQCD == False and options.doQCDpu == False and options.doPi0_200 == False:
         print('** WARNING: no dataset to be used specified - EXITING!')
         exit()
 
@@ -79,13 +81,7 @@ if __name__ == "__main__" :
     folder_names = []
 
     if   options.doQCDpu:
-        ## qcd flat0-80 pu
-        #folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__reEmulated"+tagCalib+tagHCALpfa1p)
-        print('** WARNING: unbinned QCD samples not available at the moment, specify pt bin - EXITING!')
-        exit()
-
-    elif options.doQCDnoPU:
-        ## qcd without pu - backup datasets
+        ## qcd with pu - backup datasets
         if options.qcdPtBin=="20To30":
             folder_names.append("QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
             outdir = outdir+'/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
@@ -105,21 +101,35 @@ if __name__ == "__main__" :
         elif options.qcdPtBin=="120To170":
             folder_names.append("QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
             outdir = outdir+'/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-
         else:
-            ## qcd without pu
-            folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
-            outdir = outdir+'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+            ## qcd flat0-80 pu
+            folder_names.append("/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+            outdir = outdir+'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+
+    elif options.doQCD:
+        ## qcd without pu
+        folder_names.append("QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+        outdir = outdir+'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
 
     elif options.doEG0_200:
         ## signle photon 0-200 without pu
         folder_names.append("SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
         outdir = outdir+'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+
+    elif options.doEG0_200pu:
+        ## signle photon 0-200 with pu
+        folder_names.append("SinglePhoton_Pt-0To200-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+        outdir = outdir+'/SinglePhoton_Pt-0To200-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
     
     elif options.doEG200_500:
         ## signle photon 200-500 without pu
         folder_names.append("SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
         outdir = outdir+'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+
+    elif options.doEG200_500pu:
+        ## signle photon 200-500 with pu
+        folder_names.append("SinglePhoton_Pt-200to500-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
+        outdir = outdir+'/SinglePhoton_Pt-200to500-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
 
     elif options.doPi0_200:
         folder_names.append("SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p)
