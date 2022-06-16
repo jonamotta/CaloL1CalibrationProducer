@@ -148,5 +148,14 @@ These SFs will then be used for the re-emulation of the L1 NTuples
 Rerun the full machinery to produce a final training and a final set of SFs both for ECAL and for HCAL
 These SFs will then be used for the re-emulation of the L1 NTuples
 
+2022_06_10_NtuplesV20
+Run the full machinery on the NTuples with PU
+    --> this should have lowered the SFs for low energy TT
+    --> did not really work
+
+2022_06_14_NtuplesV21
+Run the machinery on the same NTuples used for V19 but with saturation of the SFs inside the NN (but outside of TTP)
+
+
 
 
