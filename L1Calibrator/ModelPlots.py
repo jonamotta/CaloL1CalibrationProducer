@@ -11,7 +11,7 @@ from matplotlib.transforms import Affine2D
 
 # from NNModelTraining import *
 # from NNModelTraining_FlooringAfterTTP import *
-from NNModelTraining_FlooringInTTP import *
+from NNModelTraining_FlooringInTTP_SaturationAfterTTP import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
@@ -375,8 +375,8 @@ if __name__ == "__main__" :
 
     # model1 = keras.models.load_model(modeldir + '/model', compile=False)
     # TTP = keras.models.load_model(modeldir + '/TTP', compile=False)
-    model1 = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'fgrad': fgrad})
-    TTP = keras.models.load_model(modeldir + '/TTP', compile=False, custom_objects={'fgrad': fgrad})
+    model1 = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'Fgrad': Fgrad})
+    TTP = keras.models.load_model(modeldir + '/TTP', compile=False, custom_objects={'Fgrad': Fgrad})
 
     # Definition of the Scale factors
     SF_filename = indir + '/data_' + options.v + '/ScaleFactors_' + options.v + label +'.csv'
