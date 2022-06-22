@@ -19,510 +19,510 @@ if "ECAL_" in label:
     ptBins  = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200]
     etaBins = [0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
 
-# #############################
-# ## RESOLUTIONS COMPARISONS ##
-
-# file_unCalib  = ROOT.TFile("ROOTs/resolution_graphs_"+detector+"_uncalib.root", "r")
-# file_oldCalib = ROOT.TFile("ROOTs/resolution_graphs_"+detector+"_oldCalib.root", "r")
-# file_newCalib = ROOT.TFile("ROOTs/resolution_graphs_"+detector+"_"+newTag+".root", "r")
-
-# #######
-# # inclusive responses
-
-# inclusive_resp_unCalib  = file_unCalib.Get("pt_response_ptInclusive")
-# inclusive_resp_oldCalib = file_oldCalib.Get("pt_response_ptInclusive")
-# inclusive_resp_newCalib = file_newCalib.Get("pt_response_ptInclusive")
-
-# #define canvas for plotting
-# canvas = ROOT.TCanvas("c","c",800,800)
-# canvas.SetGrid(10,10);
-
-# #use dummy histogram to define style
-# inclusive_resp_unCalib.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{gen jet}")
-# inclusive_resp_unCalib.SetTitle("")
-
-# inclusive_resp_unCalib.GetXaxis().SetTitleOffset(1.3);
-# inclusive_resp_unCalib.GetYaxis().SetTitle("a.u.");
-# inclusive_resp_unCalib.GetYaxis().SetTitleOffset(1.3);
-# inclusive_resp_unCalib.SetTitle("");
-# inclusive_resp_unCalib.SetStats(0);
-
-# inclusive_resp_unCalib.GetYaxis().SetRangeUser(0., 0.5 )
-# inclusive_resp_unCalib.GetXaxis().SetRangeUser(0., 2. )
-
-# inclusive_resp_oldCalib.SetLineWidth(2)
-# inclusive_resp_oldCalib.SetMarkerStyle(8)
-# inclusive_resp_oldCalib.SetMarkerColor(2)
-# inclusive_resp_oldCalib.SetLineColor(2)
-
-# inclusive_resp_newCalib.SetLineWidth(2)
-# inclusive_resp_newCalib.SetMarkerStyle(8)
-# inclusive_resp_newCalib.SetMarkerColor(3)
-# inclusive_resp_newCalib.SetLineColor(3)
-
-# inclusive_resp_unCalib.SetLineWidth(2)
-# inclusive_resp_unCalib.SetMarkerStyle(8)
-# inclusive_resp_unCalib.SetMarkerColor(1)
-# inclusive_resp_unCalib.SetLineColor(1)
-
-# inclusive_resp_unCalib.Draw("LPE")
-# inclusive_resp_newCalib.Draw("LPE same")
-# inclusive_resp_oldCalib.Draw("LPE same")
-
-# legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-# legend.SetBorderSize(0)
-# legend.AddEntry(inclusive_resp_unCalib,"Uncalibrated", "LPE")
-# legend.AddEntry(inclusive_resp_oldCalib,"Old Calibration", "LPE")
-# legend.AddEntry(inclusive_resp_newCalib,"New Calibration", "LPE")
-# legend.Draw("same")
-
-# tex = ROOT.TLatex()
-# tex.SetTextSize(0.03);
-# tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-# tex.Draw("same")
-
-# tex2 = ROOT.TLatex();
-# tex2.SetTextSize(0.035);
-# tex2.SetTextAlign(31);
-# tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-# tex2.Draw("same");
-
-# canvas.SaveAs("PDFs/comparisons_"+label+"/response_inclusive_"+label+".pdf")
-# canvas.SaveAs("PNGs/comparisons_"+label+"/response_inclusive_"+label+".png")
-
-# del canvas, legend, tex2, tex
-
-# #######
-# # ptBins responses
-
-# for i in range(len(ptBins)-1):
-#     ptBins_resp_unCalib = file_unCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
-#     ptBins_resp_oldCalib = file_oldCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
-#     ptBins_resp_newCalib = file_newCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
-
-#     #define canvas for plotting
-#     canvas = ROOT.TCanvas("c","c",800,800)
-#     canvas.SetGrid(10,10);
-
-#     #use dummy histogram to define style
-#     ptBins_resp_unCalib.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{gen jet}")
-#     ptBins_resp_unCalib.SetTitle("")
-
-#     ptBins_resp_unCalib.GetXaxis().SetTitleOffset(1.3);
-#     ptBins_resp_unCalib.GetYaxis().SetTitle("a.u.");
-#     ptBins_resp_unCalib.GetYaxis().SetTitleOffset(1.3);
-#     ptBins_resp_unCalib.SetTitle("");
-#     ptBins_resp_unCalib.SetStats(0);
-
-#     ptBins_resp_unCalib.GetYaxis().SetRangeUser(0., max(ptBins_resp_oldCalib.GetMaximum(),ptBins_resp_newCalib.GetMaximum())*1.3 )
-
-#     ptBins_resp_oldCalib.SetLineWidth(2)
-#     ptBins_resp_oldCalib.SetMarkerStyle(8)
-#     ptBins_resp_oldCalib.SetMarkerColor(2)
-#     ptBins_resp_oldCalib.SetLineColor(2)
-
-#     ptBins_resp_newCalib.SetLineWidth(2)
-#     ptBins_resp_newCalib.SetMarkerStyle(8)
-#     ptBins_resp_newCalib.SetMarkerColor(3)
-#     ptBins_resp_newCalib.SetLineColor(3)
-
-#     ptBins_resp_unCalib.SetLineWidth(2)
-#     ptBins_resp_unCalib.SetMarkerStyle(8)
-#     ptBins_resp_unCalib.SetMarkerColor(1)
-#     ptBins_resp_unCalib.SetLineColor(1)
-
-#     ptBins_resp_unCalib.Draw("LPE")
-#     ptBins_resp_newCalib.Draw("LPE same")
-#     ptBins_resp_oldCalib.Draw("LPE same")
-
-#     legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-#     legend.SetBorderSize(0)
-#     legend.SetHeader(str(ptBins[i])+"<p_{T}^{gen jet}<"+str(ptBins[i+1]))
-#     legend.AddEntry(ptBins_resp_unCalib,"Uncalibrated", "LPE")
-#     legend.AddEntry(ptBins_resp_oldCalib,"Old Calibration", "LPE")
-#     legend.AddEntry(ptBins_resp_newCalib,"New Calibration", "LPE")
-#     legend.Draw("same")
-
-#     tex = ROOT.TLatex()
-#     tex.SetTextSize(0.03);
-#     tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-#     tex.Draw("same")
-
-#     tex2 = ROOT.TLatex();
-#     tex2.SetTextSize(0.035);
-#     tex2.SetTextAlign(31);
-#     tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-#     tex2.Draw("same");
-
-#     canvas.SaveAs("PDFs/comparisons_"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".pdf")
-#     canvas.SaveAs("PNGs/comparisons_"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".png")
-
-#     del canvas, legend, ptBins_resp_unCalib, ptBins_resp_oldCalib, ptBins_resp_newCalib, tex2, tex
-
-# #######
-# # etaBins responses
-
-# for i in range(len(etaBins)-1):
-#     etaBins_resp_unCalib = file_unCalib.Get("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]))
-#     etaBins_resp_oldCalib = file_oldCalib.Get("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]))
-#     etaBins_resp_newCalib = file_newCalib.Get("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]))
-
-#     #define canvas for plotting
-#     canvas = ROOT.TCanvas("c","c",800,800)
-#     canvas.SetGrid(10,10);
-
-#     #use dummy histogram to define style
-#     etaBins_resp_unCalib.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{gen jet}")
-#     etaBins_resp_unCalib.SetTitle("")
-
-#     etaBins_resp_unCalib.GetXaxis().SetTitleOffset(1.3);
-#     etaBins_resp_unCalib.GetYaxis().SetTitle("a.u.");
-#     etaBins_resp_unCalib.GetYaxis().SetTitleOffset(1.3);
-#     etaBins_resp_unCalib.SetTitle("");
-#     etaBins_resp_unCalib.SetStats(0);
-
-#     etaBins_resp_unCalib.GetYaxis().SetRangeUser(0., max(etaBins_resp_oldCalib.GetMaximum(),etaBins_resp_newCalib.GetMaximum())*1.3 )
-
-#     etaBins_resp_oldCalib.SetLineWidth(2)
-#     etaBins_resp_oldCalib.SetMarkerStyle(8)
-#     etaBins_resp_oldCalib.SetMarkerColor(2)
-#     etaBins_resp_oldCalib.SetLineColor(2)
-
-#     etaBins_resp_newCalib.SetLineWidth(2)
-#     etaBins_resp_newCalib.SetMarkerStyle(8)
-#     etaBins_resp_newCalib.SetMarkerColor(3)
-#     etaBins_resp_newCalib.SetLineColor(3)
-
-#     etaBins_resp_unCalib.SetLineWidth(2)
-#     etaBins_resp_unCalib.SetMarkerStyle(8)
-#     etaBins_resp_unCalib.SetMarkerColor(1)
-#     etaBins_resp_unCalib.SetLineColor(1)
-
-#     etaBins_resp_unCalib.Draw("LPE")
-#     etaBins_resp_newCalib.Draw("LPE same")
-#     etaBins_resp_oldCalib.Draw("LPE same")
-
-#     legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-#     legend.SetBorderSize(0)
-#     legend.SetHeader(str(etaBins[i])+"<|#eta^{gen jet}|<"+str(etaBins[i+1]))
-#     legend.AddEntry(etaBins_resp_unCalib,"Uncalibrated", "LPE")
-#     legend.AddEntry(etaBins_resp_oldCalib,"Old Calibration", "LPE")
-#     legend.AddEntry(etaBins_resp_newCalib,"New Calibration", "LPE")
-#     legend.Draw("same")
-
-#     tex = ROOT.TLatex()
-#     tex.SetTextSize(0.03);
-#     tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-#     tex.Draw("same")
-
-#     tex2 = ROOT.TLatex();
-#     tex2.SetTextSize(0.035);
-#     tex2.SetTextAlign(31);
-#     tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-#     tex2.Draw("same");
-
-#     canvas.SaveAs("PDFs/comparisons_"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".pdf")
-#     canvas.SaveAs("PNGs/comparisons_"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".png")
-
-#     del canvas, legend, etaBins_resp_unCalib, etaBins_resp_oldCalib, etaBins_resp_newCalib, tex2, tex
-
-# #######
-# # ptBins resolution
-
-# ptBins_resol_unCalib  = file_unCalib.Get("pt_resol_fctPt")
-# ptBins_resol_oldCalib = file_oldCalib.Get("pt_resol_fctPt")
-# ptBins_resol_newCalib = file_newCalib.Get("pt_resol_fctPt")
-
-# #define canvas for plotting
-# canvas = ROOT.TCanvas("c","c",800,800)
-# canvas.SetGrid(10,10);
-
-# #use dummy histogram to define style
-# ptBins_resol_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
-# ptBins_resol_unCalib.SetTitle("")
-
-# ptBins_resol_unCalib.GetXaxis().SetTitleOffset(1.3);
-# ptBins_resol_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} resolution");
-# ptBins_resol_unCalib.GetYaxis().SetTitleOffset(1.3);
-# ptBins_resol_unCalib.SetTitle("");
-# ptBins_resol_unCalib.SetStats(0);
-
-# ptBins_resol_unCalib.GetYaxis().SetRangeUser(0., max(ptBins_resol_oldCalib.GetMaximum(),ptBins_resol_newCalib.GetMaximum())*1.3 )
-
-# ptBins_resol_oldCalib.SetLineWidth(2)
-# ptBins_resol_oldCalib.SetMarkerStyle(8)
-# ptBins_resol_oldCalib.SetMarkerColor(2)
-# ptBins_resol_oldCalib.SetLineColor(2)
-
-# ptBins_resol_newCalib.SetLineWidth(2)
-# ptBins_resol_newCalib.SetMarkerStyle(8)
-# ptBins_resol_newCalib.SetMarkerColor(3)
-# ptBins_resol_newCalib.SetLineColor(3)
-
-# ptBins_resol_unCalib.SetLineWidth(2)
-# ptBins_resol_unCalib.SetMarkerStyle(8)
-# ptBins_resol_unCalib.SetMarkerColor(1)
-# ptBins_resol_unCalib.SetLineColor(1)
-
-# ptBins_resol_unCalib.Draw("LPE")
-# ptBins_resol_newCalib.Draw("LPE same")
-# ptBins_resol_oldCalib.Draw("LPE same")
-
-# legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-# legend.SetBorderSize(0)
-# legend.AddEntry(ptBins_resol_unCalib,"Uncalibrated", "LPE")
-# legend.AddEntry(ptBins_resol_oldCalib,"Old Calibration", "LPE")
-# legend.AddEntry(ptBins_resol_newCalib,"New Calibration", "LPE")
-# legend.Draw("same")
-
-# tex = ROOT.TLatex()
-# tex.SetTextSize(0.03);
-# tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-# tex.Draw("same")
-
-# tex2 = ROOT.TLatex();
-# tex2.SetTextSize(0.035);
-# tex2.SetTextAlign(31);
-# tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-# tex2.Draw("same");
-
-# canvas.SaveAs("PDFs/comparisons_"+label+"/resolution_ptBins_"+label+".pdf")
-# canvas.SaveAs("PNGs/comparisons_"+label+"/resolution_ptBins_"+label+".png")
-
-# del canvas, legend, tex2, tex
-
-# #######
-# # etaBins resolution
-
-# etaBins_resol_unCalib  = file_unCalib.Get("pt_resol_fctEta")
-# etaBins_resol_oldCalib = file_oldCalib.Get("pt_resol_fctEta")
-# etaBins_resol_newCalib = file_newCalib.Get("pt_resol_fctEta")
-
-# #define canvas for plotting
-# canvas = ROOT.TCanvas("c","c",800,800)
-# canvas.SetGrid(10,10);
-
-# #use dummy histogram to define style
-# etaBins_resol_unCalib.GetXaxis().SetTitle("#eta^{gen jet}")
-# etaBins_resol_unCalib.SetTitle("")
-
-# etaBins_resol_unCalib.GetXaxis().SetTitleOffset(1.3);
-# etaBins_resol_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} resolution");
-# etaBins_resol_unCalib.GetYaxis().SetTitleOffset(1.3);
-# etaBins_resol_unCalib.SetTitle("");
-# etaBins_resol_unCalib.SetStats(0);
-
-# if "ECAL_" in label: etaBins_resol_unCalib.GetYaxis().SetRangeUser(0., 1.)
-# if "HCAL_" in label: etaBins_resol_unCalib.GetYaxis().SetRangeUser(0., 2.)
-
-# etaBins_resol_oldCalib.SetLineWidth(2)
-# etaBins_resol_oldCalib.SetMarkerStyle(8)
-# etaBins_resol_oldCalib.SetMarkerColor(2)
-# etaBins_resol_oldCalib.SetLineColor(2)
-
-# etaBins_resol_newCalib.SetLineWidth(2)
-# etaBins_resol_newCalib.SetMarkerStyle(8)
-# etaBins_resol_newCalib.SetMarkerColor(3)
-# etaBins_resol_newCalib.SetLineColor(3)
-
-# etaBins_resol_unCalib.SetLineWidth(2)
-# etaBins_resol_unCalib.SetMarkerStyle(8)
-# etaBins_resol_unCalib.SetMarkerColor(1)
-# etaBins_resol_unCalib.SetLineColor(1)
-
-# etaBins_resol_unCalib.Draw("LPE")
-# etaBins_resol_newCalib.Draw("LPE same")
-# etaBins_resol_oldCalib.Draw("LPE same")
-
-# b1 = ROOT.TBox(1.305,0.,1.479,2)
-# b1.SetFillColor(16)
-# b1.Draw("same")
-# b2 = ROOT.TBox(-1.479,0.,-1.305,2)
-# b2.SetFillColor(16)
-# b2.Draw("same")
-# b3 = ROOT.TBox(1.305,0.,1.479,2)
-# b3.SetFillColor(1)
-# b3.SetFillStyle(3004)
-# b3.Draw("same")
-# b4 = ROOT.TBox(-1.479,0.,-1.305,2)
-# b4.SetFillColor(1)
-# b4.SetFillStyle(3004)
-# b4.Draw("same")
-
-# legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-# legend.SetBorderSize(0)
-# legend.AddEntry(etaBins_resol_unCalib,"Uncalibrated", "LPE")
-# legend.AddEntry(etaBins_resol_oldCalib,"Old Calibration", "LPE")
-# legend.AddEntry(etaBins_resol_newCalib,"New Calibration", "LPE")
-# legend.Draw("same")
-
-# tex = ROOT.TLatex()
-# tex.SetTextSize(0.03);
-# tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-# tex.Draw("same")
-
-# tex2 = ROOT.TLatex();
-# tex2.SetTextSize(0.035);
-# tex2.SetTextAlign(31);
-# tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-# tex2.Draw("same");
-
-# canvas.SaveAs("PDFs/comparisons_"+label+"/resolution_etaBins_"+label+".pdf")
-# canvas.SaveAs("PNGs/comparisons_"+label+"/resolution_etaBins_"+label+".png")
-
-# del canvas, legend, tex2, tex
-
-
-# #######
-# # ptBins scale
-
-# ptBins_scale_unCalib  = file_unCalib.Get("pt_scale_fctPt")
-# ptBins_scale_oldCalib = file_oldCalib.Get("pt_scale_fctPt")
-# ptBins_scale_newCalib = file_newCalib.Get("pt_scale_fctPt")
-
-# #define canvas for plotting
-# canvas = ROOT.TCanvas("c","c",800,800)
-# canvas.SetGrid(10,10);
-
-# #use dummy histogram to define style
-# ptBins_scale_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
-# ptBins_scale_unCalib.SetTitle("")
-
-# ptBins_scale_unCalib.GetXaxis().SetTitleOffset(1.3);
-# ptBins_scale_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} scale");
-# ptBins_scale_unCalib.GetYaxis().SetTitleOffset(1.3);
-# ptBins_scale_unCalib.SetTitle("");
-# ptBins_scale_unCalib.SetStats(0);
-
-# ptBins_scale_unCalib.GetYaxis().SetRangeUser(0., max(ptBins_scale_oldCalib.GetMaximum(),ptBins_scale_newCalib.GetMaximum())*1.3 )
-
-# ptBins_scale_oldCalib.SetLineWidth(2)
-# ptBins_scale_oldCalib.SetMarkerStyle(8)
-# ptBins_scale_oldCalib.SetMarkerColor(2)
-# ptBins_scale_oldCalib.SetLineColor(2)
-
-# ptBins_scale_newCalib.SetLineWidth(2)
-# ptBins_scale_newCalib.SetMarkerStyle(8)
-# ptBins_scale_newCalib.SetMarkerColor(3)
-# ptBins_scale_newCalib.SetLineColor(3)
-
-# ptBins_scale_unCalib.SetLineWidth(2)
-# ptBins_scale_unCalib.SetMarkerStyle(8)
-# ptBins_scale_unCalib.SetMarkerColor(1)
-# ptBins_scale_unCalib.SetLineColor(1)
-
-# ptBins_scale_unCalib.Draw("LPE")
-# ptBins_scale_newCalib.Draw("LPE same")
-# ptBins_scale_oldCalib.Draw("LPE same")
-
-# legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-# legend.SetBorderSize(0)
-# legend.AddEntry(ptBins_scale_unCalib,"Uncalibrated", "LPE")
-# legend.AddEntry(ptBins_scale_oldCalib,"Old Calibration", "LPE")
-# legend.AddEntry(ptBins_scale_newCalib,"New Calibration", "LPE")
-# legend.Draw("same")
-
-# tex = ROOT.TLatex()
-# tex.SetTextSize(0.03);
-# tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-# tex.Draw("same")
-
-# tex2 = ROOT.TLatex();
-# tex2.SetTextSize(0.035);
-# tex2.SetTextAlign(31);
-# tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-# tex2.Draw("same");
-
-# canvas.SaveAs("PDFs/comparisons_"+label+"/scale_ptBins_"+label+".pdf")
-# canvas.SaveAs("PNGs/comparisons_"+label+"/scale_ptBins_"+label+".png")
-
-# del canvas, legend, tex2, tex
-
-# #######
-# # etaBins scale
-
-# etaBins_scale_unCalib  = file_unCalib.Get("pt_scale_fctEta")
-# etaBins_scale_oldCalib = file_oldCalib.Get("pt_scale_fctEta")
-# etaBins_scale_newCalib = file_newCalib.Get("pt_scale_fctEta")
-
-# #define canvas for plotting
-# canvas = ROOT.TCanvas("c","c",800,800)
-# canvas.SetGrid(10,10);
-
-# #use dummy histogram to define style
-# etaBins_scale_unCalib.GetXaxis().SetTitle("#eta^{gen jet}")
-# etaBins_scale_unCalib.SetTitle("")
-
-# etaBins_scale_unCalib.GetXaxis().SetTitleOffset(1.3);
-# etaBins_scale_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} scale");
-# etaBins_scale_unCalib.GetYaxis().SetTitleOffset(1.3);
-# etaBins_scale_unCalib.SetTitle("");
-# etaBins_scale_unCalib.SetStats(0);
-
-# etaBins_scale_unCalib.GetYaxis().SetRangeUser(0., 2.)
-
-# etaBins_scale_oldCalib.SetLineWidth(2)
-# etaBins_scale_oldCalib.SetMarkerStyle(8)
-# etaBins_scale_oldCalib.SetMarkerColor(2)
-# etaBins_scale_oldCalib.SetLineColor(2)
-
-# etaBins_scale_newCalib.SetLineWidth(2)
-# etaBins_scale_newCalib.SetMarkerStyle(8)
-# etaBins_scale_newCalib.SetMarkerColor(3)
-# etaBins_scale_newCalib.SetLineColor(3)
-
-# etaBins_scale_unCalib.SetLineWidth(2)
-# etaBins_scale_unCalib.SetMarkerStyle(8)
-# etaBins_scale_unCalib.SetMarkerColor(1)
-# etaBins_scale_unCalib.SetLineColor(1)
-
-# etaBins_scale_unCalib.Draw("LPE")
-# etaBins_scale_newCalib.Draw("LPE same")
-# etaBins_scale_oldCalib.Draw("LPE same")
-
-# b1 = ROOT.TBox(1.305,0.,1.479,2)
-# b1.SetFillColor(16)
-# b1.Draw("same")
-# b2 = ROOT.TBox(-1.479,0.,-1.305,2)
-# b2.SetFillColor(16)
-# b2.Draw("same")
-# b3 = ROOT.TBox(1.305,0.,1.479,2)
-# b3.SetFillColor(1)
-# b3.SetFillStyle(3004)
-# b3.Draw("same")
-# b4 = ROOT.TBox(-1.479,0.,-1.305,2)
-# b4.SetFillColor(1)
-# b4.SetFillStyle(3004)
-# b4.Draw("same")
-
-# legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-# legend.SetBorderSize(0)
-# legend.AddEntry(etaBins_scale_unCalib,"Uncalibrated", "LPE")
-# legend.AddEntry(etaBins_scale_oldCalib,"Old Calibration", "LPE")
-# legend.AddEntry(etaBins_scale_newCalib,"New Calibration", "LPE")
-# legend.Draw("same")
-
-# tex = ROOT.TLatex()
-# tex.SetTextSize(0.03);
-# tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-# tex.Draw("same")
-
-# tex2 = ROOT.TLatex();
-# tex2.SetTextSize(0.035);
-# tex2.SetTextAlign(31);
-# tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-# tex2.Draw("same");
-
-# canvas.SaveAs("PDFs/comparisons_"+label+"/scale_etaBins_"+label+".pdf")
-# canvas.SaveAs("PNGs/comparisons_"+label+"/scale_etaBins_"+label+".png")
-
-# del canvas, legend, tex2, tex
-
-# #######
-
-# file_unCalib.Close() 
-# file_oldCalib.Close() 
-# file_newCalib.Close() 
+#############################
+## RESOLUTIONS COMPARISONS ##
+
+file_unCalib  = ROOT.TFile("ROOTs/resolution_graphs_"+detector+"_uncalib.root", "r")
+file_oldCalib = ROOT.TFile("ROOTs/resolution_graphs_"+detector+"_oldCalib.root", "r")
+file_newCalib = ROOT.TFile("ROOTs/resolution_graphs_"+detector+"_"+newTag+".root", "r")
+
+#######
+# inclusive responses
+
+inclusive_resp_unCalib  = file_unCalib.Get("pt_response_ptInclusive")
+inclusive_resp_oldCalib = file_oldCalib.Get("pt_response_ptInclusive")
+inclusive_resp_newCalib = file_newCalib.Get("pt_response_ptInclusive")
+
+#define canvas for plotting
+canvas = ROOT.TCanvas("c","c",800,800)
+canvas.SetGrid(10,10);
+
+#use dummy histogram to define style
+inclusive_resp_unCalib.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{gen jet}")
+inclusive_resp_unCalib.SetTitle("")
+
+inclusive_resp_unCalib.GetXaxis().SetTitleOffset(1.3);
+inclusive_resp_unCalib.GetYaxis().SetTitle("a.u.");
+inclusive_resp_unCalib.GetYaxis().SetTitleOffset(1.3);
+inclusive_resp_unCalib.SetTitle("");
+inclusive_resp_unCalib.SetStats(0);
+
+inclusive_resp_unCalib.GetYaxis().SetRangeUser(0., 0.5 )
+inclusive_resp_unCalib.GetXaxis().SetRangeUser(0., 2. )
+
+inclusive_resp_oldCalib.SetLineWidth(2)
+inclusive_resp_oldCalib.SetMarkerStyle(8)
+inclusive_resp_oldCalib.SetMarkerColor(2)
+inclusive_resp_oldCalib.SetLineColor(2)
+
+inclusive_resp_newCalib.SetLineWidth(2)
+inclusive_resp_newCalib.SetMarkerStyle(8)
+inclusive_resp_newCalib.SetMarkerColor(3)
+inclusive_resp_newCalib.SetLineColor(3)
+
+inclusive_resp_unCalib.SetLineWidth(2)
+inclusive_resp_unCalib.SetMarkerStyle(8)
+inclusive_resp_unCalib.SetMarkerColor(1)
+inclusive_resp_unCalib.SetLineColor(1)
+
+inclusive_resp_unCalib.Draw("LPE")
+inclusive_resp_newCalib.Draw("LPE same")
+inclusive_resp_oldCalib.Draw("LPE same")
+
+legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
+legend.SetBorderSize(0)
+legend.AddEntry(inclusive_resp_unCalib,"Uncalibrated", "LPE")
+legend.AddEntry(inclusive_resp_oldCalib,"Old Calibration", "LPE")
+legend.AddEntry(inclusive_resp_newCalib,"New Calibration", "LPE")
+legend.Draw("same")
+
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03);
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex();
+tex2.SetTextSize(0.035);
+tex2.SetTextAlign(31);
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+tex2.Draw("same");
+
+canvas.SaveAs("PDFs/comparisons_"+label+"/response_inclusive_"+label+".pdf")
+canvas.SaveAs("PNGs/comparisons_"+label+"/response_inclusive_"+label+".png")
+
+del canvas, legend, tex2, tex
+
+#######
+# ptBins responses
+
+for i in range(len(ptBins)-1):
+    ptBins_resp_unCalib = file_unCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
+    ptBins_resp_oldCalib = file_oldCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
+    ptBins_resp_newCalib = file_newCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
+
+    #define canvas for plotting
+    canvas = ROOT.TCanvas("c","c",800,800)
+    canvas.SetGrid(10,10);
+
+    #use dummy histogram to define style
+    ptBins_resp_unCalib.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{gen jet}")
+    ptBins_resp_unCalib.SetTitle("")
+
+    ptBins_resp_unCalib.GetXaxis().SetTitleOffset(1.3);
+    ptBins_resp_unCalib.GetYaxis().SetTitle("a.u.");
+    ptBins_resp_unCalib.GetYaxis().SetTitleOffset(1.3);
+    ptBins_resp_unCalib.SetTitle("");
+    ptBins_resp_unCalib.SetStats(0);
+
+    ptBins_resp_unCalib.GetYaxis().SetRangeUser(0., max(ptBins_resp_oldCalib.GetMaximum(),ptBins_resp_newCalib.GetMaximum())*1.3 )
+
+    ptBins_resp_oldCalib.SetLineWidth(2)
+    ptBins_resp_oldCalib.SetMarkerStyle(8)
+    ptBins_resp_oldCalib.SetMarkerColor(2)
+    ptBins_resp_oldCalib.SetLineColor(2)
+
+    ptBins_resp_newCalib.SetLineWidth(2)
+    ptBins_resp_newCalib.SetMarkerStyle(8)
+    ptBins_resp_newCalib.SetMarkerColor(3)
+    ptBins_resp_newCalib.SetLineColor(3)
+
+    ptBins_resp_unCalib.SetLineWidth(2)
+    ptBins_resp_unCalib.SetMarkerStyle(8)
+    ptBins_resp_unCalib.SetMarkerColor(1)
+    ptBins_resp_unCalib.SetLineColor(1)
+
+    ptBins_resp_unCalib.Draw("LPE")
+    ptBins_resp_newCalib.Draw("LPE same")
+    ptBins_resp_oldCalib.Draw("LPE same")
+
+    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
+    legend.SetBorderSize(0)
+    legend.SetHeader(str(ptBins[i])+"<p_{T}^{gen jet}<"+str(ptBins[i+1]))
+    legend.AddEntry(ptBins_resp_unCalib,"Uncalibrated", "LPE")
+    legend.AddEntry(ptBins_resp_oldCalib,"Old Calibration", "LPE")
+    legend.AddEntry(ptBins_resp_newCalib,"New Calibration", "LPE")
+    legend.Draw("same")
+
+    tex = ROOT.TLatex()
+    tex.SetTextSize(0.03);
+    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+    tex.Draw("same")
+
+    tex2 = ROOT.TLatex();
+    tex2.SetTextSize(0.035);
+    tex2.SetTextAlign(31);
+    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+    tex2.Draw("same");
+
+    canvas.SaveAs("PDFs/comparisons_"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".pdf")
+    canvas.SaveAs("PNGs/comparisons_"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".png")
+
+    del canvas, legend, ptBins_resp_unCalib, ptBins_resp_oldCalib, ptBins_resp_newCalib, tex2, tex
+
+#######
+# etaBins responses
+
+for i in range(len(etaBins)-1):
+    etaBins_resp_unCalib = file_unCalib.Get("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]))
+    etaBins_resp_oldCalib = file_oldCalib.Get("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]))
+    etaBins_resp_newCalib = file_newCalib.Get("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]))
+
+    #define canvas for plotting
+    canvas = ROOT.TCanvas("c","c",800,800)
+    canvas.SetGrid(10,10);
+
+    #use dummy histogram to define style
+    etaBins_resp_unCalib.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{gen jet}")
+    etaBins_resp_unCalib.SetTitle("")
+
+    etaBins_resp_unCalib.GetXaxis().SetTitleOffset(1.3);
+    etaBins_resp_unCalib.GetYaxis().SetTitle("a.u.");
+    etaBins_resp_unCalib.GetYaxis().SetTitleOffset(1.3);
+    etaBins_resp_unCalib.SetTitle("");
+    etaBins_resp_unCalib.SetStats(0);
+
+    etaBins_resp_unCalib.GetYaxis().SetRangeUser(0., max(etaBins_resp_oldCalib.GetMaximum(),etaBins_resp_newCalib.GetMaximum())*1.3 )
+
+    etaBins_resp_oldCalib.SetLineWidth(2)
+    etaBins_resp_oldCalib.SetMarkerStyle(8)
+    etaBins_resp_oldCalib.SetMarkerColor(2)
+    etaBins_resp_oldCalib.SetLineColor(2)
+
+    etaBins_resp_newCalib.SetLineWidth(2)
+    etaBins_resp_newCalib.SetMarkerStyle(8)
+    etaBins_resp_newCalib.SetMarkerColor(3)
+    etaBins_resp_newCalib.SetLineColor(3)
+
+    etaBins_resp_unCalib.SetLineWidth(2)
+    etaBins_resp_unCalib.SetMarkerStyle(8)
+    etaBins_resp_unCalib.SetMarkerColor(1)
+    etaBins_resp_unCalib.SetLineColor(1)
+
+    etaBins_resp_unCalib.Draw("LPE")
+    etaBins_resp_newCalib.Draw("LPE same")
+    etaBins_resp_oldCalib.Draw("LPE same")
+
+    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
+    legend.SetBorderSize(0)
+    legend.SetHeader(str(etaBins[i])+"<|#eta^{gen jet}|<"+str(etaBins[i+1]))
+    legend.AddEntry(etaBins_resp_unCalib,"Uncalibrated", "LPE")
+    legend.AddEntry(etaBins_resp_oldCalib,"Old Calibration", "LPE")
+    legend.AddEntry(etaBins_resp_newCalib,"New Calibration", "LPE")
+    legend.Draw("same")
+
+    tex = ROOT.TLatex()
+    tex.SetTextSize(0.03);
+    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+    tex.Draw("same")
+
+    tex2 = ROOT.TLatex();
+    tex2.SetTextSize(0.035);
+    tex2.SetTextAlign(31);
+    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+    tex2.Draw("same");
+
+    canvas.SaveAs("PDFs/comparisons_"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".pdf")
+    canvas.SaveAs("PNGs/comparisons_"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".png")
+
+    del canvas, legend, etaBins_resp_unCalib, etaBins_resp_oldCalib, etaBins_resp_newCalib, tex2, tex
+
+#######
+# ptBins resolution
+
+ptBins_resol_unCalib  = file_unCalib.Get("pt_resol_fctPt")
+ptBins_resol_oldCalib = file_oldCalib.Get("pt_resol_fctPt")
+ptBins_resol_newCalib = file_newCalib.Get("pt_resol_fctPt")
+
+#define canvas for plotting
+canvas = ROOT.TCanvas("c","c",800,800)
+canvas.SetGrid(10,10);
+
+#use dummy histogram to define style
+ptBins_resol_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
+ptBins_resol_unCalib.SetTitle("")
+
+ptBins_resol_unCalib.GetXaxis().SetTitleOffset(1.3);
+ptBins_resol_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} resolution");
+ptBins_resol_unCalib.GetYaxis().SetTitleOffset(1.3);
+ptBins_resol_unCalib.SetTitle("");
+ptBins_resol_unCalib.SetStats(0);
+
+ptBins_resol_unCalib.GetYaxis().SetRangeUser(0., max(ptBins_resol_oldCalib.GetMaximum(),ptBins_resol_newCalib.GetMaximum())*1.3 )
+
+ptBins_resol_oldCalib.SetLineWidth(2)
+ptBins_resol_oldCalib.SetMarkerStyle(8)
+ptBins_resol_oldCalib.SetMarkerColor(2)
+ptBins_resol_oldCalib.SetLineColor(2)
+
+ptBins_resol_newCalib.SetLineWidth(2)
+ptBins_resol_newCalib.SetMarkerStyle(8)
+ptBins_resol_newCalib.SetMarkerColor(3)
+ptBins_resol_newCalib.SetLineColor(3)
+
+ptBins_resol_unCalib.SetLineWidth(2)
+ptBins_resol_unCalib.SetMarkerStyle(8)
+ptBins_resol_unCalib.SetMarkerColor(1)
+ptBins_resol_unCalib.SetLineColor(1)
+
+ptBins_resol_unCalib.Draw("LPE")
+ptBins_resol_newCalib.Draw("LPE same")
+ptBins_resol_oldCalib.Draw("LPE same")
+
+legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
+legend.SetBorderSize(0)
+legend.AddEntry(ptBins_resol_unCalib,"Uncalibrated", "LPE")
+legend.AddEntry(ptBins_resol_oldCalib,"Old Calibration", "LPE")
+legend.AddEntry(ptBins_resol_newCalib,"New Calibration", "LPE")
+legend.Draw("same")
+
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03);
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex();
+tex2.SetTextSize(0.035);
+tex2.SetTextAlign(31);
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+tex2.Draw("same");
+
+canvas.SaveAs("PDFs/comparisons_"+label+"/resolution_ptBins_"+label+".pdf")
+canvas.SaveAs("PNGs/comparisons_"+label+"/resolution_ptBins_"+label+".png")
+
+del canvas, legend, tex2, tex
+
+#######
+# etaBins resolution
+
+etaBins_resol_unCalib  = file_unCalib.Get("pt_resol_fctEta")
+etaBins_resol_oldCalib = file_oldCalib.Get("pt_resol_fctEta")
+etaBins_resol_newCalib = file_newCalib.Get("pt_resol_fctEta")
+
+#define canvas for plotting
+canvas = ROOT.TCanvas("c","c",800,800)
+canvas.SetGrid(10,10);
+
+#use dummy histogram to define style
+etaBins_resol_unCalib.GetXaxis().SetTitle("#eta^{gen jet}")
+etaBins_resol_unCalib.SetTitle("")
+
+etaBins_resol_unCalib.GetXaxis().SetTitleOffset(1.3);
+etaBins_resol_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} resolution");
+etaBins_resol_unCalib.GetYaxis().SetTitleOffset(1.3);
+etaBins_resol_unCalib.SetTitle("");
+etaBins_resol_unCalib.SetStats(0);
+
+if "ECAL_" in label: etaBins_resol_unCalib.GetYaxis().SetRangeUser(0., 1.)
+if "HCAL_" in label: etaBins_resol_unCalib.GetYaxis().SetRangeUser(0., 2.)
+
+etaBins_resol_oldCalib.SetLineWidth(2)
+etaBins_resol_oldCalib.SetMarkerStyle(8)
+etaBins_resol_oldCalib.SetMarkerColor(2)
+etaBins_resol_oldCalib.SetLineColor(2)
+
+etaBins_resol_newCalib.SetLineWidth(2)
+etaBins_resol_newCalib.SetMarkerStyle(8)
+etaBins_resol_newCalib.SetMarkerColor(3)
+etaBins_resol_newCalib.SetLineColor(3)
+
+etaBins_resol_unCalib.SetLineWidth(2)
+etaBins_resol_unCalib.SetMarkerStyle(8)
+etaBins_resol_unCalib.SetMarkerColor(1)
+etaBins_resol_unCalib.SetLineColor(1)
+
+etaBins_resol_unCalib.Draw("LPE")
+etaBins_resol_newCalib.Draw("LPE same")
+etaBins_resol_oldCalib.Draw("LPE same")
+
+b1 = ROOT.TBox(1.305,0.,1.479,2)
+b1.SetFillColor(16)
+b1.Draw("same")
+b2 = ROOT.TBox(-1.479,0.,-1.305,2)
+b2.SetFillColor(16)
+b2.Draw("same")
+b3 = ROOT.TBox(1.305,0.,1.479,2)
+b3.SetFillColor(1)
+b3.SetFillStyle(3004)
+b3.Draw("same")
+b4 = ROOT.TBox(-1.479,0.,-1.305,2)
+b4.SetFillColor(1)
+b4.SetFillStyle(3004)
+b4.Draw("same")
+
+legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
+legend.SetBorderSize(0)
+legend.AddEntry(etaBins_resol_unCalib,"Uncalibrated", "LPE")
+legend.AddEntry(etaBins_resol_oldCalib,"Old Calibration", "LPE")
+legend.AddEntry(etaBins_resol_newCalib,"New Calibration", "LPE")
+legend.Draw("same")
+
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03);
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex();
+tex2.SetTextSize(0.035);
+tex2.SetTextAlign(31);
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+tex2.Draw("same");
+
+canvas.SaveAs("PDFs/comparisons_"+label+"/resolution_etaBins_"+label+".pdf")
+canvas.SaveAs("PNGs/comparisons_"+label+"/resolution_etaBins_"+label+".png")
+
+del canvas, legend, tex2, tex
+
+
+#######
+# ptBins scale
+
+ptBins_scale_unCalib  = file_unCalib.Get("pt_scale_fctPt")
+ptBins_scale_oldCalib = file_oldCalib.Get("pt_scale_fctPt")
+ptBins_scale_newCalib = file_newCalib.Get("pt_scale_fctPt")
+
+#define canvas for plotting
+canvas = ROOT.TCanvas("c","c",800,800)
+canvas.SetGrid(10,10);
+
+#use dummy histogram to define style
+ptBins_scale_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
+ptBins_scale_unCalib.SetTitle("")
+
+ptBins_scale_unCalib.GetXaxis().SetTitleOffset(1.3);
+ptBins_scale_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} scale");
+ptBins_scale_unCalib.GetYaxis().SetTitleOffset(1.3);
+ptBins_scale_unCalib.SetTitle("");
+ptBins_scale_unCalib.SetStats(0);
+
+ptBins_scale_unCalib.GetYaxis().SetRangeUser(0., max(ptBins_scale_oldCalib.GetMaximum(),ptBins_scale_newCalib.GetMaximum())*1.3 )
+
+ptBins_scale_oldCalib.SetLineWidth(2)
+ptBins_scale_oldCalib.SetMarkerStyle(8)
+ptBins_scale_oldCalib.SetMarkerColor(2)
+ptBins_scale_oldCalib.SetLineColor(2)
+
+ptBins_scale_newCalib.SetLineWidth(2)
+ptBins_scale_newCalib.SetMarkerStyle(8)
+ptBins_scale_newCalib.SetMarkerColor(3)
+ptBins_scale_newCalib.SetLineColor(3)
+
+ptBins_scale_unCalib.SetLineWidth(2)
+ptBins_scale_unCalib.SetMarkerStyle(8)
+ptBins_scale_unCalib.SetMarkerColor(1)
+ptBins_scale_unCalib.SetLineColor(1)
+
+ptBins_scale_unCalib.Draw("LPE")
+ptBins_scale_newCalib.Draw("LPE same")
+ptBins_scale_oldCalib.Draw("LPE same")
+
+legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
+legend.SetBorderSize(0)
+legend.AddEntry(ptBins_scale_unCalib,"Uncalibrated", "LPE")
+legend.AddEntry(ptBins_scale_oldCalib,"Old Calibration", "LPE")
+legend.AddEntry(ptBins_scale_newCalib,"New Calibration", "LPE")
+legend.Draw("same")
+
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03);
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex();
+tex2.SetTextSize(0.035);
+tex2.SetTextAlign(31);
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+tex2.Draw("same");
+
+canvas.SaveAs("PDFs/comparisons_"+label+"/scale_ptBins_"+label+".pdf")
+canvas.SaveAs("PNGs/comparisons_"+label+"/scale_ptBins_"+label+".png")
+
+del canvas, legend, tex2, tex
+
+#######
+# etaBins scale
+
+etaBins_scale_unCalib  = file_unCalib.Get("pt_scale_fctEta")
+etaBins_scale_oldCalib = file_oldCalib.Get("pt_scale_fctEta")
+etaBins_scale_newCalib = file_newCalib.Get("pt_scale_fctEta")
+
+#define canvas for plotting
+canvas = ROOT.TCanvas("c","c",800,800)
+canvas.SetGrid(10,10);
+
+#use dummy histogram to define style
+etaBins_scale_unCalib.GetXaxis().SetTitle("#eta^{gen jet}")
+etaBins_scale_unCalib.SetTitle("")
+
+etaBins_scale_unCalib.GetXaxis().SetTitleOffset(1.3);
+etaBins_scale_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} scale");
+etaBins_scale_unCalib.GetYaxis().SetTitleOffset(1.3);
+etaBins_scale_unCalib.SetTitle("");
+etaBins_scale_unCalib.SetStats(0);
+
+etaBins_scale_unCalib.GetYaxis().SetRangeUser(0., 2.)
+
+etaBins_scale_oldCalib.SetLineWidth(2)
+etaBins_scale_oldCalib.SetMarkerStyle(8)
+etaBins_scale_oldCalib.SetMarkerColor(2)
+etaBins_scale_oldCalib.SetLineColor(2)
+
+etaBins_scale_newCalib.SetLineWidth(2)
+etaBins_scale_newCalib.SetMarkerStyle(8)
+etaBins_scale_newCalib.SetMarkerColor(3)
+etaBins_scale_newCalib.SetLineColor(3)
+
+etaBins_scale_unCalib.SetLineWidth(2)
+etaBins_scale_unCalib.SetMarkerStyle(8)
+etaBins_scale_unCalib.SetMarkerColor(1)
+etaBins_scale_unCalib.SetLineColor(1)
+
+etaBins_scale_unCalib.Draw("LPE")
+etaBins_scale_newCalib.Draw("LPE same")
+etaBins_scale_oldCalib.Draw("LPE same")
+
+b1 = ROOT.TBox(1.305,0.,1.479,2)
+b1.SetFillColor(16)
+b1.Draw("same")
+b2 = ROOT.TBox(-1.479,0.,-1.305,2)
+b2.SetFillColor(16)
+b2.Draw("same")
+b3 = ROOT.TBox(1.305,0.,1.479,2)
+b3.SetFillColor(1)
+b3.SetFillStyle(3004)
+b3.Draw("same")
+b4 = ROOT.TBox(-1.479,0.,-1.305,2)
+b4.SetFillColor(1)
+b4.SetFillStyle(3004)
+b4.Draw("same")
+
+legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
+legend.SetBorderSize(0)
+legend.AddEntry(etaBins_scale_unCalib,"Uncalibrated", "LPE")
+legend.AddEntry(etaBins_scale_oldCalib,"Old Calibration", "LPE")
+legend.AddEntry(etaBins_scale_newCalib,"New Calibration", "LPE")
+legend.Draw("same")
+
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03);
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex();
+tex2.SetTextSize(0.035);
+tex2.SetTextAlign(31);
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+tex2.Draw("same");
+
+canvas.SaveAs("PDFs/comparisons_"+label+"/scale_etaBins_"+label+".pdf")
+canvas.SaveAs("PNGs/comparisons_"+label+"/scale_etaBins_"+label+".png")
+
+del canvas, legend, tex2, tex
+
+#######
+
+file_unCalib.Close() 
+file_oldCalib.Close() 
+file_newCalib.Close() 
 
 
 #############################
