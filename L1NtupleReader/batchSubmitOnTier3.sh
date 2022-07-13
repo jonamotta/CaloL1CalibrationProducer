@@ -76,10 +76,11 @@ source /opt/exp_soft/cms/t3/t3setup
 # python batchSubmitOnTier3.py --doQCDnoPU   --etacut 41 --hcalcut True --indir 2022_06_01_NtuplesV19 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000_eta41_newFeat
 
 
-python batchSubmitOnTier3.py --doEG0_200pu   --etacut 28 --ecalcut True --indir 2022_06_10_NtuplesV20 --applyHCALpfa1p --applyNoCalib                                 --applyCut_3_6_9 True --odir _0pt200
-python batchSubmitOnTier3.py --doEG200_500pu --etacut 28 --ecalcut True --indir 2022_06_10_NtuplesV20 --applyHCALpfa1p --applyNoCalib                                 --applyCut_3_6_9 True --odir _200pt500
-python batchSubmitOnTier3.py --doQCDpu       --etacut 41 --hcalcut True --indir 2022_06_10_NtuplesV20 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000
-python batchSubmitOnTier3.py --doQCDpu       --etacut 41 --hcalcut True --indir 2022_06_10_NtuplesV20 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 500                        --odir _30pt500
-python batchSubmitOnTier3.py --doQCDpu       --etacut 41 --hcalcut True --indir 2022_06_10_NtuplesV20 --applyHCALpfa1p --applyNoCalib --lJetPtCut 20 --uJetPtCut 1000                       --odir _20pt1000
+# python batchSubmitOnTier3.py --doEG0_200pu   --etacut 28 --ecalcut True --indir 2022_06_10_NtuplesV20 --applyHCALpfa1p --applyNoCalib                                 --applyCut_3_6_9 True --odir _0pt200
+# python batchSubmitOnTier3.py --doEG200_500pu --etacut 28 --ecalcut True --indir 2022_06_10_NtuplesV20 --applyHCALpfa1p --applyNoCalib                                 --applyCut_3_6_9 True --odir _200pt500
+# python batchSubmitOnTier3.py --doQCDpu       --etacut 41 --hcalcut True --indir 2022_06_10_NtuplesV20 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000
+# python batchSubmitOnTier3.py --doQCDpu       --etacut 41 --hcalcut True --indir 2022_06_10_NtuplesV20 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 500                        --odir _30pt500
+# python batchSubmitOnTier3.py --doQCDpu       --etacut 41 --hcalcut True --indir 2022_06_10_NtuplesV20 --applyHCALpfa1p --applyNoCalib --lJetPtCut 20 --uJetPtCut 1000                       --odir _20pt1000
 
+python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 2022_07_12_NtupleV22 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000_eta41_nTT
 

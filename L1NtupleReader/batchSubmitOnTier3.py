@@ -122,7 +122,7 @@ if   options.doQCDpu:
 
 elif options.doQCD:
     ## qcd without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcd.txt')
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_QCD.txt')
     filedir = filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
     folder = filedir+'/'+outputFolderName
 
@@ -221,4 +221,4 @@ for idx, tag in enumerate(tags):
     #command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
     os.system (command)
-    #break
+    # break
