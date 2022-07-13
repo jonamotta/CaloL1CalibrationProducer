@@ -38,15 +38,16 @@ source /opt/exp_soft/cms/t3/t3setup
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalib
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalib
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalib
+# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalib
 
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalibSaturAt 1.75
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalibSaturAt 1.75
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalibSaturAt 1.75
 
-python submitOnTier3.py --njobs 300 --applyHCALpfa1p --doNu        --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
+# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
+# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
+# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
+# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
 
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyOldCalib
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyOldCalib
@@ -57,3 +58,17 @@ python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCal
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500pu --applyOldCalib
 
 # python submitOnTier3.py --njobs 100 --applyHCALpfa1p --doMET --applyNoCalib --no_exec
+
+
+
+
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalib --seedThreshold 6.0
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalib --seedThreshold 6.0
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalib --seedThreshold 6.0
+
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalib --seedThreshold 8.0
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalib --seedThreshold 8.0
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalib --seedThreshold 8.0
+
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalib --seedThreshold 6.0
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalib --seedThreshold 8.0

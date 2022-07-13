@@ -44,6 +44,7 @@ if __name__ == "__main__" :
     parser.add_option("--doNu", dest="doNu", action='store_true', default=False)
     parser.add_option("--doMET", dest="doMET", action='store_true', default=False)
     parser.add_option("--testRun", dest="testRun", action='store_true', default=False)
+    parser.add_option("--seedThreshold", dest="seedThreshold", default=False)
     parser.add_option("--no_exec", dest="no_exec", action='store_true', default=False)
     (options, args) = parser.parse_args()
     
@@ -66,12 +67,13 @@ if __name__ == "__main__" :
     elif options.applyNewCalibECALsaturAt and options.applyNewCalibHCALsaturAt:
         config += "_newCalibECALsatur"+str(options.applyNewCalibECALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibECALsaturAt).split('.')[1]+'_newCalibHCALsatur'+str(options.applyNewCalibHCALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibHCALsaturAt).split('.')[1]
         tagCalib = "_newCalibECALsatur"+str(options.applyNewCalibECALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibECALsaturAt).split('.')[1]+"_newCalibHCALsatur"+str(options.applyNewCalibHCALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibHCALsaturAt).split('.')[1]
+    if options.seedThreshold:          config += "_seed"+str(options.seedThreshold.split('.')[0])+"p"+str(options.seedThreshold.split('.')[1]) ; tagCalib += "_seed"+str(options.seedThreshold.split('.')[0])+"p"+str(options.seedThreshold.split('.')[1])
     if options.doMET:                  config += "_forMET"
     if options.applyHCALpfa1p:         config += "_applyHCALpfa1p"  ; tagHCALpfa1p = "_applyHCALpfa1p"
     config += "_cfg.py"
 
     njobs = options.njobs
-    filedir="/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleLauncher/inputFiles"
+    filedir="/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer_L1Ntuples/L1NtupleLauncher/inputFiles"
 
     if   options.doQCDpu:
         ## qcd with pu - backup datasets
