@@ -7,7 +7,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 # from NNModelTraining import *
 # from NNModelTraining_FlooringAfterTTP import *
-from NNModelTraining_FlooringInTTP_SaturationAfterTTP import *
+# from NNModelTraining_FlooringInTTP_SaturationAfterTTP import *
+from NNModelTraining_FlooringInTTP_BoundingAfterTTP import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
@@ -119,8 +120,6 @@ if __name__ == "__main__" :
     modeldir = indir + '/model_' + options.v
     print('\nModel dir = {}\n'.format(modeldir))
 
-    # model1 = keras.models.load_model(modeldir + '/model', compile=False)
-    # TTP = keras.models.load_model(modeldir + '/TTP', compile=False)
     model1 = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'Fgrad': Fgrad})
     TTP = keras.models.load_model(modeldir + '/TTP', compile=False, custom_objects={'Fgrad': Fgrad})
     
