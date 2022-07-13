@@ -67,6 +67,14 @@ for i in range(len(etaBins)-1):
     minusEta_response_ptBins.append(ROOT.TH1F("pt_resp_MinusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),"pt_resp_MinusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),60,0,3))
     plusEta_response_ptBins.append(ROOT.TH1F("pt_resp_PlusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),"pt_resp_PlusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),60,0,3))
 
+pt_resp_PtEtaBin = []
+for i in range(len(ptBins)-1):
+    for j in range(len(etaBins)-1):
+        lowP  = str(ptBins[i])
+        lowE  = str(etaBins[j])
+        highP = str(ptBins[i+1])
+        highE = str(etaBins[j+1])
+        pt_resp_PtEtaBin.append(ROOT.TH1F("pt_resp_PtBin"+lowP+"to"+highP+"_EtaBin"+lowE+"to"+highE,"pt_resp_PtBin"+lowP+"to"+highP+"_EtaBin"+lowE+"to"+highE,60,0,3))
 
 print("looping on events")
 for i in range(0, nevents):
@@ -133,6 +141,14 @@ for i in range(0, nevents):
                 elif Gen_jet.Eta() < -etaBins[i] and Gen_jet.Eta() > -etaBins[i+1]:
                     minusEta_response_ptBins[i].Fill(highestL1Pt/Gen_jet.Pt())
 
+            k = 0
+            for i in range(len(ptBins)-1):
+                for j in range(len(etaBins)-1):
+                    if abs(Gen_jet.Eta()) > etaBins[j] and abs(Gen_jet.Eta()) < etaBins[j+1] and Gen_jet.Pt() > ptBins[i] and Gen_jet.Pt() < ptBins[i+1]:
+                        pt_resp_PtEtaBin[k].Fill(highestL1Pt/Gen_jet.Pt());
+
+                    k += 1
+
         else:
             pt_response_ptInclusive.Fill(0.)
 
@@ -186,6 +202,9 @@ pt_resol_fctEta = ROOT.TH1F("pt_resol_fctEta","pt_resol_fctEta",len(signedEtaBin
 pt_scale_fctPt = ROOT.TH1F("pt_scale_fctPt","pt_scale_fctPt",len(ptBins)-1, array('f',ptBins))
 pt_scale_fctEta = ROOT.TH1F("pt_scale_fctEta","pt_scale_fctEta",len(signedEtaBins)-1, array('f',signedEtaBins))
 
+PTvsETA_resolution = ROOT.TH2F("PTvsETA_resolution","PTvsETA_resolution",len(ptBins)-1, array('f',ptBins),len(etaBins)-1, array('f',etaBins));
+PTvsETA_scale = ROOT.TH2F("PTvsETA_events","PTvsETA_events",len(ptBins)-1, array('f',ptBins),len(etaBins)-1, array('f',etaBins));
+
 for i in range(len(barrel_response_ptBins)):
     pt_scale_fctPt.SetBinContent(i+1, response_ptBins[i].GetMean())
     pt_scale_fctPt.SetBinError(i+1, response_ptBins[i].GetMeanError())
@@ -209,6 +228,22 @@ for i in range(len(minusEta_response_ptBins)):
     pt_resol_fctEta.SetBinError(len(etaBins)-1-i, minusEta_response_ptBins[i].GetRMSError()/minusEta_response_ptBins[i].GetMean())
     pt_resol_fctEta.SetBinContent(i+len(etaBins), plusEta_response_ptBins[i].GetRMS()/plusEta_response_ptBins[i].GetMean())
     pt_resol_fctEta.SetBinError(i+len(etaBins), plusEta_response_ptBins[i].GetRMSError()/plusEta_response_ptBins[i].GetMean())
+
+
+k = 0;
+for i in range(len(ptBins)-1):
+    for j in range(len(etaBins)-1):
+        if pt_resp_PtEtaBin[k].GetMean() != 0.:
+            PTvsETA_resolution.SetBinContent(i,j,pt_resp_PtEtaBin[k].GetRMS()/pt_resp_PtEtaBin[k].GetMean());
+            PTvsETA_resolution.SetBinError(i,j,pt_resp_PtEtaBin[k].GetRMSError()/pt_resp_PtEtaBin[k].GetMean());
+            
+            PTvsETA_scale.SetBinContent(i,j,pt_resp_PtEtaBin[k].GetMean());
+            PTvsETA_scale.SetBinError(i,j,pt_resp_PtEtaBin[k].GetMeanError());
+
+        k += 1
+
+
+ROOT.gStyle.SetOptStat(000000)
 
 for i in range(len(barrel_response_ptBins)):
     #define canvas for plotting
@@ -689,6 +724,85 @@ canvas_res.SaveAs("PNGs/"+label+"/response_in_eta_bins_"+label+".png")
 
 ##############
 
+#define canvas for plotting
+canvas = ROOT.TCanvas("c","c",800,800)
+canvas.SetRightMargin(0.15)
+canvas.SetGrid(10,10);
+
+#use dummy histogram to define style
+PTvsETA_resolution.SetTitle("");
+PTvsETA_resolution.GetXaxis().SetRangeUser(15.,200.);
+PTvsETA_resolution.GetXaxis().SetTitle("p_{T}^{Gen jet} [GeV]");
+PTvsETA_resolution.GetYaxis().SetTitle("#eta^{Gen jet} [GeV]");
+PTvsETA_resolution.GetZaxis().SetTitle("Resolution");
+PTvsETA_resolution.Draw("colz");
+
+b1 = ROOT.TBox(15., 1.305,200.,1.479)
+b1.SetFillColor(16)
+b1.Draw("same")
+b3 = ROOT.TBox(15., 1.305,200.,1.479)
+b3.SetFillColor(1)
+b3.SetFillStyle(3004)
+b3.Draw("same")
+
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03);
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex();
+tex2.SetTextSize(0.035);
+tex2.SetTextAlign(31);
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+tex2.Draw("same");
+
+canvas.SaveAs("PDFs/"+label+"/resolution_ptVSeta"+label+".pdf")
+canvas.SaveAs("PNGs/"+label+"/resolution_ptVSeta"+label+".png")
+
+del canvas
+
+##############
+
+#define canvas for plotting
+canvas = ROOT.TCanvas("c","c",800,800)
+canvas.SetRightMargin(0.15)
+canvas.SetGrid(10,10);
+
+#use dummy histogram to define style
+PTvsETA_scale.SetTitle("");
+PTvsETA_scale.GetXaxis().SetRangeUser(15.,200.);
+PTvsETA_scale.GetXaxis().SetTitle("p_{T}^{Gen jet} [GeV]");
+PTvsETA_scale.GetYaxis().SetTitle("#eta^{Gen jet} [GeV]");
+PTvsETA_scale.GetZaxis().SetTitle("Scale");
+PTvsETA_scale.Draw("colz");
+
+
+b1 = ROOT.TBox(15., 1.305,200.,1.479)
+b1.SetFillColor(16)
+b1.Draw("same")
+b3 = ROOT.TBox(15., 1.305,200.,1.479)
+b3.SetFillColor(1)
+b3.SetFillStyle(3004)
+b3.Draw("same")
+
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03);
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex();
+tex2.SetTextSize(0.035);
+tex2.SetTextAlign(31);
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
+tex2.Draw("same");
+
+canvas.SaveAs("PDFs/"+label+"/scale_ptVSeta"+label+".pdf")
+canvas.SaveAs("PNGs/"+label+"/scale_ptVSeta"+label+".png")
+
+del canvas
+
+##############
+
 #saving histograms and efficiencies in root file for later plotting if desired
 fileout = ROOT.TFile("ROOTs/resolution_graphs_"+label+".root","RECREATE")
 pt_scale_fctPt.Write()
@@ -701,6 +815,8 @@ pt_resol_fctEta.Write()
 pt_response_ptInclusive.Write()
 pt_barrel_resp_ptInclusive.Write()
 pt_endcap_resp_ptInclusive.Write()
+PTvsETA_resolution.Write()
+PTvsETA_scale.Write()
 for i in range(len(response_ptBins)):
     response_ptBins[i].Write()
     barrel_response_ptBins[i].Write()
