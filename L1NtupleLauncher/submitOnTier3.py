@@ -30,6 +30,7 @@ if __name__ == "__main__" :
     parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
     parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
     parser.add_option("--applyNewCalib", dest="applyNewCalib", action='store_true', default=False)
+    parser.add_option("--applyNewCalibManualSatur", dest="applyNewCalibManualSatur", action='store_true', default=False)
     parser.add_option("--applyNewCalibSaturAt", dest="applyNewCalibSaturAt", type=float, default=None)
     parser.add_option("--applyNewCalibECALsaturAt", dest="applyNewCalibECALsaturAt", type=float, default=None)
     parser.add_option("--applyNewCalibHCALsaturAt", dest="applyNewCalibHCALsaturAt", type=float, default=None)
@@ -49,7 +50,7 @@ if __name__ == "__main__" :
     (options, args) = parser.parse_args()
     
 
-    if options.applyNoCalib == False and options.applyOldCalib == False and options.applyNewCalib == False and options.applyNewCalibSaturAt == None and options.applyNewCalibECALsaturAt == None and options.applyNewCalibHCALsaturAt == None:
+    if options.applyNoCalib == False and options.applyOldCalib == False and options.applyNewCalib == False and options.applyNewCalibManualSatur == False and options.applyNewCalibSaturAt == None and options.applyNewCalibECALsaturAt == None and options.applyNewCalibHCALsaturAt == None:
         print('** WARNING: no calibration to be used specified - EXITING!')
         exit()
 
@@ -63,6 +64,7 @@ if __name__ == "__main__" :
     if   options.applyNoCalib:         config += "_uncalib"         ; tagCalib = "_uncalib"
     elif options.applyOldCalib:        config += "_oldCalib"        ; tagCalib = "_oldCalib"
     elif options.applyNewCalib:        config += "_newCalib"        ; tagCalib = "_newCalib" 
+    elif options.applyNewCalibManualSatur:        config += "_newCalibManualSaturation"        ; tagCalib = "_newCalibManualSaturation" 
     elif options.applyNewCalibSaturAt: config += "_newCalibSatur"+str(options.applyNewCalibSaturAt).split('.')[0]+'p'+str(options.applyNewCalibSaturAt).split('.')[1] ; tagCalib = "_newCalibSatur"+str(options.applyNewCalibSaturAt).split('.')[0]+'p'+str(options.applyNewCalibSaturAt).split('.')[1]
     elif options.applyNewCalibECALsaturAt and options.applyNewCalibHCALsaturAt:
         config += "_newCalibECALsatur"+str(options.applyNewCalibECALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibECALsaturAt).split('.')[1]+'_newCalibHCALsatur'+str(options.applyNewCalibHCALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibHCALsaturAt).split('.')[1]
@@ -73,7 +75,7 @@ if __name__ == "__main__" :
     config += "_cfg.py"
 
     njobs = options.njobs
-    filedir="/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer_L1Ntuples/L1NtupleLauncher/inputFiles"
+    filedir="/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleLauncher/inputFiles"
 
     if   options.doQCDpu:
         ## qcd with pu - backup datasets
@@ -206,3 +208,4 @@ if __name__ == "__main__" :
         print command
         if not options.no_exec: os.system (command)
         # break
+        if idx == 150: break

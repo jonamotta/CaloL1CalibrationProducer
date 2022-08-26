@@ -117,10 +117,10 @@ from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleRAWEMUGEN_MC
 process = L1NtupleRAWEMUGEN_MC(process)
 
 # Automatic addition of the customisation function from L1Trigger.Configuration.customiseSettings
-from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_2022_newCalib 
+from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_2022_newCalibManualSaturation
 
-#call to customisation function L1TSettingsToCaloParams_2022_newCalib imported from L1Trigger.Configuration.customiseSettings
-process = L1TSettingsToCaloParams_2022_newCalib(process)
+#call to customisation function L1TSettingsToCaloParams_2022_newCalibManualSaturation imported from L1Trigger.Configuration.customiseSettings
+process = L1TSettingsToCaloParams_2022_newCalibManualSaturation(process)
 
 # End of customisation functions
 

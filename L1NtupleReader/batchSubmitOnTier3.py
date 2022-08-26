@@ -218,7 +218,7 @@ for idx, tag in enumerate(tags):
 
     os.system ('chmod u+rwx ' + outJobName)
     command = ('/home/llr/cms/motta/t3submit -short \'' + outJobName +"\'")
-    #command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
+    # command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
     os.system (command)
     # break

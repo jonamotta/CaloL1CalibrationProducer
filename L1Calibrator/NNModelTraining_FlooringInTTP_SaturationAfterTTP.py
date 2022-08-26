@@ -31,11 +31,6 @@ np.random.seed(7)
 ############################## Model definition ##############################
 ##############################################################################
 
-# comparison custom function
-@tf.function
-def isToSaturate(x):
-    return tf.cond(tf.greater(x[0]/x[1], 1.4), lambda: 1, lambda: 0)
-
 # flooring custom gradient
 @tf.custom_gradient
 def Fgrad(x):

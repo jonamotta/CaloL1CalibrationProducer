@@ -1,6 +1,7 @@
 #librairies utiles
 import numpy as np
 import copy
+import sys
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -24,7 +25,11 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.initializers import RandomNormal as RN
 
+sys.path.insert(0,'..')
+from L1NtupleReader.TowerGeometry import *
+
 np.random.seed(7)
+
 
 ##############################################################################
 ############################## Model definition ##############################
@@ -38,6 +43,7 @@ def Fgrad(x):
     return tf.floor(x), fgrad
 
 inputs = keras.Input(shape = (81,41), name = 'chunky_donut')
+singles = keras.Input(shape = (1,41), name = 'rate_proxy')
 layer1 = Dense(164, name = 'NN1', input_dim=41, activation='relu', kernel_initializer=RN(seed=7), bias_initializer='zeros', bias_constraint = max_norm(0.))
 layer2 = Dense(512, name = 'NN2',               activation='relu', kernel_initializer=RN(seed=7), bias_initializer='zeros', bias_constraint = max_norm(0.))
 layer3 = Dense(1,   name = 'NN3',               activation='relu', kernel_initializer=RN(seed=7), bias_initializer='zeros', bias_constraint = max_norm(0.))
@@ -132,13 +138,24 @@ separation_l.append( TTP(lay.Lambda(lambda x : x[:,78,:],name=f"TT{78}")(inputs)
 separation_l.append( TTP(lay.Lambda(lambda x : x[:,79,:],name=f"TT{79}")(inputs)) )
 separation_l.append( TTP(lay.Lambda(lambda x : x[:,80,:],name=f"TT{80}")(inputs)) )
 
-outputs = keras.layers.Add()(separation_l)
-model1 = keras.Model(inputs, outputs, name = 'CMS')
+singleTTcalib = TTP(lay.Lambda(lambda x : x[:,0,:],name=f"singleTTcalib")(singles))
+
+predics = lay.Add(name='outputAdd')(separation_l)
+outputs = lay.Concatenate(axis=1, name='outputs')([predics, singleTTcalib])
+model1 = keras.Model([inputs, singles], outputs, name = 'CMS')
 
 def custom_loss(y_true, y_pred):
-    return tf.nn.l2_loss((y_true - y_pred)/(y_true+0.1))
+    y = tf.reshape(y_pred[:,0],(-1,1))
+    Eout = tf.reshape(y_pred[:,1],(-1,1))
+    EAT = tf.reduce_sum(tf.where(Eout>=8., 1., 0.)).numpy() # number of TT passing the jet seeding threshold 
+    LEN = tf.reduce_sum(tf.where(Eout>=0., 1., 0.)).numpy() # length of the bacth to get % of EAT
+    fractionEAT = EAT / LEN
 
-model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss, metrics=['RootMeanSquaredError'])
+    # print('\n-->', EAT, '/', LEN, '=', fractionEAT, '\n')
+
+    return tf.nn.l2_loss( (y_true - y) / (y_true+0.1) ) * (1+fractionEAT)
+
+model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss, metrics=['RootMeanSquaredError'], run_eagerly=True)
 
 
 def convert_samples(X_vec, Y_vec, version):
@@ -173,6 +190,10 @@ if __name__ == "__main__" :
     parser.add_option("--indir",        dest="indir",       help="Input folder with X_train.npx and Y_train.npz",   default=None)
     parser.add_option("--tag",          dest="tag",         help="tag of the training folder",                      default="")
     parser.add_option("--v",            dest="v",           help="Ntuple type ('ECAL' or 'HCAL')",                  default=None)
+    parser.add_option("--proxyMinEta",  dest="proxyMinEta", help="Min Eta for NN soft saturation", type=int,        default=1)
+    parser.add_option("--proxyMaxEta",  dest="proxyMaxEta", help="Max Eta for NN soft saturation", type=int,        default=41)
+    parser.add_option("--proxyMinE",    dest="proxyMinE",   help="Min E for NN soft saturation",   type=int,        default=1)
+    parser.add_option("--proxyMaxE",    dest="proxyMaxE",   help="Max E for NN soft saturation",   type=int,        default=6)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -191,7 +212,27 @@ if __name__ == "__main__" :
     # Inside Y_train: vector n_ev (jetPt)
     X_train, Y_train = convert_samples(X_vec, Y_vec, options.v)
 
-    history = model1.fit(X_train, Y_train, epochs=20, batch_size=128, verbose=1, validation_split=0.1)
+    ## Rate proxy towers creation 
+    real_eta_towers = list(TowersEta.keys())
+    eta_towers = [i for i in range(1,42)]
+    eta_range = [i for i in range(options.proxyMinEta, options.proxyMaxEta+1)]
+    if options.proxyMinEta<29 and options.proxyMaxEta>29: eta_range.remove(29) # remove TT 29
+    proxy_towers = []
+    min_energy = options.proxyMinE
+    max_energy = options.proxyMaxE
+    energy_range = max_energy - min_energy + 1
+    for i_energy in range(min_energy, max_energy+1):
+        for i, i_eta in enumerate(eta_towers):
+            if not i_eta in eta_range: continue # skip TTs outside of the range we want to tackle
+            one_hot_tower = np.array([i_energy] + [0 if i != i_eta else 1 for i in real_eta_towers])
+            proxy_towers.append(one_hot_tower)
+
+    Ntiles = int(len(X_train) / (energy_range*len(eta_range)))
+    proxy_towers = np.tile(np.array(proxy_towers), (Ntiles,1))
+    missing = proxy_towers[:len(X_train)-len(proxy_towers)]
+    proxy_towers = np.append(proxy_towers, missing, axis=0).reshape(-1,1,41)
+
+    history = model1.fit([X_train,proxy_towers], Y_train, epochs=20, batch_size=128, verbose=1, validation_split=0.1)
 
     model1.save(odir + '/model')
     TTP.save(odir + '/TTP')

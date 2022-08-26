@@ -156,6 +156,30 @@ Run the full machinery on the NTuples with PU
 2022_06_14_NtuplesV21
 Run the machinery on the same NTuples used for V19 but with saturation of the SFs inside the NN (but outside of TTP)
 
+2022_06_14_NtuplesV22
+Inclusion of nFT in the tensors and test of nFT weighting in the loss
+First tests of rate proxy inside the NN
+
+
+##########################################################################################
+
+DISCOVERED A PROBLEM IN THE SAVING OF THE HDF5 FILES
+The pickling of the dataframes has been 'creating' some TT that were actally
+set to 0 by the emulation (those that should have been zero suppressed).
+This might also include modification of values for good TTs and biases
+in the training.
+
+SOLVED THE ISSUE WITH THE PICKLING AND RESTARTED FROM SCRATCH WITH THE TRAININGS
+
+##########################################################################################
+
+
+2022_07_20_Ntuples23
+Rerun the full machinery after having discovered the issue with the dataframes pickling
+The setup is the one that was already used for V19
+Latest and greatest with nFT weighing and rate proxy are to be investigated
+
+
 
 
 

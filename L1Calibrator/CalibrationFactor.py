@@ -5,9 +5,10 @@ import sys
 import copy
 import pandas as pd
 import matplotlib.pyplot as plt
-# from NNModelTraining import *
-# from NNModelTraining_FlooringAfterTTP import *
-from NNModelTraining_FlooringInTTP import *
+
+# from NNModelTraining_FlooringInTTP import *
+from NNModelTraining_FlooringInTTP_SoftSaturationInTTP import *
+
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
@@ -121,9 +122,9 @@ if __name__ == "__main__" :
 
     # model1 = keras.models.load_model(modeldir + '/model', compile=False)
     # TTP = keras.models.load_model(modeldir + '/TTP', compile=False)
-    model1 = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'fgrad': fgrad})
-    TTP = keras.models.load_model(modeldir + '/TTP', compile=False, custom_objects={'fgrad': fgrad})
-    
+    model1 = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'Fgrad': Fgrad})
+    TTP = keras.models.load_model(modeldir + '/TTP', compile=False, custom_objects={'Fgrad': Fgrad})
+
     # Definition of energy bins in units of 0.5 GeV, from 1 to 510
     # It will be optimized by a separated script
     if options.start and options.stop:

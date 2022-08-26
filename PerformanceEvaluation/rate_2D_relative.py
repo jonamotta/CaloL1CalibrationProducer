@@ -3,8 +3,11 @@ import ROOT
 import sys
 import os
 
-L1CalibTag1 = "HCAL_oldCalib"
-L1CalibTag2 = "HCAL_newCalib"
+L1CalibTag1 = sys.argv[1]
+L1CalibTag2 = sys.argv[2]
+
+os.system('mkdir -p PDFs/comparisons_'+L1CalibTag2)
+os.system('mkdir -p PNGs/comparisons_'+L1CalibTag2)
 
 etaPlotLim = 5.191
 if "ECAL_" in L1CalibTag1: etaPlotLim = 3.
@@ -13,8 +16,8 @@ etaRestictedLim = 1.479
 
 etaBinsAsTT = array("d", [0., 0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696, 0.783, 0.870, 0.957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830, 1.930, 2.043, 2.172, 2.322, 2.5, 2.650, 3., 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191])
 
-InFileName1 = "test/ROOTs/rate_graphs_"+L1CalibTag1+".root"
-InFileName2 = "test/ROOTs/rate_graphs_"+L1CalibTag2+".root"
+InFileName1 = "ROOTs/rate_graphs_"+L1CalibTag1+".root"
+InFileName2 = "ROOTs/rate_graphs_"+L1CalibTag2+".root"
 fIn1 = ROOT.TFile(InFileName1,"READ");
 fIn2 = ROOT.TFile(InFileName2,"READ");
 
@@ -210,7 +213,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsPt_relative_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsPt_relative_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -257,7 +260,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsEta_relative_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsEta_relative_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -304,7 +307,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsPt_superimposed_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsPt_superimposed_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -321,7 +324,7 @@ rateEtaProgression1.SetTitle("")
 rateEtaProgression1.GetXaxis().SetRangeUser(0.,etaPlotLim);
 rateEtaProgression1.GetYaxis().SetRangeUser(1,1e5);
 rateEtaProgression1.GetXaxis().SetTitleOffset(1.3);
-rateEtaProgression1.GetYaxis().SetTitle("Relative rate difference [%]");
+rateEtaProgression1.GetYaxis().SetTitle("Rate [kHz]");
 rateEtaProgression1.GetYaxis().SetTitleOffset(1.3);
 rateEtaProgression1.SetTitle("");
 rateEtaProgression1.SetLineWidth(2)
@@ -351,7 +354,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsEta_superimposed_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsEta_superimposed_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -398,7 +401,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsPt_superimposed_DiObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsPt_superimposed_DiObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -415,7 +418,7 @@ rateEtaDiProgression1.SetTitle("")
 rateEtaDiProgression1.GetXaxis().SetRangeUser(0.,etaPlotLim);
 rateEtaDiProgression1.GetYaxis().SetRangeUser(1,1e5);
 rateEtaDiProgression1.GetXaxis().SetTitleOffset(1.3);
-rateEtaDiProgression1.GetYaxis().SetTitle("Relative rate difference [%]");
+rateEtaDiProgression1.GetYaxis().SetTitle("Rate [kHz]");
 rateEtaDiProgression1.GetYaxis().SetTitleOffset(1.3);
 rateEtaDiProgression1.SetTitle("");
 rateEtaDiProgression1.SetLineWidth(2)
@@ -445,29 +448,9 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsEta_superimposed_DiObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsEta_superimposed_DiObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ###################
 
@@ -512,7 +495,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsPt_Er_superimposed_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsPt_Er_superimposed_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -559,7 +542,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsEta_Er_superimposed_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsEta_Er_superimposed_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -606,7 +589,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsPt_Er_superimposed_DiObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsPt_Er_superimposed_DiObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -653,42 +636,9 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsEta_Er_superimposed_DiObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsEta_Er_superimposed_DiObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ####################
 
@@ -739,7 +689,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.82,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/PtVsEta_relative_rate_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/PtVsEta_relative_rate_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -786,7 +736,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsPt_Er_relative_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsPt_Er_relative_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -833,7 +783,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/rateVsEta_Er_relative_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/rateVsEta_Er_relative_SingleObj_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
 
 del canvas, tex, tex2, legend
 
@@ -886,4 +836,4 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.82,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/PtVsEta_Er_relative_rate_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")
+canvas.SaveAs("PDFs/comparisons_"+L1CalibTag2+"/PtVsEta_Er_relative_rate_"+L1CalibTag1+"_vs_"+L1CalibTag2+".pdf")

@@ -206,31 +206,48 @@ if __name__ == "__main__" :
         #dfET = dfET.head(553)
         #dfEJ = dfEJ.head(553)
 
-
         def chunker(seq, size):
             for pos in range(0, len(seq), size):
                 yield seq.iloc[pos:pos + size] 
 
         chunk_size = options.chunk_size
         j = 0
-        for ET,JT in zip(chunker(dfET, chunk_size),chunker(dfEJ, chunk_size)):
+        for ET,EJ in zip(chunker(dfET, chunk_size),chunker(dfEJ, chunk_size)):
             print('runnning on batch '+str(j)+' of Ntuple'+tag)
 
             dfTowers = pd.DataFrame(ET)
-            dfJets = pd.DataFrame(JT)
+            dfJets = pd.DataFrame(EJ)
+
+            # flatten out the dataframes so that ech entry of the dataframe is a number and not a vector
+            dfFlatET = pd.DataFrame({
+                'event': np.repeat(dfTowers[b'event'].values, dfTowers[b'ieta'].str.len()), # event IDs are copied to keep proper track of what is what
+                'ieta': list(chain.from_iterable(dfTowers[b'ieta'])),
+                'iphi': list(chain.from_iterable(dfTowers[b'iphi'])),
+                'iem' : list(chain.from_iterable(dfTowers[b'iem'])),
+                'ihad': list(chain.from_iterable(dfTowers[b'ihad'])),
+                'iet' : list(chain.from_iterable(dfTowers[b'iet']))
+                })
+
+            dfFlatEJ = pd.DataFrame({
+                'event': np.repeat(dfJets[b'event'].values, dfJets[b'jetEta'].str.len()), # event IDs are copied to keep proper track of what is what
+                'jetEta': list(chain.from_iterable(dfJets[b'jetEta'])),
+                'jetPhi': list(chain.from_iterable(dfJets[b'jetPhi'])),
+                # 'jetPt' : list(chain.from_iterable(dfJets[b'jetEt']))
+                'jetPt' : list(chain.from_iterable(dfJets[b'jetPt']))
+                })
 
             # save hdf5 files
             storeT = pd.HDFStore(saveTo['towers']+tag+'_'+str(j)+'.hdf5', mode='w')
-            storeT['towers'] = dfTowers
+            storeT['towers'] = dfFlatET
             storeT.close()
 
             storeJ = pd.HDFStore(saveTo['jets']+tag+'_'+str(j)+'.hdf5', mode='w')
-            storeJ['jets'] = dfJets
+            storeJ['jets'] = dfFlatEJ
             storeJ.close()
 
             j+=1
 
-        break
+        # break
 
     print('** INFO: ALL DONE!')
 

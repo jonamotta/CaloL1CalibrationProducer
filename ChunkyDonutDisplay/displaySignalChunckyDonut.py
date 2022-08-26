@@ -208,22 +208,11 @@ def mainReader( dfET, dfEJ, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalc
 
     print('starting flattening') # DEBUG
 
-    # flatten out the dataframes so that ech entry of the dataframe is a number and not a vector
-    dfFlatET = pd.DataFrame({
-        'event': np.repeat(dfET[b'event'].values, dfET[b'ieta'].str.len()), # event IDs are copied to keep proper track of what is what
-        'ieta': list(chain.from_iterable(dfET[b'ieta'])),
-        'iphi': list(chain.from_iterable(dfET[b'iphi'])),
-        'iem' : list(chain.from_iterable(dfET[b'iem'])),
-        'ihad': list(chain.from_iterable(dfET[b'ihad'])),
-        'iet' : list(chain.from_iterable(dfET[b'iet']))
-        })
-
-    dfFlatEJ = pd.DataFrame({
-        'event': np.repeat(dfEJ[b'event'].values, dfEJ[b'jetEta'].str.len()), # event IDs are copied to keep proper track of what is what
-        'jetEta': list(chain.from_iterable(dfEJ[b'jetEta'])),
-        'jetPhi': list(chain.from_iterable(dfEJ[b'jetPhi'])),
-        'jetPt' : list(chain.from_iterable(dfEJ[b'jetPt']))
-        })
+    # the dataframes are actually already flattened out
+    # so just reassign to the flat variables
+    dfFlatET = dfET
+    dfFlatEJ = dfEJ
+    
     dfFlatEJ['jetId'] = dfFlatEJ.index # each jet gets an identifier based on a progressive value independent of event -> this allows further flexibility of ID on top of event
 
     #########################################################################
@@ -434,6 +423,7 @@ if __name__ == "__main__" :
     parser.add_option("--hcalcut",     dest="hcalcut",     default=False)
     parser.add_option("--flattenPtDistribution",     dest="flattenPtDistribution",     default=False)
     parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
+    parser.add_option("--nEvents", dest="nEvents", type=int, default=50)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.tag=='' or options.fout==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
@@ -455,26 +445,29 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    nEvents = 500
+    nEvents = options.nEvents
     dfET = dfET.head(nEvents)
     dfEJ = dfEJ.head(nEvents)
 
     dfEJT = mainReader(dfET, dfEJ, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.applyOnTheFly)
 
+    if 'newCalib' in options.fin: calibTag = 'newCalib'
+    if 'oldCalib' in options.fin: calibTag = 'oldCalib'
+    if 'uncalib'  in options.fin: calibTag = 'uncalib'
+
     # pd.set_option('display.max_rows', 81)
     os.system('mkdir -p '+options.fout)
     for ID in dfEJT.index.unique():
 
-        # if ID != '3807006_20': continue
+        # if ID != '3807025_479': continue
 
-        tmp = dfEJT[dfEJT.index==ID].sort_values(['ieta','iphi'])
+        tmp = dfEJT[dfEJT.index==ID].sort_values(['iphi','ieta'], ascending=[False, True])
 
         if ( (72 in dfEJT[dfEJT.index==ID]['iphi'].unique()) and (1 in dfEJT[dfEJT.index==ID]['iphi'].unique()) ):
-            tmpA = tmp[tmp['iphi']>=65].sort_values(['ieta','iphi'])
-            tmpB = tmp[tmp['iphi']<=64].sort_values(['ieta','iphi'])
+            tmpA = tmp[tmp['iphi']>=65].sort_values(['iphi','ieta'], ascending=[False, True])
+            tmpB = tmp[tmp['iphi']<=64].sort_values(['iphi','ieta'], ascending=[False, True])
 
-            tmp = pd.concat([tmpA,tmpB], sort=False)
-            tmp.sort_values('ieta', inplace=True, kind='mergesort')
+            tmp = pd.concat([tmpB,tmpA], sort=False)
 
         pt9x9 = tmp['iet'].sum()
         jetpt = tmp['jetPt'].unique()
@@ -483,7 +476,7 @@ if __name__ == "__main__" :
 
         HADdeposit = tmp['hcalET'].to_numpy().reshape(9,9)
         EMdeposit = tmp['iem'].to_numpy().reshape(9,9)
-
+        
         HADcmap = cm.get_cmap('Blues')
         EMcmap = cm.get_cmap('Reds')
 
@@ -527,7 +520,7 @@ if __name__ == "__main__" :
         plt.ylabel(f'$i\phi$')
         plt.text(0.2, 8.8, textstr1, fontsize=14, verticalalignment='top',  bbox=props)
         mplhep.cms.label('', data=False, rlabel='14 TeV')
-        plt.savefig(options.fout+'/'+ID+'_EMdeposit.pdf')
+        plt.savefig(options.fout+'/'+ID+'_EMdeposit_'+calibTag+'.pdf')
         plt.close()
         
         plt.figure(figsize=(10,8))
@@ -557,6 +550,6 @@ if __name__ == "__main__" :
         plt.ylabel(f'$i\phi$')
         plt.text(0.2, 8.8, textstr1, fontsize=14, verticalalignment='top',  bbox=props)
         mplhep.cms.label('', data=False, rlabel='14 TeV')
-        plt.savefig(options.fout+'/'+ID+'_HADdeposit.pdf')
+        plt.savefig(options.fout+'/'+ID+'_HADdeposit_'+calibTag+'.pdf')
         plt.close()
        

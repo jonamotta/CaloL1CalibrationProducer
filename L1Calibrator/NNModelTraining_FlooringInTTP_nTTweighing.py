@@ -24,6 +24,8 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.initializers import RandomNormal as RN
 
+from functools import partial, update_wrapper
+
 np.random.seed(7)
 
 ##############################################################################
@@ -32,16 +34,16 @@ np.random.seed(7)
 
 # flooring custom gradient
 @tf.custom_gradient
-def fgrad(x):
-    def grad(dy):
+def Fgrad(x):
+    def fgrad(dy):
         return dy
-    return tf.floor(x), grad
+    return tf.floor(x), fgrad
 
 inputs = keras.Input(shape = (81,41), name = 'chunky_donut')
 layer1 = Dense(164, name = 'NN1', input_dim=41, activation='relu', kernel_initializer=RN(seed=7), bias_initializer='zeros', bias_constraint = max_norm(0.))
 layer2 = Dense(512, name = 'NN2',               activation='relu', kernel_initializer=RN(seed=7), bias_initializer='zeros', bias_constraint = max_norm(0.))
 layer3 = Dense(1,   name = 'NN3',               activation='relu', kernel_initializer=RN(seed=7), bias_initializer='zeros', bias_constraint = max_norm(0.))
-layer4 = lay.Lambda(fgrad)
+layer4 = lay.Lambda(Fgrad)
 
 TTP = Sequential()
 TTP.add(layer1)
@@ -132,11 +134,101 @@ separation_l.append( TTP(lay.Lambda(lambda x : x[:,78,:],name=f"TT{78}")(inputs)
 separation_l.append( TTP(lay.Lambda(lambda x : x[:,79,:],name=f"TT{79}")(inputs)) )
 separation_l.append( TTP(lay.Lambda(lambda x : x[:,80,:],name=f"TT{80}")(inputs)) )
 
-outputs = keras.layers.Add()(separation_l)
+weigthing_l = []
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,0,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{0}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,1,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{1}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,2,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{2}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,3,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{3}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,4,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{4}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,5,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{5}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,6,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{6}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,7,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{7}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,8,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{8}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,9,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{9}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,10,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{10}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,11,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{11}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,12,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{12}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,13,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{13}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,14,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{14}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,15,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{15}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,16,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{16}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,17,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{17}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,18,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{18}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,19,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{19}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,20,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{20}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,21,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{21}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,22,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{22}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,23,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{23}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,24,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{24}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,25,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{25}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,26,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{26}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,27,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{27}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,28,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{28}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,29,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{29}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,30,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{30}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,31,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{31}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,32,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{32}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,33,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{33}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,34,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{34}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,35,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{35}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,36,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{36}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,37,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{37}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,38,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{38}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,39,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{39}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,40,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{40}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,41,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{41}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,42,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{42}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,43,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{43}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,44,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{44}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,45,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{45}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,46,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{46}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,47,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{47}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,48,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{48}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,49,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{49}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,50,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{50}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,51,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{51}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,52,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{52}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,53,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{53}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,54,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{54}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,55,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{55}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,56,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{56}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,57,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{57}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,58,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{58}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,59,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{59}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,60,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{60}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,61,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{61}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,62,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{62}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,63,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{63}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,64,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{64}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,65,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{65}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,66,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{66}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,67,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{67}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,68,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{68}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,69,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{69}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,70,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{70}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,71,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{71}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,72,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{72}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,73,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{73}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,74,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{74}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,75,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{75}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,76,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{76}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,77,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{77}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,78,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{78}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,79,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{79}")(inputs) ) 
+weigthing_l.append( lay.Lambda(lambda x : tf.where(tf.reshape(x[:,80,0],(-1,1))>0., [[1.]], [[0.]]) ,name=f"nFT{80}")(inputs) ) 
+
+predics = lay.Add(name='outputAdd')(separation_l)
+weights = lay.Add(name='weightAdd')(weigthing_l)
+outputs = lay.Concatenate(axis=1, name='outputs')([predics, weights])
 model1 = keras.Model(inputs, outputs, name = 'CMS')
 
 def custom_loss(y_true, y_pred):
-    return tf.nn.l2_loss((y_true - y_pred)/(y_true+0.1))
+    y = tf.reshape(y_pred[:,0],(-1,1))
+    nFT = tf.reshape(y_pred[:,1],(-1,1))
+    nFTsat = tf.where(nFT>45., 45., nFT)
+    w =  (nFT-1) * 1.5/44
+
+    return tf.nn.l2_loss( (y_true - y) / (y_true+0.1) ) * (1+w)
 
 model1.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss=custom_loss, metrics=['RootMeanSquaredError'])
 
@@ -145,23 +237,19 @@ def convert_samples(X_vec, Y_vec, version):
     # Y vector columns: jetPt, jetEta, jetPhi, trainingPt (for ECAL jetPt - hcalET, for HCAL jetPt - calib(iem))
     # keep only the trainingPt
     Y = Y_vec[:,3]
-
-    nTT = X[:,0,0].reshape(-1,1) 
     
-    # X vector columns: nTT,iem, ihad, iesum, ieta
+    # X vector columns: iem, ihad, iesum, ieta
     if version == 'ECAL':
         print('\nConvert X and Y vectors to keep iem')
-        X = np.delete(X_vec, 3, axis=2) # delete iesum column (always start deleting from right columns)
-        X = np.delete(X, 2, axis=2)     # delete ihad column
-        X = np.delete(X, 0, axis=2)     # delete nTT column
+        X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+        X = np.delete(X, 1, axis=2)     # delete ihad column
 
     elif version == 'HCAL':
         print('\nConvert X and Y vectors to keep ihad')
-        X = np.delete(X_vec, 3, axis=2) # delete iesum column (always start deleting from right columns)
-        X = np.delete(X, 1, axis=2)     # delete iem column
-        X = np.delete(X, 0, axis=2)     # delete nTT column
+        X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+        X = np.delete(X, 0, axis=2)     # delete iem column
 
-    return X, Y, nTT
+    return X, Y
 
 #######################################################################
 ######################### SCRIPT BODY #################################
@@ -186,17 +274,16 @@ if __name__ == "__main__" :
     os.system('mkdir -p '+ odir+'/plots')
 
     # read testing and training datasets
-    # Inside X_vec: matrix n_ev x 81 x 44 ([81 for the chucky donut towers][43 for nTT, iem, ihad, iesum, ieta])
+    # Inside X_vec: matrix n_ev x 81 x 44 ([81 for the chucky donut towers][43 for iem, ihad, iesum, ieta])
     # Inside Y_vec: matrx n_ev x 2 (jetPt, jetPhi, jetEta, trainingPt)
     X_vec = np.load(indir+'/X_train.npz')['arr_0']
     Y_vec = np.load(indir+'/Y_train.npz')['arr_0']
 
     # Inside X_train: matrix n_ev x 81 x 41 ([81 for the chucky donut towers][41 for iesum, ieta])
     # Inside Y_train: vector n_ev (jetPt)
-    # Inside nTT: vector n_ev (nTT)
-    X_train, Y_train, nTT = convert_samples(X_vec, Y_vec, options.v)
+    X_train, Y_train = convert_samples(X_vec, Y_vec, options.v)
 
-    history = model1.fit([X_train,nTT], Y_train, epochs=20, batch_size=128, verbose=1, validation_split=0.1)
+    history = model1.fit(X_train, Y_train, epochs=10, batch_size=128, verbose=1, validation_split=0.1)
 
     model1.save(odir + '/model')
     TTP.save(odir + '/TTP')

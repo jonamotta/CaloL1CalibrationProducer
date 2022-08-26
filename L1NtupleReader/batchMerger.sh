@@ -44,23 +44,27 @@
 # python batchMerger.py --indir 2022_05_18_NtuplesV16 --sample test --v Apply --applyHCALpfa1p --applyNoCalib --doEG --odir _200_500_noCalibration --applyOnTheFly True
 
 
-python batchMerger.py --indir 2022_06_10_NtuplesV20 --sample train --v ECAL --applyHCALpfa1p --applyNoCalib --doEG0_200pu   --filesLim 1000 --odir _0pt200
+python batchMerger.py --indir 2022_07_20_NtuplesV23 --sample train --v ECAL --applyHCALpfa1p --applyNoCalib --doEG0_200   --filesLim 1000 --odir _0pt200
 sleep 5
-python batchMerger.py --indir 2022_06_10_NtuplesV20 --sample train --v ECAL --applyHCALpfa1p --applyNoCalib --doEGpu        --filesLim 1000 --odir _0pt500
+python batchMerger.py --indir 2022_07_20_NtuplesV23 --sample train --v ECAL --applyHCALpfa1p --applyNoCalib --doEG        --filesLim 1000 --odir _0pt500
 sleep 5
-python batchMerger.py --indir 2022_06_10_NtuplesV20 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDpu       --filesLim 1000 --odir _30pt1000
+python batchMerger.py --indir 2022_07_20_NtuplesV23 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD       --filesLim 1000 --odir _30pt1000
 sleep 5
-python batchMerger.py --indir 2022_06_10_NtuplesV20 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDpu       --filesLim 1000 --odir _30pt500
+python batchMerger.py --indir 2022_07_20_NtuplesV23 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD       --filesLim 1000 --odir _30pt500
 sleep 5
-python batchMerger.py --indir 2022_06_10_NtuplesV20 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDpu       --filesLim 1000 --odir _20pt1000
+python batchMerger.py --indir 2022_07_20_NtuplesV23 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD       --filesLim 1000 --odir _20pt1000
 sleep 5
-python batchMerger.py --indir 2022_06_10_NtuplesV20 --sample test --v ECAL --applyHCALpfa1p --applyNoCalib --doEG0_200pu    --filesLim 1000 --odir _0pt200
+python batchMerger.py --indir 2022_07_20_NtuplesV23 --sample test --v ECAL --applyHCALpfa1p --applyNoCalib --doEG0_200    --filesLim 1000 --odir _0pt200
 sleep 5
-python batchMerger.py --indir 2022_06_10_NtuplesV20 --sample test --v ECAL --applyHCALpfa1p --applyNoCalib --doEGpu         --filesLim 1000 --odir _0pt500
+python batchMerger.py --indir 2022_07_20_NtuplesV23 --sample test --v ECAL --applyHCALpfa1p --applyNoCalib --doEG         --filesLim 1000 --odir _0pt500
 sleep 5
-python batchMerger.py --indir 2022_06_10_NtuplesV20 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDpu        --filesLim 1000 --odir _30pt1000
+python batchMerger.py --indir 2022_07_20_NtuplesV23 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD        --filesLim 1000 --odir _30pt1000
 sleep 5
-python batchMerger.py --indir 2022_06_10_NtuplesV20 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDpu        --filesLim 1000 --odir _30pt500
+python batchMerger.py --indir 2022_07_20_NtuplesV23 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD        --filesLim 1000 --odir _30pt500
 sleep 5
-python batchMerger.py --indir 2022_06_10_NtuplesV20 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDpu        --filesLim 1000 --odir _20pt1000
+python batchMerger.py --indir 2022_07_20_NtuplesV23 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD        --filesLim 1000 --odir _20pt1000
 sleep 5
+
+# python batchMerger.py --indir 2022_07_12_NtupleV22 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD       --filesLim 1 --odir _30pt1000_eta41_nTT
+# sleep 5
+# python batchMerger.py --indir 2022_07_12_NtupleV22 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD        --filesLim 1 --odir _30pt1000_eta41_nTT

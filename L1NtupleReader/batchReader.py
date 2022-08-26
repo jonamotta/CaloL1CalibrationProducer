@@ -76,7 +76,7 @@ def padDataFrame( dfFlatEJT ):
             trainingPt = dfFlatEJT['trainingPt'][uniqueIdx].unique()[0]
             jetEta = dfFlatEJT['jetEta'][uniqueIdx].unique()[0]
             jetPhi = dfFlatEJT['jetPhi'][uniqueIdx].unique()[0]
-            nTT = dfFlatEJT['nTT'][uniqueIdx].unique()[0]
+            # nFT = dfFlatEJT['nFT'][uniqueIdx].unique()[0]
         except TypeError:
             jetIeta = dfFlatEJT['jetIeta'][uniqueIdx]
             jetIphi = dfFlatEJT['jetIphi'][uniqueIdx]
@@ -84,7 +84,7 @@ def padDataFrame( dfFlatEJT ):
             trainingPt = dfFlatEJT['trainingPt'][uniqueIdx]
             jetEta = dfFlatEJT['jetEta'][uniqueIdx]
             jetPhi = dfFlatEJT['jetPhi'][uniqueIdx]
-            nTT = dfFlatEJT['nTT'][uniqueIdx]
+            # nFT = dfFlatEJT['nFT'][uniqueIdx]
 
         padder = pd.DataFrame(columns=dfFlatEJT.columns, index=range(0,81))
         padder['uniqueId'] = uniqueIdx
@@ -94,7 +94,7 @@ def padDataFrame( dfFlatEJT ):
         padder['jetPhi'] = jetPhi
         padder['jetIeta'] = jetIeta
         padder['jetIphi'] = jetIphi
-        padder['nTT'] = nTT
+        # padder['nFT'] = nFT
         padder['iem'] = 0
         padder['ihad'] = 0
         padder['iet'] = 0
@@ -119,7 +119,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
             trainingPt = dfFlatEJT['trainingPt'][uniqueIdx].unique()[0]
             jetEta = dfFlatEJT['jetEta'][uniqueIdx].unique()[0]
             jetPhi = dfFlatEJT['jetPhi'][uniqueIdx].unique()[0]
-            nTT = dfFlatEJT['nTT'][uniqueIdx].unique()[0]
+            # nFT = dfFlatEJT['nFT'][uniqueIdx].unique()[0]
             # contained = dfFlatEJT['contained'][uniqueIdx].unique()[0]
         except TypeError:
             N = 1
@@ -129,7 +129,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
             trainingPt = dfFlatEJT['trainingPt'][uniqueIdx]
             jetEta = dfFlatEJT['jetEta'][uniqueIdx]
             jetPhi = dfFlatEJT['jetPhi'][uniqueIdx]
-            nTT = dfFlatEJT['nTT'][uniqueIdx]
+            # nFT = dfFlatEJT['nFT'][uniqueIdx]
             # contained = dfFlatEJT['contained'][uniqueIdx]
 
         padder = pd.DataFrame(columns=dfFlatEJT.columns, index=range(0,81-N))
@@ -140,7 +140,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
         padder['jetPhi'] = jetPhi
         padder['jetIeta'] = jetIeta
         padder['jetIphi'] = jetIphi
-        padder['nTT'] = nTT
+        # padder['nFT'] = nFT
         # padder['contained'] = contained
         padder['iem'] = 0
         padder['ihad'] = 0
@@ -159,24 +159,11 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
 
-    print('starting flattening') # DEBUG
+    # the dataframes are actually already flattened out
+    # so just reassign to the flat variables
+    dfFlatET = dfET
+    dfFlatEJ = dfEJ
 
-    # flatten out the dataframes so that ech entry of the dataframe is a number and not a vector
-    dfFlatET = pd.DataFrame({
-        'event': np.repeat(dfET[b'event'].values, dfET[b'ieta'].str.len()), # event IDs are copied to keep proper track of what is what
-        'ieta': list(chain.from_iterable(dfET[b'ieta'])),
-        'iphi': list(chain.from_iterable(dfET[b'iphi'])),
-        'iem' : list(chain.from_iterable(dfET[b'iem'])),
-        'ihad': list(chain.from_iterable(dfET[b'ihad'])),
-        'iet' : list(chain.from_iterable(dfET[b'iet']))
-        })
-
-    dfFlatEJ = pd.DataFrame({
-        'event': np.repeat(dfEJ[b'event'].values, dfEJ[b'jetEta'].str.len()), # event IDs are copied to keep proper track of what is what
-        'jetEta': list(chain.from_iterable(dfEJ[b'jetEta'])),
-        'jetPhi': list(chain.from_iterable(dfEJ[b'jetPhi'])),
-        'jetPt' : list(chain.from_iterable(dfEJ[b'jetPt']))
-        })
     dfFlatEJ['jetId'] = dfFlatEJ.index # each jet gets an identifier based on a progressive value independent of event -> this allows further flexibility of ID on top of event
 
     #########################################################################
@@ -214,9 +201,9 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
 
     # Apply cut for noisy towers: ieta=26 -> iem>=6, ieta=27 -> iem>=12, ieta=28 -> iem>=18
     if applyCut_3_6_9:
-        dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 26) & (dfFlatET['iem'] < 3)].index, inplace = True)
-        dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 27) & (dfFlatET['iem'] < 6)].index, inplace = True)
-        dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 28) & (dfFlatET['iem'] < 9)].index, inplace = True)
+        dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 26) & (dfFlatET['iem'] < 6)].index, inplace = True)
+        dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 27) & (dfFlatET['iem'] < 12)].index, inplace = True)
+        dfFlatET.drop(dfFlatET[(np.abs(dfFlatET['ieta']) == 28) & (dfFlatET['iem'] < 18)].index, inplace = True)
 
     # Define overall hcalET information, ihad for ieta < 29 and iet for ieta > 29
     dfFlatET['hcalET'] = dfFlatET['ihad']*(np.abs(dfFlatET['ieta'])<29) + dfFlatET['iet']*(np.abs(dfFlatET['ieta'])>29)
@@ -355,7 +342,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         dfFlatEJT.set_index('uniqueIdx', inplace=True)
 
     # store number of TT fired by the jet
-    dfFlatEJT['nTT'] = dfFlatEJT.groupby('uniqueIdx')['uniqueId'].count()
+    # dfFlatEJT['nFT'] = dfFlatEJT.groupby('uniqueIdx')['uniqueId'].count()
 
     # flag to know if the CD is fully contained in the detector or not
     #dfFlatEJT['contained'] = dfFlatEJT.apply(lambda row: 0 if row['jetIeta']<=37 else 1, axis=1)
@@ -382,7 +369,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     paddedEJT.reset_index(inplace=True)
     paddedEJT = paddedEJT.sample(frac=1).copy(deep=True)
 
-    dfTowers = paddedEJT[['uniqueId','ieta','iem','hcalET', 'nTT']].copy(deep=True) #'contained'
+    dfTowers = paddedEJT[['uniqueId','ieta','iem','hcalET']].copy(deep=True) #'contained', 'nFT'
     dfJets = paddedEJT[['uniqueId','jetPt','jetEta','jetPhi','trainingPt']].copy(deep=True)
 
     ## DEBUG
@@ -408,7 +395,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     # define some variables on top
     dfTowers['ieta'] = abs(dfTowers['ieta'])
     dfTowers['iesum'] = dfTowers['iem'] + dfTowers['hcalET']
-    dfE = dfTowers[['uniqueId', 'ieta', 'iem', 'hcalET', 'iesum', 'nTT']] #'contained'
+    dfE = dfTowers[['uniqueId', 'ieta', 'iem', 'hcalET', 'iesum']] #'contained', 'nFT'
 
     # set the uniqueId indexing
     dfE.set_index('uniqueId',inplace=True)
@@ -422,7 +409,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         for i in list(TowersEta.keys()):
             if 'ieta_'+str(i) not in dfEOneHotEncoded:
                 dfEOneHotEncoded['ieta_'+str(i)] = 0
-        dfEOneHotEncoded = dfEOneHotEncoded[['nTT', 'iem', 'hcalET', 'iesum', 'ieta_1', 'ieta_2', 'ieta_3', 'ieta_4', 'ieta_5', 'ieta_6', 'ieta_7', 'ieta_8', 'ieta_9', 'ieta_10', 'ieta_11', 'ieta_12', 'ieta_13', 'ieta_14', 'ieta_15', 'ieta_16', 'ieta_17', 'ieta_18', 'ieta_19', 'ieta_20', 'ieta_21', 'ieta_22', 'ieta_23', 'ieta_24', 'ieta_25', 'ieta_26', 'ieta_27', 'ieta_28', 'ieta_30', 'ieta_31', 'ieta_32', 'ieta_33', 'ieta_34', 'ieta_35', 'ieta_36', 'ieta_37', 'ieta_38', 'ieta_39', 'ieta_40', 'ieta_41']]#, 'contained']]
+        dfEOneHotEncoded = dfEOneHotEncoded[['iem', 'hcalET', 'iesum', 'ieta_1', 'ieta_2', 'ieta_3', 'ieta_4', 'ieta_5', 'ieta_6', 'ieta_7', 'ieta_8', 'ieta_9', 'ieta_10', 'ieta_11', 'ieta_12', 'ieta_13', 'ieta_14', 'ieta_15', 'ieta_16', 'ieta_17', 'ieta_18', 'ieta_19', 'ieta_20', 'ieta_21', 'ieta_22', 'ieta_23', 'ieta_24', 'ieta_25', 'ieta_26', 'ieta_27', 'ieta_28', 'ieta_30', 'ieta_31', 'ieta_32', 'ieta_33', 'ieta_34', 'ieta_35', 'ieta_36', 'ieta_37', 'ieta_38', 'ieta_39', 'ieta_40', 'ieta_41']]#, 'contained', 'nFT']]
     else:
         dfEOneHotEncoded = dfE.copy(deep=True)
 

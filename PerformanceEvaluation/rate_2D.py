@@ -10,9 +10,9 @@ directory = sys.argv[1]
 nevents = int(sys.argv[2])
 label = sys.argv[3]
 
-os.system('mkdir -p test/PDFs/'+label)
+os.system('mkdir -p PDFs/'+label)
 # os.system('mkdir -p PNGs/'+label)
-os.system('mkdir -p test/ROOTs/')
+os.system('mkdir -p ROOTs/')
 
 print("defining input trees")
 eventTree = ROOT.TChain("l1EventTree/L1EventTree")
@@ -225,7 +225,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsPt_SingleObj_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsPt_SingleObj_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsPt_SingleObj_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -270,7 +270,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsEta_SingleObj_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsEta_SingleObj_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsEta_SingleObj_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -315,7 +315,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsPt_DiObj_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsPt_DiObj_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -360,7 +360,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsPt_DiObj_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsPt_DiObj_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -411,7 +411,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsPt_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsPt_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsPt_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -462,7 +462,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsEta_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsEta_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsEta_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -499,31 +499,10 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.82,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsPtVsEta_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsPtVsEta_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsPtVsEta_"+label+".png")
 
 del canvas, tex, tex2
-
-####################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ####################
 
@@ -565,7 +544,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsPt_SingleObjEr_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsPt_SingleObjEr_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsPt_SingleObj_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -610,7 +589,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsEta_SingleObjEr_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsEta_SingleObjEr_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsEta_SingleObj_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -655,7 +634,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsPt_DiObjEr_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsPt_DiObjEr_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -700,7 +679,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsPt_DiObjEr_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsPt_DiObjEr_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -751,7 +730,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsPt_Er_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsPt_Er_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsPt_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -802,7 +781,7 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsEta_Er_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsEta_Er_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsEta_"+label+".png")
 
 del canvas, tex, tex2, legend
@@ -839,70 +818,15 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.82,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("test/PDFs/"+label+"/rateVsPtVsEta_Er_"+label+".pdf")
+canvas.SaveAs("PDFs/"+label+"/rateVsPtVsEta_Er_"+label+".pdf")
 # canvas.SaveAs("PNGs/"+label+"/rateVsPtVsEta_"+label+".png")
 
 del canvas, tex, tex2
 
 ####################
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 print("saving histograms and efficiencies in root file for later plotting if desired")
-fileout = ROOT.TFile("test/ROOTs/rate_graphs_"+label+".root","RECREATE")
+fileout = ROOT.TFile("ROOTs/rate_graphs_"+label+".root","RECREATE")
 
 ptProgression.Write()
 ptDiProgression.Write()

@@ -29,9 +29,9 @@
 
 
 
-# python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 10000 --doEG0_200 --outdir 2022_06_01_NtuplesV19 --applyNoCalib
-# python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 10000 --doEG200_500 --outdir 2022_06_01_NtuplesV19 --applyNoCalib
-# python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCDn --outdir 2022_06_01_NtuplesV19 --applyNoCalib
+python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 10000 --doEG0_200 --outdir 2022_07_20_NtuplesV23 --applyNoCalib
+python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 10000 --doEG200_500 --outdir 2022_07_20_NtuplesV23 --applyNoCalib
+python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCD --outdir 2022_07_20_NtuplesV23 --applyNoCalib
 
 # python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 10000 --doEG0_200pu --outdir 2022_06_10_NtuplesV20 --applyNoCalib
 # python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 10000 --doEG200_500pu --outdir 2022_06_10_NtuplesV20 --applyNoCalib
@@ -43,16 +43,35 @@
 
 
 
+# python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 15000 --doEG0_200 --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNoCalib
+# python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 15000 --doEG0_200 --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyOldCalib
+# python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 15000 --doEG0_200 --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNewCalib
 
+# python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 15000 --doEG200_500 --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNoCalib
+# python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 15000 --doEG200_500 --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyOldCalib
+# python batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 15000 --doEG200_500 --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNewCalib
 
 # python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCD --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNoCalib
 # python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCD --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyOldCalib
 # python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCD --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNewCalib
-# python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCD --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNewCalibSaturAt 1.75
-# python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCD --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
 
-python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doNuGun --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNoCalib
-python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doNuGun --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyOldCalib
-python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doNuGun --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNewCalib
-python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doNuGun --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNewCalibSaturAt 1.75
-python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doNuGun --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
+# python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doNuGun --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNoCalib
+# python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doNuGun --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyOldCalib
+# python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doNuGun --outdir 2022_06_01_NtuplesV19/ChunkyDonutDisplay --applyNewCalib
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

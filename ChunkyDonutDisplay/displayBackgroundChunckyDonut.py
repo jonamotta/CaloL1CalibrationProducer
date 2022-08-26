@@ -209,50 +209,34 @@ def padDataFrameWithZeros( dfFlatEJT ):
     return padded
 
 def fakeJetsCreator( dfEJNew, dfFlatEJOld ):
-    dfFlatEJNew = pd.DataFrame({
-        'eventNew': np.repeat(dfEJNew[b'event'].values, dfEJNew[b'jetEta'].str.len()), # event IDs are copied to keep proper track of what is what
-        'jetEta': list(chain.from_iterable(dfEJNew[b'jetEta'])),
-        'jetPhi': list(chain.from_iterable(dfEJNew[b'jetPhi'])),
-        'jetNewPt' : list(chain.from_iterable(dfEJNew[b'jetEt']))
-        })
+    # the dataframes are actually already flattened out
+    # so just reassign to the flat variables
+    dfFlatEJNew = dfEJNew
 
-    dfFlatEJNew.sort_values(['jetEta','jetPhi'], inplace=True)
-    dfFlatEJNew.set_index(['jetEta','jetPhi'], inplace=True)
-    dfFlatEJOld.set_index(['jetEta','jetPhi'], inplace=True)
+    dfFlatEJNew.rename({'event' : 'eventNew', 'jetPt' : 'jetNewPt'}, axis=1, inplace=True)
+    dfFlatEJNew.sort_values(['eventNew', 'jetEta','jetPhi'], inplace=True)
+    dfFlatEJNew.set_index(['eventNew', 'jetEta','jetPhi'], inplace=True)
+    dfFlatEJOld.set_index(['event', 'jetEta','jetPhi'], inplace=True)
     dfFlatJoined  = pd.concat([dfFlatEJNew,dfFlatEJOld], axis=1, sort=False)
     dfFlatJoined.reset_index(inplace=True)
 
-    dfFlatJoined.drop(['event', 'jetNewPt'], axis=1, inplace=True)
-    dfFlatJoined.rename({'eventNew' : 'event'}, axis=1, inplace=True)
+    dfFlatJoined.drop('jetNewPt', axis=1, inplace=True)
+    dfFlatJoined.rename({'level_0' : 'event'}, axis=1, inplace=True)
     dfFlatJoined.fillna(-99.9, inplace=True)
 
     return dfFlatJoined
 
-def mainReader( dfET, dfEJ, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, applyOnTheFly, makeNewFakes, dfEJNewForFakes):
+def mainReader( dfET, dfEJ, uJetPtcut, lJetPtcut, lEtacut, uEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, applyOnTheFly, makeNewFakes, dfEJNewForFakes):
     if len(dfET) == 0 or len(dfEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
 
-    print('starting flattening') # DEBUG
+    # the dataframes are actually already flattened out
+    # so just reassign to the flat variables
+    dfFlatET = dfET
+    dfFlatEJ = dfEJ
 
-    # flatten out the dataframes so that ech entry of the dataframe is a number and not a vector
-    dfFlatET = pd.DataFrame({
-        'event': np.repeat(dfET[b'event'].values, dfET[b'ieta'].str.len()), # event IDs are copied to keep proper track of what is what
-        'ieta': list(chain.from_iterable(dfET[b'ieta'])),
-        'iphi': list(chain.from_iterable(dfET[b'iphi'])),
-        'iem' : list(chain.from_iterable(dfET[b'iem'])),
-        'ihad': list(chain.from_iterable(dfET[b'ihad'])),
-        'iet' : list(chain.from_iterable(dfET[b'iet']))
-        })
-
-    dfFlatEJ = pd.DataFrame({
-        'event': np.repeat(dfEJ[b'event'].values, dfEJ[b'jetEta'].str.len()), # event IDs are copied to keep proper track of what is what
-        'jetEta': list(chain.from_iterable(dfEJ[b'jetEta'])),
-        'jetPhi': list(chain.from_iterable(dfEJ[b'jetPhi'])),
-        'jetPt' : list(chain.from_iterable(dfEJ[b'jetEt']))
-        })
-
-    dfFlatEJ.sort_values(['jetEta','jetPhi'], inplace=True)
+    dfFlatEJ.sort_values(['event', 'jetEta','jetPhi'], inplace=True)
     dfFlatEJ.reset_index(inplace=True)
     dfFlatEJ.drop('index', axis=1, inplace=True)
 
@@ -267,9 +251,9 @@ def mainReader( dfET, dfEJ, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalc
 
     # Apply cut on jetPt
     if uJetPtcut != False:
-        dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] < float(uJetPtcut)]
+        dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] <= float(uJetPtcut)]
     if lJetPtcut != False:
-        dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] > float(lJetPtcut)]
+        dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] >= float(lJetPtcut)]
 
     # flatten the pT distribution of the QCD samples
     # ideally this flattening would go after the hoe cut by I was not able to make it work there :(
@@ -337,8 +321,10 @@ def mainReader( dfET, dfEJ, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalc
     dfFlatEJ['jetIphi'] = FindIphi_vctd(dfFlatEJ['jetPhi'])
 
     # For ECAL/HCAL we consider just jets having a chunky donuts completely inside the ECAL/HCAL detector
-    if iEtacut != False:
-        dfFlatEJ = dfFlatEJ[abs(dfFlatEJ['jetIeta']) <= int(iEtacut)]
+    if lEtacut != False:
+        dfFlatEJ = dfFlatEJ[abs(dfFlatEJ['jetIeta']) >= int(lEtacut)]
+    if uEtacut != False:
+        dfFlatEJ = dfFlatEJ[abs(dfFlatEJ['jetIeta']) <= int(uEtacut)]
 
     # join the jet and the towers datasets -> this creates all the possible combination of towers and jets for each event
     # important that dfFlatET is joined to dfFlatEJ and not viceversa --> this because dfFlatEJ contains the safe jets to be used and the safe event numbers
@@ -462,7 +448,8 @@ if __name__ == "__main__" :
     parser.add_option("--trainPtVers", dest="trainPtVers", default=False)
     parser.add_option("--uJetPtCut",   dest="uJetPtCut",   default=False)
     parser.add_option("--lJetPtCut",   dest="lJetPtCut",   default=False)
-    parser.add_option("--etacut",      dest="etacut",      default=False)
+    parser.add_option("--uEtacut",      dest="uEtacut",      default=False)
+    parser.add_option("--lEtacut",      dest="lEtacut",      default=False)
     parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
     parser.add_option("--ecalcut",     dest="ecalcut",     default=False)
     parser.add_option("--hcalcut",     dest="hcalcut",     default=False)
@@ -470,6 +457,7 @@ if __name__ == "__main__" :
     parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
     parser.add_option("--makeNewFakes", dest="makeNewFakes", default=False)
     parser.add_option("--dfEJNewForFakes", dest="dfEJNewForFakes", default='')
+    parser.add_option("--nEvents", dest="nEvents", type=int, default=50)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.tag=='' or options.fout==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
@@ -496,9 +484,9 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    nEvents = 1
-    dfET = dfET.head(nEvents)
-    dfEJ = dfEJ.head(nEvents)
+    nEvents = options.nEvents
+    dfET = dfET[dfET['event'].isin(dfET['event'].unique()[:nEvents])]
+    dfEJ = dfEJ[dfEJ['event'].isin(dfEJ['event'].unique()[:nEvents])]
     
     dfEJNewForFakes = 0
     if options.makeNewFakes:
@@ -507,25 +495,24 @@ if __name__ == "__main__" :
         readJNewForFakes.close()
         dfEJNewForFakes = dfEJNewForFakes.head(nEvents)
 
-    dfEJT = mainReader(dfET, dfEJ, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.applyOnTheFly, options.makeNewFakes, dfEJNewForFakes)
+    dfEJT = mainReader(dfET, dfEJ, options.uJetPtCut, options.lJetPtCut, options.lEtacut, options.uEtacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.applyOnTheFly, options.makeNewFakes, dfEJNewForFakes)
 
-    # pd.set_option('display.max_rows', 81)
-    # print(dfEJT)
-    # exit()
+    if 'newCalib' in options.fin: calibTag = 'newCalib'
+    if 'oldCalib' in options.fin: calibTag = 'oldCalib'
+    if 'uncalib'  in options.fin: calibTag = 'uncalib'
 
     os.system('mkdir -p '+options.fout)
     for ID in dfEJT.index.unique():
 
-        # if ID != '3807006_20': continue
+        # if ID != '224002_10': continue
 
-        tmp = dfEJT[dfEJT.index==ID].sort_values(['ieta','iphi'])
+        tmp = dfEJT[dfEJT.index==ID].sort_values(['iphi','ieta'], ascending=[False, True])
 
         if ( (72 in dfEJT[dfEJT.index==ID]['iphi'].unique()) and (1 in dfEJT[dfEJT.index==ID]['iphi'].unique()) ):
-            tmpA = tmp[tmp['iphi']>=65].sort_values(['ieta','iphi'])
-            tmpB = tmp[tmp['iphi']<=64].sort_values(['ieta','iphi'])
+            tmpA = tmp[tmp['iphi']>=65].sort_values(['iphi','ieta'], ascending=[False, True])
+            tmpB = tmp[tmp['iphi']<=64].sort_values(['iphi','ieta'], ascending=[False, True])
 
-            tmp = pd.concat([tmpA,tmpB], sort=False)
-            tmp.sort_values('ieta', inplace=True, kind='mergesort')
+            tmp = pd.concat([tmpB,tmpA], sort=False)
 
         pt9x9 = tmp['iet'].sum()
         jetpt = tmp['jetPt'].unique()
@@ -554,7 +541,7 @@ if __name__ == "__main__" :
         plt.figure(figsize=(10,8))
         im = plt.pcolormesh(EMdeposit, cmap=EMcmap, edgecolor='black', vmin=0)
         
-        ncolors = max(2,tmp['iem'].max()+1)
+        ncolors = int(max(2,tmp['iem'].max()+1))
         colorbar = plt.colorbar(im, label='iem')
         plt.clim(0., ncolors+0.5)
         if ncolors > 10:
@@ -578,13 +565,13 @@ if __name__ == "__main__" :
         plt.ylabel(f'$i\phi$')
         plt.text(0.2, 8.8, textstr1, fontsize=14, verticalalignment='top',  bbox=props)
         mplhep.cms.label('', data=False, rlabel='14 TeV')
-        plt.savefig(options.fout+'/'+ID+'_EMdeposit.pdf')
+        plt.savefig(options.fout+'/'+ID+'_EMdeposit_'+calibTag+'.pdf')
         plt.close()
         
         plt.figure(figsize=(10,8))
         im = plt.pcolormesh(HADdeposit, cmap=HADcmap, edgecolor='black', vmin=0)
         
-        ncolors = max(2,tmp['hcalET'].max()+1)
+        ncolors = int(max(2,tmp['hcalET'].max()+1))
         colorbar = plt.colorbar(im, label='ihad')
         plt.clim(-0.5, ncolors+0.5)
         if ncolors > 10:
@@ -608,6 +595,6 @@ if __name__ == "__main__" :
         plt.ylabel(f'$i\phi$')
         plt.text(0.2, 8.8, textstr1, fontsize=14, verticalalignment='top',  bbox=props)
         mplhep.cms.label('', data=False, rlabel='14 TeV')
-        plt.savefig(options.fout+'/'+ID+'_HADdeposit.pdf')
+        plt.savefig(options.fout+'/'+ID+'_HADdeposit_'+calibTag+'.pdf')
         plt.close()
        
