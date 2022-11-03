@@ -40,9 +40,9 @@ source /opt/exp_soft/cms/t3/t3setup
 #python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalib
 #python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalib
 
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalibManualSatur
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalibManualSatur
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalibManualSatur
+# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalibManualSatur_1
+# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalibManualSatur_1
+# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalibManualSatur_1
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalibManualSatur
 
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalibSaturAt 1.75
@@ -77,3 +77,21 @@ python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCal
 
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalib --seedThreshold 6.0
 # python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalib --seedThreshold 8.0
+
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalibManualSatur_2
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalibManualSatur_2
+
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalibManualSatur_3
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalibManualSatur_3
+
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalibManualSatur_4
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalibManualSatur_4
+
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalibManualSatur_5
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalibManualSatur_5
+
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalib_10TT
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalib_10TT
+
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalib_More10TT
+python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalib_More10TT

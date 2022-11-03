@@ -31,6 +31,13 @@ if __name__ == "__main__" :
     parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
     parser.add_option("--applyNewCalib", dest="applyNewCalib", action='store_true', default=False)
     parser.add_option("--applyNewCalibManualSatur", dest="applyNewCalibManualSatur", action='store_true', default=False)
+    parser.add_option("--applyNewCalibManualSatur_1", dest="applyNewCalibManualSatur_1", action='store_true', default=False)
+    parser.add_option("--applyNewCalibManualSatur_2", dest="applyNewCalibManualSatur_2", action='store_true', default=False)
+    parser.add_option("--applyNewCalibManualSatur_3", dest="applyNewCalibManualSatur_3", action='store_true', default=False)
+    parser.add_option("--applyNewCalibManualSatur_4", dest="applyNewCalibManualSatur_4", action='store_true', default=False)
+    parser.add_option("--applyNewCalibManualSatur_5", dest="applyNewCalibManualSatur_5", action='store_true', default=False)
+    parser.add_option("--applyNewCalib_10TT", dest="applyNewCalib_10TT", action='store_true', default=False)
+    parser.add_option("--applyNewCalib_More10TT", dest="applyNewCalib_More10TT", action='store_true', default=False)
     parser.add_option("--applyNewCalibSaturAt", dest="applyNewCalibSaturAt", type=float, default=None)
     parser.add_option("--applyNewCalibECALsaturAt", dest="applyNewCalibECALsaturAt", type=float, default=None)
     parser.add_option("--applyNewCalibHCALsaturAt", dest="applyNewCalibHCALsaturAt", type=float, default=None)
@@ -50,7 +57,7 @@ if __name__ == "__main__" :
     (options, args) = parser.parse_args()
     
 
-    if options.applyNoCalib == False and options.applyOldCalib == False and options.applyNewCalib == False and options.applyNewCalibManualSatur == False and options.applyNewCalibSaturAt == None and options.applyNewCalibECALsaturAt == None and options.applyNewCalibHCALsaturAt == None:
+    if options.applyNoCalib == False and options.applyOldCalib == False and options.applyNewCalib == False and options.applyNewCalibManualSatur == False and options.applyNewCalibManualSatur_1 == False and options.applyNewCalibManualSatur_2 == False and options.applyNewCalibManualSatur_3 == False and options.applyNewCalibManualSatur_4 == False and options.applyNewCalibManualSatur_5 == False and options.applyNewCalib_10TT and options.applyNewCalib_More10TT and options.applyNewCalibSaturAt == None and options.applyNewCalibECALsaturAt == None and options.applyNewCalibHCALsaturAt == None:
         print('** WARNING: no calibration to be used specified - EXITING!')
         exit()
 
@@ -65,6 +72,13 @@ if __name__ == "__main__" :
     elif options.applyOldCalib:        config += "_oldCalib"        ; tagCalib = "_oldCalib"
     elif options.applyNewCalib:        config += "_newCalib"        ; tagCalib = "_newCalib" 
     elif options.applyNewCalibManualSatur:        config += "_newCalibManualSaturation"        ; tagCalib = "_newCalibManualSaturation" 
+    elif options.applyNewCalibManualSatur_1:      config += "_newCalibManualSaturation_1"      ; tagCalib = "_newCalibManualSaturation_1" 
+    elif options.applyNewCalibManualSatur_2:      config += "_newCalibManualSaturation_2"      ; tagCalib = "_newCalibManualSaturation_2" 
+    elif options.applyNewCalibManualSatur_3:      config += "_newCalibManualSaturation_3"      ; tagCalib = "_newCalibManualSaturation_3"
+    elif options.applyNewCalibManualSatur_4:      config += "_newCalibManualSaturation_4"      ; tagCalib = "_newCalibManualSaturation_4"
+    elif options.applyNewCalibManualSatur_5:      config += "_newCalibManualSaturation_5"      ; tagCalib = "_newCalibManualSaturation_5"
+    elif options.applyNewCalib_10TT:              config += "_newCalib_10TT"                   ; tagCalib = "_newCalib_10TT"
+    elif options.applyNewCalib_More10TT:          config += "_newCalib_More10TT"               ; tagCalib = "_newCalib_More10TT"
     elif options.applyNewCalibSaturAt: config += "_newCalibSatur"+str(options.applyNewCalibSaturAt).split('.')[0]+'p'+str(options.applyNewCalibSaturAt).split('.')[1] ; tagCalib = "_newCalibSatur"+str(options.applyNewCalibSaturAt).split('.')[0]+'p'+str(options.applyNewCalibSaturAt).split('.')[1]
     elif options.applyNewCalibECALsaturAt and options.applyNewCalibHCALsaturAt:
         config += "_newCalibECALsatur"+str(options.applyNewCalibECALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibECALsaturAt).split('.')[1]+'_newCalibHCALsatur'+str(options.applyNewCalibHCALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibHCALsaturAt).split('.')[1]
@@ -208,4 +222,4 @@ if __name__ == "__main__" :
         print command
         if not options.no_exec: os.system (command)
         # break
-        if idx == 150: break
+        if idx == 200: break
