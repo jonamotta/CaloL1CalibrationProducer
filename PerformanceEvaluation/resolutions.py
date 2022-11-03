@@ -9,10 +9,11 @@ import os
 directory = sys.argv[1]
 nevents = int(sys.argv[2])
 label = sys.argv[3]
+outdir = sys.argv[4]
 
-os.system('mkdir -p PDFs/'+label)
-os.system('mkdir -p PNGs/'+label)
-os.system('mkdir -p ROOTs/')
+os.system('mkdir -p '+outdir+'/PDFs/'+label)
+os.system('mkdir -p '+outdir+'/PNGs/'+label)
+os.system('mkdir -p '+outdir+'/ROOTs/')
 
 print("defining input trees")
 eventTree = ROOT.TChain("l1EventTree/L1EventTree")
@@ -285,8 +286,8 @@ for i in range(len(barrel_response_ptBins)):
 
     legend.Draw("same")
 
-    canvas.SaveAs("PDFs/"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".pdf")
-    canvas.SaveAs("PNGs/"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".png")
+    canvas.SaveAs(outdir+"/PDFs/"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".pdf")
+    canvas.SaveAs(outdir+"/PNGs/"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".png")
 
     del canvas, legend
 
@@ -333,8 +334,8 @@ for i in range(len(absEta_response_ptBins)):
     tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
     tex2.Draw("same");
 
-    canvas.SaveAs("PDFs/"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".pdf")
-    canvas.SaveAs("PNGs/"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".png")
+    canvas.SaveAs(outdir+"/PDFs/"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".pdf")
+    canvas.SaveAs(outdir+"/PNGs/"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".png")
 
     del canvas, legend
 
@@ -384,8 +385,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/resolution_ptBins"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/resolution_ptBins"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/resolution_ptBins"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/resolution_ptBins"+label+".png")
 
 del canvas, legend
 
@@ -444,8 +445,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/resolution_etaBins"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/resolution_etaBins"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/resolution_etaBins"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/resolution_etaBins"+label+".png")
 
 del canvas
 
@@ -504,8 +505,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/scale_etaBins"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/scale_etaBins"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/scale_etaBins"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/scale_etaBins"+label+".png")
 
 del canvas
 
@@ -549,8 +550,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/scale_ptBins"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/scale_ptBins"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/scale_ptBins"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/scale_ptBins"+label+".png")
 
 del canvas
 
@@ -606,8 +607,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/response_inclusive"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/response_inclusive"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/response_inclusive"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/response_inclusive"+label+".png")
 
 del canvas
 
@@ -656,8 +657,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas_res_pt.SaveAs("PDFs/"+label+"/response_in_ptBins_"+label+".pdf")
-canvas_res_pt.SaveAs("PNGs/"+label+"/response_in_ptBins_"+label+".png")
+canvas_res_pt.SaveAs(outdir+"/PDFs/"+label+"/response_in_ptBins_"+label+".pdf")
+canvas_res_pt.SaveAs(outdir+"/PNGs/"+label+"/response_in_ptBins_"+label+".png")
 
 ##############
 
@@ -719,8 +720,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas_res.SaveAs("PDFs/"+label+"/response_in_eta_bins_"+label+".pdf")
-canvas_res.SaveAs("PNGs/"+label+"/response_in_eta_bins_"+label+".png")
+canvas_res.SaveAs(outdir+"/PDFs/"+label+"/response_in_eta_bins_"+label+".pdf")
+canvas_res.SaveAs(outdir+"/PNGs/"+label+"/response_in_eta_bins_"+label+".png")
 
 ##############
 
@@ -756,8 +757,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/resolution_ptVSeta"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/resolution_ptVSeta"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/resolution_ptVSeta"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/resolution_ptVSeta"+label+".png")
 
 del canvas
 
@@ -796,15 +797,15 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/scale_ptVSeta"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/scale_ptVSeta"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/scale_ptVSeta"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/scale_ptVSeta"+label+".png")
 
 del canvas
 
 ##############
 
 #saving histograms and efficiencies in root file for later plotting if desired
-fileout = ROOT.TFile("ROOTs/resolution_graphs_"+label+".root","RECREATE")
+fileout = ROOT.TFile(outdir+"/ROOTs/resolution_graphs_"+label+".root","RECREATE")
 pt_scale_fctPt.Write()
 pt_scale_fctEta.Write()
 pt_resol_fctPt.Write()

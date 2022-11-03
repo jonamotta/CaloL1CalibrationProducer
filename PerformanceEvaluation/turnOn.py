@@ -10,10 +10,11 @@ import os
 directory = sys.argv[1]
 nevents = int(sys.argv[2])
 label = sys.argv[3]
+outdir = sys.argv[4]
 
-os.system('mkdir -p PDFs/'+label)
-os.system('mkdir -p PNGs/'+label)
-os.system('mkdir -p ROOTs/')
+os.system('mkdir -p '+outdir+'/PDFs/'+label)
+os.system('mkdir -p '+outdir+'/PNGs/'+label)
+os.system('mkdir -p '+outdir+'/ROOTs/')
 
 print("defining input trees")
 eventTree = ROOT.TChain("l1EventTree/L1EventTree")
@@ -151,11 +152,11 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/turnOn_"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/turnOn_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/turnOn_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/turnOn_"+label+".png")
 
 print("saving histograms and efficiencies in root file for later plotting if desired")
-fileout = ROOT.TFile("ROOTs/efficiency_graphs_"+label+".root","RECREATE")
+fileout = ROOT.TFile(outdir+"/ROOTs/efficiency_graphs_"+label+".root","RECREATE")
 total.Write()
 pt.Write()
 for i,ele in enumerate(thresholds): 

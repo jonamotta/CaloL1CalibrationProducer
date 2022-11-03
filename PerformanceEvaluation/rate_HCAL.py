@@ -9,10 +9,11 @@ import os
 directory = sys.argv[1]
 nevents = int(sys.argv[2])
 label = sys.argv[3]
+outdir = sys.argv[4]
 
-os.system('mkdir -p PDFs/'+label)
-os.system('mkdir -p PNGs/'+label)
-os.system('mkdir -p ROOTs/')
+os.system('mkdir -p '+outdir+'/PDFs/'+label)
+os.system('mkdir -p '+outdir+'/PNGs/'+label)
+os.system('mkdir -p '+outdir+'/ROOTs/')
 
 print("defining input trees")
 eventTree = ROOT.TChain("l1EventTree/L1EventTree")
@@ -540,8 +541,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateSingleObj_"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/rateSingleObj_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateSingleObj_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateSingleObj_"+label+".png")
 
 ####################
 
@@ -587,8 +588,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas1.SaveAs("PDFs/"+label+"/rateDiObj_"+label+".pdf")
-canvas1.SaveAs("PNGs/"+label+"/rateDiObj_"+label+".png")
+canvas1.SaveAs(outdir+"/PDFs/"+label+"/rateDiObj_"+label+".pdf")
+canvas1.SaveAs(outdir+"/PNGs/"+label+"/rateDiObj_"+label+".png")
 
 ####################
 
@@ -648,8 +649,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas2.SaveAs("PDFs/"+label+"/rate_"+label+".pdf")
-canvas2.SaveAs("PNGs/"+label+"/rate_"+label+".png")
+canvas2.SaveAs(outdir+"/PDFs/"+label+"/rate_"+label+".pdf")
+canvas2.SaveAs(outdir+"/PNGs/"+label+"/rate_"+label+".png")
 
 ####################
 
@@ -699,8 +700,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateSingleObjEr2p5_"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/rateSingleObjEr2p5_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateSingleObjEr2p5_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateSingleObjEr2p5_"+label+".png")
 
 ####################
 
@@ -747,8 +748,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas1.SaveAs("PDFs/"+label+"/rateDiObjEr2p5_"+label+".pdf")
-canvas1.SaveAs("PNGs/"+label+"/rateDiObjEr2p5_"+label+".png")
+canvas1.SaveAs(outdir+"/PDFs/"+label+"/rateDiObjEr2p5_"+label+".pdf")
+canvas1.SaveAs(outdir+"/PNGs/"+label+"/rateDiObjEr2p5_"+label+".png")
 
 ####################
 
@@ -809,13 +810,13 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas2.SaveAs("PDFs/"+label+"/rateEr2p5_"+label+".pdf")
-canvas2.SaveAs("PNGs/"+label+"/rateEr2p5_"+label+".png")
+canvas2.SaveAs(outdir+"/PDFs/"+label+"/rateEr2p5_"+label+".pdf")
+canvas2.SaveAs(outdir+"/PNGs/"+label+"/rateEr2p5_"+label+".png")
 
 ####################
 
 print("saving histograms and efficiencies in root file for later plotting if desired")
-fileout = ROOT.TFile("ROOTs/rate_graphs_"+label+".root","RECREATE")
+fileout = ROOT.TFile(outdir+"/ROOTs/rate_graphs_"+label+".root","RECREATE")
 for i,ele in enumerate(thresholds): 
     rateCurves[i].Write()
     rateDiCurves[i].Write()
