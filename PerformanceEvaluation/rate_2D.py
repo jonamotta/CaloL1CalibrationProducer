@@ -9,10 +9,11 @@ import os
 directory = sys.argv[1]
 nevents = int(sys.argv[2])
 label = sys.argv[3]
+outdir = sys.argv[4]
 
-os.system('mkdir -p PDFs/'+label)
-# os.system('mkdir -p PNGs/'+label)
-os.system('mkdir -p ROOTs/')
+os.system('mkdir -p '+outdir+'/PDFs/'+label)
+os.system('mkdir -p '+outdir+'/PNGs/'+label)
+os.system('mkdir -p '+outdir+'/ROOTs/')
 
 print("defining input trees")
 eventTree = ROOT.TChain("l1EventTree/L1EventTree")
@@ -225,8 +226,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsPt_SingleObj_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsPt_SingleObj_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsPt_SingleObj_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsPt_SingleObj_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -270,8 +271,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsEta_SingleObj_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsEta_SingleObj_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsEta_SingleObj_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsEta_SingleObj_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -315,8 +316,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsPt_DiObj_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsPt_DiObj_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -360,8 +361,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsPt_DiObj_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsPt_DiObj_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -411,8 +412,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsPt_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsPt_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsPt_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsPt_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -462,8 +463,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsEta_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsEta_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsEta_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsEta_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -499,8 +500,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.82,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsPtVsEta_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsPtVsEta_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsPtVsEta_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsPtVsEta_"+label+".png")
 
 del canvas, tex, tex2
 
@@ -544,8 +545,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsPt_SingleObjEr_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsPt_SingleObj_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsPt_SingleObjEr_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsPt_SingleObj_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -589,8 +590,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsEta_SingleObjEr_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsEta_SingleObj_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsEta_SingleObjEr_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsEta_SingleObj_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -634,8 +635,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsPt_DiObjEr_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsPt_DiObjEr_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -679,8 +680,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsPt_DiObjEr_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsPt_DiObjEr_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsPt_DiObj_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -730,8 +731,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsPt_Er_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsPt_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsPt_Er_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsPt_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -781,8 +782,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsEta_Er_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsEta_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsEta_Er_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsEta_"+label+".png")
 
 del canvas, tex, tex2, legend
 
@@ -818,15 +819,15 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.82,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateVsPtVsEta_Er_"+label+".pdf")
-# canvas.SaveAs("PNGs/"+label+"/rateVsPtVsEta_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/"+label+"/rateVsPtVsEta_Er_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/"+label+"/rateVsPtVsEta_"+label+".png")
 
 del canvas, tex, tex2
 
 ####################
 
 print("saving histograms and efficiencies in root file for later plotting if desired")
-fileout = ROOT.TFile("ROOTs/rate_graphs_"+label+".root","RECREATE")
+fileout = ROOT.TFile(outdir+"/ROOTs/rate_graphs_"+label+".root","RECREATE")
 
 ptProgression.Write()
 ptDiProgression.Write()
