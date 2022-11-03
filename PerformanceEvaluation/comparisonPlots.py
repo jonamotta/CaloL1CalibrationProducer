@@ -9,9 +9,10 @@ label = sys.argv[1]
 
 detector = label.split("_")[0]
 newTag   = label.split("_")[1]
+outdir   = sys.argv[2]
 
-os.system('mkdir -p PDFs/comparisons_'+label)
-os.system('mkdir -p PNGs/comparisons_'+label)
+os.system('mkdir -p '+outdir+'/PDFs/comparisons_'+label)
+os.system('mkdir -p '+outdir+'/PNGs/comparisons_'+label)
 
 #defining binning of histogram
 if "HCAL_" in label: 
@@ -24,9 +25,9 @@ if "ECAL_" in label:
 #############################
 ## RESOLUTIONS COMPARISONS ##
 
-file_unCalib  = ROOT.TFile("ROOTs/resolution_graphs_"+detector+"_uncalib.root", "r")
-file_oldCalib = ROOT.TFile("ROOTs/resolution_graphs_"+detector+"_oldCalib.root", "r")
-file_newCalib = ROOT.TFile("ROOTs/resolution_graphs_"+detector+"_"+newTag+".root", "r")
+file_unCalib  = ROOT.TFile(outdir+"/ROOTs/resolution_graphs_"+detector+"_uncalib.root", "r")
+file_oldCalib = ROOT.TFile(outdir+"/ROOTs/resolution_graphs_"+detector+"_oldCalib.root", "r")
+file_newCalib = ROOT.TFile(outdir+"/ROOTs/resolution_graphs_"+detector+"_"+newTag+".root", "r")
 
 #######
 # inclusive responses
@@ -89,8 +90,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/comparisons_"+label+"/response_inclusive_"+label+".pdf")
-canvas.SaveAs("PNGs/comparisons_"+label+"/response_inclusive_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/response_inclusive_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/response_inclusive_"+label+".png")
 
 del canvas, legend, tex2, tex
 
@@ -156,8 +157,8 @@ for i in range(len(ptBins)-1):
     tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
     tex2.Draw("same");
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".png")
 
     del canvas, legend, ptBins_resp_unCalib, ptBins_resp_oldCalib, ptBins_resp_newCalib, tex2, tex
 
@@ -223,8 +224,8 @@ for i in range(len(etaBins)-1):
     tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
     tex2.Draw("same");
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".png")
 
     del canvas, legend, etaBins_resp_unCalib, etaBins_resp_oldCalib, etaBins_resp_newCalib, tex2, tex
 
@@ -288,8 +289,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/comparisons_"+label+"/resolution_ptBins_"+label+".pdf")
-canvas.SaveAs("PNGs/comparisons_"+label+"/resolution_ptBins_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/resolution_ptBins_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/resolution_ptBins_"+label+".png")
 
 del canvas, legend, tex2, tex
 
@@ -369,8 +370,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/comparisons_"+label+"/resolution_etaBins_"+label+".pdf")
-canvas.SaveAs("PNGs/comparisons_"+label+"/resolution_etaBins_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/resolution_etaBins_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/resolution_etaBins_"+label+".png")
 
 del canvas, legend, tex2, tex
 
@@ -435,8 +436,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/comparisons_"+label+"/scale_ptBins_"+label+".pdf")
-canvas.SaveAs("PNGs/comparisons_"+label+"/scale_ptBins_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/scale_ptBins_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/scale_ptBins_"+label+".png")
 
 del canvas, legend, tex2, tex
 
@@ -515,8 +516,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/comparisons_"+label+"/scale_etaBins_"+label+".pdf")
-canvas.SaveAs("PNGs/comparisons_"+label+"/scale_etaBins_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/scale_etaBins_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/scale_etaBins_"+label+".png")
 
 del canvas, legend, tex2, tex
 
@@ -585,8 +586,8 @@ b6.SetFillColor(1);
 b6.SetFillStyle(3004);
 b6.Draw("same");
 
-canvas.SaveAs("PDFs/comparisons_"+label+"/ptVSeta_relative_scale_"+label+".pdf")
-canvas.SaveAs("PNGs/comparisons_"+label+"/ptVSeta_relative_scale_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/ptVSeta_relative_scale_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/ptVSeta_relative_scale_"+label+".png")
 
 del canvas, tex2, tex, b5, b6
 
@@ -647,8 +648,8 @@ b6.SetFillColor(1);
 b6.SetFillStyle(3004);
 b6.Draw("same");
 
-canvas.SaveAs("PDFs/comparisons_"+label+"/ptVSeta_relative_resolution_"+label+".pdf")
-canvas.SaveAs("PNGs/comparisons_"+label+"/ptVSeta_relative_resolution_"+label+".png")
+canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/ptVSeta_relative_resolution_"+label+".pdf")
+canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/ptVSeta_relative_resolution_"+label+".png")
 
 del canvas, tex2, tex, b5, b6
 
@@ -662,9 +663,9 @@ file_newCalib.Close()
 #############################
 ## RATE COMPARISONS ##
 
-file_unCalib  = ROOT.TFile("ROOTs/rate_graphs_"+detector+"_uncalib.root", "r")
-file_oldCalib = ROOT.TFile("ROOTs/rate_graphs_"+detector+"_oldCalib.root", "r")
-file_newCalib = ROOT.TFile("ROOTs/rate_graphs_"+detector+"_"+newTag+".root", "r")
+file_unCalib  = ROOT.TFile(outdir+"/ROOTs/rate_graphs_"+detector+"_uncalib.root", "r")
+file_oldCalib = ROOT.TFile(outdir+"/ROOTs/rate_graphs_"+detector+"_oldCalib.root", "r")
+file_newCalib = ROOT.TFile(outdir+"/ROOTs/rate_graphs_"+detector+"_"+newTag+".root", "r")
 
 if detector == "HCAL":
     #######
@@ -755,8 +756,8 @@ if detector == "HCAL":
     texl1.SetTextAlign(11)
     texl1.Draw("same")
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/rates_DoubleJet60.pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/rates_DoubleJet60.png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/rates_DoubleJet60.pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/rates_DoubleJet60.png")
 
     del canvas, legend, tex2, tex, texl1
 
@@ -848,8 +849,8 @@ if detector == "HCAL":
     texl1.SetTextAlign(11)
     texl1.Draw("same")
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/rates_DoubleJet60er1p5.pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/rates_DoubleJet60er1p5.png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/rates_DoubleJet60er1p5.pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/rates_DoubleJet60er1p5.png")
 
     del canvas, legend, tex2, tex, texl1
 
@@ -941,8 +942,8 @@ if detector == "HCAL":
     texl1.SetTextAlign(11)
     texl1.Draw("same")
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/rates_DoubleJet100.pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/rates_DoubleJet100.png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/rates_DoubleJet100.pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/rates_DoubleJet100.png")
 
     del canvas, legend, tex2, tex, texl1
 
@@ -1035,8 +1036,8 @@ if detector == "HCAL":
     texl1.SetTextAlign(11)
     texl1.Draw("same")
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/rates_SingleJet60.pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/rates_SingleJet60.png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/rates_SingleJet60.pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/rates_SingleJet60.png")
 
     del canvas, legend, tex2, tex, texl1
 
@@ -1130,8 +1131,8 @@ if detector == "ECAL":
     texl1.SetTextAlign(11)
     texl1.Draw("same")
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/rates_SingleEG32er1p5.pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/rates_SingleEG32er1p5.png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/rates_SingleEG32er1p5.pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/rates_SingleEG32er1p5.png")
 
     del canvas, legend, tex2, tex, texl1
 
@@ -1143,9 +1144,9 @@ file_newCalib.Close()
 #############################
 ## TURNON COMPARISONS ##
 
-file_unCalib  = ROOT.TFile("ROOTs/efficiency_graphs_"+detector+"_uncalib.root", "r")
-file_oldCalib = ROOT.TFile("ROOTs/efficiency_graphs_"+detector+"_oldCalib.root", "r")
-file_newCalib = ROOT.TFile("ROOTs/efficiency_graphs_"+detector+"_"+newTag+".root", "r")
+file_unCalib  = ROOT.TFile(outdir+"/ROOTs/efficiency_graphs_"+detector+"_uncalib.root", "r")
+file_oldCalib = ROOT.TFile(outdir+"/ROOTs/efficiency_graphs_"+detector+"_oldCalib.root", "r")
+file_newCalib = ROOT.TFile(outdir+"/ROOTs/efficiency_graphs_"+detector+"_"+newTag+".root", "r")
 
 if detector == 'HCAL':
     #######
@@ -1160,6 +1161,8 @@ if detector == 'HCAL':
     canvas.SetGrid(10,10);
 
     #use dummy histogram to define style
+    print("\n\nDEBUG", turnon_unCalib)
+    print(file_unCalib)
     turnon_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
     turnon_unCalib.SetTitle("")
 
@@ -1205,8 +1208,8 @@ if detector == 'HCAL':
     tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
     tex2.Draw("same");
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/turnons_DoubleJet60.pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/turnons_DoubleJet60.png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/turnons_DoubleJet60.pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/turnons_DoubleJet60.png")
 
     del canvas, legend, tex2, tex
 
@@ -1267,8 +1270,8 @@ if detector == 'HCAL':
     tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
     tex2.Draw("same");
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/turnons_DoubleJet60er1p5.pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/turnons_DoubleJet60er1p5.png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/turnons_DoubleJet60er1p5.pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/turnons_DoubleJet60er1p5.png")
 
     del canvas, legend, tex2, tex
 
@@ -1329,8 +1332,8 @@ if detector == 'HCAL':
     tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
     tex2.Draw("same");
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/turnons_DoubleJet100.pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/turnons_DoubleJet100.png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/turnons_DoubleJet100.pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/turnons_DoubleJet100.png")
 
     del canvas, legend, tex2, tex
 
@@ -1392,8 +1395,8 @@ if detector == "ECAL":
     tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
     tex2.Draw("same");
 
-    canvas.SaveAs("PDFs/comparisons_"+label+"/turnons_SingleEG32er1p5.pdf")
-    canvas.SaveAs("PNGs/comparisons_"+label+"/turnons_SingleEG32er1p5.png")
+    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/turnons_SingleEG32er1p5.pdf")
+    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/turnons_SingleEG32er1p5.png")
 
     del canvas, legend, tex2, tex
 
