@@ -154,7 +154,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
         
     return padded
 
-def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, applyOnTheFly):
+def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, applyOnTheFly):
     if len(dfET) == 0 or len(dfEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
@@ -322,6 +322,18 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
         dfFlatEJT['hoe'] = group['hcalET'].sum()/(group['iem'].sum()+group['hcalET'].sum())
         dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.95]
 
+    # [Elena] Training with only jets formad by 10 TT maximum
+    if TTNumberCut != False:
+        group_jet = dfFlatEJT.groupby('uniqueIdx')
+        dfFlatEJT['FiredTTs'] = group_jet['hcalET'].count()
+        dfFlatEJT = dfFlatEJT[dfFlatEJT['FiredTTs'] <= 10]
+
+    # [Elena] Training with only jets formad by 10 TT minimum
+    if TTNumberCutInverse != False:
+        group_jet = dfFlatEJT.groupby('uniqueIdx')
+        dfFlatEJT['FiredTTs'] = group_jet['hcalET'].count()
+        dfFlatEJT = dfFlatEJT[dfFlatEJT['FiredTTs'] > 10]
+
     # apply HCAL calibration on the fly
     if whichHCALcalib != False:
         print("starting HCAL calibration")
@@ -453,6 +465,8 @@ if __name__ == "__main__" :
     parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
     parser.add_option("--ecalcut",     dest="ecalcut",     default=False)
     parser.add_option("--hcalcut",     dest="hcalcut",     default=False)
+    parser.add_option("--TTNumberCut", dest="TTNumberCut", default=False)
+    parser.add_option("--TTNumberCutInverse", dest="TTNumberCutInverse", default=False)
     parser.add_option("--flattenPtDistribution",     dest="flattenPtDistribution",     default=False)
     parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
     (options, args) = parser.parse_args()
@@ -487,6 +501,6 @@ if __name__ == "__main__" :
     dfEJ = readJ['jets']
     readJ.close()
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.applyOnTheFly)
+    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.applyOnTheFly)
     print("DONE!")
 

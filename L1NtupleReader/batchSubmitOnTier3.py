@@ -41,6 +41,8 @@ parser.add_option("--etacut",   dest="etacut",  default=False)
 parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
 parser.add_option("--ecalcut",  dest="ecalcut", default=False)
 parser.add_option("--hcalcut",  dest="hcalcut", default=False)
+parser.add_option("--TTNumberCut",  dest="TTNumberCut", default=False)
+parser.add_option("--TTNumberCutInverse",  dest="TTNumberCutInverse", default=False)
 parser.add_option("--flatPtDist",     dest="flatPtDist",     default=False)
 parser.add_option("--calibECALOnTheFly",  dest="calibECALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
 parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
@@ -194,6 +196,10 @@ for idx, tag in enumerate(tags):
         cmsRun = cmsRun + " --ecalcut "+options.ecalcut
     if options.hcalcut != False:
         cmsRun = cmsRun + " --hcalcut "+options.hcalcut
+    if options.TTNumberCut != False:
+        cmsRun = cmsRun + " --TTNumberCut "+options.TTNumberCut
+    if options.TTNumberCutInverse != False:
+        cmsRun = cmsRun + " --TTNumberCutInverse "+options.TTNumberCutInverse
     if options.trainPtVers != False:
         cmsRun = cmsRun + " --trainPtVers "+options.trainPtVers
     if options.calibECALOnTheFly != False:
@@ -217,8 +223,8 @@ for idx, tag in enumerate(tags):
     skimjob.close ()
 
     os.system ('chmod u+rwx ' + outJobName)
-    command = ('/home/llr/cms/motta/t3submit -short \'' + outJobName +"\'")
-    # command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
+    # command = ('/home/llr/cms/motta/t3submit -short \'' + outJobName +"\'")
+    command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
     os.system (command)
     # break
