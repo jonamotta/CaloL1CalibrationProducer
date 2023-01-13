@@ -3,8 +3,15 @@ import numpy as np
 import ROOT
 import sys
 import os
+import pandas as pd
 
 ROOT.gROOT.SetBatch(True)
+
+def findXPoint (xa, xb, ya, yb, yc):
+    s = pd.Series([xa, np.nan, xb], index=[ya, yc, yb])
+    s1 = s.interpolate(method='index')
+    xc = s1[s1.index==yc].values[0]
+    return xc
 
 # python3 rate_HCAL_JB.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW_newCalibManualSaturation_2_applyHCALpfa1p/ /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW_newCalibManualSaturation_2_applyHCALpfa1p/ HCAL_newCalibManualSaturation_2 Plots_JB 10000000
 
@@ -37,7 +44,7 @@ else:
 ##########################################################################################
 
 # I have to convert the x axis from L1 pt threshold to offline pt threshold
-# for each L1 pt from 0 to 241 we build a turn on and we extract the offline pt giving a 95% efficiency
+# for each L1 pt from 0 to 300 we build a turn on and we extract the offline pt giving a 95% efficiency
 
 TurnOn_folder_png = outdir+'/TurnOns/PNGs/'+label
 TurnOn_folder_pdf = outdir+'/TurnOns/PDFs/'+label
@@ -82,20 +89,24 @@ print("will process",nevents,"events...")
 #we wnat to have the same binning for the turnons (Offline JetPt) and for the rate:
 #L1 and Offline JetPt bins have to correspond
 
-Nbins = 300
-Min = 0 
-Max = 300
+Nbins_L1 = 290
+Min_L1 = 10.
+Max_L1 = 300.
+
+Nbins_TurnOn = 600
+Min_TurnOn = 0.
+Max_TurnOn = 600.
 
 # L1_cuts = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70]
-L1_cuts = np.linspace(Min,Max,Nbins+1)
+L1_cuts = np.linspace(Min_L1,Max_L1,Nbins_L1+1)
 
-Offline_cuts, Rates = array('d'), array('d')
+Offline_cuts_95, Offline_cuts_90, Offline_cuts_50, Rates = array('d'), array('d'), array('d'), array('d')
 
 Numerators = []
-Denominator = ROOT.TH1F("Denominator","Denominator",Nbins,Min,Max)
+Denominator = ROOT.TH1F("Denominator","Denominator",Nbins_TurnOn,Min_TurnOn,Max_TurnOn)
 for L1_cut in L1_cuts:
     name = "Numerator_{}".format(int(L1_cut))
-    Numerators.append(ROOT.TH1F(name,name,Nbins,Min,Max))
+    Numerators.append(ROOT.TH1F(name,name,Nbins_TurnOn,Min_TurnOn,Max_TurnOn))
 
 # loop over all events
 for i in range(0, nevents):
@@ -141,8 +152,8 @@ for i in range(0, nevents):
         if myGoodL1Pt > L1_cut:
             Numerators[i].Fill(myGoodGenPt)
 
-empty = ROOT.TH1F("empty","empty",Nbins,Min,Max)
-empty1 = ROOT.TH1F("empty1","empty1",Nbins,Min,Max)
+empty = ROOT.TH1F("empty","empty",Nbins_TurnOn,Min_TurnOn,Max_TurnOn)
+empty1 = ROOT.TH1F("empty1","empty1",Nbins_TurnOn,Min_TurnOn,Max_TurnOn)
 
 #saving root histograms
 fileout = ROOT.TFile(ROOTs_folder + "/TurnOn_"+label+".root","RECREATE")
@@ -159,7 +170,7 @@ for i, L1_cut in enumerate(L1_cuts):
     #use dummy histogram to define style
     empty.GetXaxis().SetTitle("p_{T}^{Offline}(jet) [GeV]")
     empty.SetTitle("")
-    empty.GetXaxis().SetRangeUser(Min,Max)
+    empty.GetXaxis().SetRangeUser(Min_L1,Max_L1)
     empty.GetYaxis().SetRangeUser(0.01,1.2*max(Numerators[i].GetMaximum(),Denominator.GetMaximum()))
     empty.GetXaxis().SetTitleOffset(1.3)
     empty.GetYaxis().SetTitle("#Entries")
@@ -207,7 +218,7 @@ for i, L1_cut in enumerate(L1_cuts):
     # #use dummy histogram to define style
     empty1.GetXaxis().SetTitle("p_{T}^{Offline}(jet) [GeV]")
     empty1.SetTitle("")
-    empty1.GetXaxis().SetRangeUser(Min,Max)
+    empty1.GetXaxis().SetRangeUser(Min_L1,Max_L1)
     empty1.GetYaxis().SetRangeUser(0.,1.)
     empty1.GetXaxis().SetTitleOffset(1.3)
     empty1.GetYaxis().SetTitle("Efficiency")
@@ -257,19 +268,62 @@ for i, L1_cut in enumerate(L1_cuts):
     x_points = list(TurnOn_Jet.GetX())
     y_points = list(TurnOn_Jet.GetY())
     # print(len(x_points), len(y_points))
+    x_previous, y_previous = [0,0]
 
     for x,y in zip(x_points, y_points):
-        if (found == False) and (y > th) and (x > L1_cut):
-            Offline_cuts.append(x)
+        if (found == False) and (y > th) and (x > L1_cut): # [FIXME] L1_cut condition should be removed after changing the range
+            x_interpolation = findXPoint(x_previous, x, y_previous, y, th)
+            print(x_interpolation)
+            Offline_cuts_95.append(x_interpolation)
             found = True
+        x_previous = x
+        y_previous = y
 
     if found == False:
-        Offline_cuts.append(-1)
+        Offline_cuts_95.append(-1)
+
+    th = 0.9
+    found = False
+    x_points = list(TurnOn_Jet.GetX())
+    y_points = list(TurnOn_Jet.GetY())
+    # print(len(x_points), len(y_points))
+    x_previous, y_previous = [0,0]
+
+    for x,y in zip(x_points, y_points):
+        if (found == False) and (y > th):
+            x_interpolation = findXPoint(x_previous, x, y_previous, y, th)
+            print(x_interpolation)
+            Offline_cuts_90.append(x_interpolation)
+            found = True
+        x_previous = x
+        y_previous = y
+
+    if found == False:
+        Offline_cuts_90.append(-1)
+
+    th = 0.5
+    found = False
+    x_points = list(TurnOn_Jet.GetX())
+    y_points = list(TurnOn_Jet.GetY())
+    # print(len(x_points), len(y_points))
+    x_previous, y_previous = [0,0]
+
+    for x,y in zip(x_points, y_points):
+        if (found == False) and (y > th):
+            x_interpolation = findXPoint(x_previous, x, y_previous, y, th)
+            print(x_interpolation)
+            Offline_cuts_50.append(x_interpolation)
+            found = True
+        x_previous = x
+        y_previous = y
+
+    if found == False:
+        Offline_cuts_50.append(-1)
 
 fileout.Close()
 
 # print(L1_cuts)
-# print(Offline_cuts)
+# print(Offline_cuts_95)
 
 
 ##########################################################################################
@@ -302,7 +356,7 @@ denominator = 0.
 nb = 2544.
 scale = 0.001*(nb*11245.6)
 
-ptProgression = ROOT.TH1F("ptProgression","ptProgression",Nbins,Min,Max)
+ptProgression = ROOT.TH1F("ptProgression","ptProgression",Nbins_L1,Min_L1,Max_L1)
 
 print("looping on events")
 for i in range(0, nevents):
@@ -349,30 +403,33 @@ canvas2.SaveAs(Rates_folder_pdf+"/L1JetPtDistribution.pdf")
 
 for i, L1_cut in enumerate(L1_cuts[:-1]):
     in_bin = i+1 # [FIXME] conversion between binning of turn on and L1 pt binning
-    fin_bin = Nbins
+    fin_bin = Nbins_L1
     # print(L1_cut, ptProgression.GetBinLowEdge(in_bin))
     # print(ptProgression.Integral(in_bin, fin_bin))
     Rates.append(ptProgression.Integral(in_bin, fin_bin))
 
 print("\L1_cuts:\n",L1_cuts)
-print("\nOffline_cuts:\n",Offline_cuts)
+print("\nOffline_cuts_95:\n",Offline_cuts_95)
 print("\nRates\n",Rates)
 
-RatesVSOffline = ROOT.TGraphErrors(len(Offline_cuts), Offline_cuts, Rates)
+#Rates for 95% efficiency
+
+RatesVSOffline_95 = ROOT.TGraphErrors(len(Offline_cuts_95), Offline_cuts_95, Rates)
 RatesVSOnline = ROOT.TGraphErrors(len(L1_cuts), L1_cuts, Rates)
 
 canvas3 = ROOT.TCanvas("c_3","c_3",800,800)
 canvas3.SetGrid(10,10)
 canvas3.SetLogy()
-RatesVSOffline.SetTitle("")
-RatesVSOffline.GetXaxis().SetTitle("p_{T}^{Offline}(jet)")
-RatesVSOffline.GetYaxis().SetTitle("Rates [kHz]")
-RatesVSOffline.GetYaxis().SetRangeUser(0.1,1e5)
-RatesVSOffline.GetXaxis().SetRangeUser(0.,240.)
-RatesVSOffline.SetLineWidth(2)
-RatesVSOffline.SetMarkerColor(1)
-RatesVSOffline.SetLineColor(1)
-RatesVSOffline.Draw()
+RatesVSOffline_95.SetTitle("")
+RatesVSOffline_95.GetXaxis().SetTitle("p_{T}^{Offline}(jet)")
+RatesVSOffline_95.GetYaxis().SetTitle("Rates [kHz]")
+RatesVSOffline_95.GetYaxis().SetRangeUser(0.1,1.3*max(Rates))
+RatesVSOffline_95.GetXaxis().SetRangeUser(Min_L1,Max_L1)
+RatesVSOffline_95.SetLineWidth(2)
+RatesVSOffline_95.SetMarkerColor(1)
+RatesVSOffline_95.SetMarkerStyle(8)
+RatesVSOffline_95.SetLineColor(1)
+RatesVSOffline_95.Draw()
 
 Tex31 = ROOT.TLatex()
 Tex31.SetTextSize(0.03)
@@ -385,11 +442,79 @@ Tex32.SetTextAlign(31)
 Tex32.DrawLatexNDC(0.90,0.91,"(14 TeV)")
 Tex32.Draw("same")
 
-canvas3.SaveAs(Rates_folder_png+"/RatesVSOffline.png")
-canvas3.SaveAs(Rates_folder_pdf+"/RatesVSOffline.pdf")
+canvas3.SaveAs(Rates_folder_png+"/RatesVSOffline_95.png")
+canvas3.SaveAs(Rates_folder_pdf+"/RatesVSOffline_95.pdf")
+
+#Rates for 90% efficiency
+
+RatesVSOffline_90 = ROOT.TGraphErrors(len(Offline_cuts_90), Offline_cuts_90, Rates)
+RatesVSOnline = ROOT.TGraphErrors(len(L1_cuts), L1_cuts, Rates)
+
+canvas4 = ROOT.TCanvas("c_4","c_4",800,800)
+canvas4.SetGrid(10,10)
+canvas4.SetLogy()
+RatesVSOffline_90.SetTitle("")
+RatesVSOffline_90.GetXaxis().SetTitle("p_{T}^{Offline}(jet)")
+RatesVSOffline_90.GetYaxis().SetTitle("Rates [kHz]")
+RatesVSOffline_90.GetYaxis().SetRangeUser(0.1,1.3*max(Rates))
+RatesVSOffline_90.GetXaxis().SetRangeUser(Min_L1,Max_L1)
+RatesVSOffline_90.SetLineWidth(2)
+RatesVSOffline_90.SetMarkerColor(1)
+RatesVSOffline_90.SetMarkerStyle(8)
+RatesVSOffline_90.SetLineColor(1)
+RatesVSOffline_90.Draw()
+
+Tex41 = ROOT.TLatex()
+Tex41.SetTextSize(0.03)
+Tex41.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+Tex41.Draw("same")
+
+Tex42 = ROOT.TLatex()
+Tex42.SetTextSize(0.035)
+Tex42.SetTextAlign(31)
+Tex42.DrawLatexNDC(0.90,0.91,"(14 TeV)")
+Tex42.Draw("same")
+
+canvas4.SaveAs(Rates_folder_png+"/RatesVSOffline_90.png")
+canvas4.SaveAs(Rates_folder_pdf+"/RatesVSOffline_90.pdf")
+
+#Rates for 90% efficiency
+
+RatesVSOffline_50 = ROOT.TGraphErrors(len(Offline_cuts_50), Offline_cuts_50, Rates)
+RatesVSOnline = ROOT.TGraphErrors(len(L1_cuts), L1_cuts, Rates)
+
+canvas5 = ROOT.TCanvas("c_5","c_5",800,800)
+canvas5.SetGrid(10,10)
+canvas5.SetLogy()
+RatesVSOffline_50.SetTitle("")
+RatesVSOffline_50.GetXaxis().SetTitle("p_{T}^{Offline}(jet)")
+RatesVSOffline_50.GetYaxis().SetTitle("Rates [kHz]")
+RatesVSOffline_50.GetYaxis().SetRangeUser(0.1,1.3*max(Rates))
+RatesVSOffline_50.GetXaxis().SetRangeUser(Min_L1,Max_L1)
+RatesVSOffline_50.SetLineWidth(2)
+RatesVSOffline_50.SetMarkerColor(1)
+RatesVSOffline_50.SetMarkerStyle(8)
+RatesVSOffline_50.SetLineColor(1)
+RatesVSOffline_50.Draw()
+
+Tex51 = ROOT.TLatex()
+Tex51.SetTextSize(0.03)
+Tex51.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+Tex51.Draw("same")
+
+Tex52 = ROOT.TLatex()
+Tex52.SetTextSize(0.035)
+Tex52.SetTextAlign(31)
+Tex52.DrawLatexNDC(0.90,0.91,"(14 TeV)")
+Tex52.Draw("same")
+
+canvas5.SaveAs(Rates_folder_png+"/RatesVSOffline_50.png")
+canvas5.SaveAs(Rates_folder_pdf+"/RatesVSOffline_50.pdf")
 
 #saving root graphs
 fileout = ROOT.TFile(ROOTs_folder + "/Rate_"+label+".root","RECREATE")
-fileout.WriteObject(RatesVSOffline, "RatesVSOffline")
+fileout.WriteObject(RatesVSOffline_95, "RatesVSOffline_95")
+fileout.WriteObject(RatesVSOffline_90, "RatesVSOffline_90")
+fileout.WriteObject(RatesVSOffline_50, "RatesVSOffline_50")
 fileout.WriteObject(RatesVSOnline, "RatesVSOnline")
 fileout.Close()

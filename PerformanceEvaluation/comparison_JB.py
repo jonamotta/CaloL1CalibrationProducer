@@ -29,10 +29,15 @@ os.system('mkdir -p '+outdir+'/Comparison/PDFs')
 ######################## COMPARE TURN ONS ########################
 ##################################################################
 
-Nbins = 241
-Min = 0 
-Max = 241
-L1_cuts = np.linspace(Min,Max,Nbins+1)
+Nbins_L1 = 290
+Min_L1 = 10.
+Max_L1 = 300.
+
+Nbins_TurnOn = 600
+Min_TurnOn = 0.
+Max_TurnOn = 600.
+
+L1_cuts = np.linspace(Min_L1,Max_L1,Nbins_L1+1)
 
 print("Import ROOT files: \n")
 print(outdir+"/ROOTs/TurnOn_"+label_uncalib+".root")
@@ -43,7 +48,7 @@ file_unCalib  = ROOT.TFile(outdir+"/ROOTs/TurnOn_"+label_uncalib+".root", "r")
 file_oldCalib = ROOT.TFile(outdir+"/ROOTs/TurnOn_"+label_oldcalib+".root", "r")
 file_newCalib = ROOT.TFile(outdir+"/ROOTs/TurnOn_"+label_newcalib+".root", "r")
 
-empty = ROOT.TH1F("empty","empty",Nbins,Min,Max)
+empty = ROOT.TH1F("empty","empty",Nbins_TurnOn,Min_TurnOn,Max_TurnOn)
 
 for L1_cut in L1_cuts:
 
@@ -59,7 +64,7 @@ for L1_cut in L1_cuts:
         #use dummy histogram to define style
         empty.SetTitle("")
         empty.GetXaxis().SetTitle("p_{T}^{Offline} (jet) [GeV]")
-        empty.GetXaxis().SetRangeUser(0., 240.)
+        empty.GetXaxis().SetRangeUser(Min_TurnOn, Max_TurnOn)
         empty.GetXaxis().SetTitleOffset(1.3)
         empty.GetYaxis().SetTitle("L1 Efficiency")
         empty.GetYaxis().SetRangeUser(0., 1.05)
@@ -113,7 +118,7 @@ for L1_cut in L1_cuts:
         del TurnOn_newCalib
 
 ##################################################################
-######################## COMPARE RATES ###########################
+######################## COMPARE RATES 95 % ######################
 ##################################################################
 
 file_unCalib  = ROOT.TFile(outdir+"/ROOTs/Rate_"+label_uncalib+".root", "r")
@@ -121,7 +126,7 @@ file_oldCalib = ROOT.TFile(outdir+"/ROOTs/Rate_"+label_oldcalib+".root", "r")
 file_newCalib = ROOT.TFile(outdir+"/ROOTs/Rate_"+label_newcalib+".root", "r")
 
 # remove -1 points from plotting
-Rate_unCalib_all = file_unCalib.Get("RatesVSOffline")
+Rate_unCalib_all = file_unCalib.Get("RatesVSOffline_95")
 Offline_cuts, Rates = array('d'), array('d')
 for x,y in zip(Rate_unCalib_all.GetX(), Rate_unCalib_all.GetY()):
     if x >= 0:
@@ -129,7 +134,7 @@ for x,y in zip(Rate_unCalib_all.GetX(), Rate_unCalib_all.GetY()):
         Rates.append(y)
 Rate_unCalib = ROOT.TGraphErrors(len(Offline_cuts), Offline_cuts, Rates)
 
-Rate_oldCalib_all = file_oldCalib.Get("RatesVSOffline")
+Rate_oldCalib_all = file_oldCalib.Get("RatesVSOffline_95")
 Offline_cuts, Rates = array('d'), array('d')
 for x,y in zip(Rate_oldCalib_all.GetX(), Rate_oldCalib_all.GetY()):
     if x >= 0:
@@ -137,7 +142,7 @@ for x,y in zip(Rate_oldCalib_all.GetX(), Rate_oldCalib_all.GetY()):
         Rates.append(y)
 Rate_oldCalib = ROOT.TGraphErrors(len(Offline_cuts), Offline_cuts, Rates)
 
-Rate_newCalib_all = file_newCalib.Get("RatesVSOffline")
+Rate_newCalib_all = file_newCalib.Get("RatesVSOffline_95")
 Offline_cuts, Rates = array('d'), array('d')
 for x,y in zip(Rate_newCalib_all.GetX(), Rate_newCalib_all.GetY()):
     if x >= 0:
@@ -153,12 +158,12 @@ canvas = ROOT.TCanvas("c","c",800,800)
 canvas.SetGrid(10,10)
 canvas.SetLogy()
 
-empty = ROOT.TH1F("empty","empty",Nbins,Min,Max)
+empty = ROOT.TH1F("empty","empty",Nbins_L1,Min_L1,Max_L1)
 
 #use dummy histogram to define style
 empty.SetTitle("")
 empty.GetXaxis().SetTitle("p_{T}^{Offline} (jet) [GeV]")
-empty.GetXaxis().SetRangeUser(0., 240.)
+empty.GetXaxis().SetRangeUser(Min_L1, Max_L1)
 empty.GetXaxis().SetTitleOffset(1.3)
 empty.GetYaxis().SetTitle("Single-Object Rate [KHz]")
 empty.GetYaxis().SetRangeUser(0.1, max(y_uncalib_max,y_oldcalib_max,y_newcalib_max)*1.3)
@@ -203,13 +208,205 @@ tex2.SetTextAlign(31)
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)")
 tex2.Draw("same")
 
-canvas.SaveAs(outdir+"/Comparison/PNGs/Rate_"+label_newcalib+".png")
-canvas.SaveAs(outdir+"/Comparison/PDFs/Rate_"+label_newcalib+".pdf")
+canvas.SaveAs(outdir+"/Comparison/PNGs/Rate_"+label_newcalib+"_95.png")
+canvas.SaveAs(outdir+"/Comparison/PDFs/Rate_"+label_newcalib+"_95.pdf")
+
+del canvas
+
+##################################################################
+######################## COMPARE RATES 90 % ######################
+##################################################################
+
+file_unCalib  = ROOT.TFile(outdir+"/ROOTs/Rate_"+label_uncalib+".root", "r")
+file_oldCalib = ROOT.TFile(outdir+"/ROOTs/Rate_"+label_oldcalib+".root", "r")
+file_newCalib = ROOT.TFile(outdir+"/ROOTs/Rate_"+label_newcalib+".root", "r")
+
+# remove -1 points from plotting
+Rate_unCalib_all = file_unCalib.Get("RatesVSOffline_90")
+Offline_cuts, Rates = array('d'), array('d')
+for x,y in zip(Rate_unCalib_all.GetX(), Rate_unCalib_all.GetY()):
+    if x >= 0:
+        Offline_cuts.append(x)
+        Rates.append(y)
+Rate_unCalib = ROOT.TGraphErrors(len(Offline_cuts), Offline_cuts, Rates)
+
+Rate_oldCalib_all = file_oldCalib.Get("RatesVSOffline_90")
+Offline_cuts, Rates = array('d'), array('d')
+for x,y in zip(Rate_oldCalib_all.GetX(), Rate_oldCalib_all.GetY()):
+    if x >= 0:
+        Offline_cuts.append(x)
+        Rates.append(y)
+Rate_oldCalib = ROOT.TGraphErrors(len(Offline_cuts), Offline_cuts, Rates)
+
+Rate_newCalib_all = file_newCalib.Get("RatesVSOffline_90")
+Offline_cuts, Rates = array('d'), array('d')
+for x,y in zip(Rate_newCalib_all.GetX(), Rate_newCalib_all.GetY()):
+    if x >= 0:
+        Offline_cuts.append(x)
+        Rates.append(y)
+Rate_newCalib = ROOT.TGraphErrors(len(Offline_cuts), Offline_cuts, Rates)
+
+y_uncalib_max = max(Rate_unCalib.GetY())
+y_oldcalib_max = max(Rate_oldCalib.GetY())
+y_newcalib_max = max(Rate_newCalib.GetY())
+
+canvas = ROOT.TCanvas("c","c",800,800)
+canvas.SetGrid(10,10)
+canvas.SetLogy()
+
+empty = ROOT.TH1F("empty","empty",Nbins_L1,Min_L1,Max_L1)
+
+#use dummy histogram to define style
+empty.SetTitle("")
+empty.GetXaxis().SetTitle("p_{T}^{Offline} (jet) [GeV]")
+empty.GetXaxis().SetRangeUser(Min_L1, Max_L1)
+empty.GetXaxis().SetTitleOffset(1.3)
+empty.GetYaxis().SetTitle("Single-Object Rate [KHz]")
+empty.GetYaxis().SetRangeUser(0.1, max(y_uncalib_max,y_oldcalib_max,y_newcalib_max)*1.3)
+empty.GetYaxis().SetTitleOffset(1.3)
+# Rate_unCalib.SetStats(0)
+empty.Draw()
+
+Rate_unCalib.SetLineWidth(2)
+Rate_unCalib.SetMarkerStyle(8)
+Rate_unCalib.SetMarkerColor(2)
+Rate_unCalib.SetLineColor(2)
+
+Rate_oldCalib.SetLineWidth(2)
+Rate_oldCalib.SetMarkerStyle(8)
+Rate_oldCalib.SetMarkerColor(3)
+Rate_oldCalib.SetLineColor(3)
+
+Rate_newCalib.SetLineWidth(2)
+Rate_newCalib.SetMarkerStyle(8)
+Rate_newCalib.SetMarkerColor(1)
+Rate_newCalib.SetLineColor(1)
+
+Rate_unCalib.Draw("LPE same")
+Rate_oldCalib.Draw("LPE same")
+Rate_newCalib.Draw("LPE same")
+
+legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
+legend.SetBorderSize(0)
+legend.AddEntry(Rate_unCalib,"Uncalibrated", "LPE")
+legend.AddEntry(Rate_oldCalib,"Old Calibration", "LPE")
+legend.AddEntry(Rate_newCalib,"New Calibration", "LPE")
+legend.Draw("same")
+
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03)
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex()
+tex2.SetTextSize(0.035)
+tex2.SetTextAlign(31)
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)")
+tex2.Draw("same")
+
+canvas.SaveAs(outdir+"/Comparison/PNGs/Rate_"+label_newcalib+"_90.png")
+canvas.SaveAs(outdir+"/Comparison/PDFs/Rate_"+label_newcalib+"_90.pdf")
 
 del canvas
 
 ##################################################################
 ######################## COMPARE RATES ###########################
+##################################################################
+
+file_unCalib  = ROOT.TFile(outdir+"/ROOTs/Rate_"+label_uncalib+".root", "r")
+file_oldCalib = ROOT.TFile(outdir+"/ROOTs/Rate_"+label_oldcalib+".root", "r")
+file_newCalib = ROOT.TFile(outdir+"/ROOTs/Rate_"+label_newcalib+".root", "r")
+
+# remove -1 points from plotting
+Rate_unCalib_all = file_unCalib.Get("RatesVSOffline_50")
+Offline_cuts, Rates = array('d'), array('d')
+for x,y in zip(Rate_unCalib_all.GetX(), Rate_unCalib_all.GetY()):
+    if x >= 0:
+        Offline_cuts.append(x)
+        Rates.append(y)
+Rate_unCalib = ROOT.TGraphErrors(len(Offline_cuts), Offline_cuts, Rates)
+
+Rate_oldCalib_all = file_oldCalib.Get("RatesVSOffline_50")
+Offline_cuts, Rates = array('d'), array('d')
+for x,y in zip(Rate_oldCalib_all.GetX(), Rate_oldCalib_all.GetY()):
+    if x >= 0:
+        Offline_cuts.append(x)
+        Rates.append(y)
+Rate_oldCalib = ROOT.TGraphErrors(len(Offline_cuts), Offline_cuts, Rates)
+
+Rate_newCalib_all = file_newCalib.Get("RatesVSOffline_50")
+Offline_cuts, Rates = array('d'), array('d')
+for x,y in zip(Rate_newCalib_all.GetX(), Rate_newCalib_all.GetY()):
+    if x >= 0:
+        Offline_cuts.append(x)
+        Rates.append(y)
+Rate_newCalib = ROOT.TGraphErrors(len(Offline_cuts), Offline_cuts, Rates)
+
+y_uncalib_max = max(Rate_unCalib.GetY())
+y_oldcalib_max = max(Rate_oldCalib.GetY())
+y_newcalib_max = max(Rate_newCalib.GetY())
+
+canvas = ROOT.TCanvas("c","c",800,800)
+canvas.SetGrid(10,10)
+canvas.SetLogy()
+
+empty = ROOT.TH1F("empty","empty",Nbins_L1,Min_L1,Max_L1)
+
+#use dummy histogram to define style
+empty.SetTitle("")
+empty.GetXaxis().SetTitle("p_{T}^{Offline} (jet) [GeV]")
+empty.GetXaxis().SetRangeUser(Min_L1, Max_L1)
+empty.GetXaxis().SetTitleOffset(1.3)
+empty.GetYaxis().SetTitle("Single-Object Rate [KHz]")
+empty.GetYaxis().SetRangeUser(0.1, max(y_uncalib_max,y_oldcalib_max,y_newcalib_max)*1.3)
+empty.GetYaxis().SetTitleOffset(1.3)
+# Rate_unCalib.SetStats(0)
+empty.Draw()
+
+Rate_unCalib.SetLineWidth(2)
+Rate_unCalib.SetMarkerStyle(8)
+Rate_unCalib.SetMarkerColor(2)
+Rate_unCalib.SetLineColor(2)
+
+Rate_oldCalib.SetLineWidth(2)
+Rate_oldCalib.SetMarkerStyle(8)
+Rate_oldCalib.SetMarkerColor(3)
+Rate_oldCalib.SetLineColor(3)
+
+Rate_newCalib.SetLineWidth(2)
+Rate_newCalib.SetMarkerStyle(8)
+Rate_newCalib.SetMarkerColor(1)
+Rate_newCalib.SetLineColor(1)
+
+Rate_unCalib.Draw("LPE same")
+Rate_oldCalib.Draw("LPE same")
+Rate_newCalib.Draw("LPE same")
+
+legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
+legend.SetBorderSize(0)
+legend.AddEntry(Rate_unCalib,"Uncalibrated", "LPE")
+legend.AddEntry(Rate_oldCalib,"Old Calibration", "LPE")
+legend.AddEntry(Rate_newCalib,"New Calibration", "LPE")
+legend.Draw("same")
+
+tex = ROOT.TLatex()
+tex.SetTextSize(0.03)
+tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
+tex.Draw("same")
+
+tex2 = ROOT.TLatex()
+tex2.SetTextSize(0.035)
+tex2.SetTextAlign(31)
+tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)")
+tex2.Draw("same")
+
+canvas.SaveAs(outdir+"/Comparison/PNGs/Rate_"+label_newcalib+"_50.png")
+canvas.SaveAs(outdir+"/Comparison/PDFs/Rate_"+label_newcalib+"_50.pdf")
+
+del canvas
+
+##################################################################
+######################## COMPARE L1 RATES ########################
 ##################################################################
 
 file_unCalib  = ROOT.TFile(outdir+"/ROOTs/Rate_"+label_uncalib+".root", "r")
@@ -228,12 +425,12 @@ canvas = ROOT.TCanvas("c","c",800,800)
 canvas.SetGrid(10,10)
 canvas.SetLogy()
 
-empty = ROOT.TH1F("empty","empty",Nbins,Min,Max)
+empty = ROOT.TH1F("empty","empty",Nbins_L1,Min_L1,Max_L1)
 
 #use dummy histogram to define style
 empty.SetTitle("")
 empty.GetXaxis().SetTitle("p_{T}^{L1} (jet) [GeV]")
-empty.GetXaxis().SetRangeUser(0., 240.)
+empty.GetXaxis().SetRangeUser(Min_L1, Max_L1)
 empty.GetXaxis().SetTitleOffset(1.3)
 empty.GetYaxis().SetTitle("Single-Object Rate [KHz]")
 empty.GetYaxis().SetRangeUser(0.1, max(y_uncalib_max,y_oldcalib_max,y_newcalib_max)*1.3)
