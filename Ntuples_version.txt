@@ -179,7 +179,14 @@ Rerun the full machinery after having discovered the issue with the dataframes p
 The setup is the one that was already used for V19
 Latest and greatest with nFT weighing and rate proxy are to be investigated
 
+2022_08_29_NtuplesV24
+Same ntuples as 2022_07_20_Ntuples23. The folder is used for testing of different manual saturations
 
+2022_09_05_NtuplesV25
+Training with jets having at most 10 TTs
+
+2022_09_05_NtuplesV26
+Training with jets having at least 10 TTs
 
 
 
