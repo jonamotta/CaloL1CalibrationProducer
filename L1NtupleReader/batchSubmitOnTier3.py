@@ -52,6 +52,7 @@ parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', de
 parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
 parser.add_option("--applyNewECALcalib", dest="applyNewECALcalib", action='store_true', default=False)
 parser.add_option("--applyNewECALpHCALcalib", dest="applyNewECALpHCALcalib", action='store_true', default=False)
+parser.add_option("--doNuGun", dest="doNuGun", action='store_true', default=False)
 parser.add_option("--doEG0_200", dest="doEG0_200", action='store_true', default=False)
 parser.add_option("--doEG0_200pu", dest="doEG0_200pu", action='store_true', default=False)
 parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', default=False)
@@ -71,7 +72,7 @@ if options.applyNoCalib == False and options.applyOldCalib == False and options.
     print('** WARNING: no calibration to be used specified - EXITING!')
     exit()
 
-if options.doEG0_200 == False and options.doEG200_500 == False and options.doEG0_200pu == False and options.doEG200_500pu == False and options.doQCD == False and options.doQCDpu == False and options.doPi0_200 == False and options.testRun == False:
+if options.doEG0_200 == False and options.doEG200_500 == False and options.doEG0_200pu == False and options.doEG200_500pu == False and options.doQCD == False and options.doQCDpu == False and options.doPi0_200 == False and options.doNuGun == False:
     print('** WARNING: no dataset to be used specified - EXITING!')
     exit()
 
@@ -158,6 +159,12 @@ elif options.doPi0_200:
     filedir = filedir +'/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
     folder = filedir+'/'+outputFolderName
 
+elif options.doNuGun:
+    ## neutrino gun for rate estimation
+    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_nuGun.txt')
+    filedir = filedir +'/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
+    folder = filedir+'/'+outputFolderName
+
 else:
     print(' ** WARNING: wrong request --> EXITING!')
     exit()
@@ -223,8 +230,8 @@ for idx, tag in enumerate(tags):
     skimjob.close ()
 
     os.system ('chmod u+rwx ' + outJobName)
-    # command = ('/home/llr/cms/motta/t3submit -short \'' + outJobName +"\'")
-    command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
+    command = ('/home/llr/cms/motta/t3submit -short \'' + outJobName +"\'")
+    # command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
     print(command)
     os.system (command)
     # break

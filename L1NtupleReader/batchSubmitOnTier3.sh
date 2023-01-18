@@ -94,3 +94,5 @@ python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 20
 
 # Elena
 python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --TTNumberCut True --indir 2022_09_05_NtuplesV25 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000
+
+python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyNoCalib --applyCut_3_6_9 True --odir _rateProxy

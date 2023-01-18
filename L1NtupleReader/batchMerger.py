@@ -25,6 +25,7 @@ if __name__ == "__main__" :
     parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
     parser.add_option("--applyNewECALcalib", dest="applyNewECALcalib", action='store_true', default=False)
     parser.add_option("--applyNewECALpHCALcalib", dest="applyNewECALpHCALcalib", action='store_true', default=False)
+    parser.add_option("--doNuGun", dest="doNuGun", action='store_true', default=False)
     parser.add_option("--doEG0_200", dest="doEG0_200", action='store_true', default=False)
     parser.add_option("--doEG0_200pu", dest="doEG0_200pu", action='store_true', default=False)
     parser.add_option("--doEG", dest="doEG", action='store_true', default=False)
@@ -41,7 +42,7 @@ if __name__ == "__main__" :
         print('** WARNING: no calibration to be used specified - EXITING!')
         exit()
 
-    if options.doEG0_200 == False and options.doEG == False and options.doEG0_200pu == False and options.doEGpu == False and options.doQCD == False and options.doQCDpu == False:
+    if options.doEG0_200 == False and options.doEG == False and options.doEG0_200pu == False and options.doEGpu == False and options.doQCD == False and options.doQCDpu == False and options.doNuGun == False:
         print('** WARNING: no dataset to be used specified - EXITING!')
         exit()
 
@@ -145,6 +146,12 @@ if __name__ == "__main__" :
         tensordirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}_200pt500/tensors'.format(outputFolderName,options.odir))
         dataframedirs.append(filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}_200pt500/dataframes'.format(outputFolderName,options.odir))
 
+    elif options.doNuGun:
+        ## signle photon 0-200 with pu
+        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_nuGun_{0}.txt'.format(options.sample))
+        taglists.append(taglist)
+        tensordirs.append(filedir +'/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/tensors'.format(outputFolderName,options.odir))
+        dataframedirs.append(filedir +'/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches/{0}{1}/dataframes'.format(outputFolderName,options.odir))
 
     else:
         print(' ** WARNING: wrong request --> EXITING!')

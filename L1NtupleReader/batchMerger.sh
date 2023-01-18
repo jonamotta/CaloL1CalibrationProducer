@@ -68,3 +68,5 @@ sleep 5
 # python batchMerger.py --indir 2022_07_12_NtupleV22 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD       --filesLim 1 --odir _30pt1000_eta41_nTT
 # sleep 5
 # python batchMerger.py --indir 2022_07_12_NtupleV22 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD        --filesLim 1 --odir _30pt1000_eta41_nTT
+
+python batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v NU --applyHCALpfa1p --applyNoCalib --doNuGun --filesLim 50 --odir _rateProxy

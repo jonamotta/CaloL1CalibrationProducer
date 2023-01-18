@@ -228,12 +228,14 @@ if __name__ == "__main__" :
                 'iet' : list(chain.from_iterable(dfTowers[b'iet']))
                 })
 
+            if options.doNuGun: jetPtName = b'jetEt'
+            else:               jetPtName = b'jetPt'
+
             dfFlatEJ = pd.DataFrame({
                 'event': np.repeat(dfJets[b'event'].values, dfJets[b'jetEta'].str.len()), # event IDs are copied to keep proper track of what is what
                 'jetEta': list(chain.from_iterable(dfJets[b'jetEta'])),
                 'jetPhi': list(chain.from_iterable(dfJets[b'jetPhi'])),
-                # 'jetPt' : list(chain.from_iterable(dfJets[b'jetEt']))
-                'jetPt' : list(chain.from_iterable(dfJets[b'jetPt']))
+                'jetPt' : list(chain.from_iterable(dfJets[jetPtName]))
                 })
 
             # save hdf5 files

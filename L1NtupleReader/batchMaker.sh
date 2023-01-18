@@ -38,7 +38,7 @@ python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCD --outd
 # python batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doQCDpu --outdir 2022_06_10_NtuplesV20 --applyNoCalib
 
 
-
+python3 batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 15000 --doNuGun --outdir 2023_01_16_NtuplesV27 --applyNoCalib
 
 
 
