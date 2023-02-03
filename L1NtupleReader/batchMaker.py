@@ -27,14 +27,10 @@ class Logger(object):
 ######################### SCRIPT BODY #################################
 #######################################################################
 
-### To run:
-### python3 alternateReader.py --v (ECAL or HCAL)
-
 if __name__ == "__main__" :
 
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("--v",    dest="v",   help="Ntuple type ('ECAL' or 'HCAL')", default='ECAL')
     parser.add_option("--outdir",    dest="outdir",   help="Ntuple version folder where to save", default='')
     parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
     parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
@@ -81,7 +77,6 @@ if __name__ == "__main__" :
     indir  = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples'
     outdir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.outdir
 
-    # choose ECAL of HCAL folder according to option v
     folder_names = []
 
     if options.doQCDpu:
@@ -147,7 +142,7 @@ if __name__ == "__main__" :
     os.system('mkdir -p '+outdir+'/jets')
     
     # set output to go both to terminal and to file
-    sys.stdout = Logger(outdir+'/info'+options.v+'.log')
+    sys.stdout = Logger(outdir+'/info.log')
 
     print(folder_names)
 

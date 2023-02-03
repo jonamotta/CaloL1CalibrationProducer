@@ -231,7 +231,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     notSafe = list(dfFlatEJ[(dfFlatEJ['dRsafe']==False)]['jetId'])
     dfFlatEJ = dfFlatEJ[dfFlatEJ.jetId.isin(notSafe) == False]
     dfFlatEJ.drop(['jetEta_joined', 'jetPhi_joined', 'jetPt_joined', 'jetId_joined', 'dRsafe'], axis=1, inplace=True) # drop columns not needed anymore
-    dfFlatEJ.drop_duplicates('jetId', keep='first', inplace=True) # drop duplicates of teh jets
+    dfFlatEJ.drop_duplicates('jetId', keep='first', inplace=True) # drop duplicates of the jets
 
     ## DEBUG
     print('starting conversion eta/phi->ieta/iphi')
@@ -243,8 +243,7 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     dfFlatEJ['jetIphi'] = FindIphi_vctd(dfFlatEJ['jetPhi'])
 
     # For ECAL/HCAL we consider just jets having a chunky donuts completely inside the ECAL/HCAL detector
-    if iEtacut != False:
-        dfFlatEJ = dfFlatEJ[abs(dfFlatEJ['jetIeta']) <= int(iEtacut)]
+    if iEtacut != False: dfFlatEJ = dfFlatEJ[abs(dfFlatEJ['jetIeta']) <= int(iEtacut)]
 
     # join the jet and the towers datasets -> this creates all the possible combination of towers and jets for each event
     # important that dfFlatET is joined to dfFlatEJ and not viceversa --> this because dfFlatEJ contains the safe jets to be used and the safe event numbers
