@@ -1,3 +1,4 @@
+from sklearn.model_selection import train_test_split
 import numpy as np
 import sklearn
 import random
@@ -25,42 +26,25 @@ os.system('export PYTHONHASHSEED=7')
 ############################## HELPER FUNCTIONS ##############################
 ##############################################################################
 
-class Logger(object):
-    def __init__(self,file):
-        self.terminal = sys.stdout
-        self.log = open(file, "w")
-
-    def write(self, message):
-        self.terminal.write(message)
-        self.log.write(message)  
-
-    def flush(self):
-        #this flush method is needed for python 3 compatibility.
-        #this handles the flush command by doing nothing.
-        #you might want to specify some extra behavior here.
-        pass
-
-def convert_samples(X_vec, Y_vec, Z_vec, version):
-    # Y vector columns: jetPt, jetEta, jetPhi, trainingPt (for ECAL jetPt - hcalET, for HCAL jetPt - calib(iem))
+def convert_samples(X, Y, Z, version):
+    # Y vector columns: jetPt, jetEta, jetPhi, trainingPt
     # keep only the trainingPt
-    Y = Y_vec[:,3]
+    Y = Y[:,3]
 
     # X vector columns: iem, ihad, iesum, ieta
     print('\nConvert X, Y, and Z vectors to order iem and ihad appropriately')
     if version == 'ECAL':
-        X = np.delete(X_vec, 2, axis=2) # delete iesum column (always start deleting from right columns)
+        X = np.delete(X, 2, axis=2) # delete iesum column (always start deleting from right columns)
         X[:,:,[0,1]] = X[:,:,[1,0]]     # order iem and ihad to have the needed one on the right
 
-        Z = np.delete(Z_vec, 2, axis=2)
-        evtNmbr = Z.shape[0]
+        Z = np.delete(Z, 2, axis=2)
         Z = Z.reshape(Z.shape[0]*Z.shape[1], Z.shape[2]) # reshape so that every TT beomes an event
         Z = Z[ Z[:,0] != 0 ] # remove TTs that have iEM == 0
         Z[:,[0,1]] = Z[:,[1,0]]
-        Z = Z[:evtNmbr]
 
     elif version == 'HCAL':
-        X = np.delete(X_vec, 2, axis=2)
-        Z = np.delete(Z_vec, 2, axis=2)
+        X = np.delete(X, 2, axis=2)
+        Z = np.delete(Z, 2, axis=2)
         
     return X, Y, Z
 
@@ -179,11 +163,6 @@ model = keras.Model(inputs, outputs, name='Layer1Calibrator')
 ######################## CUSTOM TRAINING DEFINITIONS #########################
 ##############################################################################
 
-epochs = 3
-batch_size = 1024
-verbose = True
-validation_split = 0.25
-
 optimizer = keras.optimizers.Adam(learning_rate=1E-3)
 train_acc_metric = keras.metrics.RootMeanSquaredError()
 val_acc_metric   = keras.metrics.RootMeanSquaredError()
@@ -225,7 +204,7 @@ def rateLossJets(z, seedThr, jetThr):
     passing = tf.reduce_sum(z_seeds_AT * z_jet_AT) # do logical AND between z_seeds_AT and z_jet_AT
     total   = z.shape[0]
 
-    return passing / total * 1000 #* 2450 * 11245.6 * 0.001 / scaling # FIXME: rate to be computed? and  scaling to be defined
+    return passing / total * 100 #* 2450 * 11245.6 * 0.001 / scaling # FIXME: rate to be computed? and  scaling to be defined
 
 # part of the loss that controls the rate for e/gammas
 def rateLossEgs(z, hoeThrEB, hoeThrEE, egThr):
@@ -243,7 +222,7 @@ def rateLossEgs(z, hoeThrEB, hoeThrEE, egThr):
     passing = tf.reduce_sum(z_TT_hoeAT * z_TT_eAT) # do logical AND between z_TT_eAT and z_TT_hoeAT
     total   = z.shape[0]
 
-    return passing / total * 1000 #* 2450 * 11245.6 * 0.001 / scaling # FIXME: rate to be computed? and  scaling to be defined
+    return passing / total * 40000 #* 2450 * 11245.6 * 0.001 / scaling # FIXME: rate to be computed? and  scaling to be defined
 
 @tf.function
 def custom_train_step(v, x, y, z):
@@ -252,7 +231,7 @@ def custom_train_step(v, x, y, z):
         regressionLoss_value = regressionLoss(y, y_pred)
         weightsLoss_value = weightsLoss()
         if v == 'HCAL': rateLoss_value = rateLossJets(z, 8., 100.) # remember the thresholds are in HW units!
-        if v == 'ECAL': rateLoss_value = rateLossEgs(z, 3, 4, 25.) # remember the thresholds are in HW units!
+        if v == 'ECAL': rateLoss_value = rateLossEgs(z, 3, 4, 50.) # remember the thresholds are in HW units!
         loss = regressionLoss_value + weightsLoss_value + rateLoss_value
         grads = tape.gradient(loss, model.trainable_weights)
     
@@ -267,7 +246,7 @@ def custom_test_step(v, x, y, z):
     regressionLoss_value = regressionLoss(y, y_pred)
     weightsLoss_value = weightsLoss()
     if v == 'HCAL': rateLoss_value = rateLossJets(z, 8., 100.) # remember the thresholds are in HW units!
-    if v == 'ECAL': rateLoss_value = rateLossEgs(z, 3, 4, 25.) # remember the thresholds are in HW units!
+    if v == 'ECAL': rateLoss_value = rateLossEgs(z, 3, 4, 50.) # remember the thresholds are in HW units!
     loss = regressionLoss_value + weightsLoss_value + rateLoss_value
     val_acc_metric.update_state(y, y_pred)
 
@@ -285,9 +264,12 @@ if __name__ == "__main__" :
     
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("--indir",        dest="indir",       help="Input folder with X_train.npx and Y_train.npz",   default=None)
-    parser.add_option("--tag",          dest="tag",         help="tag of the training folder",                      default="")
-    parser.add_option("--v",            dest="v",           help="Ntuple type ('ECAL' or 'HCAL')",                  default=None)
+    parser.add_option("--indir",            dest="indir",            help="Input folder with X_train.npx and Y_train.npz", default=None             )
+    parser.add_option("--tag",              dest="tag",              help="tag of the training folder",                    default=""               )
+    parser.add_option("--v",                dest="v",                help="Ntuple type ('ECAL' or 'HCAL')",                default=None             )
+    parser.add_option("--epochs",           dest="epochs",           help="Number of epochs for the training",             default=20,   type=int   )
+    parser.add_option("--batch_size",       dest="batch_size",       help="Batch size for the training",                   default=1024, type=int   )
+    parser.add_option("--validation_split", dest="validation_split", help="Fraction of events to be used for testing",     default=0.25, type=float )
     (options, args) = parser.parse_args()
     print(options)
 
@@ -296,51 +278,65 @@ if __name__ == "__main__" :
     os.system('mkdir -p '+ odir)
     os.system('mkdir -p '+ odir+'/plots')
 
+    verbose = True
+    epochs = options.epochs
+    batch_size = options.batch_size
+    validation_split = options.validation_split
+
     # read testing and training datasets
     # Inside X_vec: matrix n_ev x 81 x 43 ([81 for the chucky donut towers][43 for iem, ihad, iesum, ieta])
     # Inside Y_vec: matrx n_ev x 2 (jetPt, jetPhi, jetEta, trainingPt)
-    X_vec = np.load(indir+'/X_train.npz')['arr_0']
-    Y_vec = np.load(indir+'/Y_train.npz')['arr_0']
-    Z_vec = np.load('/data_CMS/cms/motta/CaloL1calibraton/'+options.indir+'/NUtraining_rateProxy/X_train.npz')['arr_0']
+    X_train = np.load(indir+'/X_train.npz')['arr_0']
+    Y_train = np.load(indir+'/Y_train.npz')['arr_0']
+    Z_train = np.load('/data_CMS/cms/motta/CaloL1calibraton/'+options.indir+'/NUtraining_rateProxy/X_train.npz')['arr_0']
 
     # Inside X_train: matrix n_ev x 81 x 43 ([81 for the chucky donut towers][iem, ihad, iesum, 40*ieta])
     # Inside Y_train: vector n_ev (jetPt)
-    X_train, Y_train, Z_train = convert_samples(X_vec, Y_vec, Z_vec, options.v)
+    X_train, Y_train, Z_train = convert_samples(X_train, Y_train, Z_train, options.v)
 
-    dp = int(X_train.shape[0] * validation_split)
-    x_val = tf.convert_to_tensor(X_train[-dp:], dtype=tf.int64)
-    y_val = tf.convert_to_tensor(Y_train[-dp:], dtype=tf.float32)
-    x_train = tf.convert_to_tensor(X_train[:-dp], dtype=tf.int64)
-    y_train = tf.convert_to_tensor(Y_train[:-dp], dtype=tf.float32)
-    dp = int(Z_train.shape[0] * validation_split)
-    z_val = tf.convert_to_tensor(Z_train[-dp:], dtype=tf.float32)
-    z_train = tf.convert_to_tensor(Z_train[:-dp], dtype=tf.float32)
+    # clean from the events that are completely pusite of a regular resposne
+    uncalibResp = Y_train / np.sum(X_train[:,:,1], axis=1)
+    X_train = X_train[(uncalibResp < 3) & (uncalibResp > 0.3)]
+    Y_train = Y_train[(uncalibResp < 3) & (uncalibResp > 0.3)]
+
+    Xt, Xv, Yt, Yv = train_test_split(X_train, Y_train, test_size=validation_split, random_state=7)    
+    x_val = tf.convert_to_tensor(Xv, dtype=tf.int64)
+    y_val = tf.convert_to_tensor(Yv, dtype=tf.float32)
+    x_train = tf.convert_to_tensor(Xt, dtype=tf.int64)
+    y_train = tf.convert_to_tensor(Yt, dtype=tf.float32)
+    z = tf.convert_to_tensor(Z_train, dtype=tf.float32)
+    del X_train, Y_train, Z_train, Xt, Xv, Yt, Yv
+
+    print(x_val.shape)
+    print(y_val.shape)
+    print(x_train.shape)
+    print(y_train.shape)
+    print(z.shape)
+    exit()
 
     # Prepare the training dataset.
     train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
     train_dataset = train_dataset.batch(batch_size)
 
     # Prepare the validation dataset.
-    val_dataset = tf.data.Dataset.from_tensor_slices((x_val, y_val))
-    val_dataset = val_dataset.batch(batch_size)
-
-    sys.stdout = Logger(odir + '/training.log')
+    # val_dataset = tf.data.Dataset.from_tensor_slices((x_val, y_val))
+    # val_dataset = val_dataset.batch(batch_size)
 
     # run training loop
     for epoch in range(epochs):
         start_time = time.time()
-        print("\nStart of epoch %d" % (epoch,))
+        print("\nStart of epoch %d" % (epoch+1,))
 
         for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
-            train_loss, train_regressionLoss, train_weightLoss, train_rateLoss, train_acc = custom_train_step(options.v, x_batch_train, y_batch_train, z_train)
+            train_loss, train_regressionLoss, train_weightLoss, train_rateLoss, train_acc = custom_train_step(options.v, x_batch_train, y_batch_train, z)
 
             # Log every N batches.
             if verbose and step % 1 == 0:
                 print( "At batch %d (seen %d samples so far) : loss = %.4f ; regressionLoss = %.4f ; weightsLoss = %.4f ; rateLoss = %.4f ; RMSE = %.4f" % (step+1, (step+1)*batch_size, float(train_loss), float(train_regressionLoss), float(train_weightLoss), float(train_rateLoss), float(train_acc)) )
 
         # Run a validation loop at the end of each epoch.
-        for x_batch_val, y_batch_val in val_dataset:
-            val_loss, val_regressionLoss, val_weightLoss, val_rateLoss = custom_test_step(options.v, x_batch_val, y_batch_val, z_val)
+        # for x_batch_val, y_batch_val in val_dataset:
+        val_loss, val_regressionLoss, val_weightLoss, val_rateLoss = custom_test_step(options.v, x_val, y_val, z)
 
         train_acc = train_acc_metric.result()
         val_acc = val_acc_metric.result()
@@ -363,8 +359,6 @@ if __name__ == "__main__" :
         val_acc_metric.reset_states()
 
         print("Time taken: %.2fs" % (time.time() - start_time))
-
-    sys.stdout = sys.__stdout__
 
     model.save(odir + '/model')
     TTP.save(odir + '/TTP')
@@ -435,7 +429,7 @@ if __name__ == "__main__" :
     plt.plot(history['x'], history['regressionLoss'], label='Regression loss', lw=2, ls='-', marker='o', color=cmap(0))
     plt.plot(history['x'], history['weightsLoss'], label='Weights loss', lw=2, ls='-', marker='o', color=cmap(1))
     plt.plot(history['x'], history['rateLoss'], label='Rate loss', lw=2, ls='-', marker='o', color=cmap(2))
-    plt.ylabel('Rate loss')
+    plt.ylabel('Loss breakdown')
     plt.xlabel('Epoch')
     plt.grid()
     leg = plt.legend(loc='upper right', fontsize=20)
@@ -447,7 +441,7 @@ if __name__ == "__main__" :
     plt.plot(history['x'], history['val_regressionLoss'], label='Regression loss', lw=2, ls='-', marker='o', color=cmap(0))
     plt.plot(history['x'], history['val_weightsLoss'], label='Weights loss', lw=2, ls='-', marker='o', color=cmap(1))
     plt.plot(history['x'], history['val_rateLoss'], label='Rate loss', lw=2, ls='-', marker='o', color=cmap(2))
-    plt.ylabel('Rate loss')
+    plt.ylabel('Loss breakdown')
     plt.xlabel('Epoch')
     plt.grid()
     leg = plt.legend(loc='upper right', fontsize=20)
