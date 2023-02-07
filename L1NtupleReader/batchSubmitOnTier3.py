@@ -81,7 +81,7 @@ tagCalib = ""
 if   options.applyNoCalib:           tagCalib = "_uncalib"
 elif options.applyOldCalib:          tagCalib = "_oldCalib"
 elif options.applyNewECALcalib:      tagCalib = "_newECALcalib" 
-elif options.applyNewECALpHCALcalib: tagCalib = "_newECALpHCALcalib"
+elif options.applyNewECALpHCALcalib: tagCalib = "_newCalib"
 if   options.applyHCALpfa1p:         tagHCALpfa1p = "_applyHCALpfa1p"
 
 basedir = '/data_CMS/cms/motta/CaloL1calibraton'

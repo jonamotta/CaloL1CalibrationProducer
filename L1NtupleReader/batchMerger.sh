@@ -71,18 +71,19 @@
 
 
 
+python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v ECAL --applyHCALpfa1p --applyOldCalib --doEG  --filesLim 1000 --odir _0pt500_oldCalib
+python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v HCAL --applyHCALpfa1p --applyOldCalib --doQCD  --filesLim 1000 --odir _30pt1000_oldCalib
 
 
-
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v ECAL --applyHCALpfa1p --applyNoCalib --doEG  --filesLim 100 --odir _0pt500
+python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v ECAL --applyHCALpfa1p --applyNoCalib --doEG  --filesLim 1000 --odir _0pt500
 sleep 5
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD --filesLim 200 --odir _30pt1000
+python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD --filesLim 1000 --odir _30pt1000
 sleep 5
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v NU --applyHCALpfa1p --applyNoCalib --doNuGun --filesLim 45 --odir _rateProxy
+python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v NU --applyHCALpfa1p --applyNoCalib --doNuGun --filesLim 1000 --odir _rateProxy
 sleep 5
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v NUOLD --applyHCALpfa1p --applyOldCalib --doNuGun --filesLim 45 --odir _rateProxy
+python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v NU --applyHCALpfa1p --applyNoCalib --doNuGun --filesLim 1000 --odir _rateProxy_oldCalib
 sleep 5
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v ECAL --applyHCALpfa1p --applyNoCalib --doEG   --filesLim 100 --odir _0pt500
+python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v ECAL --applyHCALpfa1p --applyNoCalib --doEG   --filesLim 1000 --odir _0pt500
 sleep 5
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD  --filesLim 200 --odir _30pt1000
+python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD  --filesLim 1000 --odir _30pt1000
 sleep 5

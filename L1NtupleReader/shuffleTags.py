@@ -1,7 +1,8 @@
 import random
 import math
 
-files = ['taglist_nuGun'] #, 'taglist_eg_Pt0To200pu', 'taglist_eg_Pt200To500pu', 'taglist_QCDpu', 'taglist_pi_Pt0To200', 'taglist_qcdNoPU_Pt50To80', 'taglist_qcdNoPU_Pt80To120', 'taglist_qcdNoPU_Pt120To170']
+# files = ['taglist_eg_Pt0To200pu', 'taglist_eg_Pt200To500pu', 'taglist_QCDpu', 'taglist_pi_Pt0To200', 'taglist_qcdNoPU_Pt50To80', 'taglist_qcdNoPU_Pt80To120', 'taglist_qcdNoPU_Pt120To170']
+files = ['taglist_eg_Pt0To200', 'taglist_eg_Pt200To500', 'taglist_QCD']
 
 for file in files:
     print(file)
@@ -9,7 +10,7 @@ for file in files:
 
     tags = [tag.strip() for tag in f]
     random.shuffle(tags)
-    dp = int(math.ceil(len(tags)/4*3))
+    dp = int(math.ceil(len(tags)*0.85))
 
     f.close()
 

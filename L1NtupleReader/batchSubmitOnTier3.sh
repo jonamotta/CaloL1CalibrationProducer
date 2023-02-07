@@ -96,6 +96,13 @@ python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 20
 python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --TTNumberCut True --indir 2022_09_05_NtuplesV25 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000
 
 python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyNoCalib --applyCut_3_6_9 True --odir _rateProxy
+python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyNoCalib --applyCut_3_6_9 True --odir _rateProxy_oldCalib --calibECALOnTheFly oldCalib --calibHCALOnTheFly oldCalib
 
-python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyOldCalib --applyCut_3_6_9 True --odir _rateProxy
+python batchSubmitOnTier3.py --doEG0_200   --etacut 28 --ecalcut True --indir 2022_07_20_NtuplesV27 --applyHCALpfa1p --applyOldCalib                                 --applyCut_3_6_9 True --odir _0pt200_oldCalib
+python batchSubmitOnTier3.py --doEG200_500 --etacut 28 --ecalcut True --indir 2022_07_20_NtuplesV27 --applyHCALpfa1p --applyOldCalib                                 --applyCut_3_6_9 True --odir _200pt500_oldCalib
+python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 2022_07_20_NtuplesV27 --applyHCALpfa1p --applyOldCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000_oldCalib
+
+# python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyOldCalib --applyCut_3_6_9 True --odir _rateProxy
+
+# python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyNewECALpHCALcalib --applyCut_3_6_9 True --odir _v23_rateProxy
 
