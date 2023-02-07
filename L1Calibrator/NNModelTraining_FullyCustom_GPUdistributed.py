@@ -54,7 +54,8 @@ def applyECALcalib(Z, TTP):
     xDim = Z.shape[0] ; yDim = 81 ; zDim = 42
     Z = Z.reshape(xDim*yDim, zDim) # reshape so that every TT becomes an event
     Z[:,[0,1]] = Z[:,[1,0]] # order iem and ihad to have the needed one on the right
-    TT_em_pred = tf.cast(TTP.predict(Z[:,1:], batch_size=2048), dtype=tf.int16)
+    # TT_em_pred = tf.cast(TTP.predict(Z[:,1:], batch_size=2048), dtype=tf.int16)
+    TT_em_pred = TTP.predict(Z[:,1:], batch_size=2048) # CAST REMOVED
     Z[:,[0,1]] = Z[:,[1,0]] # order iem and ihad to have the needed one on the right
     Z[:,[0]] = TT_em_pred
     Z = Z.reshape(xDim, yDim, zDim) # reshape so that 81xTT becomes an event again
@@ -217,8 +218,9 @@ if __name__ == "__main__" :
     GLOBAL_BATCH_SIZE = BATCH_SIZE_PER_REPLICA * NGPUS
     EPOCHS = options.epochs
     MAX_LEARNING_RATE = 1E-3
-    RATE_STEPIN_FQ = 1
+    RATE_STEPIN_FQ = 5
     RATE_STEPIN_RESIDUAL = 0
+    N_RATE_EVTS_xGPU = 50000 * NGPUS # for the rate select NGPUS multiple of number of events and batch by the same value to have one batch per GPU
     HISTORY = { 'x'        : [],
                 'learning_rate': [[]],
                 'train_loss' : [], 'train_regressionLoss' : [], 'train_weightsLoss' : [], 'train_rateLoss' : [], 'train_RMSE' : [],
@@ -260,12 +262,12 @@ if __name__ == "__main__" :
             print('** INFO : tensorizing NumPy datasets')
             x_train, x_test, y_train, y_test = train_test_split(X_train, Y_train, test_size=options.validation_split, random_state=7)
             del X_train, Y_train
-            x_test = tf.convert_to_tensor(x_test, dtype=tf.int16)
+            x_test = tf.convert_to_tensor(x_test, dtype=tf.float32)
             y_test = tf.convert_to_tensor(y_test, dtype=tf.float32)
-            x_train = tf.convert_to_tensor(x_train, dtype=tf.int16)
+            x_train = tf.convert_to_tensor(x_train, dtype=tf.float32)
             y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
-            z_rate = tf.convert_to_tensor(Z_train, dtype=tf.int16)
-            _ = tf.convert_to_tensor(np.zeros(len(Z_train)), dtype=tf.int8)
+            z_rate = tf.convert_to_tensor(Z_train, dtype=tf.float32)
+            _ = tf.convert_to_tensor(np.zeros(len(Z_train)), dtype=tf.float32)
             del Z_train
             print('** INFO : done tensorizing NumPy datasets')
 
@@ -292,9 +294,8 @@ if __name__ == "__main__" :
     print('** INFO : batching TensorFlow datasets')
     train_dataset = train_dataset.batch(GLOBAL_BATCH_SIZE, drop_remainder=True)
     test_dataset = test_dataset.batch(GLOBAL_BATCH_SIZE, drop_remainder=True)
-    nbrEvts = 50000 * NGPUS # for the rate select NGPUS multiple of number of events and batch by the same value to have one batch per GPU
-    rate_dataset = rate_dataset.take(nbrEvts)
-    rate_dataset = rate_dataset.batch(nbrEvts, drop_remainder=True)
+    rate_dataset = rate_dataset.take(N_RATE_EVTS_xGPU)
+    rate_dataset = rate_dataset.batch(N_RATE_EVTS_xGPU, drop_remainder=True)
     print('** INFO : done batching TensorFlow datasets')
 
 
@@ -343,9 +344,7 @@ if __name__ == "__main__" :
     create_dataset_fn = create_dataset_fn_with_args(indir+'/test_TfDataset', GLOBAL_BATCH_SIZE)
     test_dist_dataset = mirrored_strategy.distribute_datasets_from_function(create_dataset_fn, options=DISTRIBUTION_OPTS)
 
-    # for teh rate select NGPUS multiple of number of events and batch by the same value to have one batch per GPU
-    nbrEvts = 50000 * NGPUS
-    create_dataset_fn = create_dataset_fn_with_args(indir+'/rate_TfDataset', nbrEvts, nbrEvts)
+    create_dataset_fn = create_dataset_fn_with_args(indir+'/rate_TfDataset', N_RATE_EVTS_xGPU, N_RATE_EVTS_xGPU)
     rate_dist_dataset = mirrored_strategy.distribute_datasets_from_function(create_dataset_fn, options=DISTRIBUTION_OPTS)
 
     # del train_dataset, test_dataset, rate_dataset # free some memory
@@ -370,58 +369,85 @@ if __name__ == "__main__" :
                                      tf.math.reduce_sum(tf.math.square(modelWeights[1]), keepdims=True) +
                                      tf.math.reduce_sum(tf.math.square(modelWeights[2]), keepdims=True)
                                     )
-            return  modelWeights_ss # FIXME: scaling to be optimized
+            return modelWeights_ss * 1 # FIXME: scaling to be optimized
 
-        # part of the loss that controls the rate for jets
+        def threshold_relaxation_sigmoid(x, mean, sharpness):
+            k = sharpness * (x - mean)
+            return tf.sigmoid(k)
+
+        def threshold_relaxation_inverseSigmoid(x, mean, sharpness):
+            k = sharpness * (x - mean)
+            return tf.sigmoid(-k)
+
+        #part of the loss that controls the rate for jets
         def rateLossJets(z, seedThr, jetThr):
             # predict seed energy (including the correspondong non-calibrated TT part) and apply threshold
-            TT_seed_pred = tf.cast(TTP(z[:,40,1:]), dtype=tf.int16) + tf.reshape(z[:,40,0], (-1,1))
+            # TT_seed_pred = tf.cast(TTP(z[:,40,1:]), dtype=tf.int16) + tf.reshape(z[:,40,0], (-1,1))
+            TT_seed_pred = TTP(z[:,40,1:]) + tf.reshape(z[:,40,0], (-1,1)) # CAST REMOVED
             TT_seed_AT = tf.where(TT_seed_pred>=seedThr, 1., 0.)
 
             # predict jet energy (including the correspondong non-calibrated TTs part) and apply threshold
-            jet_pred = model(z, training=False) + tf.cast(tf.reduce_sum(z, axis=1, keepdims=True)[:,:,0], dtype=tf.float32)
+            # jet_pred = model(z, training=False) + tf.cast(tf.reduce_sum(z, axis=1, keepdims=True)[:,:,0], dtype=tf.float32)
+            jet_pred = model(z, training=False) + tf.reduce_sum(z, axis=1, keepdims=True)[:,:,0] # CAST REMOVED
             jet_AT = tf.where(jet_pred>=jetThr, 1., 0.)
             
-            passing = tf.reduce_sum(TT_seed_AT * jet_AT, keepdims=False) # do logical AND between z_seeds_AT and z_jet_AT
-            proxyRate = passing / z.shape[0] * 0.001*2544*11245.6
-            targetRate = 16.344538 # computed from the old calibration in the smae manner as here
+            passing = tf.reduce_sum(TT_seed_AT * jet_AT, keepdims=True) # do logical AND between z_seeds_AT and z_jet_AT
+            proxyRate = passing / z.shape[0] * 0.001*2500*11245.6
+            targetRate = 30.048183 # computed from the old calibration in the smae manner as here
 
-            return pow(proxyRate - targetRate, 2) / 20 # FIXME: scaling to be defined
+            return pow(proxyRate - targetRate, 6) # FIXME: scaling to be defined
+            # return tf.exp(proxyRate - targetRate) # FIXME: scaling to be defined
 
         # part of the loss that controls the rate for e/gammas
         def rateLossEgs(z, hoeThrEB, hoeThrEE, egThr):
             # 'hardcoded' threshold on hcal over ecal deposit
-            hasEBthr = tf.cast(tf.reduce_sum(z[:,2:30], axis=1, keepdims=True), dtype=tf.float32) * pow(2, -hoeThrEB)
-            hasEEthr = tf.cast(tf.reduce_sum(z[:,30:], axis=1, keepdims=True), dtype=tf.float32) * pow(2, -hoeThrEE)
+            hasEBthr = tf.reduce_sum(z[:,2:30], axis=1, keepdims=True) * pow(2, -hoeThrEB)
+            hasEEthr = tf.reduce_sum(z[:,30:], axis=1, keepdims=True) * pow(2, -hoeThrEE)
             hoeThr = hasEBthr + hasEEthr
 
             # hadronic deposit behind the ecal one
             TT_had = tf.reshape(z[:,0], (-1,1))
 
             # predict TT energy, add correspondong non-calibrated had part, and apply threshold
-            TT_em_pred = tf.cast(TTP(z[:,1:]), dtype=tf.int16)
+            TT_em_pred = TTP(z[:,1:])
             TT_pred = TT_em_pred + TT_had
-            TT_eAT = tf.where(TT_pred>=egThr, 1., 0.)
+            TT_eAT = threshold_relaxation_sigmoid(TT_pred, egThr, 5.)
 
             # calculate HoE for each TT and apply threshold
             TT_hoe = TT_had / TT_em_pred
-            TT_hoeAT = tf.where(TT_hoe<=hoeThr, 1., 0.)
+            TT_hoeAT = threshold_relaxation_inverseSigmoid(TT_hoe, hoeThr, 1000.)
 
-            passing = tf.reduce_sum(TT_hoeAT * TT_eAT, keepdims=False) # do logical AND between TT_eAT and TT_hoeAT
-            proxyRate = passing / z.shape[0] * 0.001*2544*11245.6
-            targetRate = 1.7506973 # computed from the old calibration in the same manner as here
+            passing = tf.reduce_sum(TT_hoeAT * TT_eAT, keepdims=True) # do logical AND between TT_eAT and TT_hoeAT
+            proxyRate = passing / z.shape[0] * 0.001*2500*11245.6
+            targetRate = 3756.696 # computed from the old calibration in the same manner as here
+            realtive_diff = (proxyRate - targetRate) / targetRate * 100
 
-            return pow(proxyRate - targetRate, 2) * 4 # FIXME: scaling to be defined
+            return tf.exp(realtive_diff)
 
         # GPU distribution friendly loss computation
-        def compute_train_losses(y, y_pred):
+        def compute_train_losses(y, y_pred, z):
             regressionLoss_value = regressionLoss(y, y_pred)
             weightsLoss_value = weightsLoss()
-            fullLoss = regressionLoss_value + weightsLoss_value
+            if VERSION == 'HCAL': rateLoss_value = rateLossJets(z, 8, 100.) # remember the thresholds are in HW units!
+            if VERSION == 'ECAL': rateLoss_value = rateLossEgs(z, 3, 4, 50) # remember the thresholds are in HW units!
+            fullLoss = regressionLoss_value + weightsLoss_value + rateLoss_value
 
             return [tf.nn.compute_average_loss(fullLoss,             global_batch_size=GLOBAL_BATCH_SIZE),
                     tf.nn.compute_average_loss(regressionLoss_value, global_batch_size=GLOBAL_BATCH_SIZE),
-                    tf.nn.compute_average_loss(weightsLoss_value,    global_batch_size=GLOBAL_BATCH_SIZE)]
+                    tf.nn.compute_average_loss(weightsLoss_value,    global_batch_size=GLOBAL_BATCH_SIZE),
+                    tf.nn.compute_average_loss(rateLoss_value,       global_batch_size=GLOBAL_BATCH_SIZE)]
+
+        # GPU distribution friendly loss computation
+        def compute_train_losses_withoutRate(y, y_pred):
+            regressionLoss_value = regressionLoss(y, y_pred)
+            weightsLoss_value = weightsLoss()
+            rateLoss_value = tf.constant([0.0])
+            fullLoss = regressionLoss_value + weightsLoss_value + rateLoss_value
+
+            return [tf.nn.compute_average_loss(fullLoss,             global_batch_size=GLOBAL_BATCH_SIZE),
+                    tf.nn.compute_average_loss(regressionLoss_value, global_batch_size=GLOBAL_BATCH_SIZE),
+                    tf.nn.compute_average_loss(weightsLoss_value,    global_batch_size=GLOBAL_BATCH_SIZE),
+                    tf.nn.compute_average_loss(rateLoss_value,       global_batch_size=GLOBAL_BATCH_SIZE)]
 
         # GPU distribution friendly loss computation
         def compute_test_losses(y, y_pred):
@@ -441,33 +467,16 @@ if __name__ == "__main__" :
 
     def custom_train_step(inputs, rate_inputs):
         x, y = inputs
-        z, _ = rate_inputs
+        if not rate_inputs is None: z, _ = rate_inputs
         with tf.GradientTape() as tape:
             y_pred = model(x, training=True)
+            if not rate_inputs is None: losses = compute_train_losses(y, y_pred, z)
+            else:                       losses = compute_train_losses_withoutRate(y, y_pred)
             
-            losses = compute_train_losses(y, y_pred)
-            if VERSION == 'HCAL': rateLoss_value = rateLossJets(z, 8, 100.)  # remember the thresholds are in HW units!
-            if VERSION == 'ECAL': rateLoss_value = rateLossEgs(z, 3, 4, 50) # remember the thresholds are in HW units!
-            losses[0] += rateLoss_value
-            losses.append(rateLoss_value)
+        grads = tape.gradient(losses[3], model.trainable_weights)
 
-            grads = tape.gradient(losses[0], model.trainable_weights)
-        
-        optimizer.apply_gradients(zip(grads, model.trainable_weights))
-        train_acc_metric.update_state(y, y_pred)
+        print(optimizer.get_gradients(losses[3], model.trainable_weights))
 
-        return losses
-
-    def custom_train_step_withoutRate(inputs):
-        x, y = inputs
-        with tf.GradientTape() as tape:
-            y_pred = model(x, training=True)
-            
-            losses = compute_train_losses(y, y_pred)
-            losses.append(0.0) # append a zero as rate loss for dimensions compatibility of the output
-
-            grads = tape.gradient(losses[0], model.trainable_weights)
-        
         optimizer.apply_gradients(zip(grads, model.trainable_weights))
         train_acc_metric.update_state(y, y_pred)
 
@@ -484,14 +493,6 @@ if __name__ == "__main__" :
     @tf.function
     def distributed_train_step(dataset_inputs, rate_inputs):
         per_replica_losses = mirrored_strategy.run(custom_train_step, args=(dataset_inputs, rate_inputs,))
-        return [mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[0], axis=None),
-                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[1], axis=None),
-                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[2], axis=None),
-                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[3], axis=None)]
-
-    @tf.function
-    def distributed_train_step_withoutRate(dataset_inputs):
-        per_replica_losses = mirrored_strategy.run(custom_train_step_withoutRate, args=(dataset_inputs,))
         return [mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[0], axis=None),
                 mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[1], axis=None),
                 mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[2], axis=None),
@@ -524,18 +525,15 @@ if __name__ == "__main__" :
 
             if num_batches % RATE_STEPIN_FQ == RATE_STEPIN_RESIDUAL:
                 for rate_batch in rate_dist_dataset:
-                    train_losses += distributed_train_step(batch, rate_batch)
-                # train_losses += distributed_train_step_withoutRate(batch)
+                    train_losses = distributed_train_step(batch, rate_batch)
             else:
-                train_losses += distributed_train_step_withoutRate(batch)
+                train_losses = distributed_train_step(batch, None)
 
             num_batches += 1
 
             # Log every N batches
             if VERBOSE and num_batches % 1 == 0:
-                print('    At batch %d (seen %d samples so far) : loss = %.4f ; regressionLoss = %.4f ; weightsLoss = %.4f ; rateLoss = %.4f ; RMSE = %.4f ; LR = %.4f' % (num_batches, num_batches*GLOBAL_BATCH_SIZE, float(train_losses[0]/num_batches), float(train_losses[1]/num_batches), float(train_losses[2]/num_batches), float(train_losses[3]/num_batches), float(train_acc_metric.result()), LR) )
-
-        train_losses = train_losses / num_batches
+                print('    At batch %d (seen %d samples so far) : loss = %.4f ; regressionLoss = %.4f ; weightsLoss = %.4f ; rateLoss = %.4f ; RMSE = %.4f ; LR = %.4f' % (num_batches, num_batches*GLOBAL_BATCH_SIZE, float(train_losses[0]), float(train_losses[1]), float(train_losses[2]), float(train_losses[3]), float(train_acc_metric.result()), LR) )
 
         # settings for the stepping function learning rate
         RATE_STEPIN_RESIDUAL += 1
@@ -573,8 +571,7 @@ if __name__ == "__main__" :
         test_acc_metric.reset_states()
 
         # save checkpoint
-        if epoch % 2 == 0:
-            checkpoint.save(CKPTpf)
+        checkpoint.save(CKPTpf)
 
         print('Time taken: %.2fs' % (time.time() - start_time))
 
