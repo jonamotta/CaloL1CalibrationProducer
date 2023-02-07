@@ -11,9 +11,10 @@ from matplotlib.transforms import Affine2D
 
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
+from NNModelTraining_FullyCustom_GPUdistributed_mod import *
 
-# import mplhep
-# plt.style.use(mplhep.style.CMS)
+import mplhep
+plt.style.use(mplhep.style.CMS)
 
 c_uncalib = 'royalblue'
 c_oldcalib = 'darkorange'
@@ -36,41 +37,47 @@ def PlotResolution(df_newCalib, df_oldCalib, df_unCalib,odir,v_sample):
 
     bins_res = np.linspace(0,2,50)
   
-    plt.figure(figsize=(12,8))
+    plt.figure(figsize=(10,10))
     text_1 = leg_uncalib+r': $\mu = {:.3f}, \sigma = {:.3f}$'.format(df_unCalib['res'].mean(), df_unCalib['res'].std())
     plt.hist(df_unCalib['res'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=c_uncalib)
     plt.xlabel('Resolution')
-    plt.ylabel('A.U.')
-    plt.legend(fontsize=15)
-    plt.title(leg_uncalib+' Jets Resolution {}'.format(v_sample))
+    plt.ylabel('a.u.')
+    plt.grid(linestyle='dotted')
+    plt.legend(fontsize=20)
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+    # plt.title(leg_uncalib+' Jets Resolution {}'.format(v_sample))
     savefile = odir + '/Res_{}_unCalib.png'.format(v_sample)
     plt.savefig(savefile)
     print(savefile)
 
-    plt.figure(figsize=(12,8))
+    plt.figure(figsize=(10,10))
     text_1 = leg_oldcalib+r': $\mu = {:.3f}, \sigma = {:.3f}$'.format(df_oldCalib['res'].mean(), df_oldCalib['res'].std())
     plt.hist(df_oldCalib['res'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=c_oldcalib)
     plt.xlabel('Resolution')
-    plt.ylabel('A.U.')
-    plt.legend(fontsize=15)
-    plt.title(leg_oldcalib+' Jets Resolution {}'.format(v_sample))
+    plt.ylabel('a.u.')
+    plt.grid(linestyle='dotted')
+    plt.legend(fontsize=20)
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+    # plt.title(leg_oldcalib+' Jets Resolution {}'.format(v_sample))
     savefile = odir + '/Res_{}_oldCalib.png'.format(v_sample)
     plt.savefig(savefile)
     print(savefile)
 
-    plt.figure(figsize=(12,8))
+    plt.figure(figsize=(10,10))
     text_1 = leg_newcalib+r': $\mu = {:.3f}, \sigma = {:.3f}$'.format(df_newCalib['res'].mean(), df_newCalib['res'].std())
     plt.hist(df_newCalib['res'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=c_newcalib)
     plt.xlabel('Resolution')
-    plt.ylabel('A.U.')
-    plt.legend(fontsize=15)
-    plt.title(leg_newcalib+' Jets Resolution {}'.format(v_sample))
+    plt.ylabel('a.u.')
+    plt.grid(linestyle='dotted')
+    plt.legend(fontsize=20)
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+    # plt.title(leg_newcalib+' Jets Resolution {}'.format(v_sample))
     savefile = odir + '/Res_{}_newCalib.png'.format(v_sample)
     plt.savefig(savefile)
     print(savefile)
 
     # Plot simultaneously the calibrated and uncalibrated energy distributions
-    plt.figure(figsize=(12,8))
+    plt.figure(figsize=(10,10))
     text_1 = leg_uncalib+r': $\mu = {:.3f}, \sigma = {:.3f}$'.format(df_unCalib['res'].mean(), df_unCalib['res'].std())
     plt.hist(df_unCalib['res'], bins=bins_res, label=text_1, histtype='step', density=True, stacked=True, linewidth=2, color=c_uncalib)
     text_2 = leg_oldcalib+r': $\mu = {:.3f}, \sigma = {:.3f}$'.format(df_oldCalib['res'].mean(), df_oldCalib['res'].std())
@@ -78,9 +85,11 @@ def PlotResolution(df_newCalib, df_oldCalib, df_unCalib,odir,v_sample):
     text_3 = leg_newcalib+r': $\mu = {:.3f}, \sigma = {:.3f}$'.format(df_newCalib['res'].mean(), df_newCalib['res'].std())
     plt.hist(df_newCalib['res'], bins=bins_res, label=text_3, histtype='step', density=True, stacked=True, linewidth=2, color=c_newcalib)
     plt.xlabel('Resolution')
-    plt.ylabel('A.U.')
-    plt.legend(fontsize=15)
-    plt.title('Jets Resolution {}'.format(v_sample))
+    plt.ylabel('a.u.')
+    plt.grid(linestyle='dotted')
+    plt.legend(fontsize=15, loc='upper left')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+    # plt.title('Jets Resolution {}'.format(v_sample))
     savefile = odir + '/Res_{}.png'.format(v_sample)
     plt.savefig(savefile)
     print(savefile)
@@ -91,14 +100,16 @@ def PlotResolution(df_newCalib, df_oldCalib, df_unCalib,odir,v_sample):
 # Plot generated jets spctrum in energy
 def PlotGenJetPtSpectrum(df_newCalib, df_oldCalib, df_unCalib,odir,v_sample):
     
-    plt.figure(figsize=(12,8))
+    plt.figure(figsize=(10,10))
     plt.hist(df_unCalib['jetPt'], bins=100, label=leg_uncalib, histtype='step', density=True, stacked=True, linewidth=2, color=c_uncalib)
     plt.hist(df_newCalib['jetPt'], bins=100, label=leg_newcalib, histtype='step', density=True, stacked=True, linewidth=2, color=c_newcalib)
     plt.hist(df_oldCalib['jetPt'], bins=100, label=leg_oldcalib, histtype='step', density=True, stacked=True, linewidth=2, color=c_oldcalib)
     plt.xlabel(f'Jet $p_t$ [GeV]')
-    plt.ylabel('A.U.')
-    plt.legend(loc='upper right',fontsize=12)
-    plt.title(r'Generated Jets $p_t$ Spectrum {}'.format(v_sample))
+    plt.ylabel('a.u.')
+    plt.grid(linestyle='dotted')
+    plt.legend(loc='upper right',fontsize=20)
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+    # plt.title(r'Generated Jets $p_t$ Spectrum {}'.format(v_sample))
     savefile = odir + '/GenJetPt_{}.png'.format(v_sample)
     plt.savefig(savefile)
     print(savefile)
@@ -137,7 +148,7 @@ def PlotResolution_bins(df_newCalib, df_oldCalib, df_unCalib, odir, v_sample, bi
     
     for bin_label in sorted(bins_labels):
         
-        fig = plt.figure(figsize = [15,10])
+        fig = plt.figure(figsize=(10,10))
         bins_res = np.linspace(0,2,30)
         
         df_newCalib_bin = df_newCalib[df_newCalib[column_bin] == bin_label]
@@ -161,9 +172,13 @@ def PlotResolution_bins(df_newCalib, df_oldCalib, df_unCalib, odir, v_sample, bi
         
         plt.grid(axis='y', alpha=0.5)
         plt.xlabel('Resolution')
-        plt.ylabel('A.U.')
-        plt.legend(loc='upper left', fontsize=15)
-        plt.title('{} = {} {}'.format(name, bin_label, units))
+        plt.ylabel('a.u.')
+        plt.grid(linestyle='dotted')
+        if name.split('jet')[1] == 'Pt': leg = plt.legend(loc='upper left', fontsize=15, title=r'$%s<p_{T}<%s$' % (bin_label.split('-')[0], bin_label.split('-')[1]))
+        else:                            leg = plt.legend(loc='upper left', fontsize=15, title=r'$%s<\eta<%s$' % (bin_label.split('-')[0], bin_label.split('-')[1]))
+        leg._legend_box.align = "left"
+        mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+        # plt.title('{} = {} {}'.format(name, bin_label, units))
         savefile = odir + '/Res_{}{}_{}.png'.format(name.split('jet')[1], bin_label, v_sample)
         plt.savefig(savefile)
         print(savefile)
@@ -180,11 +195,16 @@ def PlotResolution_bins(df_newCalib, df_oldCalib, df_unCalib, odir, v_sample, bi
     plt.bar(resolution[column_bin], resolution['uncalib_std']/resolution['uncalib_mean'], width=-0.4, alpha=0.7, align='edge',  label=leg_uncalib, color=c_uncalib)
     plt.bar(resolution[column_bin], resolution['oldcalib_std']/resolution['oldcalib_mean'], width=0.4, alpha=0.7, align='center',  label=leg_oldcalib, color=c_oldcalib)
     plt.bar(resolution[column_bin], resolution['newcalib_std']/resolution['newcalib_mean'], width=0.4, alpha=0.7, align='edge', label=leg_newcalib, color=c_newcalib)
-    plt.ylim(0.0,0.5)
+    plt.xticks(rotation=45)
+    if options.v == "HCAL": plt.ylim(0.0,0.8)
+    else:                   plt.ylim(0.0,0.5)
+    if name.split('jet')[1] == "Pt": plt.xlim(-0.5,14.5)
     plt.xlabel('{} bins {}'.format(name, units))
-    plt.ylabel('Standard Deviation / Mean')
-    plt.title(f'Jets resolution')
+    plt.ylabel('Resolution')
+    plt.grid(linestyle='dotted')
+    plt.subplots_adjust(bottom=0.20)
     plt.legend(loc='upper right')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
     savefile = odir + '/Res_vs_{}_{}.png'.format(name.split('jet')[1], v_sample)
     plt.savefig(savefile)
     print(savefile)
@@ -194,15 +214,20 @@ def PlotResolution_bins(df_newCalib, df_oldCalib, df_unCalib, odir, v_sample, bi
     trans1 = Affine2D().translate(-0.05, 0.0) + ax.transData
     trans2 = Affine2D().translate(+0.05, 0.0) + ax.transData
     trans3 = Affine2D().translate(+0.1, 0.0) + ax.transData
-    plt.errorbar(resolution[column_bin], resolution['uncalib_mean'], yerr=resolution['uncalib_std'], fmt='o', alpha=1, label=leg_uncalib, color=c_uncalib, markersize=15, capsize=8, elinewidth=3, capthick=5, transform=trans1)
-    plt.errorbar(resolution[column_bin], resolution['oldcalib_mean'], yerr=resolution['oldcalib_std'], fmt='o', alpha=1, label=leg_oldcalib, color=c_oldcalib, markersize=15, capsize=8, elinewidth=3, capthick=5, transform=trans2)
-    plt.errorbar(resolution[column_bin], resolution['newcalib_mean'], yerr=resolution['newcalib_std'], fmt='o', alpha=1, label=leg_newcalib, color=c_newcalib, markersize=15, capsize=8, elinewidth=3, capthick=5, transform=trans3)
+    plt.errorbar(resolution[column_bin], resolution['uncalib_mean'], yerr=resolution['uncalib_std'], fmt='o', alpha=1, label=leg_uncalib, color=c_uncalib, markersize=8, capsize=8, linewidth=3, elinewidth=3, capthick=3, transform=trans1)
+    plt.errorbar(resolution[column_bin], resolution['oldcalib_mean'], yerr=resolution['oldcalib_std'], fmt='o', alpha=1, label=leg_oldcalib, color=c_oldcalib, markersize=8, capsize=8, linewidth=3, elinewidth=3, capthick=3, transform=trans2)
+    plt.errorbar(resolution[column_bin], resolution['newcalib_mean'], yerr=resolution['newcalib_std'], fmt='o', alpha=1, label=leg_newcalib, color=c_newcalib, markersize=8, capsize=8, linewidth=3, elinewidth=3, capthick=3, transform=trans3)
     plt.axhline(y=1., color='black', linestyle='--')
-    plt.ylim(0.4,1.6)
+    plt.xticks(rotation=45)
+    if options.v == "HCAL": plt.ylim(0.2,1.6)
+    else:                   plt.ylim(0.4,1.6)
+    if name.split('jet')[1] == "Pt": plt.xlim(-0.5,14.5)
     plt.xlabel('{} bins {}'.format(name, units))
-    plt.ylabel(r'Mean $\pm$ Standard Deviation')
-    plt.title(f'Jets resolution')
+    plt.ylabel(r'Scale')
+    plt.grid(linestyle='dotted')
+    plt.subplots_adjust(bottom=0.20)
     plt.legend(loc='upper right')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
     savefile = odir + '/Res_vs_{}_{}_bars.png'.format(name.split('jet')[1], v_sample)
     plt.savefig(savefile)
     print(savefile)
@@ -219,11 +244,13 @@ def PlotResolution_vs_Pt_Etabin(df, odir, v_sample, ieta_values, calib):
         plt.plot(prof.index, prof.values, '.', color=colors[i_eta], label=f'$\eta$ tower = {eta}')
         plt.xlabel('Jet Pt')
         plt.ylabel('Resolution')
+        plt.grid(linestyle='dotted')
         if calib == 'uncalib':  title = leg_uncalib
         elif calib == 'newCalib': title = leg_newcalib
         else: title = leg_oldcalib
-        plt.title(title)
+        # plt.title(title)
         plt.legend(fontsize = 15, ncol=1, loc = 'upper right')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
     savefile = odir + '/Res_vs_Pt_Etabin_{}_{}.png'.format(calib, v_sample)
     plt.savefig(savefile)
     print(savefile)
@@ -238,11 +265,13 @@ def PlotResolution_vs_Eta_Ptbin(df, odir, v_sample, pt_values, calib):
         plt.plot(prof.index, prof.values, '.', color=colors[i_pt], label=f'${pt_values[i_pt]}<p_t<${pt_values[i_pt+1]}')
         plt.xlabel('Jet Eta')
         plt.ylabel('Resolution')
+        plt.grid(linestyle='dotted')
         if calib == 'uncalib':  title = leg_uncalib
         elif calib == 'newCalib': title = leg_newcalib
         else: title = leg_oldcalib
-        plt.title(title)
+        # plt.title(title)
         plt.legend(fontsize = 15, ncol=1, loc = 'upper right')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
     savefile = odir + '/Res_vs_Eta_Ptbin_{}_{}.png'.format(calib, v_sample)
     plt.savefig(savefile)
     print(savefile)
@@ -259,8 +288,10 @@ def PlotResolution_vs_Pt_Etavalue(df_newCalib, df_oldCalib, df_unCalib, odir, v_
     plt.plot(prof_unCalib.index, prof_unCalib.values, '.', color=c_uncalib, alpha=0.7, label=leg_uncalib)
     plt.xlabel('Jet Pt')
     plt.ylabel('Resolution')
-    plt.title('Eta {}-{}'.format(eta_values[0], eta_values[1]))
+    plt.grid(linestyle='dotted')
+    # plt.title('Eta {}-{}'.format(eta_values[0], eta_values[1]))
     plt.legend(fontsize = 15, ncol=1, loc = 'upper right')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
     savefile = odir + '/Res_vs_Pt_Eta{}-{}_{}.png'.format(eta_values[0], eta_values[1], v_sample)
     plt.savefig(savefile)
     print(savefile)
@@ -277,8 +308,10 @@ def PlotResolution_vs_Eta_Ptvalue(df_newCalib, df_oldCalib, df_unCalib, odir, v_
     plt.plot(prof_unCalib.index, prof_unCalib.values, '.', color=c_uncalib, alpha=0.7, label=leg_uncalib)
     plt.xlabel('Jet Eta')
     plt.ylabel('Resolution')
-    plt.title('Pt {}-{}'.format(pt_values[0], pt_values[1]))
+    plt.grid(linestyle='dotted')
+    # plt.title('Pt {}-{}'.format(pt_values[0], pt_values[1]))
     plt.legend(fontsize = 15, ncol=1, loc = 'upper right')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
     savefile = odir + '/Res_vs_Eta_Pt{}-{}_{}.png'.format(pt_values[0], pt_values[1], v_sample)
     plt.savefig(savefile)
     print(savefile)
@@ -321,32 +354,40 @@ if __name__ == "__main__" :
     # X samples contain : ieta, iem, ihad, iesum
     # Y samples contain : jetPt, jetEta, jetPhi, trainingPt
     print('\nLoad data')
-    X_newCalib = np.load(indir+'/X_newCalib.npz')['arr_0']
+
+    # X_newCalib = np.load(indir+'/X_newCalib.npz')['arr_0']
+    # Y_newCalib = np.load(indir+'/Y_newCalib.npz')['arr_0']
+    # X_newCalib_iem = np.sum(X_newCalib,axis = 1)[:,1:2].ravel() # [ET]
+    # X_newCalib_ihad = np.sum(X_newCalib,axis = 1)[:,2:3].ravel() # [ET]
+    # X_newCalib_iesum = np.sum(X_newCalib,axis = 1)[:,3:4].ravel() # [ET]
+
     X_oldCalib = np.load(indir+'/X_oldCalib.npz')['arr_0']
-    X_unCalib = np.load(indir+'/X_unCalib.npz')['arr_0']
-    
-    Y_newCalib = np.load(indir+'/Y_newCalib.npz')['arr_0']
     Y_oldCalib = np.load(indir+'/Y_oldCalib.npz')['arr_0']
+    X_oldCalib_iem = np.sum(X_oldCalib,axis = 1)[:,0:1].ravel() # [ET]
+    X_oldCalib_ihad = np.sum(X_oldCalib,axis = 1)[:,1:2].ravel() # [ET]
+    X_oldCalib_iesum = np.sum(X_oldCalib,axis = 1)[:,2:3].ravel() # [ET]
+
+    X_unCalib = np.load(indir+'/X_unCalib.npz')['arr_0']
     Y_unCalib = np.load(indir+'/Y_unCalib.npz')['arr_0']
+    X_unCalib_iem = np.sum(X_unCalib,axis = 1)[:,0:1].ravel() # [ET]
+    X_unCalib_ihad = np.sum(X_unCalib,axis = 1)[:,1:2].ravel() # [ET]
+    X_unCalib_iesum = np.sum(X_unCalib,axis = 1)[:,2:3].ravel() # [ET]
 
-    # Define the uncalibrated jet energy (sum of the energies in each tower of the chuncky donut)
-    X_newCalib_iem = np.sum(X_newCalib,axis = 1)[:,1:2].ravel() # [ET]
-    X_newCalib_ihad = np.sum(X_newCalib,axis = 1)[:,2:3].ravel() # [ET]
-    X_newCalib_iesum = np.sum(X_newCalib,axis = 1)[:,3:4].ravel() # [ET]
-
-    X_oldCalib_iem = np.sum(X_oldCalib,axis = 1)[:,1:2].ravel() # [ET]
-    X_oldCalib_ihad = np.sum(X_oldCalib,axis = 1)[:,2:3].ravel() # [ET]
-    X_oldCalib_iesum = np.sum(X_oldCalib,axis = 1)[:,3:4].ravel() # [ET]
-
-    X_unCalib_iem = np.sum(X_unCalib,axis = 1)[:,1:2].ravel() # [ET]
-    X_unCalib_ihad = np.sum(X_unCalib,axis = 1)[:,2:3].ravel() # [ET]
-    X_unCalib_iesum = np.sum(X_unCalib,axis = 1)[:,3:4].ravel() # [ET]
+    modeldir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/model_' + options.v
+    model = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'Fgrad': Fgrad})
+    X_test_model, Y_test_model, _ = convert_samples(X_unCalib, Y_unCalib, None, options.v)
+    if options.v == "ECAL": dummy_rateProxy_input = np.repeat([np.zeros(42)], len(X_test_model), axis=0)
+    if options.v == "HCAL": dummy_rateProxy_input = np.repeat([np.repeat([np.zeros(42)], 81, axis=0)], len(X_test_model), axis=0)
+    X_test_calib_sum, _ = model.predict([X_test_model, dummy_rateProxy_input]) # [ET]
+    if options.v == "ECAL": X_newCalib_iesum = X_test_calib_sum + X_unCalib_ihad.reshape(-1,1)
+    if options.v == "HCAL": X_newCalib_iesum = X_test_calib_sum + X_unCalib_iem.reshape(-1,1)
+    X_newCalib_iesum = tf.make_ndarray(tf.make_tensor_proto(X_newCalib_iesum)).reshape(1,-1)[0]
 
     print('\nBuild pandas')
     # Produce the pandas dataframes with jetPt, jetEta and jetEnergy (sum of the deposited energy in all the towers)
-    df_newCalib = pd.DataFrame(data = {'jetPt': Y_newCalib[:,0].ravel(), 'jetEta': np.abs(Y_newCalib[:,1].ravel()), 'jetIem': X_newCalib_iem, 'jetIhad': X_newCalib_ihad, 'jetEnergy': X_newCalib_ihad})
-    df_oldCalib = pd.DataFrame(data = {'jetPt': Y_oldCalib[:,0].ravel(), 'jetEta': np.abs(Y_oldCalib[:,1].ravel()), 'jetIem': X_oldCalib_iem, 'jetIhad': X_oldCalib_ihad, 'jetEnergy': X_oldCalib_ihad})
-    df_unCalib  = pd.DataFrame(data = {'jetPt': Y_unCalib[:,0].ravel(), 'jetEta': np.abs(Y_unCalib[:,1].ravel()), 'jetIem': X_unCalib_iem, 'jetIhad': X_unCalib_ihad, 'jetEnergy': X_unCalib_iesum})
+    df_newCalib = pd.DataFrame(data = {'jetPt': Y_unCalib[:,0].ravel(), 'jetEta': np.abs(Y_unCalib[:,1].ravel()), 'jetEnergy': X_newCalib_iesum}) # 'jetIem': X_newCalib_iem, 'jetIhad': X_newCalib_ihad,
+    df_oldCalib = pd.DataFrame(data = {'jetPt': Y_oldCalib[:,0].ravel(), 'jetEta': np.abs(Y_oldCalib[:,1].ravel()), 'jetEnergy': X_oldCalib_iesum}) # 'jetIem': X_oldCalib_iem, 'jetIhad': X_oldCalib_ihad,
+    df_unCalib  = pd.DataFrame(data = {'jetPt': Y_unCalib[:,0].ravel(), 'jetEta': np.abs(Y_unCalib[:,1].ravel()), 'jetEnergy': X_unCalib_iesum}) # 'jetIem': X_unCalib_iem, 'jetIhad': X_unCalib_ihad,
 
     # Compute resolution
     print('\nCompute resolution')
