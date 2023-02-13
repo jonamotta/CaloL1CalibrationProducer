@@ -24,7 +24,6 @@ options.inputFiles = []
 options.maxEvents  = -999
 options.parseArguments()
 
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
     #output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
@@ -39,7 +38,10 @@ process.source = cms.Source("PoolSource",
         # dummy for creation
         '/store/mc/Run3Summer21DR/SinglePhoton_Pt-0To200-gun/GEN-SIM-DIGI-RAW/NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2/30000/24ceed17-25ac-4fba-a275-0821ad765052.root'
     ),
-    secondaryFileNames = cms.untracked.vstring()
+    secondaryFileNames = cms.untracked.vstring(),
+
+    # eventsToProcess = cms.untracked.VEventRange("1:224001-1:224020"),
+    # eventsToSkip = cms.untracked.VEventRange('1:224002-1:224019', '1:224021-1:max')
 )
 
 if options.inputFiles:
@@ -73,7 +75,7 @@ process.options = cms.untracked.PSet(
     printDependencies = cms.untracked.bool(False),
     sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
     throwIfIllegalParameter = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(False)
+    wantSummary = cms.untracked.bool(False),
 )
 
 # Production Info
@@ -115,10 +117,10 @@ from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleRAWEMUGEN_MC
 process = L1NtupleRAWEMUGEN_MC(process)
 
 # Automatic addition of the customisation function from L1Trigger.Configuration.customiseSettings
-from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_2022_newCalib_seed8p0 
+from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_2022_v27_newCalib
 
-#call to customisation function L1TSettingsToCaloParams_2022_newCalib_seed8p0 imported from L1Trigger.Configuration.customiseSettings
-process = L1TSettingsToCaloParams_2022_newCalib_seed8p0(process)
+#call to customisation function L1TSettingsToCaloParams_2022_v27_newCalib imported from L1Trigger.Configuration.customiseSettings
+process = L1TSettingsToCaloParams_2022_v27_newCalib(process)
 
 # End of customisation functions
 

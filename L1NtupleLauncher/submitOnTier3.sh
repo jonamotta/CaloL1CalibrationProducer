@@ -95,3 +95,6 @@ python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalib_
 
 python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalib_More10TT
 python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalib_More10TT
+
+
+python submitOnTier3.py --njobs 150 --applyHCALpfa1p --doVBFHInv --applyNewCalib --applyVersion v27 --no_exec

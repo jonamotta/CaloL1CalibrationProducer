@@ -29,6 +29,7 @@ if __name__ == "__main__" :
     parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
     parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
     parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
+    parser.add_option("--applyVersion", dest="applyVersion", default=None, type=str)
     parser.add_option("--applyNewCalib", dest="applyNewCalib", action='store_true', default=False)
     parser.add_option("--applyNewCalibManualSatur", dest="applyNewCalibManualSatur", action='store_true', default=False)
     parser.add_option("--applyNewCalibManualSatur_1", dest="applyNewCalibManualSatur_1", action='store_true', default=False)
@@ -51,6 +52,7 @@ if __name__ == "__main__" :
     parser.add_option("--doPi0_200", dest="doPi0_200", action='store_true', default=False)
     parser.add_option("--doNu", dest="doNu", action='store_true', default=False)
     parser.add_option("--doMET", dest="doMET", action='store_true', default=False)
+    parser.add_option("--doVBFHInv", dest="doVBFHInv", action='store_true', default=False)
     parser.add_option("--testRun", dest="testRun", action='store_true', default=False)
     parser.add_option("--seedThreshold", dest="seedThreshold", default=False)
     parser.add_option("--no_exec", dest="no_exec", action='store_true', default=False)
@@ -61,13 +63,14 @@ if __name__ == "__main__" :
         print('** WARNING: no calibration to be used specified - EXITING!')
         exit()
 
-    if options.doEG0_200 == False and options.doEG0_200pu ==False and options.doEG200_500 == False and options.doEG200_500pu ==False and options.doQCD == False and options.doQCDpu == False and options.doPi0_200 == False and options.doNu == False and options.doMET == False and options.testRun == False:
+    if options.doEG0_200 == False and options.doEG0_200pu ==False and options.doEG200_500 == False and options.doEG200_500pu ==False and options.doQCD == False and options.doQCDpu == False and options.doPi0_200 == False and options.doNu == False and options.doMET == False and options.testRun == False and options.doVBFHInv == False:
         print('** WARNING: no dataset to be used specified - EXITING!')
         exit()
 
     tagHCALpfa1p = ""
     tagCalib = ""
     config = "L1Ntuple"
+    if options.applyVersion: config += "_"+options.applyVersion
     if   options.applyNoCalib:         config += "_uncalib"         ; tagCalib = "_uncalib"
     elif options.applyOldCalib:        config += "_oldCalib"        ; tagCalib = "_oldCalib"
     elif options.applyNewCalib:        config += "_newCalib"        ; tagCalib = "_newCalib" 
@@ -162,6 +165,11 @@ if __name__ == "__main__" :
         filelist = open(filedir+"/VBFHToInvisible_M125_TuneCP5_14TeV-powheg-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__AODSIM.txt")
         folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/VBFHToInvisible_M125_TuneCP5_14TeV-powheg-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__AODSIM"+tagCalib+tagHCALpfa1p
 
+    elif options.doVBFHInv:
+        ## H to invisible for perfromance
+        filelist = open(filedir+"/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8__Run3Summer22DRPremix-124X_mcRun3_2022_realistic_v12-v3__GEN-SIM-RAW.txt")
+        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8__Run3Summer22DRPremix-124X_mcRun3_2022_realistic_v12-v3__GEN-SIM-RAW"+tagCalib+tagHCALpfa1p
+
     elif options.testRun:
         # TEST 10 files from signle photon 0-200 without pu
         filelist = open(filedir+"/test.txt")
@@ -222,4 +230,4 @@ if __name__ == "__main__" :
         print command
         if not options.no_exec: os.system (command)
         # break
-        if idx == 200: break
+        # if idx == 200: break
