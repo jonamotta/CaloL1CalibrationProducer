@@ -188,5 +188,9 @@ Training with jets having at most 10 TTs
 2022_09_05_NtuplesV26
 Training with jets having at least 10 TTs
 
+2023_01_16_NtuplesV27
+First working version of rate proxy based on SingleNeutrino MC
+All results presented at L1 DPG meeting on 6th of January
 
-
+2023_02_10_NtuplesV28
+First working version of calibration of ECAL and HCAL at the same time
