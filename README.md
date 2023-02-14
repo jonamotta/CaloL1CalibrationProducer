@@ -1,18 +1,19 @@
-# L1NtupleProducer
+# CaloL1CalibrationProducer
 
-Folder to produce the NTuples and the csv/hdf5 files to be used as input for the CaloL1 calibration of the trigger towers.
+Package to produce CaloL1 calibration of the trigger towers.
 
 ## Installation instructions
 ```bash
-cmsrel CMSSW_12_3_0_pre6
-cd CMSSW_12_3_0_pre6/src
+cmsrel CMSSW_13_0_0_pre2
+cd CMSSW_13_0_0_pre2/src
 cmsenv
 git cms-init
 git remote add cms-l1t-offline git@github.com:cms-l1t-offline/cmssw.git
-git fetch cms-l1t-offline l1t-integration-CMSSW_12_3_0_pre6
-git cms-merge-topic -u cms-l1t-offline:l1t-integration-v124.0
+git fetch cms-l1t-offline l1t-integration-CMSSW_13_0_0_pre2
+git cms-merge-topic -u cms-l1t-offline:l1t-integration-v142
 git clone https://github.com/cms-l1t-offline/L1Trigger-L1TCalorimeter.git L1Trigger/L1TCalorimeter/data
-git clone git@github.com:jonamotta/L1NtupleProducer.git
+
+git clone git@github.com:jonamotta/CaloL1CalibrationProducer.git
 
 git cms-checkdeps -A -a
 
@@ -21,32 +22,28 @@ scram b -j 12
 
 To produce the L1NTuples on Tier3, go in `L1NtupleLauncher` and run:
 ```bash
-python submitOnTier3.py
+python submitOnTier3.py <options>
 ```
+Examples of launching commands can be found in `submitOnTier3.sh`.
 
 After the production of the L1NTuples the production of the input files to the NNs is done by going to `L1NtupleReader` and running:
--> Change the name of the output folder at L70 of batchMaker.py (ex. 2022_05_03_NtuplesV10)
 ```bash
-python3 batchMaker.py --v ECAL --applyHCALpfa1p --chunk_size 5000 --doEG0_200 --applyNoCalib --outdir 2022_05_09_NtuplesV12
-python3 batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 2500 --doQCDnoPU --qcdPtBin "50To80" --outdir 2022_05_09_NtuplesV12 --applyNoCalib
-python3 batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 2500 --doQCDnoPU --qcdPtBin "80To120" --outdir 2022_05_09_NtuplesV12 --applyNoCalib
-python3 batchMaker.py --v HCAL --applyHCALpfa1p --chunk_size 2500 --doQCDnoPU --qcdPtBin "120To170" --outdir 2022_05_09_NtuplesV12 --applyNoCalib
+python3 batchMaker.py <options>
 ```
-this will batch the L1NTuples in `.hdf5` files containing no more then 5000 events each. After this bacthing the Padding of the chunky donut needs to be performed with:
--> Crate the taglist file (Jona did it for me) and put it inside this folder '/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/'
+this will batch the L1NTuples in `.hdf5` files containing no more then N events each (N to be specified).
+
+After the batching, crate the taglist file and put it inside the folder `L1NtupleReader/inputBatches`
+
+After this the Padding of the chunky donut needs to be performed with:
 ```bash
-module use /opt/exp_soft/vo.llr.in2p3.fr/modulefiles_el7
-module load python/3.7.0
-python batchSubmitOnTier3.py --doEG0_200 --uJetPtCut 100 --etacut 28 --ecalcut True --indir 2022_05_09_NtuplesV12 --applyHCALpfa1p --applyNoCalib
-python batchSubmitOnTier3.py --doQCDnoPU --qcdPtBin "50To80" --etacut 28 --indir 2022_05_09_NtuplesV12 --applyHCALpfa1p --lJetPtCut 50 --uJetPtCut 150 --applyNoCalib
-python batchSubmitOnTier3.py --doQCDnoPU --qcdPtBin "80To120" --etacut 28 --indir 2022_05_09_NtuplesV12 --applyHCALpfa1p  --lJetPtCut 50 --uJetPtCut 150 --applyNoCalib
-python batchSubmitOnTier3.py --doQCDnoPU --qcdPtBin "120To170" --etacut 28 --indir 2022_05_09_NtuplesV12 --applyHCALpfa1p --lJetPtCut 60 --uJetPtCut 150 --applyNoCalib
+python batchSubmitOnTier3.py <options>
 ```
-this will run the padding of the chunky donut on the Tier3 so that it will fast. It will produce the same number of output files as the number of input ones.
-After this we need to merge the batches into one single file containing the input to the NNs, this is one with:
+Examples of launching commands can be found in `batchSubmitOnTier3.sh`.
+
+
+After this, need to merge the batches into one single file containing the input to the NNs, this is done with:
 ```bash
-python3 batchMerger.py --applyHCALpfa1 --indir 2022_05_09_NtuplesV12 --v ECAL --applyNoCalib --doEG --sample {train or test}
-python3 batchMerger.py --applyHCALpfa1 --indir 2022_05_09_NtuplesV12 --v HCAL --applyNoCalib --doQCDnoPU --sample {train or test}
+python3 batchMerger.py <options>
 ```
 this will create the following four output files that are to be used for the training of the NNs:
 * `X_train.npz`
@@ -56,32 +53,15 @@ this will create the following four output files that are to be used for the tra
 
 When the four inputs files above are produced the model can be trained with:
 ```bash
-python3 NNModelTraining.py --indir 2022_05_09_NtuplesV12 --v ECAL --etrain iem
-python3 NNModelTraining.py --indir 2022_05_09_NtuplesV12 --v HCAL --etrain ihad --ECALModel /data_CMS/cms/motta/CaloL1calibraton/2022_05_09_NtuplesV12/ECALtraining/model_ECAL
+python3 NNModelTraining<NNversions>.py <options>
 ```
 
-To produce the Scale Factors matrix:
+To produce the Scale Factors matrix, run:
 ```bash
-python3 CalibrationFactor.py --indir 2022_05_09_NtuplesV12 --v ECAL --start 1 --stop 200
+python3 CalibrationFactor<tag>.py <options>
 ```
 
-To make plots:
+To make the plots of the output of the NN, run:
 ```bash
-python3 ModelPlots.py --indir 2022_05_09_NtuplesV12 --v ECAL --maxeta 28 --out data_ECAL_V12/plots
-```
-
-
-## Pyhton version
-All of this should work with the Python version already given by the CMSSW environment.
-In case that does not work, a compatible version can be loaded via:
-```bash
-module use /opt/exp_soft/vo.llr.in2p3.fr/modulefiles_el7
-module load python/3.7.0
-```
-
-In case this version is being used for a Jupyter Notebook, then the fiollowing is also suggested:
-```bash
-source /opt/exp_soft/llr/root/v6.14.04-el7-gcc71-py37/bin/thisroot.sh
-unset JUPYTER_CONFIG_DIR
-unset JUPYTER_PATH
+python3 ModelPlots<tag>.py <options>
 ```
