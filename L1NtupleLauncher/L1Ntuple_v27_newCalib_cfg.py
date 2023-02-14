@@ -91,7 +91,7 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '123X_mcRun3_2021_realistic_v11', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2022_realistic_v2', '')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -123,53 +123,6 @@ from L1Trigger.Configuration.customiseSettings import L1TSettingsToCaloParams_20
 process = L1TSettingsToCaloParams_2022_v27_newCalib(process)
 
 # End of customisation functions
-
-# Settings of the HCAL PFA1p
-process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
-
-process.simHcalTriggerPrimitiveDigis.overrideDBweightsAndFilterHB = cms.bool(True)
-process.simHcalTriggerPrimitiveDigis.overrideDBweightsAndFilterHE = cms.bool(True)
-
-process.HcalTPGCoderULUT.overrideDBweightsAndFilterHB = cms.bool(True)
-process.HcalTPGCoderULUT.overrideDBweightsAndFilterHE = cms.bool(True)
-
-process.simHcalTriggerPrimitiveDigis.numberOfFilterPresamplesHBQIE11 = 1
-process.simHcalTriggerPrimitiveDigis.numberOfFilterPresamplesHEQIE11 = 1
-process.simHcalTriggerPrimitiveDigis.weightsQIE11 = {
-    "ieta1" :  [-0.47, 1.0],
-    "ieta2" :  [-0.47, 1.0],
-    "ieta3" :  [-0.47, 1.0],
-    "ieta4" :  [-0.47, 1.0],
-    "ieta5" :  [-0.47, 1.0],
-    "ieta6" :  [-0.47, 1.0],
-    "ieta7" :  [-0.47, 1.0],
-    "ieta8" :  [-0.47, 1.0],
-    "ieta9" :  [-0.47, 1.0],
-    "ieta10" : [-0.47, 1.0],
-    "ieta11" : [-0.47, 1.0],
-    "ieta12" : [-0.47, 1.0],
-    "ieta13" : [-0.47, 1.0],
-    "ieta14" : [-0.47, 1.0],
-    "ieta15" : [-0.47, 1.0],
-    "ieta16" : [-0.47, 1.0],
-    "ieta17" : [-0.47, 1.0],
-    "ieta18" : [-0.47, 1.0],
-    "ieta19" : [-0.47, 1.0],
-    "ieta20" : [-0.47, 1.0],
-    "ieta21" : [-0.43, 1.0],
-    "ieta22" : [-0.43, 1.0],
-    "ieta23" : [-0.43, 1.0],
-    "ieta24" : [-0.43, 1.0],
-    "ieta25" : [-0.43, 1.0],
-    "ieta26" : [-0.43, 1.0],
-    "ieta27" : [-0.43, 1.0],
-    "ieta28" : [-0.43, 1.0]
-}
-
-process.HcalTPGCoderULUT.contain1TSHB = True
-process.HcalTPGCoderULUT.contain1TSHE = True
-# End of HCAL PFA1p settings
-
 
 # Customisation from command line
 

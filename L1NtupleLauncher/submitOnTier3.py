@@ -26,7 +26,7 @@ if __name__ == "__main__" :
 
     parser = OptionParser()
     parser.add_option("--njobs", dest="njobs", type=int, default=200)
-    parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
+    parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=False)
     parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
     parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
     parser.add_option("--applyVersion", dest="applyVersion", default=None, type=str)
