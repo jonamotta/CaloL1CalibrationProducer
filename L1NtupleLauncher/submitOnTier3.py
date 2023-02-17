@@ -24,172 +24,42 @@ def splitInBlocks (l, n):
 
 if __name__ == "__main__" :
 
-    parser = OptionParser()
-    parser.add_option("--njobs", dest="njobs", type=int, default=200)
-    parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=False)
-    parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
-    parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
-    parser.add_option("--applyVersion", dest="applyVersion", default=None, type=str)
-    parser.add_option("--applyNewCalib", dest="applyNewCalib", action='store_true', default=False)
-    parser.add_option("--applyNewCalibManualSatur", dest="applyNewCalibManualSatur", action='store_true', default=False)
-    parser.add_option("--applyNewCalibManualSatur_1", dest="applyNewCalibManualSatur_1", action='store_true', default=False)
-    parser.add_option("--applyNewCalibManualSatur_2", dest="applyNewCalibManualSatur_2", action='store_true', default=False)
-    parser.add_option("--applyNewCalibManualSatur_3", dest="applyNewCalibManualSatur_3", action='store_true', default=False)
-    parser.add_option("--applyNewCalibManualSatur_4", dest="applyNewCalibManualSatur_4", action='store_true', default=False)
-    parser.add_option("--applyNewCalibManualSatur_5", dest="applyNewCalibManualSatur_5", action='store_true', default=False)
-    parser.add_option("--applyNewCalib_10TT", dest="applyNewCalib_10TT", action='store_true', default=False)
-    parser.add_option("--applyNewCalib_More10TT", dest="applyNewCalib_More10TT", action='store_true', default=False)
-    parser.add_option("--applyNewCalibSaturAt", dest="applyNewCalibSaturAt", type=float, default=None)
-    parser.add_option("--applyNewCalibECALsaturAt", dest="applyNewCalibECALsaturAt", type=float, default=None)
-    parser.add_option("--applyNewCalibHCALsaturAt", dest="applyNewCalibHCALsaturAt", type=float, default=None)
-    parser.add_option("--doEG0_200", dest="doEG0_200", action='store_true', default=False)
-    parser.add_option("--doEG0_200pu", dest="doEG0_200pu", action='store_true', default=False)
-    parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', default=False)
-    parser.add_option("--doEG200_500pu", dest="doEG200_500pu", action='store_true', default=False)
-    parser.add_option("--doQCD", dest="doQCD", action='store_true', default=False)
-    parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
-    parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
-    parser.add_option("--doPi0_200", dest="doPi0_200", action='store_true', default=False)
-    parser.add_option("--doNu", dest="doNu", action='store_true', default=False)
-    parser.add_option("--doMET", dest="doMET", action='store_true', default=False)
-    parser.add_option("--doVBFHInv", dest="doVBFHInv", action='store_true', default=False)
-    parser.add_option("--testRun", dest="testRun", action='store_true', default=False)
-    parser.add_option("--seedThreshold", dest="seedThreshold", default=False)
-    parser.add_option("--no_exec", dest="no_exec", action='store_true', default=False)
+    parser = OptionParser()    
+    parser.add_option("--inFileList", dest="inFileList", type=str,            default=None,   help="Input list of files to process (should include the subfolder inside .../EgTauTagAndProbe/EgTauTagAndProbe/inputFiles)")
+    parser.add_option("--outTag",     dest="outTag",     type=str,            default=None,   help="Tag for the output folder name")
+    parser.add_option("--nJobs",      dest="nJobs",      type=int,            default=None,   help="Number of jobs to run per filelist")
+    parser.add_option("--queue",      dest="queue",      type=str,            default='long', help="long or short queue")
+    parser.add_option("--no_exec",    dest="no_exec",    action='store_true', default=False)
+
+    parser.add_option("--maxEvts",      dest="maxEvts",      type=str,            default='-1',   help="Number of events to process")
+    parser.add_option("--inJson",       dest="inJson",       type=str,            default=None,   help="Input list of data certification Json files")
+    parser.add_option("--caloParams",   dest="caloParams",   type=str,            default=None,   help="Which caloParams to use")
+    parser.add_option("--globalTag",    dest="globalTag",    type=str,            default=None,   help="Which globalTag to use")
+    parser.add_option("--data",         dest="data",         action='store_true', default=False,  help="Running on data?")
+    parser.add_option("--recoFromSKIM", dest="recoFromSKIM", action='store_true', default=False,  help="Run reco from pre-skimmed dataset?")
+    parser.add_option("--recoFromAOD",  dest="recoFromAOD",  action='store_true', default=False,  help="Run reco from primary AOD file?")
+
     (options, args) = parser.parse_args()
     
+    if not options.outTag:
+        print('** WARNING: outTag not specified, will default to date and time. Please consider specifying a meaningfull tag, e.g. GT130XdataRun3Promptv10_CPv28newCalib_data_reco_json')
 
-    if options.applyNoCalib == False and options.applyOldCalib == False and options.applyNewCalib == False and options.applyNewCalibManualSatur == False and options.applyNewCalibManualSatur_1 == False and options.applyNewCalibManualSatur_2 == False and options.applyNewCalibManualSatur_3 == False and options.applyNewCalibManualSatur_4 == False and options.applyNewCalibManualSatur_5 == False and options.applyNewCalib_10TT and options.applyNewCalib_More10TT and options.applyNewCalibSaturAt == None and options.applyNewCalibECALsaturAt == None and options.applyNewCalibHCALsaturAt == None:
-        print('** WARNING: no calibration to be used specified - EXITING!')
-        exit()
-
-    if options.doEG0_200 == False and options.doEG0_200pu ==False and options.doEG200_500 == False and options.doEG200_500pu ==False and options.doQCD == False and options.doQCDpu == False and options.doPi0_200 == False and options.doNu == False and options.doMET == False and options.testRun == False and options.doVBFHInv == False:
-        print('** WARNING: no dataset to be used specified - EXITING!')
-        exit()
-
-    tagHCALpfa1p = ""
-    tagCalib = ""
-    config = "L1Ntuple"
-    if options.applyVersion: config += "_"+options.applyVersion
-    if   options.applyNoCalib:         config += "_uncalib"         ; tagCalib = "_uncalib"
-    elif options.applyOldCalib:        config += "_oldCalib"        ; tagCalib = "_oldCalib"
-    elif options.applyNewCalib:        config += "_newCalib"        ; tagCalib = "_newCalib" 
-    elif options.applyNewCalibManualSatur:        config += "_newCalibManualSaturation"        ; tagCalib = "_newCalibManualSaturation" 
-    elif options.applyNewCalibManualSatur_1:      config += "_newCalibManualSaturation_1"      ; tagCalib = "_newCalibManualSaturation_1" 
-    elif options.applyNewCalibManualSatur_2:      config += "_newCalibManualSaturation_2"      ; tagCalib = "_newCalibManualSaturation_2" 
-    elif options.applyNewCalibManualSatur_3:      config += "_newCalibManualSaturation_3"      ; tagCalib = "_newCalibManualSaturation_3"
-    elif options.applyNewCalibManualSatur_4:      config += "_newCalibManualSaturation_4"      ; tagCalib = "_newCalibManualSaturation_4"
-    elif options.applyNewCalibManualSatur_5:      config += "_newCalibManualSaturation_5"      ; tagCalib = "_newCalibManualSaturation_5"
-    elif options.applyNewCalib_10TT:              config += "_newCalib_10TT"                   ; tagCalib = "_newCalib_10TT"
-    elif options.applyNewCalib_More10TT:          config += "_newCalib_More10TT"               ; tagCalib = "_newCalib_More10TT"
-    elif options.applyNewCalibSaturAt: config += "_newCalibSatur"+str(options.applyNewCalibSaturAt).split('.')[0]+'p'+str(options.applyNewCalibSaturAt).split('.')[1] ; tagCalib = "_newCalibSatur"+str(options.applyNewCalibSaturAt).split('.')[0]+'p'+str(options.applyNewCalibSaturAt).split('.')[1]
-    elif options.applyNewCalibECALsaturAt and options.applyNewCalibHCALsaturAt:
-        config += "_newCalibECALsatur"+str(options.applyNewCalibECALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibECALsaturAt).split('.')[1]+'_newCalibHCALsatur'+str(options.applyNewCalibHCALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibHCALsaturAt).split('.')[1]
-        tagCalib = "_newCalibECALsatur"+str(options.applyNewCalibECALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibECALsaturAt).split('.')[1]+"_newCalibHCALsatur"+str(options.applyNewCalibHCALsaturAt).split('.')[0]+'p'+str(options.applyNewCalibHCALsaturAt).split('.')[1]
-    if options.seedThreshold:          config += "_seed"+str(options.seedThreshold.split('.')[0])+"p"+str(options.seedThreshold.split('.')[1]) ; tagCalib += "_seed"+str(options.seedThreshold.split('.')[0])+"p"+str(options.seedThreshold.split('.')[1])
-    if options.doMET:                  config += "_forMET"
-    if options.applyHCALpfa1p:         config += "_applyHCALpfa1p"  ; tagHCALpfa1p = "_applyHCALpfa1p"
-    config += "_cfg.py"
-
-    njobs = options.njobs
-    filedir="/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleLauncher/inputFiles"
-
-    if   options.doQCDpu:
-        ## qcd with pu - backup datasets
-        if options.qcdPtBin=="20To30":
-            filelist = open(filedir+"/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-        
-        elif options.qcdPtBin=="30To50":
-            filelist = open(filedir+"/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-        
-        elif options.qcdPtBin=="50To80":
-            filelist = open(filedir+"/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-        
-        elif options.qcdPtBin=="80To120":
-            filelist = open(filedir+"/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-        
-        elif options.qcdPtBin=="120To170":
-            filelist = open(filedir+"/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-
-        elif options.qcdPtBin=="PUForTRK":
-            filelist = open(filedir+"/QCD_Pt-15to7000_TuneCP5_Flat_13p6TeV-pythia8__Run3Winter22DR-PUForTRK_DIGI_122X_mcRun3_2021_realistic_v9-v2__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt-15to7000_TuneCP5_Flat_13p6TeV-pythia8__Run3Winter22DR-PUForTRK_DIGI_122X_mcRun3_2021_realistic_v9-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-
-        else:
-            ## qcd flat0-80 pu
-            filelist = open(filedir+"/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW.txt")
-            folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-
-    elif options.doQCD:
-        ## qcd without pu
-        filelist = open(filedir+"/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-
-    elif options.doEG0_200:
-        ## signle photon 0-200 without pu
-        filelist = open(filedir+"/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-
-    elif options.doEG0_200pu:
-        ## signle photon 0-200 with pu
-        filelist = open(filedir+"/SinglePhoton_Pt-0To200-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-0To200-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-    
-    elif options.doEG200_500:
-        ## signle photon 200-500 without pu
-        filelist = open(filedir+"/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-
-    elif options.doEG200_500pu:
-        ## signle photon 200-500 with pu
-        filelist = open(filedir+"/SinglePhoton_Pt-200to500-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePhoton_Pt-200to500-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-
-    elif options.doPi0_200:
-        ## signle pion 0-200 without pu
-        filelist = open(filedir+"/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-
-    elif options.doNu:
-        ## single neutrino with pu
-        filelist = open(filedir+"/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW"+tagCalib+tagHCALpfa1p
-
-    elif options.doMET:
-        ## H to invisible for MET
-        filelist = open(filedir+"/VBFHToInvisible_M125_TuneCP5_14TeV-powheg-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__AODSIM.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/VBFHToInvisible_M125_TuneCP5_14TeV-powheg-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__AODSIM"+tagCalib+tagHCALpfa1p
-
-    elif options.doVBFHInv:
-        ## H to invisible for perfromance
-        filelist = open(filedir+"/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8__Run3Summer22DRPremix-124X_mcRun3_2022_realistic_v12-v3__GEN-SIM-RAW.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8__Run3Summer22DRPremix-124X_mcRun3_2022_realistic_v12-v3__GEN-SIM-RAW"+tagCalib+tagHCALpfa1p
-
-    elif options.testRun:
-        # TEST 10 files from signle photon 0-200 without pu
-        filelist = open(filedir+"/test.txt")
-        folder = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/test_"+tagCalib+tagHCALpfa1p
-
+    filelist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_13_0_0_pre2/src/CaloL1CalibrationProducer/L1NtupleLauncher/inputFiles/'+options.inFileList+'.txt', 'r')
+    folder = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/'+options.inFileList+'__'+options.outTag
+    if options.inJson: JSONfile = '/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_13_0_0_pre2/src/CaloL1CalibrationProducer/L1NtupleLauncher/DataCertificationJsons/'+options.inJson+'.json'
 
     ###########
 
-    # calling this command only one at the beginning of submitOnTier3.sh
     # os.system ('source /opt/exp_soft/cms/t3/t3setup')
 
     os.system('mkdir -p ' + folder)
-    os.system('cp '+config+' '+folder)
     os.system('cp listAll.sh /data_CMS/cms/motta/CaloL1calibraton/L1NTuples')
     files = [f.strip() for f in filelist]
     print "Input has" , len(files) , "files" 
-    if njobs > len(files) : njobs = len(files)
+    if options.nJobs > len(files) : options.nJobs = len(files)
     filelist.close()
 
-    fileblocks = splitInBlocks (files, njobs)
+    fileblocks = splitInBlocks (files, options.nJobs)
 
     for idx, block in enumerate(fileblocks):
         #print idx, block
@@ -197,21 +67,47 @@ if __name__ == "__main__" :
         outRootName = folder + '/Ntuple_' + str(idx) + '.root'
         outJobName  = folder + '/job_' + str(idx) + '.sh'
         outListName = folder + "/filelist_" + str(idx) + ".txt"
-        if options.doMET: outSecondaryListName = folder + "/secondaryFilelist_" + str(idx) + ".txt"
         outLogName  = folder + "/log_" + str(idx) + ".txt"
 
         jobfilelist = open(outListName, 'w')
         for f in block: jobfilelist.write(f+"\n")
         jobfilelist.close()
 
-        if options.doMET:
+        if options.recoFromAOD:
+            outSecondaryListName = folder + "/secondaryFilelist_" + str(idx) + ".txt"
             jobsecondaryfilelist = open(outSecondaryListName, 'w')
             jobsecondaryfilelist.close()
             for f in block:
                 os.system('dasgoclient --query="parent file='+f+'" >& '+outSecondaryListName)
 
-        if options.doMET: cmsRun = "cmsRun "+config+" maxEvents=-1 inputFiles_load="+outListName + " secondaryInputFiles_load="+outSecondaryListName + " outputFile="+outRootName + " >& " + outLogName
-        else:             cmsRun = "cmsRun "+config+" maxEvents=-1 inputFiles_load="+outListName + " outputFile="+outRootName + " >& " + outLogName
+
+        if options.recoFromAOD:
+            if options.data:
+                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=1 inputFiles_load="+outListName+" secondaryInputFiles_load="+outSecondaryListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
+                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=1 inputFiles_load="+outListName+" secondaryInputFiles_load="+outSecondaryListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
+
+            else:
+                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=0 inputFiles_load="+outListName+" secondaryInputFiles_load="+outSecondaryListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
+                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=0 inputFiles_load="+outListName+" secondaryInputFiles_load="+outSecondaryListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
+
+        elif options.recoFromSKIM:
+            if options.data:
+                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=1 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
+                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=1 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
+
+            else:
+                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=0 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
+                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=0 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
+
+        else:
+            if options.data:
+                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=0 data=1 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
+                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=0 data=1 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
+
+            else:
+                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=0 data=0 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
+                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=0 data=0 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
+
 
         skimjob = open (outJobName, 'w')
         skimjob.write ('#!/bin/bash\n')
@@ -225,9 +121,8 @@ if __name__ == "__main__" :
         skimjob.close ()
 
         os.system ('chmod u+rwx ' + outJobName)
-        command = ('/home/llr/cms/motta/t3submit -long \'' + outJobName +"\'")
-        # command = ('/home/llr/cms/motta/t3submit -short \'' + outJobName +"\'")
+        command = ('/home/llr/cms/motta/t3submit -'+options.queue+' \'' + outJobName +"\'")
         print command
         if not options.no_exec: os.system (command)
         # break
-        # if idx == 200: break
+        # if idx == 2: break

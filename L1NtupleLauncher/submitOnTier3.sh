@@ -1,100 +1,82 @@
 source /opt/exp_soft/cms/t3/t3setup
 
-# python submitOnTier3.py --njobs 5 --applyHCALpfa1p --testRun --applyNewCalib
-# python submitOnTier3.py --njobs 5 --applyHCALpfa1p --testRun --applyNewCalibNoZeros
-# python submitOnTier3.py --njobs 5 --applyHCALpfa1p --testRun --applyOldCalib
-
-# python submitOnTier3.py --njobs 300 --applyHCALpfa1p --doQCD --qcdPtBin 20To30 --applyNoCalib # --no_exec
-# python submitOnTier3.py --njobs 300 --applyHCALpfa1p --doQCD --qcdPtBin 30To50 --applyNoCalib # --no_exec
-# python submitOnTier3.py --njobs 400 --applyHCALpfa1p --doQCD --qcdPtBin 50To80 --applyNoCalib # --no_exec
-# python submitOnTier3.py --njobs 400 --applyHCALpfa1p --doQCD --qcdPtBin 80To120 --applyNoCalib # --no_exec
-# python submitOnTier3.py --njobs 400 --applyHCALpfa1p --doQCD --qcdPtBin 120To170 --applyNoCalib # --no_exec
-# python submitOnTier3.py --njobs 300 --applyHCALpfa1p --doQCD --qcdPtBin 20To30 --applyNewCalib # --no_exec
-# python submitOnTier3.py --njobs 300 --applyHCALpfa1p --doQCD --qcdPtBin 30To50 --applyNewCalib # --no_exec
-# python submitOnTier3.py --njobs 400 --applyHCALpfa1p --doQCD --qcdPtBin 50To80 --applyNewCalib # --no_exec
-# python submitOnTier3.py --njobs 400 --applyHCALpfa1p --doQCD --qcdPtBin 80To120 --applyNewCalib # --no_exec
-# python submitOnTier3.py --njobs 400 --applyHCALpfa1p --doQCD --qcdPtBin 120To170 --applyNewCalib # --no_exec
-
-# python submitOnTier3.py --njobs 250 --applyHCALpfa1p --doQCD --qcdPtBin PUForTRK --applyNoCalib # --no_exec
-
-#python submitOnTier3.py --njobs 200 --applyHCALpfa1p --doPi0_200 --applyNoCalib #--no_exec
+## AVAILABLE COMMAND OPTIONS
+## python submitOnTier3.py --inFileList list\
+##                         --outTag tag \
+##                         --nJobs 100 \
+##                         --queue {long, short} \
+##                         --maxEvts -1 \
+##                         --inJson JSON \
+##                         --caloParams CP \
+##                         --globalTag GT \
+##                         --data \
+##                         --reco \
+##                         --no_exec
 
 
-## RE-EMULATION
+# python submitOnTier3.py --inFileList VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8__Run3Summer22DRPremix-124X_mcRun3_2022_realistic_v12-v3__AODSIM \
+#                             --outTag GT130XmcRun32022realisticv2_CaloParams2022v01noL1calib_reco \
+#                             --nJobs 46 \
+#                             --queue short \
+#                             --maxEvts -1 \
+#                             --caloParams caloParams_2022_v0_1_noL1calib_cfi \
+#                             --globalTag 130X_mcRun3_2022_realistic_v2 \
+#                             --reco
 
-# python submitOnTier3.py --njobs 300 --applyHCALpfa1p --doNu --applyNewCalib
-# python submitOnTier3.py --njobs 300 --applyHCALpfa1p --doNu --applyNewCalibSaturAt 1.75
-# python submitOnTier3.py --njobs 300 --applyHCALpfa1p --doNu --applyOldCalib
-# python submitOnTier3.py --njobs 300 --applyHCALpfa1p --doNu --applyNoCalib
+# python submitOnTier3.py --inFileList VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8__Run3Summer22DRPremix-124X_mcRun3_2022_realistic_v12-v3__AODSIM \
+#                             --outTag GT130XmcRun32022realisticv2_CaloParams2022v01oldHCALsf_reco \
+#                             --nJobs 46 \
+#                             --queue short \
+#                             --maxEvts -1 \
+#                             --caloParams caloParams_2022_v0_1_oldHCALsf_cfi \
+#                             --globalTag 130X_mcRun3_2022_realistic_v2 \
+#                             --reco
 
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNoCalib
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNoCalib
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNoCalib
+# python submitOnTier3.py --inFileList VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8__Run3Summer22DRPremix-124X_mcRun3_2022_realistic_v12-v3__AODSIM \
+#                             --outTag GT130XmcRun32022realisticv2_CaloParams2022v27newCalib_reco \
+#                             --nJobs 46 \
+#                             --queue short \
+#                             --maxEvts -1 \
+#                             --caloParams caloParams_2022_v27_newCalib_cfi \
+#                             --globalTag 130X_mcRun3_2022_realistic_v2 \
+#                             --reco
 
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCDpu       --applyNoCalib
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200pu   --applyNoCalib
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500pu --applyNoCalib
+# python submitOnTier3.py --inFileList VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8__Run3Summer22DRPremix-124X_mcRun3_2022_realistic_v12-v3__AODSIM \
+#                             --outTag GT130XmcRun32022realisticv2_CaloParams2022v28newCalib_reco \
+#                             --nJobs 46 \
+#                             --queue short \
+#                             --maxEvts -1 \
+#                             --caloParams caloParams_2022_v28_newCalib_cfi \
+#                             --globalTag 130X_mcRun3_2022_realistic_v2 \
+#                             --reco
 
-#python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalib
-#python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalib
-#python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalib
-#python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalib
+# python submitOnTier3.py --inFileList EphemeralZeroBias0__Run2022G-v1__Run362616__RAW \
+#                             --outTag GT124XdataRun3Promptv10_CaloParams2022v28newCalib_data \
+#                             --nJobs 278 \
+#                             --queue short \
+#                             --maxEvts -1 \
+#                             --caloParams caloParams_2022_v28_newCalib_cfi \
+#                             --globalTag 124X_dataRun3_Prompt_v10 \
+#                             --data
 
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalibManualSatur_1
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalibManualSatur_1
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalibManualSatur_1
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalibManualSatur
+python submitOnTier3.py --inFileList EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO \
+                            --outTag GT124XdataRun3Promptv10_CaloParams2022v27newCalib_data_reco_json \
+                            --nJobs 116 \
+                            --queue short \
+                            --maxEvts -1 \
+                            --inJson Cert_Collisions2022_355100_362760_Golden \
+                            --caloParams caloParams_2022_v27_newCalib_cfi \
+                            --globalTag 124X_dataRun3_Prompt_v10 \
+                            --data \
+                            --recoFromSKIM
 
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalibSaturAt 1.75
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalibSaturAt 1.75
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalibSaturAt 1.75
-
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalibECALsaturAt 1.2 --applyNewCalibHCALsaturAt 1.5
-
-# python submitOnTier3.py --njobs 15000 --applyHCALpfa1p --doQCD       --applyOldCalib
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyOldCalib
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyOldCalib
-
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCDpu       --applyOldCalib
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200pu   --applyOldCalib
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500pu --applyOldCalib
-
-# python submitOnTier3.py --njobs 100 --applyHCALpfa1p --doMET --applyNoCalib --no_exec
-
-
-
-
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalib --seedThreshold 6.0
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalib --seedThreshold 6.0
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalib --seedThreshold 6.0
-
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD       --applyNewCalib --seedThreshold 8.0
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG0_200   --applyNewCalib --seedThreshold 8.0
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doEG200_500 --applyNewCalib --seedThreshold 8.0
-
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalib --seedThreshold 6.0
-# python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu        --applyNewCalib --seedThreshold 8.0
-
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalibManualSatur_2
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalibManualSatur_2
-
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalibManualSatur_3
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalibManualSatur_3
-
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalibManualSatur_4
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalibManualSatur_4
-
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalibManualSatur_5
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalibManualSatur_5
-
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalib_10TT
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalib_10TT
-
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doQCD    --applyNewCalib_More10TT
-python submitOnTier3.py --njobs 750 --applyHCALpfa1p --doNu     --applyNewCalib_More10TT
-
-
-python submitOnTier3.py --njobs 150 --applyHCALpfa1p --doVBFHInv --applyNewCalib --applyVersion v27 --no_exec
+python submitOnTier3.py --inFileList JetMET__Run2022G-PromptReco-v1__Run362617__AOD \
+                            --outTag GT124XdataRun3Promptv10_CaloParams2022v27newCalib_data_reco_json \
+                            --nJobs 245 \
+                            --queue short \
+                            --maxEvts -1 \
+                            --inJson Cert_Collisions2022_355100_362760_Golden \
+                            --caloParams caloParams_2022_v27_newCalib_cfi \
+                            --globalTag 124X_dataRun3_Prompt_v10 \
+                            --data \
+                            --recoFromAOD
