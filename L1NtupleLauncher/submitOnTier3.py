@@ -78,7 +78,7 @@ if __name__ == "__main__" :
             jobsecondaryfilelist = open(outSecondaryListName, 'w')
             jobsecondaryfilelist.close()
             for f in block:
-                os.system('dasgoclient --query="parent file='+f+'" >& '+outSecondaryListName)
+                os.system('dasgoclient --query="parent file='+f+'" >> '+outSecondaryListName)
 
 
         if options.recoFromAOD:
