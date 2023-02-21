@@ -194,3 +194,12 @@ All results presented at L1 DPG meeting on 6th of January
 
 2023_02_10_NtuplesV28
 First working version of calibration of ECAL and HCAL at the same time
+
+2023_02_20_Ntuplesv29
+First working version of calibration with data
+Done both for split ECAL/HCAL training, and single ECAL+HCAL training
+    --> from thsi one, it looks like keeping them separated might be the best option in order not to down-calibrate HCAL
+    --> from the split version it might look like HF might also need to be calibrated separately
+
+
+
