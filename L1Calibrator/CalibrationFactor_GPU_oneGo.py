@@ -70,7 +70,8 @@ if __name__ == "__main__" :
     Epredicted = TTP_ecal.predict(input_towers)
 
     SFs = (Epredicted/Einput).reshape(int((max_energy-min_energy)/energy_step)+1,28)
-    SFs[SFs==np.inf] = 0.0000 # replace the infs form the 3/6/9 zero suppression trick with zeros
+    SFs[np.isinf(SFs)] = 0.0000 # replace the infs form the 3/6/9 zero suppression trick with zeros
+    SFs[np.isnan(SFs)] = 0.0000 # replace the infs form the 3/6/9 zero suppression trick with zeros
 
     head_text = 'energy bins iEt       = [0'
     for i in range(min_energy, max_energy, energy_step):
@@ -88,7 +89,7 @@ if __name__ == "__main__" :
     head_text = head_text + " , 256]\n"
 
     SFOutFile = odir + '/ScaleFactors_ECAL_energystep'+str(energy_step)+'iEt.csv'
-    np.savetxt(SFOutFile, SFs, delimiter=",", header=head_text, fmt=','.join(['%1.4f']*28))
+    np.savetxt(SFOutFile, SFs, delimiter=",", newline=',\n', header=head_text, fmt=','.join(['%1.4f']*28))
     print('\nScale Factors saved to: {}'.format(SFOutFile))
 
     ################## HCAL ##################

@@ -353,7 +353,7 @@ if __name__ == "__main__" :
     parser.add_option("--tag",      dest="tag",     help="tag of the training folder",      default="")
     parser.add_option("--out",      dest="odir",    help="Output folder",                       default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",      default='ECAL')
-    parser.add_option("--maxeta",   dest="maxeta",  help="Eta max in the SF plot (None or 28)", default=None)
+    parser.add_option("--maxeta",   dest="maxeta",  help="Eta max in the SF plot (40 or 28)", default=40, type=int)
     parser.add_option("--energystep", dest="energystep", help="Energy steps",                    type=int,   default=1)
     (options, args) = parser.parse_args()
     print(options)
@@ -379,7 +379,7 @@ if __name__ == "__main__" :
     os.system('mkdir -p '+ odir)
     print('\nOutput dir = {}'.format(odir))
 
-    ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',')
+    ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',', usecols=range(0,options.maxeta))
     eta_towers = range(1, len(ScaleFactors[1])+1)
     print('\nEta Trigger Towers = {}'.format(eta_towers))
 
