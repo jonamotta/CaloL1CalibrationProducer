@@ -379,7 +379,6 @@ if __name__ == "__main__" :
         print('** INFO : made the plots, exiting')
         exit()
 
-    exit()
 
     ##############################################################################
     ########################### TRAINING SETUP VARIABLES #########################
@@ -426,7 +425,7 @@ if __name__ == "__main__" :
 
             # in the case of HCAL, apply the calibration of the ECAL energy deposits so that the predicted TT sums will include that effect
             if VERSION == 'HCAL':
-                ECAL_TTPmodel = keras.models.load_model('/data_CMS/cms/motta/CaloL1calibraton/'+options.indir+'/ECALtraining_0pt500/model_ECAL/TTP', compile=False, custom_objects={'Fgrad': Fgrad})
+                ECAL_TTPmodel = keras.models.load_model('/data_CMS/cms/motta/CaloL1calibraton/'+options.indir+'/ECALtrainingDataReco/model_ECAL/TTP', compile=False, custom_objects={'Fgrad': Fgrad})
                 Z_train = applyECALcalib(Z_train, ECAL_TTPmodel)
                 del ECAL_TTPmodel
             print('** INFO : done preprocessing NumPy datasets')
