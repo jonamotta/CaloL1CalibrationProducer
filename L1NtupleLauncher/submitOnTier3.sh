@@ -60,6 +60,28 @@ source /opt/exp_soft/cms/t3/t3setup
 #                         --data
 
 # python submitOnTier3.py --inFileList EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v06noL1Calib_data_reco_json \
+#                         --nJobs 116 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v0_6_noL1Calib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --recoFromSKIM
+
+# python submitOnTier3.py --inFileList EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v06oldHcalL1Calib_data_reco_json \
+#                         --nJobs 116 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v0_6_oldHcalL1Calib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --recoFromSKIM
+
+# python submitOnTier3.py --inFileList EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO \
 #                         --outTag GT124XdataRun3Promptv10_CaloParams2022v27newCalib_data_reco_json \
 #                         --nJobs 116 \
 #                         --queue short \
@@ -81,24 +103,68 @@ source /opt/exp_soft/cms/t3/t3setup
 #                         --data \
 #                         --recoFromSKIM
 
-python submitOnTier3.py --inFileList JetMET__Run2022G-PromptReco-v1__Run362617__AOD \
-                        --outTag GT124XdataRun3Promptv10_CaloParams2022v27newCalib_data_reco_json \
-                        --nJobs 100 \
-                        --queue long \
+python submitOnTier3.py --inFileList EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO \
+                        --outTag GT124XdataRun3Promptv10_CaloParams2022v29newCalib_data_reco_json \
+                        --nJobs 116 \
+                        --queue short \
                         --maxEvts -1 \
                         --inJson Cert_Collisions2022_355100_362760_Golden \
-                        --caloParams caloParams_2022_v27_newCalib_cfi \
+                        --caloParams caloParams_2022_v29_newCalib_cfi \
                         --globalTag 124X_dataRun3_Prompt_v10 \
                         --data \
-                        --recoFromAOD
+                        --recoFromSKIM
 
-python submitOnTier3.py --inFileList JetMET__Run2022G-PromptReco-v1__Run362617__AOD \
-                        --outTag GT124XdataRun3Promptv10_CaloParams2022v28newCalib_data_reco_json \
-                        --nJobs 100 \
-                        --queue long \
-                        --maxEvts -1 \
-                        --inJson Cert_Collisions2022_355100_362760_Golden \
-                        --caloParams caloParams_2022_v28_newCalib_cfi \
-                        --globalTag 124X_dataRun3_Prompt_v10 \
-                        --data \
-                        --recoFromAOD
+# python submitOnTier3.py --inFileList JetMET__Run2022G-PromptReco-v1__Run362617__AOD \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v06noL1Calib_data_reco_json \
+#                         --nJobs 122 \
+#                         --queue long \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v0_6_noL1Calib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --recoFromAOD
+
+# python submitOnTier3.py --inFileList JetMET__Run2022G-PromptReco-v1__Run362617__AOD \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v06oldHcalL1Calib_data_reco_json \
+#                         --nJobs 122 \
+#                         --queue long \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v0_6_oldHcalL1Calib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --recoFromAOD
+
+# python submitOnTier3.py --inFileList JetMET__Run2022G-PromptReco-v1__Run362617__AOD \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v27newCalib_data_reco_json \
+#                         --nJobs 122 \
+#                         --queue long \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v27_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --recoFromAOD
+
+# python submitOnTier3.py --inFileList JetMET__Run2022G-PromptReco-v1__Run362617__AOD \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v28newCalib_data_reco_json \
+#                         --nJobs 122 \
+#                         --queue long \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v28_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --recoFromAOD
+
+# python submitOnTier3.py --inFileList JetMET__Run2022G-PromptReco-v1__Run362617__AOD \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v29newCalib_data_reco_json \
+#                         --nJobs 122 \
+#                         --queue long \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v29_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --recoFromAOD
