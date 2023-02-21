@@ -1,6 +1,6 @@
-import os
 import json
-# from subprocess import Popen, PIPE
+import glob
+import os
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -34,7 +34,11 @@ def splitInBlocks (l, n):
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--indir",     dest="indir",    default=None)
-parser.add_option("--odir",     dest="odir",    default="")
+parser.add_option("--outdir",     dest="outdir",    default="")
+parser.add_option("--target",      dest="target",      default='')
+parser.add_option("--type",        dest="type",        default='')
+parser.add_option("--queue",        dest="queue",        default='long')
+parser.add_option("--chunk_size", dest="chunk_size",    default=5000,  type=int)
 parser.add_option("--uJetPtCut", dest="uJetPtCut", default=False)
 parser.add_option("--lJetPtCut", dest="lJetPtCut", default=False)
 parser.add_option("--etacut",   dest="etacut",  default=False)
@@ -47,150 +51,33 @@ parser.add_option("--flatPtDist",     dest="flatPtDist",     default=False)
 parser.add_option("--calibECALOnTheFly",  dest="calibECALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
 parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
 parser.add_option("--trainPtVers",  dest="trainPtVers", default=False)
-parser.add_option("--applyHCALpfa1p", dest="applyHCALpfa1p", action='store_true', default=True)
-parser.add_option("--applyNoCalib", dest="applyNoCalib", action='store_true', default=False)
-parser.add_option("--applyOldCalib", dest="applyOldCalib", action='store_true', default=False)
-parser.add_option("--applyNewECALcalib", dest="applyNewECALcalib", action='store_true', default=False)
-parser.add_option("--applyNewECALpHCALcalib", dest="applyNewECALpHCALcalib", action='store_true', default=False)
-parser.add_option("--doNuGun", dest="doNuGun", action='store_true', default=False)
-parser.add_option("--doEG0_200", dest="doEG0_200", action='store_true', default=False)
-parser.add_option("--doEG0_200pu", dest="doEG0_200pu", action='store_true', default=False)
-parser.add_option("--doEG200_500", dest="doEG200_500", action='store_true', default=False)
-parser.add_option("--doEG200_500pu", dest="doEG200_500pu", action='store_true', default=False)
-parser.add_option("--doQCD", dest="doQCD", action='store_true', default=False)
-parser.add_option("--doQCDpu", dest="doQCDpu", action='store_true', default=False)
-parser.add_option("--qcdPtBin", dest="qcdPtBin", default="")
-parser.add_option("--doPi0_200", dest="doPi0_200", action='store_true', default=False)
 parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
 (options, args) = parser.parse_args()
 
-if options.indir == None:
-    print('** WARNING: no input directory specified - EXITING!')
+if not options.indir or not options.outdir or not options.target or not options.type:
+    print('** WARNING: need to specify all the following: indir, outdir, target, type')
+    print('** EXITING')
     exit()
 
-if options.applyNoCalib == False and options.applyOldCalib == False and options.applyNewECALcalib == False and options.applyNewECALpHCALcalib == False:
-    print('** WARNING: no calibration to be used specified - EXITING!')
-    exit()
-
-if options.doEG0_200 == False and options.doEG200_500 == False and options.doEG0_200pu == False and options.doEG200_500pu == False and options.doQCD == False and options.doQCDpu == False and options.doPi0_200 == False and options.doNuGun == False:
-    print('** WARNING: no dataset to be used specified - EXITING!')
-    exit()
-
-tagHCALpfa1p = ""
-tagCalib = ""
-if   options.applyNoCalib:           tagCalib = "_uncalib"
-elif options.applyOldCalib:          tagCalib = "_oldCalib"
-elif options.applyNewECALcalib:      tagCalib = "_newECALcalib" 
-elif options.applyNewECALpHCALcalib: tagCalib = "_newCalib"
-if   options.applyHCALpfa1p:         tagHCALpfa1p = "_applyHCALpfa1p"
-
-basedir = '/data_CMS/cms/motta/CaloL1calibraton'
-filedir = basedir + '/' + options.indir
-
-outputFolderName = 'paddedAndReadyToMerge'
-if options.applyOnTheFly: outputFolderName = 'appliedOnTheFly'
-
-if   options.doQCDpu:
-    ## qcd with pu - backup datasets
-    if options.qcdPtBin=="20To30":
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt20To30.txt')
-        filedir = filedir +'/QCD_Pt-20To30_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/'+outputFolderName
-
-    elif options.qcdPtBin=="30To50":
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt30To50.txt')
-        filedir = filedir +'/QCD_Pt-30To50_MuEnrichedPt5_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/'+outputFolderName
-
-    elif options.qcdPtBin=="50To80":
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt50To80.txt')
-        filedir = filedir +'/QCD_Pt-50To80_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/'+outputFolderName
-
-    elif options.qcdPtBin=="80To120":
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt80To120.txt')
-        filedir = filedir +'/QCD_Pt-80To120_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/'+outputFolderName
-
-    elif options.qcdPtBin=="120To170":
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_qcdNoPU_Pt120To170.txt')
-        filedir = filedir +'/QCD_Pt-120To170_TuneCP5_14TeV-pythia8__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/'+outputFolderName
-
-    else:
-        ## qcd flat0-80 pu
-        taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_QCDpu.txt')
-        filedir = filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-FlatPU0to80FEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-        folder = filedir+'/'+outputFolderName
-
-elif options.doQCD:
-    ## qcd without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_QCD.txt')
-    filedir = filedir +'/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-    folder = filedir+'/'+outputFolderName
-
-elif options.doEG0_200:
-    ## signle photon 0-200 without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200.txt')
-    filedir = filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-    folder = filedir+'/'+outputFolderName
-
-elif options.doEG0_200pu:
-    ## signle photon 0-200 with pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt0To200pu.txt')
-    filedir = filedir +'/SinglePhoton_Pt-0To200-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-    folder = filedir+'/'+outputFolderName
-
-elif options.doEG200_500:
-    ## signle photon 200-500 without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500.txt')
-    filedir = filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-    folder = filedir+'/'+outputFolderName
-
-elif options.doEG200_500pu:
-    ## signle photon 200-500 with pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_eg_Pt200To500pu.txt')
-    filedir = filedir +'/SinglePhoton_Pt-200to500-gun__Run3Summer21DRPremix-120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-    folder = filedir+'/'+outputFolderName
-
-elif options.doPi0_200:
-    ## signle pion 0-200 without pu
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_pi_Pt0To200.txt')
-    filedir = filedir +'/SinglePion_Pt-0to200-gun__Run3Summer21DR-NoPUFEVT_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-    folder = filedir+'/'+outputFolderName
-
-elif options.doNuGun:
-    ## neutrino gun for rate estimation
-    taglist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_12_3_0_pre6/src/L1CalibrationProducer/L1NtupleReader/inputBatches/taglist_nuGun.txt')
-    filedir = filedir +'/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW'+tagCalib+tagHCALpfa1p+'_batches'
-    folder = filedir+'/'+outputFolderName
-
-else:
-    print(' ** WARNING: wrong request --> EXITING!')
-    exit()
-
-# appemnd the outdir tag
-folder += options.odir
-os.system('mkdir -p ' + folder)
-
+folder = options.outdir+'/'+options.indir.split('/')[-1]
+os.system('mkdir -p '+folder+'/dataframes ; mkdir -p '+folder+'/tensors')
 
 ###########
 
 #os.system ('source /opt/exp_soft/cms/t3/t3setup')
 
-os.system('mkdir -p ' + folder + '/dataframes ; mkdir -p ' + folder + '/tensors')
-tags = [tag.strip() for tag in taglist]
-njobs = len(tags)
-print("Input has" , len(tags) , "files", "-->", len(tags), "jobs")
-taglist.close()
+InFiles = glob.glob(options.indir+'/Ntuple*.root')
+InFiles.sort()
+print("Input has" , len(InFiles) , "files", "-->", len(InFiles), "jobs")
 
-for idx, tag in enumerate(tags):
-    #print(idx, tag)
+for idx, file in enumerate(InFiles):
+    print(idx, file)
 
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
-    cmsRun = "python batchReader.py --fin "+filedir+" --tag "+tag+" --fout "+folder
+    cmsRun = "python3 batchReader.py --fin "+file+" --fout "+folder+" --target "+options.target+" --type "+options.type
+    cmsRun = cmsRun + " --chunk_size "+str(options.chunk_size)
     if options.uJetPtCut != False:
         cmsRun = cmsRun + " --uJetPtCut "+options.uJetPtCut
     if options.lJetPtCut != False:
@@ -223,15 +110,16 @@ for idx, tag in enumerate(tags):
     skimjob = open (outJobName, 'w')
     skimjob.write ('#!/bin/bash\n')
     skimjob.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
-    skimjob.write ('module use /opt/exp_soft/vo.llr.in2p3.fr/modulefiles_el7\n')
-    skimjob.write ('module load python/3.7.0\n')
+    skimjob.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
+    skimjob.write ('cd %s\n' % os.getcwd())
+    skimjob.write ('export SCRAM_ARCH=slc6_amd64_gcc472\n')
+    skimjob.write ('eval `scram r -sh`\n')
     skimjob.write ('cd %s\n'%os.getcwd())
     skimjob.write (cmsRun+'\n')
     skimjob.close ()
 
     os.system ('chmod u+rwx ' + outJobName)
-    command = ('/home/llr/cms/motta/t3submit -short \'' + outJobName +"\'")
-    # command = ('/home/llr/cms/evernazza/t3submit -short \'' + outJobName +"\'")
+    command = ('/home/llr/cms/motta/t3submit -'+options.queue+' \'' + outJobName +"\'")
     print(command)
     os.system (command)
     # break

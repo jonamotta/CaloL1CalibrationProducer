@@ -4,9 +4,14 @@ from itertools import chain
 from TowerGeometry import *
 import pandas as pd
 import numpy as np
+import uproot3
 import math
 import os
 
+
+def chunker(seq, size):
+            for pos in range(0, len(seq), size):
+                yield seq.iloc[pos:pos + size] 
 
 def deltarSelect( df, dRcut ):
     deta = np.abs(df['jetEta'] - df['jetEta_joined'])
@@ -154,15 +159,10 @@ def padDataFrameWithZeros( dfFlatEJT ):
         
     return padded
 
-def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, applyOnTheFly):
-    if len(dfET) == 0 or len(dfEJ) == 0:
+def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, applyOnTheFly):
+    if len(dfFlatET) == 0 or len(dfFlatEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
-
-    # the dataframes are actually already flattened out
-    # so just reassign to the flat variables
-    dfFlatET = dfET
-    dfFlatEJ = dfEJ
 
     dfFlatEJ['jetId'] = dfFlatEJ.index # each jet gets an identifier based on a progressive value independent of event -> this allows further flexibility of ID on top of event
 
@@ -216,8 +216,8 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
     #########################################################################
 
     ## DEBUG
-    # print(dfET.shape[0])
-    # print(dfEJ.shape[0])
+    # print(dfFlatET.shape[0])
+    # print(dfFlatEJ.shape[0])
     # print(dfFlatEJ.shape[0])
     # dfFlatET = dfFlatET.head(100).copy(deep=True)
     # dfFlatEJ = dfFlatEJ.head(5000).copy(deep=True)
@@ -444,17 +444,14 @@ def mainReader( dfET, dfEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEta
 ######################### SCRIPT BODY #################################
 #######################################################################
 
-### To run:
-### python3 batchReader.py --fin <fileIN_path> --tag <batch_tag> --fout <fileOUT_path> [--jetcut 60 --etacut 24]
-### OR
-### python batchSubmitOnTier3.py (after appropriate modifications)
-
 if __name__ == "__main__" :
 
     parser = OptionParser()
     parser.add_option("--fin",         dest="fin",         default='')
-    parser.add_option("--tag",         dest="tag",         default='')
     parser.add_option("--fout",        dest="fout",        default='')
+    parser.add_option("--target",      dest="target",      default='')
+    parser.add_option("--type",        dest="type",        default='')
+    parser.add_option("--chunk_size",  dest="chunk_size",  default=5000,  type=int)
     parser.add_option("--calibrateECAL", dest="calibrateECAL", default=False, help="oldCalib or newCalib; not specified == noCalib")
     parser.add_option("--calibrateHCAL", dest="calibrateHCAL", default=False, help="oldCalib or newCalib; not specified == noCalib")
     parser.add_option("--trainPtVers", dest="trainPtVers", default=False)
@@ -470,36 +467,90 @@ if __name__ == "__main__" :
     parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
     (options, args) = parser.parse_args()
 
-    if (options.fin=='' or options.tag=='' or options.fout==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
+    if (options.fin=='' or options.fout=='' or options.target=='' or options.type==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
 
-    # define the two paths where to read the hdf5 files
-    readfrom = {
-        'towers'  : options.fin+'/towers/towers'+options.tag,
-        'jets'    : options.fin+'/jets/jets'+options.tag
-    }
+    keyEvents = "l1EventTree/L1EventTree"
+    branchesEvents = ["Event/event"]
 
-    # define the paths where to save the hdf5 files
-    saveToDFs = {
-        'towers'  : options.fout+'/dataframes/towers'+options.tag,
-        'jets'    : options.fout+'/dataframes/jets'+options.tag
-    }
-    # define the two paths where to save the hdf5 files
-    saveToTensors = {
-        'towers'  : options.fout+'/tensors/towers'+options.tag,
-        'jets'    : options.fout+'/tensors/jets'+options.tag
-    }
+    keyTowers = "l1CaloTowerEmuTree/L1CaloTowerTree"
+    branchesTowers = ["L1CaloTower/ieta", "L1CaloTower/iphi", "L1CaloTower/iem", "L1CaloTower/ihad", "L1CaloTower/iet"]
 
-    print(readfrom['towers']+'.hdf5')
+    if options.target == 'reco':
+        if options.type == 'ele':
+            keyReco = "l1ElectronRecoTree/ElectronRecoTree"
+            branchesTarget = ["Electron/eta", "Electron/phi", "Electron/et"]
 
-    # read hdf5 files
-    readT = pd.HDFStore(readfrom['towers']+'.hdf5', mode='r')
-    dfET = readT['towers']
-    readT.close()
+        if options.type == 'jet':
+            keyReco = "l1JetRecoTree/JetRecoTree"
+            branchesTarget = ["Jet/eta", "Jet/phi", "Jet/et"]
 
-    readJ = pd.HDFStore(readfrom['jets']+'.hdf5', mode='r')
-    dfEJ = readJ['jets']
-    readJ.close()
+    if options.target == 'gen':
+        branchesTarget = ["Generator/jetEta", "Generator/jetPhi", "Generator/jetPt"]
 
-    mainReader(dfET, dfEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.applyOnTheFly)
+    InFile = uproot3.open(options.fin)
+
+    eventsTree = InFile[keyEvents]
+    towersTree = InFile[keyTowers]
+    targetTree = InFile[keyReco]
+
+    del InFile
+
+    arrEvents = eventsTree.arrays(branchesEvents)
+    arrTowers = towersTree.arrays(branchesTowers)
+    arrTarget = targetTree.arrays(branchesTarget)
+
+    del eventsTree, towersTree, targetTree
+
+    dfE = pd.DataFrame(arrEvents)
+    dfT = pd.DataFrame(arrTowers)
+    dfJ = pd.DataFrame(arrTarget)
+
+    del arrEvents, arrTowers, arrTarget
+
+    dfET = pd.concat([dfE, dfT], axis=1)
+    dfEJ = pd.concat([dfE, dfJ], axis=1)
+    dfET = dfET.dropna(axis=0)
+    dfEJ = dfEJ.dropna(axis=0)
+
+    del dfE, dfT, dfJ
+
+    # index of rhe Ntuple as tag
+    tag = '_'+options.fin.split('/Ntuple_')[1]
+    tag = tag.split('.')[0]
+
+    j = 0
+    for ET, EJ in zip(chunker(dfET, options.chunk_size),chunker(dfEJ, options.chunk_size)):
+        # flatten out the dataframes so that each entry of the dataframe is a number and not a vector
+        dfFlatET = pd.DataFrame({
+            'event': np.repeat(ET[b'event'].values, ET[b'ieta'].str.len()), # event IDs are copied to keep proper track of what is what
+            'ieta': list(chain.from_iterable(ET[b'ieta'])),
+            'iphi': list(chain.from_iterable(ET[b'iphi'])),
+            'iem' : list(chain.from_iterable(ET[b'iem'])),
+            'ihad': list(chain.from_iterable(ET[b'ihad'])),
+            'iet' : list(chain.from_iterable(ET[b'iet']))
+            })
+
+        dfFlatEJ = pd.DataFrame({
+            'event': np.repeat(EJ[b'event'].values, EJ[b'eta'].str.len()), # event IDs are copied to keep proper track of what is what
+            'jetEta': list(chain.from_iterable(EJ[b'eta'])),
+            'jetPhi': list(chain.from_iterable(EJ[b'phi'])),
+            'jetPt' : list(chain.from_iterable(EJ[b'et']))
+            })
+
+        # define the paths where to save the hdf5 files
+        saveToDFs = {
+            'towers'  : options.fout+'/dataframes/towers'+tag+'_'+str(j),
+            'jets'    : options.fout+'/dataframes/jets'+tag+'_'+str(j)
+        }
+        # define the two paths where to save the hdf5 files
+        saveToTensors = {
+            'towers'  : options.fout+'/tensors/towers'+tag+'_'+str(j),
+            'jets'    : options.fout+'/tensors/jets'+tag+'_'+str(j)
+        }
+
+        j += 1
+
+        mainReader(dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.applyOnTheFly)
+    
     print("DONE!")
 

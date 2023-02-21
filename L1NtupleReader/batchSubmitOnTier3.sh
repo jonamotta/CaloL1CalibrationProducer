@@ -1,5 +1,25 @@
 source /opt/exp_soft/cms/t3/t3setup
 
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNtuples/JetTraining_JSON \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_02_20_NtuplesV29 \
+                              --target reco --type jet --chunk_size 5000 \
+                              --queue short \
+                              --etacut 41 --hcalcut True --lJetPtCut 30 --uJetPtCut 1000
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNtuples/ElectronTraining_JSON \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_02_20_NtuplesV29 \
+                              --target reco --type ele \
+                              --queue short \
+                              --etacut 28 --ecalcut True --applyCut_3_6_9 True 
+
+
+####################################################################################################################################################################################################
+####################################################################################################################################################################################################
+####################################################################################################################################################################################################
+## OLD COMMANDS FOR OLD VERSION OF THE SUBMITTER
+
+
 # python batchSubmitOnTier3.py --doEG0_200 --uJetPtCut 60 --etacut 28 --ecalcut True --indir 2022_05_02_NtuplesV8 --applyHCALpfa1p --applyNoCalib --trainPtVers ECAL 
 # python batchSubmitOnTier3.py --doEG0_200 --uJetPtCut 60 --etacut 28 --ecalcut True --indir 2022_05_02_NtuplesV8 --applyHCALpfa1p --applyOldCalib --trainPtVers ECAL
 # python batchSubmitOnTier3.py --doEG0_200 --uJetPtCut 60 --etacut 28 --ecalcut True --indir 2022_05_02_NtuplesV8 --applyHCALpfa1p --applyNewECALcalib --trainPtVers ECAL
@@ -86,21 +106,21 @@ source /opt/exp_soft/cms/t3/t3setup
 
 
 
-python batchSubmitOnTier3.py --doEG0_200   --etacut 28 --ecalcut True --indir 2022_07_20_NtuplesV23 --applyHCALpfa1p --applyNoCalib                                 --applyCut_3_6_9 True --odir _0pt200
-python batchSubmitOnTier3.py --doEG200_500 --etacut 28 --ecalcut True --indir 2022_07_20_NtuplesV23 --applyHCALpfa1p --applyNoCalib                                 --applyCut_3_6_9 True --odir _200pt500
-python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 2022_07_20_NtuplesV23 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000
-python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 2022_07_20_NtuplesV23 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 500                        --odir _30pt500
-python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 2022_07_20_NtuplesV23 --applyHCALpfa1p --applyNoCalib --lJetPtCut 20 --uJetPtCut 1000                       --odir _20pt1000
+# python batchSubmitOnTier3.py --doEG0_200   --etacut 28 --ecalcut True --indir 2022_07_20_NtuplesV23 --applyHCALpfa1p --applyNoCalib                                 --applyCut_3_6_9 True --odir _0pt200
+# python batchSubmitOnTier3.py --doEG200_500 --etacut 28 --ecalcut True --indir 2022_07_20_NtuplesV23 --applyHCALpfa1p --applyNoCalib                                 --applyCut_3_6_9 True --odir _200pt500
+# python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 2022_07_20_NtuplesV23 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000
+# python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 2022_07_20_NtuplesV23 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 500                        --odir _30pt500
+# python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 2022_07_20_NtuplesV23 --applyHCALpfa1p --applyNoCalib --lJetPtCut 20 --uJetPtCut 1000                       --odir _20pt1000
 
 # Elena
-python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --TTNumberCut True --indir 2022_09_05_NtuplesV25 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000
+# python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --TTNumberCut True --indir 2022_09_05_NtuplesV25 --applyHCALpfa1p --applyNoCalib --lJetPtCut 30 --uJetPtCut 1000
 
-python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyNoCalib --applyCut_3_6_9 True --odir _rateProxy
-python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyNoCalib --applyCut_3_6_9 True --odir _rateProxy_oldCalib --calibECALOnTheFly oldCalib --calibHCALOnTheFly oldCalib
+# python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyNoCalib --applyCut_3_6_9 True --odir _rateProxy
+# python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyNoCalib --applyCut_3_6_9 True --odir _rateProxy_oldCalib --calibECALOnTheFly oldCalib --calibHCALOnTheFly oldCalib
 
-python batchSubmitOnTier3.py --doEG0_200   --etacut 28 --ecalcut True --indir 2022_07_20_NtuplesV27 --applyHCALpfa1p --applyOldCalib                                 --applyCut_3_6_9 True --odir _0pt200_oldCalib
-python batchSubmitOnTier3.py --doEG200_500 --etacut 28 --ecalcut True --indir 2022_07_20_NtuplesV27 --applyHCALpfa1p --applyOldCalib                                 --applyCut_3_6_9 True --odir _200pt500_oldCalib
-python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 2022_07_20_NtuplesV27 --applyHCALpfa1p --applyOldCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000_oldCalib
+# python batchSubmitOnTier3.py --doEG0_200   --etacut 28 --ecalcut True --indir 2022_07_20_NtuplesV27 --applyHCALpfa1p --applyOldCalib                                 --applyCut_3_6_9 True --odir _0pt200_oldCalib
+# python batchSubmitOnTier3.py --doEG200_500 --etacut 28 --ecalcut True --indir 2022_07_20_NtuplesV27 --applyHCALpfa1p --applyOldCalib                                 --applyCut_3_6_9 True --odir _200pt500_oldCalib
+# python batchSubmitOnTier3.py --doQCD       --etacut 41 --hcalcut True --indir 2022_07_20_NtuplesV27 --applyHCALpfa1p --applyOldCalib --lJetPtCut 30 --uJetPtCut 1000                       --odir _30pt1000_oldCalib
 
 # python batchSubmitOnTier3.py --doNuGun --etacut 41 --indir 2023_01_16_NtuplesV27 --applyHCALpfa1p --applyOldCalib --applyCut_3_6_9 True --odir _rateProxy
 
