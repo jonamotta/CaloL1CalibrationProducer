@@ -11,7 +11,7 @@ from matplotlib.transforms import Affine2D
 
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
-from NNModelTraining_FullyCustom_GPUdistributed_mod import *
+from NNModelTraining_FullyCustom_GPUdistributed_batchedRate import *
 
 import mplhep
 plt.style.use(mplhep.style.CMS)
@@ -136,6 +136,7 @@ def PlotResolution_bins(df_newCalib, df_oldCalib, df_unCalib, odir, v_sample, bi
     max_value = int(values.max())+1
     bins = np.arange(min_value, max_value, steps)
     bins = np.append(bins, max_value)
+    if v_sample == 'ECAL' and bin_type == 'energy': bins = np.append([0, 5, 10], bins[1:])
 
     labels_text = []
     for i in range(len(bins)-1):
@@ -196,8 +197,8 @@ def PlotResolution_bins(df_newCalib, df_oldCalib, df_unCalib, odir, v_sample, bi
     plt.bar(resolution[column_bin], resolution['oldcalib_std']/resolution['oldcalib_mean'], width=0.4, alpha=0.7, align='center',  label=leg_oldcalib, color=c_oldcalib)
     plt.bar(resolution[column_bin], resolution['newcalib_std']/resolution['newcalib_mean'], width=0.4, alpha=0.7, align='edge', label=leg_newcalib, color=c_newcalib)
     plt.xticks(rotation=45)
-    if options.v == "HCAL": plt.ylim(0.0,0.8)
-    else:                   plt.ylim(0.0,0.5)
+    # if options.v == "HCAL": plt.ylim(0.0,0.8)
+    # else:                   plt.ylim(0.0,0.5)
     if name.split('jet')[1] == "Pt": plt.xlim(-0.5,14.5)
     plt.xlabel('{} bins {}'.format(name, units))
     plt.ylabel('Resolution')
@@ -219,8 +220,8 @@ def PlotResolution_bins(df_newCalib, df_oldCalib, df_unCalib, odir, v_sample, bi
     plt.errorbar(resolution[column_bin], resolution['newcalib_mean'], yerr=resolution['newcalib_std'], fmt='o', alpha=1, label=leg_newcalib, color=c_newcalib, markersize=8, capsize=8, linewidth=3, elinewidth=3, capthick=3, transform=trans3)
     plt.axhline(y=1., color='black', linestyle='--')
     plt.xticks(rotation=45)
-    if options.v == "HCAL": plt.ylim(0.2,1.6)
-    else:                   plt.ylim(0.4,1.6)
+    # if options.v == "HCAL": plt.ylim(0.2,1.6)
+    # else:                   plt.ylim(0.4,1.6)
     if name.split('jet')[1] == "Pt": plt.xlim(-0.5,14.5)
     plt.xlabel('{} bins {}'.format(name, units))
     plt.ylabel(r'Scale')
@@ -333,7 +334,7 @@ if __name__ == "__main__" :
     (options, args) = parser.parse_args()
     print(options)
 
-    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/AppliedTraining_' + options.v + options.tag
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/AppliedTraining_' + options.v + '_' + options.tag
 
     # Definition of output folder
     if options.odir:

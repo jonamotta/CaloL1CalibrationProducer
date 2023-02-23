@@ -52,7 +52,7 @@ def convert_samples(X, Y, Z, version):
                 Z = np.repeat(Z, times, axis=0)
                 Z = Z[:Xdim]
 
-    elif version == 'HCAL':
+    elif version == 'HCAL' or version == 'HF':
         X = np.delete(X, 2, axis=2)
         if not Z is None:
             Z = Z[ np.sum(Z[:,:,2], axis=1) >= 50 ] # remove JETs that have E<=50 : 50 ~ (100/n)/1.66*n = (jetThr/nActiveTT)/bigSF*nActiveTT
@@ -272,18 +272,18 @@ def make_AddList(TTP, inputs, name=""):
     return AdditionList
 
 def create_model(version, seedThr=None, jetThr=None, hoeThrEB=None, hoeThrEE=None, egThr=None):
-    if version=="ECAL" and not (hoeThrEB and hoeThrEE and egThr):
+    if version == 'ECAL' and not (hoeThrEB and hoeThrEE and egThr):
         print('** ERROR : model cannot be created without specifying: hoeThrEB, hoeThrEE, egThr')
         print('** EXITING')
         exit()
-    if version=="HCAL" and not (seedThr and jetThr):
+    if (version == 'HCAL' or version == 'HF') and not (seedThr and jetThr):
         print('** ERROR : model cannot be created without specifying: seedThr, jetThr')
         print('** EXITING')
         exit()
 
     TTP_input = keras.Input(shape=(81,42), dtype=tf.float32, name='chunky_donut')
-    if version == "ECAL": rate_input = keras.Input(shape=42, dtype=tf.float32, name='rate_proxy')
-    if version == "HCAL": rate_input = keras.Input(shape=(81,42), dtype=tf.float32, name='rate_proxy')
+    if version == 'ECAL':                    rate_input = keras.Input(shape=42, dtype=tf.float32, name='rate_proxy')
+    if version == 'HCAL' or version == 'HF': rate_input = keras.Input(shape=(81,42), dtype=tf.float32, name='rate_proxy')
     
     layer1 = Dense(82,  name='nn1', input_dim=41, activation='relu', kernel_initializer=RN(seed=7), use_bias=False)
     layer2 = Dense(256, name='nn2',               activation='relu', kernel_initializer=RN(seed=7), use_bias=False)
@@ -299,7 +299,7 @@ def create_model(version, seedThr=None, jetThr=None, hoeThrEB=None, hoeThrEE=Non
     MainPredictionList = make_AddList(TTP, TTP_input)
     TTP_output = lay.Add(name="main_predicted_energy")(MainPredictionList)
     
-    if version == "ECAL":
+    if version == 'ECAL':
         # 'hardcoded' threshold on hcal over ecal deposit
         hasEBthr = lay.Lambda(lambda x : tf.reduce_sum(x[:,2:30], axis=1, keepdims=True) * pow(2, -hoeThrEB), name='has_hoe_eb_thr')(rate_input)
         hasEEthr = lay.Lambda(lambda x : tf.reduce_sum(x[:,30:], axis=1, keepdims=True) * pow(2, -hoeThrEE), name='has_hoe_ee_thr')(rate_input)
@@ -320,8 +320,8 @@ def create_model(version, seedThr=None, jetThr=None, hoeThrEB=None, hoeThrEE=Non
         # do logical AND between TT_eAT and TT_hoeAT
         rate_output = lay.Lambda(lambda x : x[0] * x[1], name="thresholds_or")((TT_eAT, TT_hoeAT))
 
-    if version == "HCAL":
-        # predict seed energy (including the correspondong non-calibrated TT part) and apply threshold
+    if version == 'HCAL' or version == 'HF':
+        # predict seed energy (including the correspondong EM TT part) and apply threshold
         TT_seed_had_pred = TTP(lay.Lambda(lambda x : x[:,40,1:], name="seed_had_pred")(rate_input))
         TT_seed_em = lay.Lambda(lambda x : x[:,40,0:1], name='seed_em_deposit')(rate_input)
         TT_seed_pred = lay.Lambda(lambda x : x[0] + x[1], name="seed_tot_energy")((TT_seed_had_pred, TT_seed_em))
@@ -411,7 +411,7 @@ if __name__ == "__main__" :
             print('** INFO : loading NumPy datasets')
             X_train = np.load(indir+'/X_train.npz')['arr_0']
             Y_train = np.load(indir+'/Y_train.npz')['arr_0']
-            Z_train = np.load('/data_CMS/cms/motta/CaloL1calibraton/'+options.indir+'/NUtraining_rateProxy/X_train.npz')['arr_0']
+            Z_train = np.load(indir+'/X_trainRate.npz')['arr_0']
             print('** INFO : done loading NumPy datasets')
 
             print('** INFO : preprocessing NumPy datasets')
@@ -512,19 +512,10 @@ if __name__ == "__main__" :
                                     )
             return  modelWeights_ss * 1 # FIXME: scaling to be optimized
 
-        # part of the loss that controls the rate for jets
-        def rateLossJets(z_pred):
+        # part of the loss that controls the rate
+        def rateLoss(z_pred, targetRate):
             # compute fraction of passing events and multiply by rate scaling
             proxyRate = tf.reduce_sum(z_pred, keepdims=True) / BATCH_SIZE_PER_REPLICA * 0.001*2500*11245.6
-            targetRate = 191.8348 # computed from the old calibration in the same manner as here
-            realtive_diff = (proxyRate - targetRate) / targetRate
-            return tf.cosh(1.5 * realtive_diff) * 1 # FIXME: scaling to be optimized
-
-        # part of the loss that controls the rate for e/gammas
-        def rateLossEgs(z_pred):
-            # compute fraction of passing events and multiply by rate scaling
-            proxyRate = tf.reduce_sum(z_pred, keepdims=True) / BATCH_SIZE_PER_REPLICA * 0.001*2500*11245.6
-            targetRate = 3756.696 # computed from the old calibration in the same manner as here
             realtive_diff = (proxyRate - targetRate) / targetRate
             return tf.cosh(1.5 * realtive_diff) * 1 # FIXME: scaling to be optimized
 
@@ -532,8 +523,9 @@ if __name__ == "__main__" :
         def compute_losses(y, y_pred, z_pred):
             regressionLoss_value = regressionLoss(y, y_pred)
             weightsLoss_value = weightsLoss()
-            if VERSION == 'HCAL': rateLoss_value = rateLossJets(z_pred)
-            if VERSION == 'ECAL': rateLoss_value = rateLossEgs(z_pred)
+            if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 3636.454)
+            if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 150.26064)
+            if VERSION == 'HF':   rateLoss_value = rateLoss(z_pred, 175.66269)
             fullLoss = regressionLoss_value + weightsLoss_value + rateLoss_value
 
             return [tf.nn.compute_average_loss(fullLoss,             global_batch_size=GLOBAL_BATCH_SIZE),
@@ -542,8 +534,8 @@ if __name__ == "__main__" :
                     tf.nn.compute_average_loss(rateLoss_value,       global_batch_size=GLOBAL_BATCH_SIZE)]
 
         # define model and related stuff
-        if VERSION == "ECAL": model, TTP = create_model(VERSION, hoeThrEB=3., hoeThrEE=4., egThr=50.)
-        if VERSION == "HCAL": model, TTP = create_model(VERSION, seedThr=8., jetThr=100.)
+        if VERSION == 'ECAL':                    model, TTP = create_model(VERSION, hoeThrEB=3., hoeThrEE=4., egThr=50.)
+        if VERSION == 'HCAL' or VERSION == 'HF': model, TTP = create_model(VERSION, seedThr=8., jetThr=100.)
         optimizer = keras.optimizers.Adam(learning_rate=MAX_LEARNING_RATE)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
         train_acc_metric = keras.metrics.RootMeanSquaredError(name='train_accuracy')

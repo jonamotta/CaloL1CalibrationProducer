@@ -37,12 +37,12 @@ def PlotSF (SF_matrix, bins, odir, v_sample, eta_towers):
     plt.grid(linestyle='dotted')
     #plt.title('Calibration vs Eta')
     mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
-    savefile = odir + '/Calib_vs_Eta.png'
+    savefile = odir + '/Calib_vs_Eta_'+v_sample+'.png'
     plt.savefig(savefile)
     print(savefile)
     plt.ylim(0,13)
     legend = plt.legend(fontsize=10, ncol=8, loc = 'upper center')
-    savefile = odir + '/Calib_vs_Eta_legend.png'
+    savefile = odir + '/Calib_vs_Eta_'+v_sample+'_legend.png'
     export_legend(legend, savefile)
     print(savefile)
     
@@ -61,7 +61,7 @@ def PlotSF (SF_matrix, bins, odir, v_sample, eta_towers):
     plt.legend(fontsize=10, ncol=4, loc = 'upper right')
     plt.grid(linestyle='dotted')
     # plt.title('Calibration vs Energy')
-    savefile = odir + '/Calib_vs_Energy.png'
+    savefile = odir + '/Calib_vs_Energy_'+v_sample+'.png'
     mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
     plt.savefig(savefile)
     print(savefile)
@@ -76,7 +76,7 @@ def PlotSF (SF_matrix, bins, odir, v_sample, eta_towers):
     plt.legend(fontsize=10, ncol=3, loc = 'upper left')
     plt.grid(linestyle='dotted')
     # plt.title('Calibration vs Energy')
-    savefile = odir + '/CalibratedIet_vs_Energy.png'
+    savefile = odir + '/CalibratedIet_vs_Energy_'+v_sample+'.png'
     mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
     plt.savefig(savefile)
     print(savefile)
@@ -171,6 +171,7 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bin_type, steps):
     max_value = int(values.max())+1
     bins = np.arange(min_value, max_value, steps)
     bins = np.append(bins, max_value)
+    if v_sample == 'ECAL' and bin_type == 'energy': bins = np.append([0, 5, 10], bins[1:])
 
     labels_text = []
     for i in range(len(bins)-1):
@@ -220,7 +221,7 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bin_type, steps):
     plt.bar(resolution[column_bin], resolution['uncalib_std']/resolution['uncalib_mean'], width=0.4, alpha=0.7, align='center', label='Uncalib', color=c_uncalib)
     plt.bar(resolution[column_bin], resolution['calib_std']/resolution['calib_mean'], width=0.4, alpha=0.7, align='edge', label='Calib', color=c_calib)
     plt.xticks(rotation=45)
-    plt.ylim(0.0,0.5)
+    # plt.ylim(0.0,0.5)
     if name.split('jet')[1] == "Pt": plt.xlim(-0.5,14.5)
     plt.xlabel('{} {}'.format(label, units), fontsize=20)
     plt.ylabel('$p_{T}^{gen}(jet)$ resolution', fontsize=20)
@@ -239,7 +240,7 @@ def PlotResolution_bins(df_uncalib, df_calib, odir, v_sample, bin_type, steps):
     plt.errorbar(resolution[column_bin], resolution['calib_mean'], yerr=resolution['calib_std'], fmt='o', alpha=1, label='Calib', color=c_calib, markersize=15, capsize=8, linewidth=2, elinewidth=2, capthick=2, transform=trans2)
     plt.xticks(rotation=45)
     plt.axhline(y=1., color='black', linestyle='--')
-    plt.ylim(0.4,1.6)
+    # plt.ylim(0.4,1.6)
     if name.split('jet')[1] == "Pt": plt.xlim(-0.5,14.5)
     plt.xlabel('{} {}'.format(label, units), fontsize=20)
     plt.ylabel('$p_{T}^{gen}(jet)$ scale', fontsize=20)
@@ -353,7 +354,6 @@ if __name__ == "__main__" :
     parser.add_option("--tag",      dest="tag",     help="tag of the training folder",      default="")
     parser.add_option("--out",      dest="odir",    help="Output folder",                       default=None)
     parser.add_option("--v",        dest="v",       help="Ntuple type ('ECAL' or 'HCAL')",      default='ECAL')
-    parser.add_option("--maxeta",   dest="maxeta",  help="Eta max in the SF plot (40 or 28)", default=40, type=int)
     parser.add_option("--energystep", dest="energystep", help="Energy steps",                    type=int,   default=1)
     (options, args) = parser.parse_args()
     print(options)
@@ -361,48 +361,74 @@ if __name__ == "__main__" :
     # Definition of the trained model
     indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
     modeldir = indir + '/model_' + options.v
-    print('\nModel dir = {}'.format(modeldir))
- 
-    model1 = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'Fgrad': Fgrad})
-
-    energy_step = options.energystep
-
-    # Definition of the Scale factors
-    SF_filename = indir + '/data_' + options.v + '/ScaleFactors_' + options.v + '_energystep'+str(energy_step)+'iEt.csv'
-    print('\nScale Factors file = {}'.format(SF_filename))
-
     # Definition of output folder
     if options.odir:
        odir = options.odir
     else: 
        odir = indir + '/plots'
     os.system('mkdir -p '+ odir)
-    print('\nOutput dir = {}'.format(odir))
-
-    ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',', usecols=range(0,options.maxeta))
-    eta_towers = range(1, len(ScaleFactors[1])+1)
-    print('\nEta Trigger Towers = {}'.format(eta_towers))
-
-    # Definition of energy bin edges from the header
-    with open(SF_filename) as f:
-        header = f.readline().rstrip()
-    bin_edges = header.split(',')[1:]
-    bin_edges[-1] = bin_edges[-1][:-1]
-    if bin_edges[-1] == '256': bin_edges[-1] = '200'
-    bin_edges = [ int(x) for x in bin_edges ]
-    print('\nEnergy bins for Scale Factors = {}'.format(bin_edges))
 
     #######################################################
     ################# Scale Factors plots #################
     #######################################################
 
-    # Plot the scale factors
-    print('\nPlot scale factors')
-    PlotSF(ScaleFactors, bin_edges, odir, options.v, eta_towers)
+    energy_step = options.energystep
+
+    if options.v == "ECAL":
+        ## ECAL
+        # Read the Scale factors
+        SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/data/ScaleFactors_ECAL_energystep'+str(energy_step)+'iEt.csv'
+        ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',', usecols=range(0,28))
+        eta_towers = range(1, len(ScaleFactors[1])+1)
+
+        # Definition of energy bin edges from the header
+        with open(SF_filename) as f:
+            header = f.readline().rstrip()
+        bin_edges = header.split(',')[1:]
+        bin_edges[-1] = bin_edges[-1][:-1]
+        if bin_edges[-1] == '256': bin_edges[-1] = '200'
+        bin_edges = [ int(x) for x in bin_edges ]
+
+        PlotSF(ScaleFactors, bin_edges, odir, "ECAL", eta_towers)
+
+    if options.v == "HCAL":
+        ## HCAL
+        # Read the Scale factors
+        SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/data'+options.v+'/ScaleFactors_HCAL_energystep'+str(energy_step)+'iEt.csv'
+        ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',', usecols=range(0,28))
+        eta_towers = range(1, len(ScaleFactors[1])+1)
+
+        # Definition of energy bin edges from the header
+        with open(SF_filename) as f:
+            header = f.readline().rstrip()
+        bin_edges = header.split(',')[1:]
+        bin_edges[-1] = bin_edges[-1][:-1]
+        if bin_edges[-1] == '256': bin_edges[-1] = '200'
+        bin_edges = [ int(x) for x in bin_edges ]
+
+        PlotSF(ScaleFactors, bin_edges, odir, "HCAL", eta_towers)
+
+        ## HF
+        # Read the Scale factors
+        SF_filename = indir + '/data/ScaleFactors_HF_energystep'+str(energy_step)+'iEt.csv'
+        ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',', usecols=range(0,12))
+        eta_towers = range(30, 30+len(ScaleFactors[1]))
+
+        # Definition of energy bin edges from the header
+        with open(SF_filename) as f:
+            header = f.readline().rstrip()
+        bin_edges = header.split(',')[1:]
+        bin_edges[-1] = bin_edges[-1][:-1]
+        if bin_edges[-1] == '256': bin_edges[-1] = '200'
+        bin_edges = [ int(x) for x in bin_edges ]
+
+        PlotSF(ScaleFactors, bin_edges, odir, "HF", eta_towers)
 
     #######################################################
     ################## Resolution plots ###################
     #######################################################
+
+    model = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'Fgrad': Fgrad})
 
     # Build the two pandas for the training (uncalibrated) and testing (calibrated)
     # X samples contain : iesum = iem + ihad, eta tower
@@ -430,7 +456,7 @@ if __name__ == "__main__" :
     if options.v == "ECAL": dummy_rateProxy_input = np.repeat([np.zeros(42)], len(X_test_model), axis=0)
     if options.v == "HCAL": dummy_rateProxy_input = np.repeat([np.repeat([np.zeros(42)], 81, axis=0)], len(X_test_model), axis=0)
 
-    X_test_calib_sum, _ = model1.predict([X_test_model, dummy_rateProxy_input]) # [ET]
+    X_test_calib_sum, _ = model.predict([X_test_model, dummy_rateProxy_input]) # [ET]
 
     print('\nBuild pandas')
     # Produce the pandas dataframes with jetPt, jetEta and jetEnergy (sum of the deposited energy in all the towers)

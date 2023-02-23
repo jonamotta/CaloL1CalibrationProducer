@@ -1,12 +1,28 @@
-python NNModelTraining_FlooringInTTP.py --indir 2022_07_20_NtuplesV23 --v ECAL --tag _0pt500
-sleep 5
-python CalibrationFactor.py --indir 2022_07_20_NtuplesV23 --start 1 --stop 200 --maxeta 28 --v ECAL --tag _0pt500 --padZeros
+python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_02_22_NtuplesV30 --tag DataReco --v ECAL --epochs 20 --batch_size 2048 --validation_split 0.2 --ngpus 4
 sleep 5
 
-python NNModelTraining_FlooringInTTP.py --indir 2022_07_20_NtuplesV23 --v HCAL --tag _30pt1000
+python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_02_22_NtuplesV30 --tag DataReco --v HCAL --epochs 20 --batch_size 2048 --validation_split 0.2 --ngpus 4
 sleep 5
-python CalibrationFactor.py --indir 2022_07_20_NtuplesV23 --start 1 --stop 200 --v HCAL --tag _30pt1000 --padZeros
+
+python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_02_22_NtuplesV30 --tag DataReco --v HF   --epochs 20 --batch_size 2048 --validation_split 0.2 --ngpus 4
 sleep 5
+
+
+
+
+
+
+
+
+# python NNModelTraining_FlooringInTTP.py --indir 2022_07_20_NtuplesV23 --v ECAL --tag _0pt500
+# sleep 5
+# python CalibrationFactor.py --indir 2022_07_20_NtuplesV23 --start 1 --stop 200 --maxeta 28 --v ECAL --tag _0pt500 --padZeros
+# sleep 5
+
+# python NNModelTraining_FlooringInTTP.py --indir 2022_07_20_NtuplesV23 --v HCAL --tag _30pt1000
+# sleep 5
+# python CalibrationFactor.py --indir 2022_07_20_NtuplesV23 --start 1 --stop 200 --v HCAL --tag _30pt1000 --padZeros
+# sleep 5
 
 # python NNModelTraining_FlooringInTTP.py --indir 2022_07_20_NtuplesV23 --v ECAL --tag _0pt200
 # sleep 5
