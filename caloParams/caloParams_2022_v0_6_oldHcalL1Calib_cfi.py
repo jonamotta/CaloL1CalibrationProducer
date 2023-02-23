@@ -111,7 +111,7 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
 
     # Layer 1 SF
     # layer1ECalScaleETBins = cms.vint32([3, 6, 9, 12, 15, 20, 25, 30, 35, 40, 45, 55, 70, 256]),
-    layer1ECalScaleETBins = cms.vint32([6, 12, 18, 24, 30, 40, 50, 60, 70, 80, 90, 110, 140, 256]), # DOUBLE BIN EDGES VALUE TO KEEP THE SAME BEHAVIOUR AS NOW
+    layer1ECalScaleETBins = cms.vint32([6, 12, 18, 24, 30, 40, 50, 60, 70, 80, 90, 110, 140, 512]),
     layer1ECalScaleFactors = cms.vdouble([
         1.12, 1.13, 1.13, 1.12, 1.12, 1.12, 1.13, 1.12, 1.13, 1.12, 1.13, 1.13, 1.14, 1.13, 1.13, 1.13, 1.14, 1.26, 1.11, 1.20, 1.21, 1.22, 1.19, 1.20, 1.19, 0.00, 0.00, 0.00,
         1.12, 1.13, 1.13, 1.12, 1.12, 1.12, 1.13, 1.12, 1.13, 1.12, 1.13, 1.13, 1.14, 1.13, 1.13, 1.13, 1.14, 1.26, 1.11, 1.20, 1.21, 1.22, 1.19, 1.20, 1.19, 1.22, 0.00, 0.00,
@@ -130,7 +130,7 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
     ]),
 
     # layer1HCalScaleETBins = cms.vint32([6, 9, 12, 15, 20, 25, 30, 35, 40, 45, 55, 70, 256]),
-    layer1HCalScaleETBins = cms.vint32([2, 12, 18, 24, 30, 40, 50, 60, 70, 80, 90, 110, 140, 256]), # THE FIRST BIN WILL BE ZERO-SUPPRESSING <1.0GeV, THE REST IS KEPT AS NOW
+    layer1HCalScaleETBins = cms.vint32([12, 18, 24, 30, 40, 50, 60, 70, 80, 90, 110, 140, 512]),
     layer1HCalScaleFactors = cms.vdouble([
         1.55, 1.59, 1.60, 1.60, 1.58, 1.62, 1.63, 1.63, 1.63, 1.65, 1.65, 1.71, 1.69, 1.72, 1.84, 1.98, 1.98, 1.51, 1.55, 1.56, 1.42, 1.44, 1.46, 1.46, 1.51, 1.44, 1.29, 1.23, 
         1.39, 1.39, 1.40, 1.42, 1.40, 1.42, 1.45, 1.43, 1.43, 1.45, 1.47, 1.49, 1.47, 1.51, 1.57, 1.67, 1.70, 1.32, 1.35, 1.36, 1.24, 1.26, 1.27, 1.30, 1.32, 1.31, 1.16, 1.10, 
@@ -148,7 +148,7 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
     ]),
 
     # layer1HFScaleETBins = cms.vint32([6, 9, 12, 15, 20, 25, 30, 35, 40, 45, 55, 70, 256]),
-    layer1HFScaleETBins = cms.vint32([12, 18, 24, 30, 40, 50, 60, 70, 80, 90, 110, 140, 256]), # DOUBLE BIN EDGES VALUE TO KEEP THE SAME BEHAVIOUR AS NOW
+    layer1HFScaleETBins = cms.vint32([12, 18, 24, 30, 40, 50, 60, 70, 80, 90, 110, 140, 512]),
     layer1HFScaleFactors = cms.vdouble([
         1.35, 1.09, 1.12, 1.10, 1.17, 1.18, 1.19, 1.23, 1.25, 1.32, 1.61, 1.79, 
         1.27, 1.01, 1.09, 1.03, 1.04, 1.05, 1.09, 1.11, 1.18, 1.19, 1.48, 1.67, 
