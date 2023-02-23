@@ -1,3 +1,40 @@
+python3 batchMerger.py --indir 2023_02_20_NtuplesV29 --batchdir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json     --v ECAL --odir DataReco --sample test
+python3 batchMerger.py --indir 2023_02_20_NtuplesV29 --batchdir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06oldHcalL1Calib_data_reco_json --v ECAL --odir DataReco --sample oldCalib
+
+# python3 batchMerger.py --indir 2023_02_20_NtuplesV29 --batchdir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json          --v HCAL --odir DataReco --sample test
+# python3 batchMerger.py --indir 2023_02_20_NtuplesV29 --batchdir JetMET__Run2022G-PromptReco-v1__Run362617__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06oldHcalL1Calib_data_reco_json --v HCAL   --odir DataReco --sample oldCalib
+
+
+
+
+
+
+
+
+
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir ElectronTraining_JSON --v ECAL --odir DataReco --sample train
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HCAL --odir DataReco --sample train
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HF   --odir DataReco --sample train
+
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06noL1Calib_data_reco_json  --v ECAL --odir DataReco --sample test
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT124XdataRun3Promptv10_CaloParams2022v06noL1Calib_data_reco_json                 --v HCAL --odir DataReco --sample test
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT124XdataRun3Promptv10_CaloParams2022v06noL1Calib_data_reco_json                 --v HF   --odir DataReco --sample test
+
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW_uncalib_applyHCALpfa1p_batches/paddedAndReadyToMerge_rateProxy_oldCalib --v ECAL --odir DataReco --sample targetRate --noY
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW_uncalib_applyHCALpfa1p_batches/paddedAndReadyToMerge_rateProxy_oldCalib --v HCAL --odir DataReco --sample targetRate --noY
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW_uncalib_applyHCALpfa1p_batches/paddedAndReadyToMerge_rateProxy_oldCalib --v HF   --odir DataReco --sample targetRate --noY
+
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW_uncalib_applyHCALpfa1p_batches/paddedAndReadyToMerge_rateProxy --v ECAL --odir DataReco --sample trainRate --noY
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW_uncalib_applyHCALpfa1p_batches/paddedAndReadyToMerge_rateProxy --v HCAL --odir DataReco --sample trainRate --noY
+# python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW_uncalib_applyHCALpfa1p_batches/paddedAndReadyToMerge_rateProxy --v HF   --odir DataReco --sample trainRate --noY
+
+
+
+####################################################################################################################################################################################################
+####################################################################################################################################################################################################
+####################################################################################################################################################################################################
+## OLD COMMANDS FOR OLD VERSION OF THE MERGER
+
 # python3 batchMerger.py --indir 2022_05_16_NtuplesVtest1 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU
 # python3 batchMerger.py --indir 2022_05_16_NtuplesVtest2 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU
 # python3 batchMerger.py --indir 2022_05_16_NtuplesVtest3 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCDnoPU
@@ -71,19 +108,19 @@
 
 
 
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v ECAL --applyHCALpfa1p --applyOldCalib --doEG  --filesLim 1000 --odir _0pt500_oldCalib
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v HCAL --applyHCALpfa1p --applyOldCalib --doQCD  --filesLim 1000 --odir _30pt1000_oldCalib
+# python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v ECAL --applyHCALpfa1p --applyOldCalib --doEG  --filesLim 1000 --odir _0pt500_oldCalib
+# python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v HCAL --applyHCALpfa1p --applyOldCalib --doQCD  --filesLim 1000 --odir _30pt1000_oldCalib
 
 
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v ECAL --applyHCALpfa1p --applyNoCalib --doEG  --filesLim 1000 --odir _0pt500
-sleep 5
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD --filesLim 1000 --odir _30pt1000
-sleep 5
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v NU --applyHCALpfa1p --applyNoCalib --doNuGun --filesLim 1000 --odir _rateProxy
-sleep 5
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v NU --applyHCALpfa1p --applyNoCalib --doNuGun --filesLim 1000 --odir _rateProxy_oldCalib
-sleep 5
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v ECAL --applyHCALpfa1p --applyNoCalib --doEG   --filesLim 1000 --odir _0pt500
-sleep 5
-python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD  --filesLim 1000 --odir _30pt1000
-sleep 5
+# python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v ECAL --applyHCALpfa1p --applyNoCalib --doEG  --filesLim 1000 --odir _0pt500
+# sleep 5
+# python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD --filesLim 1000 --odir _30pt1000
+# sleep 5
+# python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v NU --applyHCALpfa1p --applyNoCalib --doNuGun --filesLim 1000 --odir _rateProxy
+# sleep 5
+# python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample train --v NU --applyHCALpfa1p --applyNoCalib --doNuGun --filesLim 1000 --odir _rateProxy_oldCalib
+# sleep 5
+# python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v ECAL --applyHCALpfa1p --applyNoCalib --doEG   --filesLim 1000 --odir _0pt500
+# sleep 5
+# python3 batchMerger.py --indir 2023_01_16_NtuplesV27 --sample test --v HCAL --applyHCALpfa1p --applyNoCalib --doQCD  --filesLim 1000 --odir _30pt1000
+# sleep 5
