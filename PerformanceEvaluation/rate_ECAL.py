@@ -9,6 +9,10 @@ import os
 directory = sys.argv[1]
 nevents = int(sys.argv[2])
 label = sys.argv[3]
+if len(sys.argv)>=5: offline = sys.argv[4]
+else:                offline = False
+if len(sys.argv)>=6: unpacked = sys.argv[5]
+else:                unpacked = False
 
 os.system('mkdir -p PDFs/'+label)
 os.system('mkdir -p PNGs/'+label)
@@ -17,7 +21,8 @@ os.system('mkdir -p ROOTs/')
 print("defining input trees")
 eventTree = ROOT.TChain("l1EventTree/L1EventTree")
 genTree = ROOT.TChain("l1GeneratorTree/L1GenTree")
-emuTree = ROOT.TChain("l1UpgradeEmuTree/L1UpgradeTree")
+if unpacked: emuTree = ROOT.TChain("l1UpgradeTree/L1UpgradeTree")
+else:        emuTree = ROOT.TChain("l1UpgradeEmuTree/L1UpgradeTree")
 
 print("reading input files")
 eventTree.Add(directory + "/Ntuple*.root")
@@ -97,6 +102,9 @@ rateDiProgression50er2p5 = ROOT.TH1F("rateDiProgression50er2p5","rateDiProgressi
 rateDiProgression100er2p5 = ROOT.TH1F("rateDiProgression100er2p5","rateDiProgression100er2p5",240,0.,240.)
 rateDiProgression150er2p5 = ROOT.TH1F("rateDiProgression150er2p5","rateDiProgression150er2p5",240,0.,240.)
 
+if offline:
+    mapping_dict = load_obj('ROOTs/online2offline_mapping_'+label+'.pkl')
+    online_thresholds = np.linspace(20,150,131).tolist()
 
 print("looping on events")
 for i in range(0, nevents):
@@ -170,7 +178,8 @@ for i in range(0, nevents):
         
         # single
         if filledProgression0==False:
-            ptProgression0.Fill(emuTree.L1Upgrade.egEt[iEG])
+            if offline: ptProgression0.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+            else:       ptProgression0.Fill(emuTree.L1Upgrade.egEt[ijet])
             filledProgression0 = True
 
         # di
@@ -186,7 +195,8 @@ for i in range(0, nevents):
         if emuTree.L1Upgrade.egEt[iEG]>20:
             # single
             if filledProgression20==False:
-                ptProgression20.Fill(emuTree.L1Upgrade.egEt[iEG])
+                if offline: ptProgression20.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+                else:       ptProgression20.Fill(emuTree.L1Upgrade.egEt[ijet])
                 filledProgression20 = True
 
             # di
@@ -203,7 +213,8 @@ for i in range(0, nevents):
         if emuTree.L1Upgrade.egEt[iEG]>35:
             # single
             if filledProgression35==False:
-                ptProgression35.Fill(emuTree.L1Upgrade.egEt[iEG])
+                if offline: ptProgression35.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+                else:       ptProgression35.Fill(emuTree.L1Upgrade.egEt[ijet])
                 filledProgression35 = True
 
             # di
@@ -219,7 +230,8 @@ for i in range(0, nevents):
         if emuTree.L1Upgrade.egEt[iEG]>50:
             # single
             if filledProgression50==False:
-                ptProgression50.Fill(emuTree.L1Upgrade.egEt[iEG])
+                if offline: ptProgression50.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+                else:       ptProgression50.Fill(emuTree.L1Upgrade.egEt[ijet])
                 filledProgression50 = True
 
             # di
@@ -235,7 +247,8 @@ for i in range(0, nevents):
         if emuTree.L1Upgrade.egEt[iEG]>100:
             # single
             if filledProgression100==False:
-                ptProgression100.Fill(emuTree.L1Upgrade.egEt[iEG])
+                if offline: ptProgression100.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+                else:       ptProgression100.Fill(emuTree.L1Upgrade.egEt[ijet])
                 filledProgression100 = True
 
             # di
@@ -251,7 +264,8 @@ for i in range(0, nevents):
         if emuTree.L1Upgrade.egEt[iEG]>150:
             # single
             if filledProgression150==False:
-                ptProgression150.Fill(emuTree.L1Upgrade.egEt[iEG])
+                if offline: ptProgression150.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+                else:       ptProgression150.Fill(emuTree.L1Upgrade.egEt[ijet])
                 filledProgression150 = True
 
             # di
@@ -269,7 +283,8 @@ for i in range(0, nevents):
 
         # single
         if filledProgression0er2p5==False:
-            ptProgression0er2p5.Fill(emuTree.L1Upgrade.egEt[iEG])
+            if offline: ptProgression0er2p5.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+            else:       ptProgression0er2p5.Fill(emuTree.L1Upgrade.egEt[ijet])
             filledProgression0er2p5 = True
 
         # di
@@ -285,7 +300,8 @@ for i in range(0, nevents):
         if emuTree.L1Upgrade.egEt[iEG]>20:
             # single
             if filledProgression20er2p5==False:
-                ptProgression20er2p5.Fill(emuTree.L1Upgrade.egEt[iEG])
+                if offline: ptProgression20er2p5.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+                else:       ptProgression20er2p5.Fill(emuTree.L1Upgrade.egEt[ijet])
                 filledProgression20er2p5 = True
 
             # di
@@ -302,7 +318,8 @@ for i in range(0, nevents):
         if emuTree.L1Upgrade.egEt[iEG]>35:
             # single
             if filledProgression35er2p5==False:
-                ptProgression35er2p5.Fill(emuTree.L1Upgrade.egEt[iEG])
+                if offline: ptProgression35er2p5.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+                else:       ptProgression35er2p5.Fill(emuTree.L1Upgrade.egEt[ijet])
                 filledProgression35er2p5 = True
 
             # di
@@ -318,7 +335,8 @@ for i in range(0, nevents):
         if emuTree.L1Upgrade.egEt[iEG]>50:
             # single
             if filledProgression50er2p5==False:
-                ptProgression50er2p5.Fill(emuTree.L1Upgrade.egEt[iEG])
+                if offline: ptProgression50er2p5.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+                else:       ptProgression50er2p5.Fill(emuTree.L1Upgrade.egEt[ijet])
                 filledProgression50er2p5 = True
 
             # di
@@ -334,7 +352,8 @@ for i in range(0, nevents):
         if emuTree.L1Upgrade.egEt[iEG]>100:
             # single
             if filledProgression100er2p5==False:
-                ptProgression100er2p5.Fill(emuTree.L1Upgrade.egEt[iEG])
+                if offline: ptProgression100er2p5.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+                else:       ptProgression100er2p5.Fill(emuTree.L1Upgrade.egEt[ijet])
                 filledProgression100er2p5 = True
 
             # di
@@ -350,7 +369,8 @@ for i in range(0, nevents):
         if emuTree.L1Upgrade.egEt[iEG]>150:
             # single
             if filledProgression150er2p5==False:
-                ptProgression150er2p5.Fill(emuTree.L1Upgrade.egEt[iEG])
+                if offline: ptProgression150er2p5.Fill(np.interp(emuTree.L1Upgrade.egEt[ijet], online_thresholds, mapping_dict[offline]))
+                else:       ptProgression150er2p5.Fill(emuTree.L1Upgrade.egEt[ijet])
                 filledProgression150er2p5 = True
 
             # di
@@ -367,39 +387,63 @@ for i in range(0, nevents):
         
     if IndexEGsProgression0[0]>=0 and IndexEGsProgression0[1]>=0:
         ptDiProgression0.Fill(ptEGsProgression0[0],ptEGsProgression0[1])
+        if offline: ptDiProgression0.Fill(np.interp(ptEGsProgression0[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression0[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression0.Fill(ptEGsProgression0[0],ptEGsProgression0[1])
     
     if IndexEGsProgression20[0]>=0 and IndexEGsProgression20[1]>=0:
         ptDiProgression20.Fill(ptEGsProgression20[0],ptEGsProgression20[1])
+        if offline: ptDiProgression20.Fill(np.interp(ptEGsProgression20[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression20[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression20.Fill(ptEGsProgression20[0],ptEGsProgression20[1])
 
     if IndexEGsProgression35[0]>=0 and IndexEGsProgression35[1]>=0:
         ptDiProgression35.Fill(ptEGsProgression35[0],ptEGsProgression35[1])
+        if offline: ptDiProgression35.Fill(np.interp(ptEGsProgression35[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression35[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression35.Fill(ptEGsProgression35[0],ptEGsProgression35[1])
 
     if IndexEGsProgression50[0]>=0 and IndexEGsProgression50[1]>=0:
         ptDiProgression50.Fill(ptEGsProgression50[0],ptEGsProgression50[1])
+        if offline: ptDiProgression50.Fill(np.interp(ptEGsProgression50[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression50[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression50.Fill(ptEGsProgression50[0],ptEGsProgression50[1])
 
     if IndexEGsProgression100[0]>=0 and IndexEGsProgression100[1]>=0:
         ptDiProgression100.Fill(ptEGsProgression100[0],ptEGsProgression100[1])
+        if offline: ptDiProgression100.Fill(np.interp(ptEGsProgression100[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression100[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression100.Fill(ptEGsProgression100[0],ptEGsProgression100[1])
 
     if IndexEGsProgression150[0]>=0 and IndexEGsProgression150[1]>=0:
         ptDiProgression150.Fill(ptEGsProgression150[0],ptEGsProgression150[1])
+        if offline: ptDiProgression150.Fill(np.interp(ptEGsProgression150[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression150[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression150.Fill(ptEGsProgression150[0],ptEGsProgression150[1])
 
     if IndexEGsProgression0er2p5[0]>=0 and IndexEGsProgression0er2p5[1]>=0:
         ptDiProgression0er2p5.Fill(ptEGsProgression0er2p5[0],ptEGsProgression0er2p5[1])
+        if offline: ptDiProgression0er2p5.Fill(np.interp(ptEGsProgression0er2p5[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression0er2p5[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression0er2p5.Fill(ptEGsProgression0er2p5[0],ptEGsProgression0er2p5[1])
     
     if IndexEGsProgression20er2p5[0]>=0 and IndexEGsProgression20er2p5[1]>=0:
         ptDiProgression20er2p5.Fill(ptEGsProgression20er2p5[0],ptEGsProgression20er2p5[1])
+        if offline: ptDiProgression20er2p5.Fill(np.interp(ptEGsProgression20er2p5[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression20er2p5[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression20er2p5.Fill(ptEGsProgression20er2p5[0],ptEGsProgression20er2p5[1])
 
     if IndexEGsProgression35er2p5[0]>=0 and IndexEGsProgression35er2p5[1]>=0:
         ptDiProgression35er2p5.Fill(ptEGsProgression35er2p5[0],ptEGsProgression35er2p5[1])
+        if offline: ptDiProgression35er2p5.Fill(np.interp(ptEGsProgression35er2p5[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression35er2p5[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression35er2p5.Fill(ptEGsProgression35er2p5[0],ptEGsProgression35er2p5[1])
 
     if IndexEGsProgression50er2p5[0]>=0 and IndexEGsProgression50er2p5[1]>=0:
         ptDiProgression50er2p5.Fill(ptEGsProgression50er2p5[0],ptEGsProgression50er2p5[1])
+        if offline: ptDiProgression50er2p5.Fill(np.interp(ptEGsProgression50er2p5[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression50er2p5[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression50er2p5.Fill(ptEGsProgression50er2p5[0],ptEGsProgression50er2p5[1])
 
     if IndexEGsProgression100er2p5[0]>=0 and IndexEGsProgression100er2p5[1]>=0:
         ptDiProgression100er2p5.Fill(ptEGsProgression100er2p5[0],ptEGsProgression100er2p5[1])
+        if offline: ptDiProgression100er2p5.Fill(np.interp(ptEGsProgression100er2p5[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression100er2p5[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression100er2p5.Fill(ptEGsProgression100er2p5[0],ptEGsProgression100er2p5[1])
 
     if IndexEGsProgression150er2p5[0]>=0 and IndexEGsProgression150er2p5[1]>=0:
         ptDiProgression150er2p5.Fill(ptEGsProgression150er2p5[0],ptEGsProgression150er2p5[1])
+        if offline: ptDiProgression150er2p5.Fill(np.interp(ptEGsProgression150er2p5[0], online_thresholds, mapping_dict[offline]), np.interp(ptEGsProgression150er2p5[1], online_thresholds, mapping_dict[offline]))
+        else:       ptDiProgression150er2p5.Fill(ptEGsProgression150er2p5[0],ptEGsProgression150er2p5[1])
 
 
 for i in range(0,241):
@@ -540,8 +584,12 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateSingleObj_"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/rateSingleObj_"+label+".png")
+if offline:
+    canvas.SaveAs("PDFs/"+label+"/rateSingleObj_"+label+"_"+offline+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rateSingleObj_"+label+"_"+offline+".png")
+else:
+    canvas.SaveAs("PDFs/"+label+"/rateSingleObj_"+label+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rateSingleObj_"+label+".png")
 
 ####################
 
@@ -587,8 +635,12 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas1.SaveAs("PDFs/"+label+"/rateDiObj_"+label+".pdf")
-canvas1.SaveAs("PNGs/"+label+"/rateDiObj_"+label+".png")
+if offline:
+    canvas.SaveAs("PDFs/"+label+"/rateDiObj_"+label+"_"+offline+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rateDiObj_"+label+"_"+offline+".png")
+else:
+    canvas.SaveAs("PDFs/"+label+"/rateDiObj_"+label+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rateDiObj_"+label+".png")
 
 ####################
 
@@ -648,8 +700,12 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas2.SaveAs("PDFs/"+label+"/rate_"+label+".pdf")
-canvas2.SaveAs("PNGs/"+label+"/rate_"+label+".png")
+if offline:
+    canvas.SaveAs("PDFs/"+label+"/rate_"+label+"_"+offline+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rate_"+label+"_"+offline+".png")
+else:
+    canvas.SaveAs("PDFs/"+label+"/rate_"+label+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rate_"+label+".png")
 
 ####################
 
@@ -699,8 +755,12 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs("PDFs/"+label+"/rateSingleObjEr2p5_"+label+".pdf")
-canvas.SaveAs("PNGs/"+label+"/rateSingleObjEr2p5_"+label+".png")
+if offline:
+    canvas.SaveAs("PDFs/"+label+"/rateSingleObjEr2p5_"+label+"_"+offline+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rateSingleObjEr2p5_"+label+"_"+offline+".png")
+else:
+    canvas.SaveAs("PDFs/"+label+"/rateSingleObjEr2p5_"+label+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rateSingleObjEr2p5_"+label+".png")
 
 ####################
 
@@ -747,8 +807,12 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas1.SaveAs("PDFs/"+label+"/rateDiObjEr2p5_"+label+".pdf")
-canvas1.SaveAs("PNGs/"+label+"/rateDiObjEr2p5_"+label+".png")
+if offline:
+    canvas.SaveAs("PDFs/"+label+"/rateDiObjEr2p5_"+label+"_"+offline+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rateDiObjEr2p5_"+label+"_"+offline+".png")
+else:
+    canvas.SaveAs("PDFs/"+label+"/rateDiObjEr2p5_"+label+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rateDiObjEr2p5_"+label+".png")
 
 ####################
 
@@ -809,13 +873,17 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas2.SaveAs("PDFs/"+label+"/rateEr2p5_"+label+".pdf")
-canvas2.SaveAs("PNGs/"+label+"/rateEr2p5_"+label+".png")
+if offline:
+    canvas.SaveAs("PDFs/"+label+"/rateEr2p5_"+label+"_"+offline+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rateEr2p5_"+label+"_"+offline+".png")
+else:
+    canvas.SaveAs("PDFs/"+label+"/rateEr2p5_"+label+".pdf")
+    canvas.SaveAs("PNGs/"+label+"/rateEr2p5_"+label+".png")
 
 ####################
 
 print("saving histograms and efficiencies in root file for later plotting if desired")
-fileout = ROOT.TFile("ROOTs/rate_graphs_"+label+".root","RECREATE")
+fileout = ROOT.TFile("ROOTs/rate_graphs_"+label+"_"+offline+".root","RECREATE")
 for i,ele in enumerate(thresholds): 
     rateCurves[i].Write()
     rateDiCurves[i].Write()
