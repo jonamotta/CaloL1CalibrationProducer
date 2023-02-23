@@ -150,32 +150,32 @@ for i in range(0, nevents):
 
                     k += 1
 
-        else:
-            pt_response_ptInclusive.Fill(0.)
+        # else:
+        #     pt_response_ptInclusive.Fill(0.)
 
-            if abs(Gen_jet.Eta()) < 1.305:
-                pt_barrel_resp_ptInclusive.Fill(0.)
-            elif abs(Gen_jet.Eta()) < 5.191 and abs(Gen_jet.Eta()) > 1.479:
-                pt_endcap_resp_ptInclusive.Fill(0.)
+        #     if abs(Gen_jet.Eta()) < 1.305:
+        #         pt_barrel_resp_ptInclusive.Fill(0.)
+        #     elif abs(Gen_jet.Eta()) < 5.191 and abs(Gen_jet.Eta()) > 1.479:
+        #         pt_endcap_resp_ptInclusive.Fill(0.)
 
-            for i in range(len(ptBins)-1):
-                if Gen_jet.Pt() > ptBins[i] and Gen_jet.Pt() <= ptBins[i+1]:
-                    response_ptBins[i].Fill(0)
+        #     for i in range(len(ptBins)-1):
+        #         if Gen_jet.Pt() > ptBins[i] and Gen_jet.Pt() <= ptBins[i+1]:
+        #             response_ptBins[i].Fill(0)
                     
-                    if abs(Gen_jet.Eta()) < 1.305:
-                        barrel_response_ptBins[i].Fill(0.)
-                    elif abs(Gen_jet.Eta()) < 5.191 and abs(Gen_jet.Eta()) > 1.479:
-                        endcap_response_ptBins[i].Fill(0.)
+        #             if abs(Gen_jet.Eta()) < 1.305:
+        #                 barrel_response_ptBins[i].Fill(0.)
+        #             elif abs(Gen_jet.Eta()) < 5.191 and abs(Gen_jet.Eta()) > 1.479:
+        #                 endcap_response_ptBins[i].Fill(0.)
 
-            for i in range(len(etaBins)-1):
-                if abs(Gen_jet.Eta()) > etaBins[i] and abs(Gen_jet.Eta()) < etaBins[i+1]:
-                    absEta_response_ptBins[i].Fill(0.)
+        #     for i in range(len(etaBins)-1):
+        #         if abs(Gen_jet.Eta()) > etaBins[i] and abs(Gen_jet.Eta()) < etaBins[i+1]:
+        #             absEta_response_ptBins[i].Fill(0.)
 
-                if Gen_jet.Eta() > etaBins[i] and Gen_jet.Eta() < etaBins[i+1]:
-                    plusEta_response_ptBins[i].Fill(0.)
+        #         if Gen_jet.Eta() > etaBins[i] and Gen_jet.Eta() < etaBins[i+1]:
+        #             plusEta_response_ptBins[i].Fill(0.)
 
-                elif Gen_jet.Eta() < -etaBins[i] and Gen_jet.Eta() > -etaBins[i+1]:
-                    minusEta_response_ptBins[i].Fill(0.)
+        #         elif Gen_jet.Eta() < -etaBins[i] and Gen_jet.Eta() > -etaBins[i+1]:
+        #             minusEta_response_ptBins[i].Fill(0.)
 
 
 # scale everything to unity
