@@ -34,6 +34,7 @@ if __name__ == "__main__" :
     parser.add_option("--maxEvts",      dest="maxEvts",      type=str,            default='-1',   help="Number of events to process")
     parser.add_option("--inJson",       dest="inJson",       type=str,            default=None,   help="Input list of data certification Json files")
     parser.add_option("--caloParams",   dest="caloParams",   type=str,            default=None,   help="Which caloParams to use")
+    parser.add_option("--noL1calib",    dest="noL1calib",    action='store_true', default=False,  help="Turn off Layer1 calibration")
     parser.add_option("--globalTag",    dest="globalTag",    type=str,            default=None,   help="Which globalTag to use")
     parser.add_option("--data",         dest="data",         action='store_true', default=False,  help="Running on data?")
     parser.add_option("--recoFromSKIM", dest="recoFromSKIM", action='store_true', default=False,  help="Run reco from pre-skimmed dataset?")
@@ -80,34 +81,13 @@ if __name__ == "__main__" :
             for f in block:
                 os.system('dasgoclient --query="parent file='+f+'" >> '+outSecondaryListName)
 
-
-        if options.recoFromAOD:
-            if options.data:
-                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=1 inputFiles_load="+outListName+" secondaryInputFiles_load="+outSecondaryListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
-                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=1 inputFiles_load="+outListName+" secondaryInputFiles_load="+outSecondaryListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
-
-            else:
-                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=0 inputFiles_load="+outListName+" secondaryInputFiles_load="+outSecondaryListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
-                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=0 inputFiles_load="+outListName+" secondaryInputFiles_load="+outSecondaryListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
-
-        elif options.recoFromSKIM:
-            if options.data:
-                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=1 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
-                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=1 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
-
-            else:
-                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=0 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
-                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=1 data=0 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
-
-        else:
-            if options.data:
-                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=0 data=1 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
-                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=0 data=1 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
-
-            else:
-                if options.inJson: cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=0 data=0 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" JSONfile="+JSONfile+" >& " + outLogName
-                else:              cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" reco=0 data=0 inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag+" >& " + outLogName
-
+        cmsRun = "cmsRun L1Ntuple_cfg.py maxEvents="+options.maxEvts+" inputFiles_load="+outListName+" outputFile="+outRootName+" caloParams="+options.caloParams+" globalTag="+options.globalTag
+        if options.recoFromAOD:  cmsRun += " reco=1 secondaryInputFiles_load="+outSecondaryListName
+        if options.recoFromSKIM: cmsRun += " reco=1"
+        if options.data:         cmsRun += " data=1"
+        if options.inJson:       cmsRun += " JSONfile="+JSONfile
+        if options.noL1calib:    cmsRun += " noL1calib=1"
+        cmsRun += " >& " + outLogName
 
         skimjob = open (outJobName, 'w')
         skimjob.write ('#!/bin/bash\n')

@@ -34,6 +34,11 @@ options.register ('reco',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.int,            # string, int, or float
                   "running also reco?")
+options.register ('noL1calib',
+                  0, # default value
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,            # string, int, or float
+                  "avoid applying L1 calibration?")
 options.parseArguments()
 
 
@@ -132,34 +137,56 @@ associatePatAlgosToolsTask(process)
 # customisation of the process.
 
 if options.data:
+    print("** INFO: doing data workflow")
+
     # Automatic addition of the customisation function from L1Trigger.Configuration.customiseReEmul
     from L1Trigger.Configuration.customiseReEmul import L1TReEmulFromRAWsimHcalTP 
     process = L1TReEmulFromRAWsimHcalTP(process)
 
     if options.reco:
+        print("** INFO: doing reco workflow")
+
         # Automatic addition of the customisation function from L1Trigger.L1TNtuples.customiseL1Ntuple
         from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleAODRAWEMU 
         process = L1NtupleAODRAWEMU(process)
     else:
+        print("** INFO: not doing reco workflow")
+
         # Automatic addition of the customisation function from L1Trigger.L1TNtuples.customiseL1Ntuple
         from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleRAWEMU 
         process = L1NtupleRAWEMU(process)
 
 else:
+    print("** INFO: doing MC workflow")
+
     # Automatic addition of the customisation function from L1Trigger.Configuration.customiseReEmul
     from L1Trigger.Configuration.customiseReEmul import L1TReEmulMCFromRAWSimHcalTP 
     process = L1TReEmulMCFromRAWSimHcalTP(process)
 
     if options.reco:
+        print("** INFO: doing reco workflow")
+
         # Automatic addition of the customisation function from L1Trigger.L1TNtuples.customiseL1Ntuple
         from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleAODRAWEMUGEN_MC 
         process = L1NtupleAODRAWEMUGEN_MC(process)
     else:
+        print("** INFO: doing gen workflow")
+
         # Automatic addition of the customisation function from L1Trigger.L1TNtuples.customiseL1Ntuple
         from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleRAWEMUGEN_MC
         process = L1NtupleRAWEMUGEN_MC(process)
 
 process.load("L1Trigger.L1TCalorimeter."+options.caloParams)
+
+# turn off L1 calibration if nedeed
+if options.noL1calib:
+    print("** INFO: shutting off Layer-1 calibrations")
+
+    process.load("L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi")
+    process.simCaloStage2Layer1Digis.useCalib   = cms.bool(False)
+    process.simCaloStage2Layer1Digis.useECALLUT = cms.bool(False)
+    process.simCaloStage2Layer1Digis.useHCALLUT = cms.bool(False)
+    process.simCaloStage2Layer1Digis.useHFLUT   = cms.bool(False)
 
 # End of customisation functions
 
