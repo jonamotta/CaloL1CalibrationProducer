@@ -25,7 +25,7 @@ if __name__ == "__main__" :
     parser.add_option("--tag",        dest="tag",        help="tag of the training folder",                  default=""                         )
     parser.add_option("--out",        dest="odir",       help="Output folder",                               default=None                       )
     parser.add_option("--v",          dest="v",          help="Ntuple type ('ECAL' or 'HCAL')",              default='ECAL'                     )
-    parser.add_option("--reg",        dest="reg",        help="Ntuple type ('ECAL' or 'HCAL')",              default='ECAL'                     )
+    parser.add_option("--reg",        dest="reg",        help="Ntuple type ('ECAL' or 'HCAL' or 'HF'')",     default='ECAL'                     )
     parser.add_option("--minenergy",  dest="minenergy",  help="Energy tower min",                type=int,   default=1                          )
     parser.add_option("--maxenergy",  dest="maxenergy",  help="Energy tower max",                type=int,   default=200                        )
     parser.add_option("--energystep", dest="energystep", help="Energy steps",                    type=int,   default=1                          )

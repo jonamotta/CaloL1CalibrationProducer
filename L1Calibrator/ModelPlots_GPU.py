@@ -394,9 +394,11 @@ if __name__ == "__main__" :
     if options.v == "HCAL":
         ## HCAL
         # Read the Scale factors
-        SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/data'+options.v+'/ScaleFactors_HCAL_energystep'+str(energy_step)+'iEt.csv'
+        SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/data/ScaleFactors_HCAL_energystep'+str(energy_step)+'iEt.csv'
         ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',', usecols=range(0,28))
         eta_towers = range(1, len(ScaleFactors[1])+1)
+
+        ScaleFactors_HCAL = ScaleFactors
 
         # Definition of energy bin edges from the header
         with open(SF_filename) as f:
@@ -410,9 +412,11 @@ if __name__ == "__main__" :
 
         ## HF
         # Read the Scale factors
-        SF_filename = indir + '/data/ScaleFactors_HF_energystep'+str(energy_step)+'iEt.csv'
+        SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/data/ScaleFactors_HF_energystep'+str(energy_step)+'iEt.csv'
         ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',', usecols=range(0,12))
         eta_towers = range(30, 30+len(ScaleFactors[1]))
+
+        ScaleFactors_HCALpHF = np.concatenate([ScaleFactors_HCAL, ScaleFactors], axis=1)
 
         # Definition of energy bin edges from the header
         with open(SF_filename) as f:
@@ -423,6 +427,9 @@ if __name__ == "__main__" :
         bin_edges = [ int(x) for x in bin_edges ]
 
         PlotSF(ScaleFactors, bin_edges, odir, "HF", eta_towers)
+
+        ## HCAL+HF
+        PlotSF(ScaleFactors_HCALpHF, bin_edges, odir, "HCALpHF", range(1, 40+1))
 
     #######################################################
     ################## Resolution plots ###################
