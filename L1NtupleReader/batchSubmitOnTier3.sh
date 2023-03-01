@@ -7,28 +7,34 @@ source /opt/exp_soft/cms/t3/t3setup
 #                               --queue short \
 #                               --etacut 28 --ecalcut True --applyCut_3_6_9 True 
 
-# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNtuples/JetTraining_JSON \
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNtuples/JetTraining_JSON \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_02_28_NtuplesV31 \
+                              --target reco --type jet --chunk_size 5000 \
+                              --queue short \
+                              --etacut 41 --hcalcut True --lJetPtCut 30 --uJetPtCut 1000
+
+
+
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_02_20_NtuplesV29 \
+#                               --target reco --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True
+
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06oldHcalL1Calib_data_reco_json \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_02_20_NtuplesV29 \
+#                               --target reco --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True
+
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
 #                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_02_20_NtuplesV29 \
 #                               --target reco --type jet --chunk_size 5000 \
 #                               --queue short \
 #                               --etacut 41 --hcalcut True --lJetPtCut 30 --uJetPtCut 1000
 
-
-
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_02_22_NtuplesV30 \
-                              --target reco --type ele --chunk_size 5000 \
-                              --queue short \
-                              --etacut 28 --ecalcut True --applyCut_3_6_9 True
-
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06oldHcalL1Calib_data_reco_json \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_02_22_NtuplesV30 \
-                              --target reco --type ele --chunk_size 5000 \
-                              --queue short \
-                              --etacut 28 --ecalcut True --applyCut_3_6_9 True
-
-# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT124XdataRun3Promptv10_CaloParams2022v06noL1Calib_data_reco_json \
-#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_02_22_NtuplesV30 \
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT124XdataRun3Promptv10_CaloParams2022v06oldHcalL1Calib_data_reco_json \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_02_20_NtuplesV29 \
 #                               --target reco --type jet --chunk_size 5000 \
 #                               --queue short \
 #                               --etacut 41 --hcalcut True --lJetPtCut 30 --uJetPtCut 1000

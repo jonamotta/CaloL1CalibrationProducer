@@ -10,8 +10,8 @@ import os
 
 
 def chunker(seq, size):
-            for pos in range(0, len(seq), size):
-                yield seq.iloc[pos:pos + size] 
+    for pos in range(0, len(seq), size):
+        yield seq.iloc[pos:pos + size] 
 
 def deltarSelect( df, dRcut ):
     deta = np.abs(df['jetEta'] - df['jetEta_joined'])
@@ -159,7 +159,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
         
     return padded
 
-def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, applyOnTheFly):
+def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, flattenEtaDistribution, applyOnTheFly):
     if len(dfFlatET) == 0 or len(dfFlatEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
@@ -319,7 +319,7 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
     if Hcalcut != False:
         group = dfFlatEJT.groupby('uniqueIdx')
         dfFlatEJT['hoe'] = group['hcalET'].sum()/(group['iem'].sum()+group['hcalET'].sum())
-        dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.95]
+        dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.90]
 
     # [Elena] Training with only jets formad by 10 TT maximum
     if TTNumberCut != False:
@@ -431,6 +431,19 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
     Y = np.array([dfJets.loc[i].values for i in dfJets.index])
     X = np.array([dfEOneHotEncoded.loc[i].to_numpy() for i in dfE.index.drop_duplicates(keep='first')])
 
+    if flattenEtaDistribution != False:
+        # compute selection to flatten eta distribution
+        print('applying flat eta selection')
+        FindIeta_vctd = np.vectorize(FindIeta)
+        dfIeta = pd.DataFrame(FindIeta_vctd(Y[:,1]), columns=['iEta'])
+        nToSave = int(np.mean(dfIeta[abs(dfIeta['iEta'])<=15].groupby('iEta')['iEta'].count()))
+        dfIeta['frac'] = nToSave / dfIeta.groupby('iEta')['iEta'].transform('count')
+        dfIeta['random'] = np.random.uniform(0.0, 1.0, size=dfIeta.shape[0])
+        flatEtaSelection = (dfIeta['random'] <= dfIeta['frac']).to_list()
+
+        X = X[flatEtaSelection]
+        Y = Y[flatEtaSelection]
+
     ## DEBUG
     # if len(X != 43): 
     #     print('Different lenght!')
@@ -464,6 +477,7 @@ if __name__ == "__main__" :
     parser.add_option("--TTNumberCut", dest="TTNumberCut", default=False)
     parser.add_option("--TTNumberCutInverse", dest="TTNumberCutInverse", default=False)
     parser.add_option("--flattenPtDistribution",     dest="flattenPtDistribution",     default=False)
+    parser.add_option("--flattenEtaDistribution",     dest="flattenEtaDistribution",     default=False)
     parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
     (options, args) = parser.parse_args()
 
@@ -479,10 +493,12 @@ if __name__ == "__main__" :
         if options.type == 'ele':
             keyReco = "l1ElectronRecoTree/ElectronRecoTree"
             branchesTarget = ["Electron/eta", "Electron/phi", "Electron/et"]
+            energy = b'et'
 
         if options.type == 'jet':
             keyReco = "l1JetRecoTree/JetRecoTree"
-            branchesTarget = ["Jet/eta", "Jet/phi", "Jet/et"]
+            branchesTarget = ["Jet/eta", "Jet/phi", "Jet/etCorr"]
+            energy = b'etCorr'
 
     if options.target == 'gen':
         branchesTarget = ["Generator/jetEta", "Generator/jetPhi", "Generator/jetPt"]
@@ -534,7 +550,7 @@ if __name__ == "__main__" :
             'event': np.repeat(EJ[b'event'].values, EJ[b'eta'].str.len()), # event IDs are copied to keep proper track of what is what
             'jetEta': list(chain.from_iterable(EJ[b'eta'])),
             'jetPhi': list(chain.from_iterable(EJ[b'phi'])),
-            'jetPt' : list(chain.from_iterable(EJ[b'et']))
+            'jetPt' : list(chain.from_iterable(EJ[energy]))
             })
 
         # define the paths where to save the hdf5 files
@@ -550,7 +566,7 @@ if __name__ == "__main__" :
 
         j += 1
 
-        mainReader(dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.applyOnTheFly)
+        mainReader(dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.flattenEtaDistribution, options.applyOnTheFly)
     
     print("DONE!")
 

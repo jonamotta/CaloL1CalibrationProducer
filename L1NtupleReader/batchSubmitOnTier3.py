@@ -48,6 +48,7 @@ parser.add_option("--hcalcut",  dest="hcalcut", default=False)
 parser.add_option("--TTNumberCut",  dest="TTNumberCut", default=False)
 parser.add_option("--TTNumberCutInverse",  dest="TTNumberCutInverse", default=False)
 parser.add_option("--flatPtDist",     dest="flatPtDist",     default=False)
+parser.add_option("--flatEtaDist",     dest="flatEtaDist",     default=False)
 parser.add_option("--calibECALOnTheFly",  dest="calibECALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
 parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
 parser.add_option("--trainPtVers",  dest="trainPtVers", default=False)
@@ -102,6 +103,8 @@ for idx, file in enumerate(InFiles):
         cmsRun = cmsRun + " --calibrateHCAL "+options.calibHCALOnTheFly
     if options.flatPtDist != False:
         cmsRun = cmsRun + " --flattenPtDistribution "+options.flatPtDist
+    if options.flatEtaDist != False:
+        cmsRun = cmsRun + " --flattenEtaDistribution "+options.flatEtaDist
     if options.applyOnTheFly != False:
         cmsRun = cmsRun + " --applyOnTheFly "+options.applyOnTheFly
 
