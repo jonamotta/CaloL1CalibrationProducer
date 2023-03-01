@@ -523,9 +523,14 @@ if __name__ == "__main__" :
         def compute_losses(y, y_pred, z_pred):
             regressionLoss_value = regressionLoss(y, y_pred)
             weightsLoss_value = weightsLoss()
-            if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 3636.454)
-            if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 150.26064)
-            if VERSION == 'HF':   rateLoss_value = rateLoss(z_pred, 175.66269)
+            
+            # if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 3636.454)
+            # if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 150.26064)
+            # if VERSION == 'HF':   rateLoss_value = rateLoss(z_pred, 175.66269)
+            
+            if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 3756.696)
+            if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 191.8348)
+
             fullLoss = regressionLoss_value + weightsLoss_value + rateLoss_value
 
             return [tf.nn.compute_average_loss(fullLoss,             global_batch_size=GLOBAL_BATCH_SIZE),
