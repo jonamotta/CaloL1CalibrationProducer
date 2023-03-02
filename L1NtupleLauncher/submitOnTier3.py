@@ -48,7 +48,7 @@ if __name__ == "__main__" :
     currentdir = os.getcwd()
     filelist = open(currentdir + '/inputFiles/'+options.inFileList+'.txt', 'r')
     folder = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/'+options.inFileList+'__'+options.outTag
-    if options.inJson: JSONfile = currentdir '/DataCertificationJsons/'+options.inJson+'.json'
+    if options.inJson: JSONfile = currentdir+'/DataCertificationJsons/'+options.inJson+'.json'
 
     ###########
 
