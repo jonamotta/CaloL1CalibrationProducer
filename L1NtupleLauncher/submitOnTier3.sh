@@ -240,13 +240,22 @@ source /opt/exp_soft/cms/t3/t3setup
 #                         --data \
 #                         --recoFromAOD
 
-python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__Run362617__AOD \
-                        --outTag GT124XdataRun3Promptv10_CaloParams2022v31newCalib_data_reco_json \
-                        --nJobs 245 \
-                        --queue long \
+# python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__Run362617__AOD \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v31newCalib_data_reco_json \
+#                         --nJobs 245 \
+#                         --queue long \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v31_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --recoFromAOD
+                        
+python submitOnTier3.py --inFileList SinglePionGun_E0p2to200__Run3Winter23Digi-NoPU_126X_mcRun3_2023_forPU65_v1-v2__GEN-SIM-RAW \
+                        --outTag GT130XmcRun32022realisticv2_CaloParams2022v06_noL1calib \
+                        --nJobs 2218 \
+                        --queue short \
                         --maxEvts -1 \
-                        --inJson Cert_Collisions2022_355100_362760_Golden \
-                        --caloParams caloParams_2022_v31_newCalib_cfi \
-                        --globalTag 124X_dataRun3_Prompt_v10 \
-                        --data \
-                        --recoFromAOD
+                        --caloParams caloParams_2022_v0_6_cfi \
+                        --noL1calib \
+                        --globalTag 130X_mcRun3_2022_realistic_v2 \
