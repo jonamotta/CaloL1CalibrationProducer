@@ -45,9 +45,10 @@ if __name__ == "__main__" :
     if not options.outTag:
         print('** WARNING: outTag not specified, will default to date and time. Please consider specifying a meaningfull tag, e.g. GT130XdataRun3Promptv10_CPv28newCalib_data_reco_json')
 
-    filelist = open('/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_13_0_0_pre2/src/CaloL1CalibrationProducer/L1NtupleLauncher/inputFiles/'+options.inFileList+'.txt', 'r')
+    currentdir = os.getcwd()
+    filelist = open(currentdir + '/inputFiles/'+options.inFileList+'.txt', 'r')
     folder = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/'+options.inFileList+'__'+options.outTag
-    if options.inJson: JSONfile = '/home/llr/cms/motta/Run3preparation/CaloL1calibraton/CMSSW_13_0_0_pre2/src/CaloL1CalibrationProducer/L1NtupleLauncher/DataCertificationJsons/'+options.inJson+'.json'
+    if options.inJson: JSONfile = currentdir '/DataCertificationJsons/'+options.inJson+'.json'
 
     ###########
 
@@ -101,7 +102,7 @@ if __name__ == "__main__" :
         skimjob.close ()
 
         os.system ('chmod u+rwx ' + outJobName)
-        command = ('/home/llr/cms/motta/t3submit -'+options.queue+' \'' + outJobName +"\'")
+        command = ('/data_CMS/cms/motta/CaloL1calibraton/t3submit -'+options.queue+' \'' + outJobName +"\'")
         print command
         if not options.no_exec: os.system (command)
         # break
