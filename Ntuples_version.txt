@@ -201,5 +201,16 @@ Done both for split ECAL/HCAL training, and single ECAL+HCAL training
     --> from thsi one, it looks like keeping them separated might be the best option in order not to down-calibrate HCAL
     --> from the split version it might look like HF might also need to be calibrated separately
 
+2023_02_22_NtuplesV30
+test of ECAL/HCAL/HF separate calibration
+
+2023_02_28_NtuplesV31
+new calibration with data, with the "new" framework fully operational (done flattening the eta distribution and having HoE>0.9 for the jets)
+
+2023_03_03_Ntuplesv32
+Calibration on new MC samples: /SinglePionGun_E0p2to200/Run3Winter23Digi-NoPU_126X_mcRun3_2023_forPU65_v1-v2/GEN-SIM-RAW
+Just for HCAL (issue with the eta distribution stopping at |eta| = 2)
+The ECAL model used for the training is copied from 2023_01_16_NtuplesV27/ECALtraining_0pt500/ into 2023_03_03_NtuplesV32/ECALtrainingDataReco
+
 
 
