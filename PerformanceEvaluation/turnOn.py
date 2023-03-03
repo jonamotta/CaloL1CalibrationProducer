@@ -206,7 +206,8 @@ plt.plot(thresholds, mapping_dict['pt90eff'], label='@ 90% efficiency', linewidt
 plt.plot(thresholds, mapping_dict['pt50eff'], label='@ 50% efficiency', linewidth=2, color='green')
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
-plt.legend(loc = 'lower right', fontsize=20)
+leg = plt.legend(loc = 'lower right', fontsize=20)
+leg._legend_box.align = "left"
 plt.xlabel('L1 Threshold [GeV]')
 plt.ylabel('Offline threshold [GeV]')
 plt.xlim(20, 100)
@@ -242,7 +243,8 @@ for i, thr in enumerate(thresholds2plot):
     ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label="$p_{T}^{L1} > $"+str(thr)+" GeV", lw=2, marker='o', color=cmap(i))
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
-plt.legend(loc = 'lower right', fontsize=20)
+leg = plt.legend(loc = 'lower right', fontsize=20)
+leg._legend_box.align = "left"
 plt.xlabel(x_label)
 plt.ylabel('Efficiency')
 plt.xlim(0, 220)

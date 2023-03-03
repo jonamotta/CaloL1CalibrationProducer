@@ -192,11 +192,13 @@ ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label=label_doubleObj, lw=2, marker='o
 
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
-plt.legend(loc = 'upper right', fontsize=20)
+leg = plt.legend(loc = 'upper right', fontsize=20)
+leg._legend_box.align = "left"
 plt.xlabel(x_label)
 plt.ylabel('Rate [kHz]')
-plt.xlim(0, 240)
+plt.xlim(0, 120)
 plt.ylim(0.1, 1E5)
+# plt.xscale('symlog')
 plt.yscale('log')
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
@@ -238,10 +240,12 @@ ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label=label_doubleObj, lw=2, marker='o
 
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
-plt.legend(loc = 'upper right', fontsize=20)
+leg = plt.legend(loc = 'upper right', fontsize=20)
+leg._legend_box.align = "left"
 plt.xlabel(x_label)
 plt.ylabel('Rate [kHz]')
-plt.xlim(0, 240)
+plt.xlim(0, 120)
+# plt.xscale('symlog')
 plt.ylim(0.1, 1E5)
 plt.yscale('log')
 for xtick in ax.xaxis.get_major_ticks():
@@ -251,7 +255,6 @@ mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') #
 plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/rateEr2p5_'+label+'_'+options.target+'.pdf')
 plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/rateEr2p5_'+label+'_'+options.target+'.png')
 plt.close()
-
 
 ####################
 

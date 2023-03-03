@@ -1,33 +1,79 @@
 from array import array
 import ROOT
+ROOT.gROOT.SetBatch(True)
 import sys
 import os
 
-ROOT.gStyle.SetOptStat(000000)
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import matplotlib
+import mplhep
+plt.style.use(mplhep.style.CMS)
 
-label = sys.argv[1]
+def save_obj(obj,dest):
+    with open(dest,'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
-detector = label.split("_")[0]
-newTag   = label.split("_")[1]
-outdir   = sys.argv[2]
 
-os.system('mkdir -p '+outdir+'/PDFs/comparisons_'+label)
-os.system('mkdir -p '+outdir+'/PNGs/comparisons_'+label)
+#######################################################################
+######################### SCRIPT BODY #################################
+#######################################################################
+
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("--indir",       dest="indir",                            default=None)
+parser.add_option("--label",       dest="label",                            default=None)
+parser.add_option("--target",      dest="target",                           default=None)
+parser.add_option("--reco",        dest="reco",        action='store_true', default=False)
+parser.add_option("--gen",         dest="gen",         action='store_true', default=False)
+parser.add_option("--thrsFixRate", dest="thrsFixRate", action='append',     default=None)
+(options, args) = parser.parse_args()
+
+# get/create folders
+basedir = "/data_CMS/cms/motta/CaloL1calibraton/"
+olddir = basedir+"/0000_00_00_NtuplesVold/"
+uncdir = basedir+"/0000_00_00_NtuplesVunc/"
+indir = basedir+options.indir
+label = options.label
+target = options.target
+os.system('mkdir -p '+indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target)
+os.system('mkdir -p '+indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target)
 
 #defining binning of histogram
-if "HCAL_" in label: 
+if options.target == 'jet':
     ptBins  = [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200, 500]
     etaBins = [0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.191]
-if "ECAL_" in label:
+if options.target == 'ele':
     ptBins  = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200]
     etaBins = [0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
 
 #############################
 ## RESOLUTIONS COMPARISONS ##
 
-file_unCalib  = ROOT.TFile(outdir+"/ROOTs/resolution_graphs_"+detector+"_uncalib.root", "r")
-file_oldCalib = ROOT.TFile(outdir+"/ROOTs/resolution_graphs_"+detector+"_oldCalib.root", "r")
-file_newCalib = ROOT.TFile(outdir+"/ROOTs/resolution_graphs_"+detector+"_"+newTag+".root", "r")
+print("** COMPARING RESOLUTIONS")
+
+file_unCalib  = ROOT.TFile(uncdir+'/PerformancePlots/'+label+'/ROOTs/resolution_graphs_'+label+'_'+target+'.root', 'r')
+file_oldCalib = ROOT.TFile(olddir+'/PerformancePlots/'+label+'/ROOTs/resolution_graphs_'+label+'_'+target+'.root', 'r')
+file_newCalib = ROOT.TFile(indir+'/PerformancePlots/'+label+'/ROOTs/resolution_graphs_'+label+'_'+target+'.root', 'r')
+
+if options.reco:
+    if options.target == 'jet':
+        x_lim = (0.,3.)
+        legend_label = r'$<|p_{T}^{jet, offline}|<$'
+        x_label = r'$E_{T}^{jet, L1} / p_{T}^{jet, offline}$'
+    if options.target == 'ele':
+        x_lim = (0.,3.)
+        legend_label = r'$<|p_{T}^{e, offline}|<$'
+        x_label = r'$E_{T}^{e/\gamma, L1} / p_{T}^{e, offline}$'
+if options.gen:
+    if options.target == 'jet':
+        x_lim = (0.,3.)
+        legend_label = r'$<|p_{T}^{jet, gen}|<$'
+        x_label = r'$E_{T}^{jet, L1} / p_{T}^{jet, gen}$'
+    if options.target == 'ele':
+        x_lim = (0.,3.)
+        legend_label = r'$<|p_{T}^{e, gen}|<$'
+        x_label = r'$E_{T}^{e/\gamma, L1} / p_{T}^{e, gen}$'
 
 #######
 # inclusive responses
@@ -36,64 +82,54 @@ inclusive_resp_unCalib  = file_unCalib.Get("pt_response_ptInclusive")
 inclusive_resp_oldCalib = file_oldCalib.Get("pt_response_ptInclusive")
 inclusive_resp_newCalib = file_newCalib.Get("pt_response_ptInclusive")
 
-#define canvas for plotting
-canvas = ROOT.TCanvas("c","c",800,800)
-canvas.SetGrid(10,10);
+fig, ax = plt.subplots(figsize=(10,10))
 
-#use dummy histogram to define style
-inclusive_resp_unCalib.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{gen jet}")
-inclusive_resp_unCalib.SetTitle("")
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = inclusive_resp_unCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+Ymax = max(Y)
 
-inclusive_resp_unCalib.GetXaxis().SetTitleOffset(1.3);
-inclusive_resp_unCalib.GetYaxis().SetTitle("a.u.");
-inclusive_resp_unCalib.GetYaxis().SetTitleOffset(1.3);
-inclusive_resp_unCalib.SetTitle("");
-inclusive_resp_unCalib.SetStats(0);
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = inclusive_resp_oldCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+Ymax = max(Ymax, max(Y))
 
-inclusive_resp_unCalib.GetYaxis().SetRangeUser(0., 0.5 )
-inclusive_resp_unCalib.GetXaxis().SetRangeUser(0., 2. )
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = inclusive_resp_newCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+Ymax = max(Ymax, max(Y))
 
-inclusive_resp_oldCalib.SetLineWidth(2)
-inclusive_resp_oldCalib.SetMarkerStyle(8)
-inclusive_resp_oldCalib.SetMarkerColor(2)
-inclusive_resp_oldCalib.SetLineColor(2)
-
-inclusive_resp_newCalib.SetLineWidth(2)
-inclusive_resp_newCalib.SetMarkerStyle(8)
-inclusive_resp_newCalib.SetMarkerColor(3)
-inclusive_resp_newCalib.SetLineColor(3)
-
-inclusive_resp_unCalib.SetLineWidth(2)
-inclusive_resp_unCalib.SetMarkerStyle(8)
-inclusive_resp_unCalib.SetMarkerColor(1)
-inclusive_resp_unCalib.SetLineColor(1)
-
-inclusive_resp_unCalib.Draw("LPE")
-inclusive_resp_newCalib.Draw("LPE same")
-inclusive_resp_oldCalib.Draw("LPE same")
-
-legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-legend.SetBorderSize(0)
-legend.AddEntry(inclusive_resp_unCalib,"Uncalibrated", "LPE")
-legend.AddEntry(inclusive_resp_oldCalib,"Old Calibration", "LPE")
-legend.AddEntry(inclusive_resp_newCalib,"New Calibration", "LPE")
-legend.Draw("same")
-
-tex = ROOT.TLatex()
-tex.SetTextSize(0.03);
-tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-tex.Draw("same")
-
-tex2 = ROOT.TLatex();
-tex2.SetTextSize(0.035);
-tex2.SetTextAlign(31);
-tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-tex2.Draw("same");
-
-canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/response_inclusive_"+label+".pdf")
-canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/response_inclusive_"+label+".png")
-
-del canvas, legend, tex2, tex
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc='upper right', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel(x_label)
+plt.ylabel('a.u.')
+plt.xlim(x_lim)
+plt.ylim(0., Ymax*1.3)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/response_inclusive_'+label+'_'+target+'.pdf')
+plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/response_inclusive_'+label+'_'+target+'.png')
+plt.close()
 
 #######
 # ptBins responses
@@ -103,278 +139,184 @@ for i in range(len(ptBins)-1):
     ptBins_resp_oldCalib = file_oldCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
     ptBins_resp_newCalib = file_newCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
 
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
 
-    #use dummy histogram to define style
-    ptBins_resp_unCalib.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{gen jet}")
-    ptBins_resp_unCalib.SetTitle("")
+    fig, ax = plt.subplots(figsize=(10,10))
 
-    ptBins_resp_unCalib.GetXaxis().SetTitleOffset(1.3);
-    ptBins_resp_unCalib.GetYaxis().SetTitle("a.u.");
-    ptBins_resp_unCalib.GetYaxis().SetTitleOffset(1.3);
-    ptBins_resp_unCalib.SetTitle("");
-    ptBins_resp_unCalib.SetStats(0);
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = ptBins_resp_unCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+    Ymax = max(Y)
 
-    ptBins_resp_unCalib.GetYaxis().SetRangeUser(0., max(ptBins_resp_oldCalib.GetMaximum(),ptBins_resp_newCalib.GetMaximum())*1.3 )
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = ptBins_resp_oldCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+    Ymax = max(Ymax, max(Y))
 
-    ptBins_resp_oldCalib.SetLineWidth(2)
-    ptBins_resp_oldCalib.SetMarkerStyle(8)
-    ptBins_resp_oldCalib.SetMarkerColor(2)
-    ptBins_resp_oldCalib.SetLineColor(2)
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = ptBins_resp_newCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+    Ymax = max(Ymax, max(Y))
 
-    ptBins_resp_newCalib.SetLineWidth(2)
-    ptBins_resp_newCalib.SetMarkerStyle(8)
-    ptBins_resp_newCalib.SetMarkerColor(3)
-    ptBins_resp_newCalib.SetLineColor(3)
-
-    ptBins_resp_unCalib.SetLineWidth(2)
-    ptBins_resp_unCalib.SetMarkerStyle(8)
-    ptBins_resp_unCalib.SetMarkerColor(1)
-    ptBins_resp_unCalib.SetLineColor(1)
-
-    ptBins_resp_unCalib.Draw("LPE")
-    ptBins_resp_newCalib.Draw("LPE same")
-    ptBins_resp_oldCalib.Draw("LPE same")
-
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.SetHeader(str(ptBins[i])+"<p_{T}^{gen jet}<"+str(ptBins[i+1]))
-    legend.AddEntry(ptBins_resp_unCalib,"Uncalibrated", "LPE")
-    legend.AddEntry(ptBins_resp_oldCalib,"Old Calibration", "LPE")
-    legend.AddEntry(ptBins_resp_newCalib,"New Calibration", "LPE")
-    legend.Draw("same")
-
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
-
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
-
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/response_"+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+".png")
-
-    del canvas, legend, ptBins_resp_unCalib, ptBins_resp_oldCalib, ptBins_resp_newCalib, tex2, tex
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc='upper right', fontsize=20, title=str(ptBins[i])+legend_label+str(ptBins[i+1]), title_fontsize=18)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('a.u.')
+    plt.xlim(x_lim)
+    plt.ylim(0., Ymax*1.3)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/response_'+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+'_'+target+'.pdf')
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/response_'+str(ptBins[i])+"pt"+str(ptBins[i+1])+"_"+label+'_'+target+'.png')
+    plt.close()
 
 #######
 # etaBins responses
+
+if options.reco:
+    if options.target == 'jet': legend_label = r'$<|\eta^{jet, offline}|<$'
+    if options.target == 'ele': legend_label = r'$<|\eta^{e, offline}|<$'
+if options.gen:
+    if options.target == 'jet': legend_label = r'$<|\eta^{jet, gen}|<$'
+    if options.target == 'ele': legend_label = r'$<|\eta^{e, gen}|<$'
 
 for i in range(len(etaBins)-1):
     etaBins_resp_unCalib = file_unCalib.Get("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]))
     etaBins_resp_oldCalib = file_oldCalib.Get("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]))
     etaBins_resp_newCalib = file_newCalib.Get("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]))
 
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
 
-    #use dummy histogram to define style
-    etaBins_resp_unCalib.GetXaxis().SetTitle("E_{T}^{L1 jet} / p_{T}^{gen jet}")
-    etaBins_resp_unCalib.SetTitle("")
+    fig, ax = plt.subplots(figsize=(10,10))
+    plt.grid(zorder=0)
 
-    etaBins_resp_unCalib.GetXaxis().SetTitleOffset(1.3);
-    etaBins_resp_unCalib.GetYaxis().SetTitle("a.u.");
-    etaBins_resp_unCalib.GetYaxis().SetTitleOffset(1.3);
-    etaBins_resp_unCalib.SetTitle("");
-    etaBins_resp_unCalib.SetStats(0);
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = etaBins_resp_unCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+    Ymax = max(Y)
 
-    etaBins_resp_unCalib.GetYaxis().SetRangeUser(0., max(etaBins_resp_oldCalib.GetMaximum(),etaBins_resp_newCalib.GetMaximum())*1.3 )
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = etaBins_resp_oldCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+    Ymax = max(Ymax, max(Y))
 
-    etaBins_resp_oldCalib.SetLineWidth(2)
-    etaBins_resp_oldCalib.SetMarkerStyle(8)
-    etaBins_resp_oldCalib.SetMarkerColor(2)
-    etaBins_resp_oldCalib.SetLineColor(2)
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = etaBins_resp_newCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+    Ymax = max(Ymax, max(Y))
 
-    etaBins_resp_newCalib.SetLineWidth(2)
-    etaBins_resp_newCalib.SetMarkerStyle(8)
-    etaBins_resp_newCalib.SetMarkerColor(3)
-    etaBins_resp_newCalib.SetLineColor(3)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc='upper right', fontsize=20, title=str(etaBins[i])+legend_label+str(etaBins[i+1]), title_fontsize=18)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('a.u.')
+    plt.xlim(x_lim)
+    plt.ylim(0., Ymax*1.3)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/response_'+str(etaBins[i])+"pt"+str(etaBins[i+1])+"_"+label+'_'+target+'.pdf')
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/response_'+str(etaBins[i])+"pt"+str(etaBins[i+1])+"_"+label+'_'+target+'.png')
+    plt.close()
 
-    etaBins_resp_unCalib.SetLineWidth(2)
-    etaBins_resp_unCalib.SetMarkerStyle(8)
-    etaBins_resp_unCalib.SetMarkerColor(1)
-    etaBins_resp_unCalib.SetLineColor(1)
-
-    etaBins_resp_unCalib.Draw("LPE")
-    etaBins_resp_newCalib.Draw("LPE same")
-    etaBins_resp_oldCalib.Draw("LPE same")
-
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.SetHeader(str(etaBins[i])+"<|#eta^{gen jet}|<"+str(etaBins[i+1]))
-    legend.AddEntry(etaBins_resp_unCalib,"Uncalibrated", "LPE")
-    legend.AddEntry(etaBins_resp_oldCalib,"Old Calibration", "LPE")
-    legend.AddEntry(etaBins_resp_newCalib,"New Calibration", "LPE")
-    legend.Draw("same")
-
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
-
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
-
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/response_"+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+".png")
-
-    del canvas, legend, etaBins_resp_unCalib, etaBins_resp_oldCalib, etaBins_resp_newCalib, tex2, tex
 
 #######
 # ptBins resolution
+
+if options.reco:
+    if options.target == 'jet': x_label = r'$p_{T}^{jet, offline}$'
+    if options.target == 'ele': x_label = r'$p_{T}^{e, offline}$'
+if options.gen:
+    if options.target == 'jet': x_label = r'$p_{T}^{jet, gen}$'
+    if options.target == 'ele': x_label = r'$p_{T}^{e, gen}$'
 
 ptBins_resol_unCalib  = file_unCalib.Get("pt_resol_fctPt")
 ptBins_resol_oldCalib = file_oldCalib.Get("pt_resol_fctPt")
 ptBins_resol_newCalib = file_newCalib.Get("pt_resol_fctPt")
 
-#define canvas for plotting
-canvas = ROOT.TCanvas("c","c",800,800)
-canvas.SetGrid(10,10);
+fig, ax = plt.subplots(figsize=(10,10))
 
-#use dummy histogram to define style
-ptBins_resol_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
-ptBins_resol_unCalib.SetTitle("")
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = ptBins_resol_unCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+Ymax = max(Y)
 
-ptBins_resol_unCalib.GetXaxis().SetTitleOffset(1.3);
-ptBins_resol_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} resolution");
-ptBins_resol_unCalib.GetYaxis().SetTitleOffset(1.3);
-ptBins_resol_unCalib.SetTitle("");
-ptBins_resol_unCalib.SetStats(0);
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = ptBins_resol_oldCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+Ymax = max(Ymax, max(Y))
 
-ptBins_resol_unCalib.GetYaxis().SetRangeUser(0., max(ptBins_resol_oldCalib.GetMaximum(),ptBins_resol_newCalib.GetMaximum())*1.3 )
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = ptBins_resol_newCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+Ymax = max(Ymax, max(Y))
 
-ptBins_resol_oldCalib.SetLineWidth(2)
-ptBins_resol_oldCalib.SetMarkerStyle(8)
-ptBins_resol_oldCalib.SetMarkerColor(2)
-ptBins_resol_oldCalib.SetLineColor(2)
-
-ptBins_resol_newCalib.SetLineWidth(2)
-ptBins_resol_newCalib.SetMarkerStyle(8)
-ptBins_resol_newCalib.SetMarkerColor(3)
-ptBins_resol_newCalib.SetLineColor(3)
-
-ptBins_resol_unCalib.SetLineWidth(2)
-ptBins_resol_unCalib.SetMarkerStyle(8)
-ptBins_resol_unCalib.SetMarkerColor(1)
-ptBins_resol_unCalib.SetLineColor(1)
-
-ptBins_resol_unCalib.Draw("LPE")
-ptBins_resol_newCalib.Draw("LPE same")
-ptBins_resol_oldCalib.Draw("LPE same")
-
-legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-legend.SetBorderSize(0)
-legend.AddEntry(ptBins_resol_unCalib,"Uncalibrated", "LPE")
-legend.AddEntry(ptBins_resol_oldCalib,"Old Calibration", "LPE")
-legend.AddEntry(ptBins_resol_newCalib,"New Calibration", "LPE")
-legend.Draw("same")
-
-tex = ROOT.TLatex()
-tex.SetTextSize(0.03);
-tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-tex.Draw("same")
-
-tex2 = ROOT.TLatex();
-tex2.SetTextSize(0.035);
-tex2.SetTextAlign(31);
-tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-tex2.Draw("same");
-
-canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/resolution_ptBins_"+label+".pdf")
-canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/resolution_ptBins_"+label+".png")
-
-del canvas, legend, tex2, tex
-
-#######
-# etaBins resolution
-
-etaBins_resol_unCalib  = file_unCalib.Get("pt_resol_fctEta")
-etaBins_resol_oldCalib = file_oldCalib.Get("pt_resol_fctEta")
-etaBins_resol_newCalib = file_newCalib.Get("pt_resol_fctEta")
-
-#define canvas for plotting
-canvas = ROOT.TCanvas("c","c",800,800)
-canvas.SetGrid(10,10);
-
-#use dummy histogram to define style
-etaBins_resol_unCalib.GetXaxis().SetTitle("#eta^{gen jet}")
-etaBins_resol_unCalib.SetTitle("")
-
-etaBins_resol_unCalib.GetXaxis().SetTitleOffset(1.3);
-etaBins_resol_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} resolution");
-etaBins_resol_unCalib.GetYaxis().SetTitleOffset(1.3);
-etaBins_resol_unCalib.SetTitle("");
-etaBins_resol_unCalib.SetStats(0);
-
-if "ECAL_" in label: etaBins_resol_unCalib.GetYaxis().SetRangeUser(0., 1.)
-if "HCAL_" in label: etaBins_resol_unCalib.GetYaxis().SetRangeUser(0., 2.)
-
-etaBins_resol_oldCalib.SetLineWidth(2)
-etaBins_resol_oldCalib.SetMarkerStyle(8)
-etaBins_resol_oldCalib.SetMarkerColor(2)
-etaBins_resol_oldCalib.SetLineColor(2)
-
-etaBins_resol_newCalib.SetLineWidth(2)
-etaBins_resol_newCalib.SetMarkerStyle(8)
-etaBins_resol_newCalib.SetMarkerColor(3)
-etaBins_resol_newCalib.SetLineColor(3)
-
-etaBins_resol_unCalib.SetLineWidth(2)
-etaBins_resol_unCalib.SetMarkerStyle(8)
-etaBins_resol_unCalib.SetMarkerColor(1)
-etaBins_resol_unCalib.SetLineColor(1)
-
-etaBins_resol_unCalib.Draw("LPE")
-etaBins_resol_newCalib.Draw("LPE same")
-etaBins_resol_oldCalib.Draw("LPE same")
-
-b1 = ROOT.TBox(1.305,0.,1.479,2)
-b1.SetFillColor(16)
-b1.Draw("same")
-b2 = ROOT.TBox(-1.479,0.,-1.305,2)
-b2.SetFillColor(16)
-b2.Draw("same")
-b3 = ROOT.TBox(1.305,0.,1.479,2)
-b3.SetFillColor(1)
-b3.SetFillStyle(3004)
-b3.Draw("same")
-b4 = ROOT.TBox(-1.479,0.,-1.305,2)
-b4.SetFillColor(1)
-b4.SetFillStyle(3004)
-b4.Draw("same")
-
-legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-legend.SetBorderSize(0)
-legend.AddEntry(etaBins_resol_unCalib,"Uncalibrated", "LPE")
-legend.AddEntry(etaBins_resol_oldCalib,"Old Calibration", "LPE")
-legend.AddEntry(etaBins_resol_newCalib,"New Calibration", "LPE")
-legend.Draw("same")
-
-tex = ROOT.TLatex()
-tex.SetTextSize(0.03);
-tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-tex.Draw("same")
-
-tex2 = ROOT.TLatex();
-tex2.SetTextSize(0.035);
-tex2.SetTextAlign(31);
-tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-tex2.Draw("same");
-
-canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/resolution_etaBins_"+label+".pdf")
-canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/resolution_etaBins_"+label+".png")
-
-del canvas, legend, tex2, tex
-
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc='upper right', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel(x_label)
+plt.ylabel('Energy resolution')
+plt.xlim(0, 200)
+plt.ylim(0., Ymax*1.3)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/resolution_ptBins_'+label+'_'+target+'.pdf')
+plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/resolution_ptBins_'+label+'_'+target+'.png')
+plt.close()
 
 #######
 # ptBins scale
@@ -383,63 +325,131 @@ ptBins_scale_unCalib  = file_unCalib.Get("pt_scale_fctPt")
 ptBins_scale_oldCalib = file_oldCalib.Get("pt_scale_fctPt")
 ptBins_scale_newCalib = file_newCalib.Get("pt_scale_fctPt")
 
-#define canvas for plotting
-canvas = ROOT.TCanvas("c","c",800,800)
-canvas.SetGrid(10,10);
+fig, ax = plt.subplots(figsize=(10,10))
 
-#use dummy histogram to define style
-ptBins_scale_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
-ptBins_scale_unCalib.SetTitle("")
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = ptBins_scale_unCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+Ymax = max(Y)
 
-ptBins_scale_unCalib.GetXaxis().SetTitleOffset(1.3);
-ptBins_scale_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} scale");
-ptBins_scale_unCalib.GetYaxis().SetTitleOffset(1.3);
-ptBins_scale_unCalib.SetTitle("");
-ptBins_scale_unCalib.SetStats(0);
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = ptBins_scale_oldCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+Ymax = max(Ymax, max(Y))
 
-ptBins_scale_unCalib.GetYaxis().SetRangeUser(0., max(ptBins_scale_oldCalib.GetMaximum(),ptBins_scale_newCalib.GetMaximum())*1.3 )
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = ptBins_scale_newCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+Ymax = max(Ymax, max(Y))
 
-ptBins_scale_oldCalib.SetLineWidth(2)
-ptBins_scale_oldCalib.SetMarkerStyle(8)
-ptBins_scale_oldCalib.SetMarkerColor(2)
-ptBins_scale_oldCalib.SetLineColor(2)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc='upper right', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel(x_label)
+plt.ylabel('Energy scale')
+plt.xlim(0, 200)
+plt.ylim(0.5, 1.5)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/scale_ptBins_'+label+'_'+target+'.pdf')
+plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/scale_ptBins_'+label+'_'+target+'.png')
+plt.close()
 
-ptBins_scale_newCalib.SetLineWidth(2)
-ptBins_scale_newCalib.SetMarkerStyle(8)
-ptBins_scale_newCalib.SetMarkerColor(3)
-ptBins_scale_newCalib.SetLineColor(3)
+#######
+# etaBins resolution
 
-ptBins_scale_unCalib.SetLineWidth(2)
-ptBins_scale_unCalib.SetMarkerStyle(8)
-ptBins_scale_unCalib.SetMarkerColor(1)
-ptBins_scale_unCalib.SetLineColor(1)
+if options.reco:
+    if options.target == 'jet':
+        x_lim = (-5.2,5.2)
+        x_label = r'$\eta^{jet, offline}$'
+    if options.target == 'ele':
+        x_lim = (-3.1,3.1)
+        x_label = r'$\eta^{e, offline}$'
+if options.gen:
+    if options.target == 'jet':
+        x_lim = (-5.2,5.2)
+        x_label = r'$\eta^{jet, gen}$'
+    if options.target == 'ele':
+        x_lim = (-3.1,3.1)
+        x_label = r'$\eta^{e, gen}$'
 
-ptBins_scale_unCalib.Draw("LPE")
-ptBins_scale_newCalib.Draw("LPE same")
-ptBins_scale_oldCalib.Draw("LPE same")
+etaBins_resol_unCalib  = file_unCalib.Get("pt_resol_fctEta")
+etaBins_resol_oldCalib = file_oldCalib.Get("pt_resol_fctEta")
+etaBins_resol_newCalib = file_newCalib.Get("pt_resol_fctEta")
 
-legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-legend.SetBorderSize(0)
-legend.AddEntry(ptBins_scale_unCalib,"Uncalibrated", "LPE")
-legend.AddEntry(ptBins_scale_oldCalib,"Old Calibration", "LPE")
-legend.AddEntry(ptBins_scale_newCalib,"New Calibration", "LPE")
-legend.Draw("same")
+fig, ax = plt.subplots(figsize=(10,10))
 
-tex = ROOT.TLatex()
-tex.SetTextSize(0.03);
-tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-tex.Draw("same")
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = etaBins_resol_unCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+Ymax = max(Y)
 
-tex2 = ROOT.TLatex();
-tex2.SetTextSize(0.035);
-tex2.SetTextAlign(31);
-tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-tex2.Draw("same");
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = etaBins_resol_oldCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+Ymax = max(Ymax, max(Y))
 
-canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/scale_ptBins_"+label+".pdf")
-canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/scale_ptBins_"+label+".png")
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = etaBins_resol_newCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+Ymax = max(Ymax, max(Y))
 
-del canvas, legend, tex2, tex
+rect1 = patches.Rectangle((-1.479, 0), 0.174, Ymax*1.3, linewidth=1, edgecolor='gray', facecolor='gray', zorder=3)
+rect2 = patches.Rectangle((1.305, 0), 0.174, Ymax*1.3, linewidth=1, edgecolor='gray', facecolor='gray', zorder=3)
+ax.add_patch(rect1)
+ax.add_patch(rect2)
+
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc='upper center', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel(x_label)
+plt.ylabel('Energy resolution')
+plt.xlim(x_lim)
+plt.ylim(0., Ymax*1.3)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/resolution_etaBins_'+label+'_'+target+'.pdf')
+plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/resolution_etaBins_'+label+'_'+target+'.png')
+plt.close()
+
 
 #######
 # etaBins scale
@@ -448,78 +458,59 @@ etaBins_scale_unCalib  = file_unCalib.Get("pt_scale_fctEta")
 etaBins_scale_oldCalib = file_oldCalib.Get("pt_scale_fctEta")
 etaBins_scale_newCalib = file_newCalib.Get("pt_scale_fctEta")
 
-#define canvas for plotting
-canvas = ROOT.TCanvas("c","c",800,800)
-canvas.SetGrid(10,10);
+fig, ax = plt.subplots(figsize=(10,10))
 
-#use dummy histogram to define style
-etaBins_scale_unCalib.GetXaxis().SetTitle("#eta^{gen jet}")
-etaBins_scale_unCalib.SetTitle("")
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = etaBins_scale_unCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+Ymax = max(Y)
 
-etaBins_scale_unCalib.GetXaxis().SetTitleOffset(1.3);
-etaBins_scale_unCalib.GetYaxis().SetTitle("E_{T}^{L1 jet} scale");
-etaBins_scale_unCalib.GetYaxis().SetTitleOffset(1.3);
-etaBins_scale_unCalib.SetTitle("");
-etaBins_scale_unCalib.SetStats(0);
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = etaBins_scale_oldCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+Ymax = max(Ymax, max(Y))
 
-etaBins_scale_unCalib.GetYaxis().SetRangeUser(0., 2.)
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = etaBins_scale_newCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+Ymax = max(Ymax, max(Y))
 
-etaBins_scale_oldCalib.SetLineWidth(2)
-etaBins_scale_oldCalib.SetMarkerStyle(8)
-etaBins_scale_oldCalib.SetMarkerColor(2)
-etaBins_scale_oldCalib.SetLineColor(2)
+rect1 = patches.Rectangle((-1.479, 0.5), 0.174, 1.5, linewidth=1, edgecolor='gray', facecolor='gray', zorder=3)
+rect2 = patches.Rectangle((1.305, 0.5), 0.174, 1.5, linewidth=1, edgecolor='gray', facecolor='gray', zorder=3)
+ax.add_patch(rect1)
+ax.add_patch(rect2)
 
-etaBins_scale_newCalib.SetLineWidth(2)
-etaBins_scale_newCalib.SetMarkerStyle(8)
-etaBins_scale_newCalib.SetMarkerColor(3)
-etaBins_scale_newCalib.SetLineColor(3)
-
-etaBins_scale_unCalib.SetLineWidth(2)
-etaBins_scale_unCalib.SetMarkerStyle(8)
-etaBins_scale_unCalib.SetMarkerColor(1)
-etaBins_scale_unCalib.SetLineColor(1)
-
-etaBins_scale_unCalib.Draw("LPE")
-etaBins_scale_newCalib.Draw("LPE same")
-etaBins_scale_oldCalib.Draw("LPE same")
-
-b1 = ROOT.TBox(1.305,0.,1.479,2)
-b1.SetFillColor(16)
-b1.Draw("same")
-b2 = ROOT.TBox(-1.479,0.,-1.305,2)
-b2.SetFillColor(16)
-b2.Draw("same")
-b3 = ROOT.TBox(1.305,0.,1.479,2)
-b3.SetFillColor(1)
-b3.SetFillStyle(3004)
-b3.Draw("same")
-b4 = ROOT.TBox(-1.479,0.,-1.305,2)
-b4.SetFillColor(1)
-b4.SetFillStyle(3004)
-b4.Draw("same")
-
-legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-legend.SetBorderSize(0)
-legend.AddEntry(etaBins_scale_unCalib,"Uncalibrated", "LPE")
-legend.AddEntry(etaBins_scale_oldCalib,"Old Calibration", "LPE")
-legend.AddEntry(etaBins_scale_newCalib,"New Calibration", "LPE")
-legend.Draw("same")
-
-tex = ROOT.TLatex()
-tex.SetTextSize(0.03);
-tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-tex.Draw("same")
-
-tex2 = ROOT.TLatex();
-tex2.SetTextSize(0.035);
-tex2.SetTextAlign(31);
-tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-tex2.Draw("same");
-
-canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/scale_etaBins_"+label+".pdf")
-canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/scale_etaBins_"+label+".png")
-
-del canvas, legend, tex2, tex
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc='upper center', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel(x_label)
+plt.ylabel('Energy scale')
+plt.xlim(x_lim)
+plt.ylim(0.5, 1.5)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/scale_etaBins_'+label+'_'+target+'.pdf')
+plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/scale_etaBins_'+label+'_'+target+'.png')
+plt.close()
 
 #######
 # pt vs eta scale
@@ -547,9 +538,9 @@ for i in range(1,PTvsETA_scale1.GetNbinsX()+1):
         rel_scale = (scale1 - scale2)/scale1;
         PTvsETA_relative_scale.SetBinContent(i,j,rel_scale);
 
-max       = PTvsETA_relative_scale.GetMaximum();
-min       = PTvsETA_relative_scale.GetMinimum();
-per_white = (val_white-min)/(max-min);
+max_       = PTvsETA_relative_scale.GetMaximum();
+min_       = PTvsETA_relative_scale.GetMinimum();
+per_white = (val_white-min_)/(max_-min_);
 Stops1 = array("d", [ 0., per_white, 1. ]);
 PTvsETA_relative_scale.SetContour(nb);
 ROOT.TColor.CreateGradientColorTable(Number,Stops1,Red,Green,Blue,nb);
@@ -586,8 +577,8 @@ b6.SetFillColor(1);
 b6.SetFillStyle(3004);
 b6.Draw("same");
 
-canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/ptVSeta_relative_scale_"+label+".pdf")
-canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/ptVSeta_relative_scale_"+label+".png")
+canvas.SaveAs(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+"/ptVSeta_relative_scale_"+label+'_'+target+".pdf")
+canvas.SaveAs(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+"/ptVSeta_relative_scale_"+label+'_'+target+".png")
 
 del canvas, tex2, tex, b5, b6
 
@@ -609,9 +600,9 @@ for i in range(1,PTvsETA_resolution1.GetNbinsX()+1):
         rel_res = (res1 - res2)/res2;
         PTvsETA_relative_resolution.SetBinContent(i,j,rel_res);
 
-max       = PTvsETA_relative_resolution.GetMaximum();
-min       = PTvsETA_relative_resolution.GetMinimum();
-per_white = (val_white-min)/(max-min);
+max_       = PTvsETA_relative_resolution.GetMaximum();
+min_       = PTvsETA_relative_resolution.GetMinimum();
+per_white = (val_white-min_)/(max_-min_);
 Stops2 = array("d", [ 0., per_white, 1. ])
 PTvsETA_relative_resolution.SetContour(nb);
 ROOT.TColor.CreateGradientColorTable(Number,Stops2,Red,Green,Blue,nb);
@@ -648,8 +639,8 @@ b6.SetFillColor(1);
 b6.SetFillStyle(3004);
 b6.Draw("same");
 
-canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/ptVSeta_relative_resolution_"+label+".pdf")
-canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/ptVSeta_relative_resolution_"+label+".png")
+canvas.SaveAs(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+"/ptVSeta_relative_resolution_"+label+'_'+target+".pdf")
+canvas.SaveAs(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+"/ptVSeta_relative_resolution_"+label+'_'+target+".png")
 
 del canvas, tex2, tex, b5, b6
 
@@ -661,777 +652,526 @@ file_newCalib.Close()
 
 
 #############################
-## RATE COMPARISONS ##
+## RATE+TURNON COMPARISONS ##
 
-file_unCalib  = ROOT.TFile(outdir+"/ROOTs/rate_graphs_"+detector+"_uncalib.root", "r")
-file_oldCalib = ROOT.TFile(outdir+"/ROOTs/rate_graphs_"+detector+"_oldCalib.root", "r")
-file_newCalib = ROOT.TFile(outdir+"/ROOTs/rate_graphs_"+detector+"_"+newTag+".root", "r")
+print("** COMPARING RATES")
 
-if detector == "HCAL":
-    #######
-    # DoubleJet60 rates
+file_rate_unCalib  = ROOT.TFile(uncdir+'/PerformancePlots/'+label+'/ROOTs/rate_graphs_'+label+'_'+target+'.root', 'r')
+file_rate_oldCalib = ROOT.TFile(olddir+'/PerformancePlots/'+label+'/ROOTs/rate_graphs_'+label+'_'+target+'.root', 'r')
+file_rate_newCalib = ROOT.TFile(indir+'/PerformancePlots/'+label+'/ROOTs/rate_graphs_'+label+'_'+target+'.root', 'r')
 
-    rateDi_unCalib  = file_unCalib.Get("ratePtDiProgression")
-    rateDi_oldCalib = file_oldCalib.Get("ratePtDiProgression")
-    rateDi_newCalib = file_newCalib.Get("ratePtDiProgression")
+file_turnon_unCalib  = ROOT.TFile(uncdir+'/PerformancePlots/'+label+'/ROOTs/efficiency_graphs_'+label+'_'+target+'.root', 'r')
+file_turnon_oldCalib = ROOT.TFile(olddir+'/PerformancePlots/'+label+'/ROOTs/efficiency_graphs_'+label+'_'+target+'.root', 'r')
+file_turnon_newCalib = ROOT.TFile(indir+'/PerformancePlots/'+label+'/ROOTs/efficiency_graphs_'+label+'_'+target+'.root', 'r')
 
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
-    canvas.SetLogy()
+#######
+# DoubleObj rates
 
-    #use dummy histogram to define style
-    rateDi_unCalib.GetXaxis().SetTitle("p_{T}^{L1 jet} [GeV]")
-    rateDi_unCalib.SetTitle("")
+rateDi_unCalib  = file_rate_unCalib.Get("rateDiProgression0")
+rateDi_oldCalib = file_rate_oldCalib.Get("rateDiProgression0")
+rateDi_newCalib = file_rate_newCalib.Get("rateDiProgression0")
 
-    rateDi_unCalib.GetXaxis().SetTitleOffset(1.3);
-    rateDi_unCalib.GetYaxis().SetTitle("Double-Obj Rate [kHz]");
-    rateDi_unCalib.GetYaxis().SetTitleOffset(1.3);
-    rateDi_unCalib.SetTitle("");
-    rateDi_unCalib.SetStats(0);
+if options.target == 'jet': x_label = r'$E_{T}^{jet, L1}$'
+if options.target == 'ele': x_label = r'$E_{T}^{e/\gamma, L1}$'
 
-    rateDi_unCalib.GetYaxis().SetRangeUser(0.1, 1e5)
+fig, ax = plt.subplots(figsize=(10,10))
 
-    rateDi_oldCalib.SetLineWidth(2)
-    rateDi_oldCalib.SetMarkerStyle(8)
-    rateDi_oldCalib.SetMarkerColor(2)
-    rateDi_oldCalib.SetLineColor(2)
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rateDi_unCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+Ymax = max(Y)
 
-    rateDi_newCalib.SetLineWidth(2)
-    rateDi_newCalib.SetMarkerStyle(8)
-    rateDi_newCalib.SetMarkerColor(3)
-    rateDi_newCalib.SetLineColor(3)
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rateDi_oldCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+Ymax = max(Ymax, max(Y))
 
-    rateDi_unCalib.SetLineWidth(2)
-    rateDi_unCalib.SetMarkerStyle(8)
-    rateDi_unCalib.SetMarkerColor(1)
-    rateDi_unCalib.SetLineColor(1)
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rateDi_newCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+Ymax = max(Ymax, max(Y))
 
-    rateDi_unCalib.Draw("LPE")
-    rateDi_newCalib.Draw("LPE same")
-    rateDi_oldCalib.Draw("LPE same")
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc='upper right', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel(x_label)
+plt.ylabel('Rate [kHz]')
+plt.xlim(0, 120)
+plt.ylim(0.1, 1E5)
+plt.yscale('log')
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/rate_DiObj_'+label+'_'+target+'.pdf')
+plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/rate_DiObj_'+label+'_'+target+'.png')
+plt.close()
 
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.AddEntry(rateDi_unCalib,"Uncalibrated", "LPE")
-    legend.AddEntry(rateDi_oldCalib,"Old Calibration", "LPE")
-    legend.AddEntry(rateDi_newCalib,"New Calibration", "LPE")
-    legend.Draw("same")
+if options.reco:
+    if options.target == 'jet': x_label = r'$p_{T}^{jet, offline}$'
+    if options.target == 'ele': x_label = r'$p_{T}^{e, offline}$'
+if options.gen:
+    if options.target == 'jet': x_label = r'$p_{T}^{jet, gen}$'
+    if options.target == 'ele': x_label = r'$p_{T}^{e, gen}$'
 
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
+for thr in options.thrsFixRate:
+    rateOldCalibAtThr = rateDi_oldCalib.GetBinContent(int(thr)+1)
 
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
-
-    # calculate rates and thresholds
-    unCalibAt60 = rateDi_unCalib.GetBinContent(61)
-    oldCalibAt60 = rateDi_oldCalib.GetBinContent(61)
-    newCalibAt60 = rateDi_newCalib.GetBinContent(61)
+    thrNewCalib_DiObjAtThr = 0
     for i in range(1,240):
-        if rateDi_newCalib.GetBinContent(i) < oldCalibAt60:
-            thrNewCalib_DoubleJet60 = rateDi_newCalib.GetBinLowEdge(i-1)
+        if rateDi_newCalib.GetBinContent(i) < rateOldCalibAtThr:
+            thrNewCalib_DiObjAtThr = rateDi_newCalib.GetBinLowEdge(i-1)
             break
 
+    thrUnCalib_DiObjAtThr = 0
     for i in range(1,240):
-        if rateDi_unCalib.GetBinContent(i) < oldCalibAt60:
-            thrUnCalib_DoubleJet60 = rateDi_unCalib.GetBinLowEdge(i-1)
+        if rateDi_unCalib.GetBinContent(i) < rateOldCalibAtThr:
+            thrUnCalib_DiObjAtThr = rateDi_unCalib.GetBinLowEdge(i-1)
             break
 
-    texl1 = ROOT.TPaveText(0.42,0.52,0.89,0.72,"NDC")
-    texl1.AddText("Uncalibrated:      DoubleJet60 rate = "+str(round(unCalibAt60,1))+" kHz")
-    texl1.AddText("Old Calibration:  DoubleJet60 rate = "+str(round(oldCalibAt60,1))+" kHz")
-    texl1.AddText("New Calibration: DoubleJet60 rate = "+str(round(newCalibAt60,1))+" kHz")
-    texl1.AddText("")
-    texl1.AddText("Uncalibrated:      fixed "+str(round(oldCalibAt60,1))+" kHz rate #rightarrow DoubleJet"+str(round(thrUnCalib_DoubleJet60)))
-    texl1.AddText("New Calibration: fixed "+str(round(oldCalibAt60,1))+" kHz rate #rightarrow DoubleJet"+str(round(thrNewCalib_DoubleJet60)))
-    texl1.SetTextSize(0.02)
-    texl1.SetFillColor(0)
-    texl1.SetBorderSize(0)
-    texl1.SetTextAlign(11)
-    texl1.Draw("same")
+    turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_DiObjAtThr))+"_by_total")
+    turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
+    turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_DiObjAtThr))+"_by_total")
 
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/rates_DoubleJet60.pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/rates_DoubleJet60.png")
+    fig, ax = plt.subplots(figsize=(10,10))
 
-    del canvas, legend, tex2, tex, texl1
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_unCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'No calibration: $p_{T}^{L1}>$'+str(int(thrUnCalib_DiObjAtThr))+' GeV', lw=2, marker='o', color='black', zorder=0)
 
-    #######
-    # DoubleJet60er rates
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_oldCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Old calibration: $p_{T}^{L1}>$'+str(int(thr))+' GeV', lw=2, marker='o', color='red', zorder=1)
 
-    rateDi_unCalib  = file_unCalib.Get("ratePtDiProgressionEr")
-    rateDi_oldCalib = file_oldCalib.Get("ratePtDiProgressionEr")
-    rateDi_newCalib = file_newCalib.Get("ratePtDiProgressionEr")
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_newCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'New Calibration: $p_{T}^{L1}>$'+str(int(thrNewCalib_DiObjAtThr))+' GeV', lw=2, marker='o', color='green', zorder=2)
 
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
-    canvas.SetLogy()
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc='lower right', fontsize=20, title=r'Fixed rate: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('Efficiency')
+    plt.xlim(0, 200)
+    plt.ylim(0., 1.05)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/turnon_fixedDiObjRate_'+thr+'_'+label+'_'+target+'.pdf')
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/turnon_fixedDiObjRate_'+thr+'_'+label+'_'+target+'.png')
+    plt.close()
 
-    #use dummy histogram to define style
-    rateDi_unCalib.GetXaxis().SetTitle("p_{T}^{L1 jet} [GeV]")
-    rateDi_unCalib.SetTitle("")
 
-    rateDi_unCalib.GetXaxis().SetTitleOffset(1.3);
-    rateDi_unCalib.GetYaxis().SetTitle("Double-Obj Rate [kHz]");
-    rateDi_unCalib.GetYaxis().SetTitleOffset(1.3);
-    rateDi_unCalib.SetTitle("");
-    rateDi_unCalib.SetStats(0);
+#######
+# DoubleObjEr rates
 
-    rateDi_unCalib.GetYaxis().SetRangeUser(0.1, 1e5)
+rateDiEr_unCalib  = file_rate_unCalib.Get("rateDiProgression0er2p5")
+rateDiEr_oldCalib = file_rate_oldCalib.Get("rateDiProgression0er2p5")
+rateDiEr_newCalib = file_rate_newCalib.Get("rateDiProgression0er2p5")
 
-    rateDi_oldCalib.SetLineWidth(2)
-    rateDi_oldCalib.SetMarkerStyle(8)
-    rateDi_oldCalib.SetMarkerColor(2)
-    rateDi_oldCalib.SetLineColor(2)
+if options.target == 'jet': x_label = r'$E_{T}^{jet, L1}$'
+if options.target == 'ele': x_label = r'$E_{T}^{e/\gamma, L1}$'
 
-    rateDi_newCalib.SetLineWidth(2)
-    rateDi_newCalib.SetMarkerStyle(8)
-    rateDi_newCalib.SetMarkerColor(3)
-    rateDi_newCalib.SetLineColor(3)
+fig, ax = plt.subplots(figsize=(10,10))
 
-    rateDi_unCalib.SetLineWidth(2)
-    rateDi_unCalib.SetMarkerStyle(8)
-    rateDi_unCalib.SetMarkerColor(1)
-    rateDi_unCalib.SetLineColor(1)
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rateDiEr_unCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+Ymax = max(Y)
 
-    rateDi_unCalib.Draw("LPE")
-    rateDi_newCalib.Draw("LPE same")
-    rateDi_oldCalib.Draw("LPE same")
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rateDiEr_oldCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+Ymax = max(Ymax, max(Y))
 
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.AddEntry(rateDi_unCalib,"Uncalibrated", "LPE")
-    legend.AddEntry(rateDi_oldCalib,"Old Calibration", "LPE")
-    legend.AddEntry(rateDi_newCalib,"New Calibration", "LPE")
-    legend.Draw("same")
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rateDiEr_newCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+Ymax = max(Ymax, max(Y))
 
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc='upper right', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel(x_label)
+plt.ylabel('Rate [kHz]')
+plt.xlim(0, 120)
+plt.ylim(0.1, 1E5)
+plt.yscale('log')
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/rate_DiObjEr2p5_'+label+'_'+target+'.pdf')
+plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/rate_DiObjEr2p5_'+label+'_'+target+'.png')
+plt.close()
 
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
+for thr in options.thrsFixRate:
+    rateOldCalibAtThr = rateDiEr_oldCalib.GetBinContent(int(thr)+1)
 
-    # calculate rates and thresholds
-    unCalibAt60er = rateDi_unCalib.GetBinContent(61)
-    oldCalibAt60er = rateDi_oldCalib.GetBinContent(61)
-    newCalibAt60er = rateDi_newCalib.GetBinContent(61)
+    thrNewCalib_FixedDiErRate = 0
     for i in range(1,240):
-        if rateDi_newCalib.GetBinContent(i) < oldCalibAt60er:
-            thrNewCalib_DoubleJet60er = rateDi_newCalib.GetBinLowEdge(i-1)
+        if rateDiEr_newCalib.GetBinContent(i) < rateOldCalibAtThr:
+            thrNewCalib_FixedDiErRate = rateDiEr_newCalib.GetBinLowEdge(i-1)
             break
 
+    thrUnCalib_FixedDiErRate = 0
     for i in range(1,240):
-        if rateDi_unCalib.GetBinContent(i) < oldCalibAt60er:
-            thrUnCalib_DoubleJet60er = rateDi_unCalib.GetBinLowEdge(i-1)
+        if rateDiEr_unCalib.GetBinContent(i) < rateOldCalibAtThr:
+            thrUnCalib_FixedDiErRate = rateDiEr_unCalib.GetBinLowEdge(i-1)
             break
 
-    texl1 = ROOT.TPaveText(0.42,0.52,0.89,0.72,"NDC")
-    texl1.AddText("Uncalibrated:      DoubleJet60er1p5 rate = "+str(round(unCalibAt60er,1))+" kHz")
-    texl1.AddText("Old Calibration:  DoubleJet60er1p5 rate = "+str(round(oldCalibAt60er,1))+" kHz")
-    texl1.AddText("New Calibration: DoubleJet60er1p5 rate = "+str(round(newCalibAt60er,1))+" kHz")
-    texl1.AddText("")
-    texl1.AddText("Uncalibrated:      fixed "+str(round(oldCalibAt60er,1))+" kHz rate #rightarrow DoubleJet"+str(round(thrUnCalib_DoubleJet60er))+"er1p5")
-    texl1.AddText("New Calibration: fixed "+str(round(oldCalibAt60er,1))+" kHz rate #rightarrow DoubleJet"+str(round(thrNewCalib_DoubleJet60er))+"er1p5")
-    texl1.SetTextSize(0.02)
-    texl1.SetFillColor(0)
-    texl1.SetBorderSize(0)
-    texl1.SetTextAlign(11)
-    texl1.Draw("same")
+    turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_FixedDiErRate))+"_by_total")
+    turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
+    turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_FixedDiErRate))+"_by_total")
 
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/rates_DoubleJet60er1p5.pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/rates_DoubleJet60er1p5.png")
+    fig, ax = plt.subplots(figsize=(10,10))
 
-    del canvas, legend, tex2, tex, texl1
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_unCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'No calibration: $p_{T}^{L1}>$'+str(int(thrUnCalib_FixedDiErRate))+' GeV', lw=2, marker='o', color='black', zorder=0)
 
-    #######
-    # DoubleJet100 rates
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_oldCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Old calibration: $p_{T}^{L1}>$'+str(int(thr))+' GeV', lw=2, marker='o', color='red', zorder=1)
 
-    rateDi_unCalib  = file_unCalib.Get("ratePtDiProgression")
-    rateDi_oldCalib = file_oldCalib.Get("ratePtDiProgression")
-    rateDi_newCalib = file_newCalib.Get("ratePtDiProgression")
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_newCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'New Calibration: $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedDiErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
 
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
-    canvas.SetLogy()
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc='lower right', fontsize=20, title=r'Fixed rate: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('Efficiency')
+    plt.xlim(0, 200)
+    plt.ylim(0., 1.05)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/turnon_fixedDiObjEr2p5Rate_'+thr+'_'+label+'_'+target+'.pdf')
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/turnon_fixedDiObjEr2p5Rate_'+thr+'_'+label+'_'+target+'.png')
+    plt.close()
 
-    #use dummy histogram to define style
-    rateDi_unCalib.GetXaxis().SetTitle("p_{T}^{L1 jet} [GeV]")
-    rateDi_unCalib.SetTitle("")
+######
+# SingleObj rates
 
-    rateDi_unCalib.GetXaxis().SetTitleOffset(1.3);
-    rateDi_unCalib.GetYaxis().SetTitle("Double-Obj Rate [kHz]");
-    rateDi_unCalib.GetYaxis().SetTitleOffset(1.3);
-    rateDi_unCalib.SetTitle("");
-    rateDi_unCalib.SetStats(0);
+rate_unCalib  = file_rate_unCalib.Get("rateProgression0")
+rate_oldCalib = file_rate_oldCalib.Get("rateProgression0")
+rate_newCalib = file_rate_newCalib.Get("rateProgression0")
 
-    rateDi_unCalib.GetYaxis().SetRangeUser(0.1, 1e5)
+fig, ax = plt.subplots(figsize=(10,10))
 
-    rateDi_oldCalib.SetLineWidth(2)
-    rateDi_oldCalib.SetMarkerStyle(8)
-    rateDi_oldCalib.SetMarkerColor(2)
-    rateDi_oldCalib.SetLineColor(2)
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rate_unCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+Ymax = max(Y)
 
-    rateDi_newCalib.SetLineWidth(2)
-    rateDi_newCalib.SetMarkerStyle(8)
-    rateDi_newCalib.SetMarkerColor(3)
-    rateDi_newCalib.SetLineColor(3)
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rate_oldCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+Ymax = max(Ymax, max(Y))
 
-    rateDi_unCalib.SetLineWidth(2)
-    rateDi_unCalib.SetMarkerStyle(8)
-    rateDi_unCalib.SetMarkerColor(1)
-    rateDi_unCalib.SetLineColor(1)
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rate_newCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+Ymax = max(Ymax, max(Y))
 
-    rateDi_unCalib.Draw("LPE")
-    rateDi_newCalib.Draw("LPE same")
-    rateDi_oldCalib.Draw("LPE same")
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc='upper right', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel(x_label)
+plt.ylabel('Rate [kHz]')
+plt.xlim(0, 120)
+plt.ylim(0.1, 1E5)
+plt.yscale('log')
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/rate_DiObj_'+label+'_'+target+'.pdf')
+plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/rate_DiObj_'+label+'_'+target+'.png')
+plt.close()
 
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.AddEntry(rateDi_unCalib,"Uncalibrated", "LPE")
-    legend.AddEntry(rateDi_oldCalib,"Old Calibration", "LPE")
-    legend.AddEntry(rateDi_newCalib,"New Calibration", "LPE")
-    legend.Draw("same")
+for thr in options.thrsFixRate:
+    rateOldCalibAtThr = rate_oldCalib.GetBinContent(int(thr)+1)
 
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
-
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
-
-    # calculate rates and thresholds
-    unCalibAt100 = rateDi_unCalib.GetBinContent(101)
-    oldCalibAt100 = rateDi_oldCalib.GetBinContent(101)
-    newCalibAt100 = rateDi_newCalib.GetBinContent(101)
+    thrNewCalib_ObjAtThr = 0
     for i in range(1,240):
-        if rateDi_newCalib.GetBinContent(i) < oldCalibAt100:
-            thrNewCalib_DoubleJet100 = rateDi_newCalib.GetBinLowEdge(i-1)
+        if rate_newCalib.GetBinContent(i) < rateOldCalibAtThr:
+            thrNewCalib_ObjAtThr = rate_newCalib.GetBinLowEdge(i-1)
             break
 
+    thrUnCalib_ObjAtThr = 0
     for i in range(1,240):
-        if rateDi_unCalib.GetBinContent(i) < oldCalibAt100:
-            thrUnCalib_DoubleJet100 = rateDi_unCalib.GetBinLowEdge(i-1)
+        if rate_unCalib.GetBinContent(i) < rateOldCalibAtThr:
+            thrUnCalib_ObjAtThr = rate_unCalib.GetBinLowEdge(i-1)
             break
 
-    texl1 = ROOT.TPaveText(0.42,0.52,0.89,0.72,"NDC")
-    texl1.AddText("Uncalibrated:      DoubleJet100 rate = "+str(round(unCalibAt100,1))+" kHz")
-    texl1.AddText("Old Calibration:  DoubleJet100 rate = "+str(round(oldCalibAt100,1))+" kHz")
-    texl1.AddText("New Calibration: DoubleJet100 rate = "+str(round(newCalibAt100,1))+" kHz")
-    texl1.AddText("")
-    texl1.AddText("Uncalibrated:      fixed "+str(round(oldCalibAt100,1))+" kHz rate #rightarrow DoubleJet"+str(round(thrUnCalib_DoubleJet100)))
-    texl1.AddText("New Calibration: fixed "+str(round(oldCalibAt100,1))+" kHz rate #rightarrow DoubleJet"+str(round(thrNewCalib_DoubleJet100)))
-    texl1.SetTextSize(0.02)
-    texl1.SetFillColor(0)
-    texl1.SetBorderSize(0)
-    texl1.SetTextAlign(11)
-    texl1.Draw("same")
+    turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_ObjAtThr))+"_by_total")
+    turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
+    turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_ObjAtThr))+"_by_total")
 
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/rates_DoubleJet100.pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/rates_DoubleJet100.png")
+    fig, ax = plt.subplots(figsize=(10,10))
 
-    del canvas, legend, tex2, tex, texl1
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_unCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'No calibration: $p_{T}^{L1}>$'+str(int(thrUnCalib_ObjAtThr))+' GeV', lw=2, marker='o', color='black', zorder=0)
+
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_oldCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Old calibration: $p_{T}^{L1}>$'+str(int(thr))+' GeV', lw=2, marker='o', color='red', zorder=1)
+
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_newCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'New Calibration: $p_{T}^{L1}>$'+str(int(thrNewCalib_ObjAtThr))+' GeV', lw=2, marker='o', color='green', zorder=2)
+
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc='lower right', fontsize=20, title=r'Fixed rate: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('Efficiency')
+    plt.xlim(0, 200)
+    plt.ylim(0., 1.05)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/turnon_fixedObjRate_'+thr+'_'+label+'_'+target+'.pdf')
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/turnon_fixedObjRate_'+thr+'_'+label+'_'+target+'.png')
+    plt.close()
 
 
-    #######
-    # SingleJet60 rates
+#######
+# SingleObjEr rates
 
-    rate_unCalib  = file_unCalib.Get("ratePtProgression")
-    rate_oldCalib = file_oldCalib.Get("ratePtProgression")
-    rate_newCalib = file_newCalib.Get("ratePtProgression")
+rateEr_unCalib  = file_rate_unCalib.Get("rateProgression0er2p5")
+rateEr_oldCalib = file_rate_oldCalib.Get("rateProgression0er2p5")
+rateEr_newCalib = file_rate_newCalib.Get("rateProgression0er2p5")
 
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
-    canvas.SetLogy()
+fig, ax = plt.subplots(figsize=(10,10))
 
-    #use dummy histogram to define style
-    rate_unCalib.GetXaxis().SetTitle("p_{T}^{L1 jet} [GeV]")
-    rate_unCalib.SetTitle("")
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rateEr_unCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+Ymax = max(Y)
 
-    rate_unCalib.GetXaxis().SetTitleOffset(1.3);
-    rate_unCalib.GetYaxis().SetTitle("Single-Obj Rate [kHz]");
-    rate_unCalib.GetYaxis().SetTitleOffset(1.3);
-    rate_unCalib.SetTitle("");
-    rate_unCalib.SetStats(0);
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rateEr_oldCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+Ymax = max(Ymax, max(Y))
 
-    rate_unCalib.GetYaxis().SetRangeUser(0.1, 1e5)
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = rateEr_newCalib
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+Ymax = max(Ymax, max(Y))
 
-    rate_oldCalib.SetLineWidth(2)
-    rate_oldCalib.SetMarkerStyle(8)
-    rate_oldCalib.SetMarkerColor(2)
-    rate_oldCalib.SetLineColor(2)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc='upper right', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel(x_label)
+plt.ylabel('Rate [kHz]')
+plt.xlim(0, 120)
+plt.ylim(0.1, 1E5)
+plt.yscale('log')
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/rate_ObjEr2p5_'+label+'_'+target+'.pdf')
+plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/rate_ObjEr2p5_'+label+'_'+target+'.png')
+plt.close()
 
-    rate_newCalib.SetLineWidth(2)
-    rate_newCalib.SetMarkerStyle(8)
-    rate_newCalib.SetMarkerColor(3)
-    rate_newCalib.SetLineColor(3)
+for thr in options.thrsFixRate:
+    rateOldCalibAtThr = rateEr_oldCalib.GetBinContent(int(thr)+1)
 
-    rate_unCalib.SetLineWidth(2)
-    rate_unCalib.SetMarkerStyle(8)
-    rate_unCalib.SetMarkerColor(1)
-    rate_unCalib.SetLineColor(1)
-
-    rate_unCalib.Draw("LPE")
-    rate_newCalib.Draw("LPE same")
-    rate_oldCalib.Draw("LPE same")
-
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.AddEntry(rate_unCalib,"Uncalibrated", "LPE")
-    legend.AddEntry(rate_oldCalib,"Old Calibration", "LPE")
-    legend.AddEntry(rate_newCalib,"New Calibration", "LPE")
-    legend.Draw("same")
-
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
-
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
-
-    # calculate rates and thresholds
-    unCalibAt60 = rate_unCalib.GetBinContent(61)
-    oldCalibAt60 = rate_oldCalib.GetBinContent(61)
-    newCalibAt60 = rate_newCalib.GetBinContent(61)
+    thrNewCalib_FixedErRate = 0
     for i in range(1,240):
-        if rate_newCalib.GetBinContent(i) < oldCalibAt60:
-            thrNewCalib_SingleJet60 = rate_newCalib.GetBinLowEdge(i-1)
+        if rateEr_newCalib.GetBinContent(i) < rateOldCalibAtThr:
+            thrNewCalib_FixedErRate = rateEr_newCalib.GetBinLowEdge(i-1)
             break
 
+    thrUnCalib_FixedErRate = 0
     for i in range(1,240):
-        if rate_unCalib.GetBinContent(i) < oldCalibAt60:
-            thrUnCalib_SingleJet60 = rate_unCalib.GetBinLowEdge(i-1)
+        if rateEr_unCalib.GetBinContent(i) < rateOldCalibAtThr:
+            thrUnCalib_FixedErRate = rateEr_unCalib.GetBinLowEdge(i-1)
             break
 
-    texl1 = ROOT.TPaveText(0.42,0.52,0.89,0.72,"NDC")
-    texl1.AddText("Uncalibrated:      SingleJet60 rate = "+str(round(unCalibAt60,1))+" kHz")
-    texl1.AddText("Old Calibration:  SingleJet60 rate = "+str(round(oldCalibAt60,1))+" kHz")
-    texl1.AddText("New Calibration: SingleJet60 rate = "+str(round(newCalibAt60,1))+" kHz")
-    texl1.AddText("")
-    texl1.AddText("Uncalibrated:      fixed "+str(round(oldCalibAt60,1))+" kHz rate #rightarrow SingleJet"+str(int(round(thrUnCalib_SingleJet60))))
-    texl1.AddText("New Calibration: fixed "+str(round(oldCalibAt60,1))+" kHz rate #rightarrow SingleJet"+str(int(round(thrNewCalib_SingleJet60))))
-    texl1.SetTextSize(0.02)
-    texl1.SetFillColor(0)
-    texl1.SetBorderSize(0)
-    texl1.SetTextAlign(11)
-    texl1.Draw("same")
-
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/rates_SingleJet60.pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/rates_SingleJet60.png")
-
-    del canvas, legend, tex2, tex, texl1
-
-if detector == "ECAL":
-    #######
-    # SingleEG32er rates
-
-    rate_unCalib  = file_unCalib.Get("ratePtProgressionEr")
-    rate_oldCalib = file_oldCalib.Get("ratePtProgressionEr")
-    rate_newCalib = file_newCalib.Get("ratePtProgressionEr")
-
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
-    canvas.SetLogy()
-
-    #use dummy histogram to define style
-    rate_unCalib.GetXaxis().SetTitle("p_{T}^{L1 jet} [GeV]")
-    rate_unCalib.SetTitle("")
-
-    rate_unCalib.GetXaxis().SetTitleOffset(1.3);
-    rate_unCalib.GetYaxis().SetTitle("Single-Obj Rate [kHz]");
-    rate_unCalib.GetYaxis().SetTitleOffset(1.3);
-    rate_unCalib.SetTitle("");
-    rate_unCalib.SetStats(0);
-
-    rate_unCalib.GetXaxis().SetRangeUser(0., 80.)
-    rate_unCalib.GetYaxis().SetRangeUser(0.1, 1e5)
-
-    rate_oldCalib.SetLineWidth(2)
-    rate_oldCalib.SetMarkerStyle(8)
-    rate_oldCalib.SetMarkerColor(2)
-    rate_oldCalib.SetLineColor(2)
-
-    rate_newCalib.SetLineWidth(2)
-    rate_newCalib.SetMarkerStyle(8)
-    rate_newCalib.SetMarkerColor(3)
-    rate_newCalib.SetLineColor(3)
-
-    rate_unCalib.SetLineWidth(2)
-    rate_unCalib.SetMarkerStyle(8)
-    rate_unCalib.SetMarkerColor(1)
-    rate_unCalib.SetLineColor(1)
-
-    rate_unCalib.Draw("LPE")
-    rate_newCalib.Draw("LPE same")
-    rate_oldCalib.Draw("LPE same")
-
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.AddEntry(rate_unCalib,"Uncalibrated", "LPE")
-    legend.AddEntry(rate_oldCalib,"Old Calibration", "LPE")
-    legend.AddEntry(rate_newCalib,"New Calibration", "LPE")
-    legend.Draw("same")
-
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
-
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
-
-    # calculate rates and thresholds
-    unCalibAt32 = rate_unCalib.GetBinContent(33)
-    oldCalibAt32 = rate_oldCalib.GetBinContent(33)
-    newCalibAt32 = rate_newCalib.GetBinContent(33)
-    for i in range(1,240):
-        if rate_newCalib.GetBinContent(i) < oldCalibAt32:
-            thrNewCalib_SingleEG32er = rate_newCalib.GetBinLowEdge(i-1)
-            break
-
-    for i in range(1,240):
-        if rate_unCalib.GetBinContent(i) < oldCalibAt32:
-            thrUnCalib_SingleEG32er = rate_unCalib.GetBinLowEdge(i-1)
-            break
-
-    texl1 = ROOT.TPaveText(0.42,0.52,0.89,0.72,"NDC")
-    texl1.AddText("Uncalibrated:      SingleEG32er1p5 rate = "+str(round(unCalibAt32,1))+" kHz")
-    texl1.AddText("Old Calibration:  SingleEG32er1p5 rate = "+str(round(oldCalibAt32,1))+" kHz")
-    texl1.AddText("New Calibration: SingleEG32er1p5 rate = "+str(round(newCalibAt32,1))+" kHz")
-    texl1.AddText("")
-    texl1.AddText("Uncalibrated:      fixed "+str(round(oldCalibAt32,1))+" kHz rate #rightarrow SingleEG"+str(int(round(thrUnCalib_SingleEG32er)))+"er1p5")
-    texl1.AddText("New Calibration: fixed "+str(round(oldCalibAt32,1))+" kHz rate #rightarrow SingleEG"+str(int(round(thrNewCalib_SingleEG32er)))+"er1p5")
-    texl1.SetTextSize(0.02)
-    texl1.SetFillColor(0)
-    texl1.SetBorderSize(0)
-    texl1.SetTextAlign(11)
-    texl1.Draw("same")
-
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/rates_SingleEG32er1p5.pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/rates_SingleEG32er1p5.png")
-
-    del canvas, legend, tex2, tex, texl1
-
-file_unCalib.Close()
-file_oldCalib.Close()
-file_newCalib.Close()
-
-
-#############################
-## TURNON COMPARISONS ##
-
-file_unCalib  = ROOT.TFile(outdir+"/ROOTs/efficiency_graphs_"+detector+"_uncalib.root", "r")
-file_oldCalib = ROOT.TFile(outdir+"/ROOTs/efficiency_graphs_"+detector+"_oldCalib.root", "r")
-file_newCalib = ROOT.TFile(outdir+"/ROOTs/efficiency_graphs_"+detector+"_"+newTag+".root", "r")
-
-if detector == 'HCAL':
-    #######
-    # DoubleJet60 turnons
-
-    turnon_unCalib  = file_unCalib.Get("divide_passing"+str(int(round(thrUnCalib_DoubleJet60)))+"_by_total")
-    turnon_oldCalib = file_oldCalib.Get("divide_passing"+str(int(round(60)))+"_by_total")
-    turnon_newCalib = file_newCalib.Get("divide_passing"+str(int(round(thrNewCalib_DoubleJet60)))+"_by_total")
-
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
-
-    #use dummy histogram to define style
-    print("\n\nDEBUG", turnon_unCalib)
-    print(file_unCalib)
-    turnon_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
-    turnon_unCalib.SetTitle("")
-
-    turnon_unCalib.GetXaxis().SetTitleOffset(1.3);
-    turnon_unCalib.GetYaxis().SetTitle("Efficiency");
-    turnon_unCalib.GetYaxis().SetTitleOffset(1.3);
-    turnon_unCalib.SetTitle("");
-
-    turnon_unCalib.GetXaxis().SetRangeUser(0.,250.);
-    turnon_unCalib.GetYaxis().SetRangeUser(0.,1.3);
-
-    turnon_oldCalib.SetMarkerStyle(8)
-    turnon_oldCalib.SetMarkerColor(2)
-    turnon_oldCalib.SetLineColor(2)
-
-    turnon_newCalib.SetMarkerStyle(8)
-    turnon_newCalib.SetMarkerColor(3)
-    turnon_newCalib.SetLineColor(3)
-
-    turnon_unCalib.SetMarkerStyle(8)
-    turnon_unCalib.SetMarkerColor(1)
-    turnon_unCalib.SetLineColor(1)
-
-    turnon_unCalib.Draw()
-    turnon_newCalib.Draw("LPE same")
-    turnon_oldCalib.Draw("LPE same")
-
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.AddEntry(turnon_unCalib,"Uncalibrated: p_{T}^{L1 jet}>"+str(int(round(thrUnCalib_DoubleJet60)))+" GeV", "LPE")
-    legend.AddEntry(turnon_oldCalib,"Old Calibration: p_{T}^{L1 jet}>"+str(int(round(60)))+" GeV", "LPE")
-    legend.AddEntry(turnon_newCalib,"New Calibration: p_{T}^{L1 jet}>"+str(int(round(thrNewCalib_DoubleJet60)))+" GeV", "LPE")
-    legend.Draw("same")
-
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
-
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
-
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/turnons_DoubleJet60.pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/turnons_DoubleJet60.png")
-
-    del canvas, legend, tex2, tex
-
-    #######
-    # DoubleJet60er turnons
-
-    turnon_unCalib  = file_unCalib.Get("divide_passing"+str(int(round(thrUnCalib_DoubleJet60er)))+"_by_total")
-    turnon_oldCalib = file_oldCalib.Get("divide_passing"+str(int(round(60)))+"_by_total")
-    turnon_newCalib = file_newCalib.Get("divide_passing"+str(int(round(thrNewCalib_DoubleJet60er)))+"_by_total")
-
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
-
-    #use dummy histogram to define style
-    turnon_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
-    turnon_unCalib.SetTitle("")
-
-    turnon_unCalib.GetXaxis().SetTitleOffset(1.3);
-    turnon_unCalib.GetYaxis().SetTitle("Efficiency");
-    turnon_unCalib.GetYaxis().SetTitleOffset(1.3);
-    turnon_unCalib.SetTitle("");
-
-    turnon_unCalib.GetXaxis().SetRangeUser(0.,250.);
-    turnon_unCalib.GetYaxis().SetRangeUser(0.,1.3);
-
-    turnon_oldCalib.SetMarkerStyle(8)
-    turnon_oldCalib.SetMarkerColor(2)
-    turnon_oldCalib.SetLineColor(2)
-
-    turnon_newCalib.SetMarkerStyle(8)
-    turnon_newCalib.SetMarkerColor(3)
-    turnon_newCalib.SetLineColor(3)
-
-    turnon_unCalib.SetMarkerStyle(8)
-    turnon_unCalib.SetMarkerColor(1)
-    turnon_unCalib.SetLineColor(1)
-
-    turnon_unCalib.Draw()
-    turnon_newCalib.Draw("LPE same")
-    turnon_oldCalib.Draw("LPE same")
-
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.AddEntry(turnon_unCalib,"Uncalibrated: p_{T}^{L1 jet}>"+str(int(round(thrUnCalib_DoubleJet60er)))+" GeV", "LPE")
-    legend.AddEntry(turnon_oldCalib,"Old Calibration: p_{T}^{L1 jet}>"+str(int(round(60)))+" GeV", "LPE")
-    legend.AddEntry(turnon_newCalib,"New Calibration: p_{T}^{L1 jet}>"+str(int(round(thrNewCalib_DoubleJet60er)))+" GeV", "LPE")
-    legend.Draw("same")
-
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
-
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
-
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/turnons_DoubleJet60er1p5.pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/turnons_DoubleJet60er1p5.png")
-
-    del canvas, legend, tex2, tex
-
-    #######
-    # DoubleJet100 turnons
-
-    turnon_unCalib  = file_unCalib.Get("divide_passing"+str(int(round(thrUnCalib_DoubleJet100)))+"_by_total")
-    turnon_oldCalib = file_oldCalib.Get("divide_passing"+str(int(round(100)))+"_by_total")
-    turnon_newCalib = file_newCalib.Get("divide_passing"+str(int(round(thrNewCalib_DoubleJet100)))+"_by_total")
-
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
-
-    #use dummy histogram to define style
-    turnon_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
-    turnon_unCalib.SetTitle("")
-
-    turnon_unCalib.GetXaxis().SetTitleOffset(1.3);
-    turnon_unCalib.GetYaxis().SetTitle("Efficiency");
-    turnon_unCalib.GetYaxis().SetTitleOffset(1.3);
-    turnon_unCalib.SetTitle("");
-
-    turnon_unCalib.GetXaxis().SetRangeUser(0.,250.);
-    turnon_unCalib.GetYaxis().SetRangeUser(0.,1.3);
-
-    turnon_oldCalib.SetMarkerStyle(8)
-    turnon_oldCalib.SetMarkerColor(2)
-    turnon_oldCalib.SetLineColor(2)
-
-    turnon_newCalib.SetMarkerStyle(8)
-    turnon_newCalib.SetMarkerColor(3)
-    turnon_newCalib.SetLineColor(3)
-
-    turnon_unCalib.SetMarkerStyle(8)
-    turnon_unCalib.SetMarkerColor(1)
-    turnon_unCalib.SetLineColor(1)
-
-    turnon_unCalib.Draw()
-    turnon_newCalib.Draw("LPE same")
-    turnon_oldCalib.Draw("LPE same")
-
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.AddEntry(turnon_unCalib,"Uncalibrated: p_{T}^{L1 jet}>"+str(int(round(thrUnCalib_DoubleJet100)))+" GeV", "LPE")
-    legend.AddEntry(turnon_oldCalib,"Old Calibration: p_{T}^{L1 jet}>"+str(int(round(100)))+" GeV", "LPE")
-    legend.AddEntry(turnon_newCalib,"New Calibration: p_{T}^{L1 jet}>"+str(int(round(thrNewCalib_DoubleJet100)))+" GeV", "LPE")
-    legend.Draw("same")
-
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
-
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
-
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/turnons_DoubleJet100.pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/turnons_DoubleJet100.png")
-
-    del canvas, legend, tex2, tex
-
-if detector == "ECAL":
-    #######
-    # SingleEG32er turnons
-
-    turnon_unCalib  = file_unCalib.Get("divide_passing"+str(int(round(thrUnCalib_SingleEG32er)))+"_by_total")
-    turnon_oldCalib = file_oldCalib.Get("divide_passing"+str(int(round(32)))+"_by_total")
-    turnon_newCalib = file_newCalib.Get("divide_passing"+str(int(round(thrNewCalib_SingleEG32er)))+"_by_total")
-
-    #define canvas for plotting
-    canvas = ROOT.TCanvas("c","c",800,800)
-    canvas.SetGrid(10,10);
-
-    #use dummy histogram to define style
-    turnon_unCalib.GetXaxis().SetTitle("p_{T}^{gen jet} [GeV]")
-    turnon_unCalib.SetTitle("")
-
-    turnon_unCalib.GetXaxis().SetTitleOffset(1.3);
-    turnon_unCalib.GetYaxis().SetTitle("Efficiency");
-    turnon_unCalib.GetYaxis().SetTitleOffset(1.3);
-    turnon_unCalib.SetTitle("");
-
-    turnon_unCalib.GetXaxis().SetRangeUser(0.,250.);
-    turnon_unCalib.GetYaxis().SetRangeUser(0.,1.3);
-
-    turnon_oldCalib.SetMarkerStyle(8)
-    turnon_oldCalib.SetMarkerColor(2)
-    turnon_oldCalib.SetLineColor(2)
-
-    turnon_newCalib.SetMarkerStyle(8)
-    turnon_newCalib.SetMarkerColor(3)
-    turnon_newCalib.SetLineColor(3)
-
-    turnon_unCalib.SetMarkerStyle(8)
-    turnon_unCalib.SetMarkerColor(1)
-    turnon_unCalib.SetLineColor(1)
-
-    turnon_unCalib.Draw()
-    turnon_newCalib.Draw("LPE same")
-    turnon_oldCalib.Draw("LPE same")
-
-    legend = ROOT.TLegend(0.55,0.75,0.88,0.88)
-    legend.SetBorderSize(0)
-    legend.AddEntry(turnon_unCalib,"Uncalibrated: p_{T}^{L1 jet}>"+str(int(round(thrUnCalib_SingleEG32er)))+" GeV", "LPE")
-    legend.AddEntry(turnon_oldCalib,"Old Calibration: p_{T}^{L1 jet}>"+str(int(round(32)))+" GeV", "LPE")
-    legend.AddEntry(turnon_newCalib,"New Calibration: p_{T}^{L1 jet}>"+str(int(round(thrNewCalib_SingleEG32er)))+" GeV", "LPE")
-    legend.Draw("same")
-
-    tex = ROOT.TLatex()
-    tex.SetTextSize(0.03);
-    tex.DrawLatexNDC(0.11,0.91,"#scale[1.5]{CMS} Simulation")
-    tex.Draw("same")
-
-    tex2 = ROOT.TLatex();
-    tex2.SetTextSize(0.035);
-    tex2.SetTextAlign(31);
-    tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
-    tex2.Draw("same");
-
-    canvas.SaveAs(outdir+"/PDFs/comparisons_"+label+"/turnons_SingleEG32er1p5.pdf")
-    canvas.SaveAs(outdir+"/PNGs/comparisons_"+label+"/turnons_SingleEG32er1p5.png")
-
-    del canvas, legend, tex2, tex
-
-file_unCalib.Close()
-file_oldCalib.Close()
-file_newCalib.Close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_FixedErRate))+"_by_total")
+    turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
+    turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_FixedErRate))+"_by_total")
+
+    fig, ax = plt.subplots(figsize=(10,10))
+
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_unCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'No calibration: $p_{T}^{L1}>$'+str(int(thrUnCalib_FixedErRate))+' GeV', lw=2, marker='o', color='black', zorder=0)
+
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_oldCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Old calibration: $p_{T}^{L1}>$'+str(int(thr))+' GeV', lw=2, marker='o', color='red', zorder=1)
+
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnon_newCalib
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'New Calibration: $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
+
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc='lower right', fontsize=20, title=r'Fixed rate: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('Efficiency')
+    plt.xlim(0, 200)
+    plt.ylim(0., 1.05)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PDFs/comparisons_'+label+'_'+target+'/turnon_fixedObjEr2p5Rate_'+thr+'_'+label+'_'+target+'.pdf')
+    plt.savefig(indir+'/PerformancePlots/'+label+'/PNGs/comparisons_'+label+'_'+target+'/turnon_fixedObjEr2p5Rate_'+thr+'_'+label+'_'+target+'.png')
+    plt.close()
+
+
+file_rate_unCalib.Close()
+file_rate_oldCalib.Close()
+file_rate_newCalib.Close()
+file_turnon_unCalib.Close()
+file_turnon_oldCalib.Close()
+file_turnon_newCalib.Close()
 

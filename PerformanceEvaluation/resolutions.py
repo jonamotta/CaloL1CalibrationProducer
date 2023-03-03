@@ -1,6 +1,7 @@
 from array import array
 import ROOT
 ROOT.gROOT.SetBatch(True)
+ROOT.gStyle.SetOptStat(000000)
 import sys
 import os
 
@@ -292,29 +293,33 @@ cmap = matplotlib.cm.get_cmap('Set1')
 
 if options.reco:
     if options.target == 'jet':
-        x_lim = (0.,3.5)
+        x_lim = (0.,3.)
         barrel_label = r'Barrel $|\eta^{jet, offline}|<1.305$'
         endcap_label = r'Endcap $1.479<|\eta^{jet, offline}|<5.191$'
         inclusive_label = r'Inclusive $|\eta^{jet, offline}|<5.191$'
+        legend_label = r'$<|p_{T}^{jet, offline}|<$'
         x_label = r'$p_{T}^{jet, offline}$'
     if options.target == 'ele':
-        x_lim = (0.7,1.8)
+        x_lim = (0.,3.)
         barrel_label = r'Barrel $|\eta^{e, offline}|<1.305$'
         endcap_label = r'Endcap $1.479<|\eta^{e, offline}|<3.0$'
         inclusive_label = r'Inclusive $|\eta^{e, offline}|<3.0$'
+        legend_label = r'$<|p_{T}^{e, offline}|<$'
         x_label = r'$p_{T}^{e, offline}$'
 if options.gen:
     if options.target == 'jet':
-        x_lim = (0.,3.5)
+        x_lim = (0.,3.)
         barrel_label = r'Barrel $|\eta^{jet, gen}|<1.305$'
         endcap_label = r'Endcap $1.479<|\eta^{jet, gen}|<5.191$'
         inclusive_label = r'Inclusive $|\eta^{jet, gen}|<5.191$'
+        legend_label = r'$<|p_{T}^{jet, gen}|<$'
         x_label = r'$p_{T}^{jet, gen}$'
     if options.target == 'ele':
-        x_lim = (0.7,1.8)
+        x_lim = (0.,3.)
         barrel_label = r'Barrel $|\eta^{e, gen}|<1.305$'
         endcap_label = r'Endcap $1.479<|\eta^{e, gen}|<3.0$'
         inclusive_label = r'Inclusive $|\eta^{e, gen}|<3.0$'
+        legend_label = r'$<|p_{T}^{e, gen}|<$'
         x_label = r'$p_{T}^{e, gen}$'
 
 for i in range(len(barrel_response_ptBins)):
@@ -342,7 +347,8 @@ for i in range(len(barrel_response_ptBins)):
     
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
-    plt.legend(loc = 'upper right', fontsize=20)
+    leg = plt.legend(loc = 'upper right', fontsize=20, title=str(ptBins[i])+legend_label+str(ptBins[i+1]), title_fontsize=18)
+    leg._legend_box.align = "left"
     plt.xlabel(x_label)
     plt.ylabel('a.u.')
     plt.xlim(x_lim)
@@ -393,7 +399,8 @@ Ymax = max(Ymax, max(Y))
 
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
-plt.legend(loc = 'upper right', fontsize=20)
+leg = plt.legend(loc = 'upper right', fontsize=20)
+leg._legend_box.align = "left"
 plt.xlabel(x_label)
 plt.ylabel('a.u.')
 plt.xlim(x_lim)
@@ -434,7 +441,8 @@ Ymax = max(Ymax, max(Y))
 
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
-plt.legend(loc = 'upper right', fontsize=20)
+leg = plt.legend(loc = 'upper right', fontsize=20)
+leg._legend_box.align = "left"
 plt.xlabel(x_label)
 plt.ylabel('Energy resolution')
 plt.xlim(0,150)
@@ -487,7 +495,8 @@ if options.reco:
         x_lim = (-3.01,3.01)
 
 fig, ax = plt.subplots(figsize=(10,10))
-    
+plt.grid(zorder=0)
+
 X = [] ; Y = [] ; X_err = [] ; Y_err = []
 histo = pt_resol_fctEta
 for ibin in range(0,histo.GetNbinsX()):
@@ -495,11 +504,11 @@ for ibin in range(0,histo.GetNbinsX()):
     Y.append(histo.GetBinContent(ibin+1))
     X_err.append(histo.GetBinWidth(ibin+1)/2.)
     Y_err.append(histo.GetBinError(ibin+1))
-ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, lw=2, marker='o', color=cmap(0))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, ls='None', lw=2, marker='o', color=cmap(0), zorder=1)
 Ymax = max(Y)
 
-rect1 = patches.Rectangle((-1.479, 0.01), 0.174, Ymax*1.3-0.01, linewidth=1, edgecolor='gray', facecolor='gray', zorder=10)
-rect2 = patches.Rectangle((1.305, 0.01), 0.174, Ymax*1.3-0.01, linewidth=1, edgecolor='gray', facecolor='gray', zorder=10)
+rect1 = patches.Rectangle((-1.479, 0), 0.174, Ymax*1.3, linewidth=1, edgecolor='gray', facecolor='gray', zorder=2)
+rect2 = patches.Rectangle((1.305, 0), 0.174, Ymax*1.3, linewidth=1, edgecolor='gray', facecolor='gray', zorder=2)
 ax.add_patch(rect1)
 ax.add_patch(rect2)
 
@@ -511,7 +520,6 @@ plt.xlim()
 plt.ylim(0., Ymax*1.3)
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
-plt.grid()
 if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
 else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
 plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/resolution_etaBins_'+label+'_'+options.target+'.pdf')
@@ -528,7 +536,8 @@ if options.reco:
         x_lim = (-3.01,3.01)
 
 fig, ax = plt.subplots(figsize=(10,10))
-    
+plt.grid(zorder=0)
+
 X = [] ; Y = [] ; X_err = [] ; Y_err = []
 histo = pt_scale_fctEta
 for ibin in range(0,histo.GetNbinsX()):
@@ -536,11 +545,11 @@ for ibin in range(0,histo.GetNbinsX()):
     Y.append(histo.GetBinContent(ibin+1))
     X_err.append(histo.GetBinWidth(ibin+1)/2.)
     Y_err.append(histo.GetBinError(ibin+1))
-ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, lw=2, marker='o', color=cmap(0))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, lw=2, marker='o', color=cmap(0), zorder=1)
 Ymax = max(Y)
 
-rect1 = patches.Rectangle((-1.479, 0.5+0.01), 0.174, 1.5-0.01, linewidth=1, edgecolor='gray', facecolor='gray', zorder=10)
-rect2 = patches.Rectangle((1.305, 0.5+0.01), 0.174, 1.5-0.01, linewidth=1, edgecolor='gray', facecolor='gray', zorder=10)
+rect1 = patches.Rectangle((-1.479, 0.5), 0.174, 1.5, linewidth=1, edgecolor='gray', facecolor='gray', zorder=2)
+rect2 = patches.Rectangle((1.305, 0.5), 0.174, 1.5, linewidth=1, edgecolor='gray', facecolor='gray', zorder=2)
 ax.add_patch(rect1)
 ax.add_patch(rect2)
 
@@ -552,7 +561,6 @@ plt.xlim()
 plt.ylim(0.5, 1.5)
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
-plt.grid()
 if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
 else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
 plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/scale_etaBins_'+label+'_'+options.target+'.pdf')
@@ -564,20 +572,20 @@ plt.close()
 
 if options.reco:
     if options.target == 'jet':
-        x_lim = (0.,3.5)
+        x_lim = (0.,3.)
         legend_label = r'$<|\eta^{jet, offline}|<$'
         x_label = r'$E_{T}^{jet, L1} / p_{T}^{jet, offline}$'
     if options.target == 'ele':
-        x_lim = (0.7,1.8)
+        x_lim = (0.,3.)
         legend_label = r'$<|\eta^{ele, offline}|<$'
         x_label = r'$E_{T}^{e/\gamma, L1} / p_{T}^{e, offline}$'
 if options.gen:
     if options.target == 'jet':
-        x_lim = (0.,3.5)
+        x_lim = (0.,3.)
         legend_label = r'$<|\eta^{jet, gen}|<$'
         x_label = r'$E_{T}^{jet, L1} / p_{T}^{jet, gen}$'
     if options.target == 'ele':
-        x_lim = (0.7,1.8)
+        x_lim = (0.,3.)
         legend_label = r'$<|\eta^{ele, gen}|<$'
         x_label = r'$E_{T}^{e/\gamma, L1} / p_{T}^{e, gen}$'
 
@@ -596,7 +604,8 @@ for i in range(len(absEta_response_ptBins)):
     
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
-    plt.legend(loc = 'upper right', fontsize=20)
+    leg = plt.legend(loc = 'upper right', fontsize=20)
+    leg._legend_box.align = "left"
     plt.xlabel(x_label)
     plt.ylabel('a.u.')
     plt.xlim(x_lim)
