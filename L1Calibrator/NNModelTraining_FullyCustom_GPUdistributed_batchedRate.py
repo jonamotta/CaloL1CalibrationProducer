@@ -40,7 +40,7 @@ def convert_samples(X, Y, Z, version):
         X[:,:,[0,1]] = X[:,:,[1,0]] # order iem and ihad to have iem on the right
 
         if not Z is None:
-            Z = np.delete(Z, 2, axis=2)
+            Z = np.delete(Z, 2, axis=2) # delete iesum column (always start deleting from right columns)
             Z = Z[ Z[:,:,0] >= 29 ] # remove TTs that have iEM<=29 : 29 = (50-(50*0.12))/1.5 = (egThr-(egThr*hoeThrEB))/bigSF [this already reshapes so that every TT becomes an event]
             Z[:,[0,1]] = Z[:,[1,0]] # order iem and ihad to have iem on the right
 
@@ -53,10 +53,10 @@ def convert_samples(X, Y, Z, version):
                 Z = Z[:Xdim]
 
     elif version == 'HCAL' or version == 'HF':
-        X = np.delete(X, 2, axis=2)
+        X = np.delete(X, 2, axis=2) # delete iesum column (always start deleting from right columns)
         if not Z is None:
             Z = Z[ np.sum(Z[:,:,2], axis=1) >= 50 ] # remove JETs that have E<=50 : 50 ~ (100/n)/1.66*n = (jetThr/nActiveTT)/bigSF*nActiveTT
-            Z = np.delete(Z, 2, axis=2)
+            Z = np.delete(Z, 2, axis=2) # delete iesum column (always start deleting from right columns)
 
             # make the rate dataset as long as the training one (usefull to batch them in the same way)
             Zdim = Z.shape[0]
@@ -355,10 +355,10 @@ if __name__ == "__main__" :
     parser.add_option("--indir",            dest="indir",            help="Input folder with X_train.npx and Y_train.npz", default=None                       )
     parser.add_option("--tag",              dest="tag",              help="Tag of the training folder",                    default=""                         )
     parser.add_option("--v",                dest="v",                help="Which training to perform: ECAL or HCAL?",      default=None                       )
-    parser.add_option("--ngpus",            dest="ngpus",            help="Number of GPUs on which to distribute",         default=2,     type=int            )
+    parser.add_option("--ngpus",            dest="ngpus",            help="Number of GPUs on which to distribute",         default=4,     type=int            )
     parser.add_option("--epochs",           dest="epochs",           help="Number of epochs for the training",             default=20,    type=int            )
-    parser.add_option("--batch_size",       dest="batch_size",       help="Batch size for the training",                   default=1024,  type=int            )
-    parser.add_option("--validation_split", dest="validation_split", help="Fraction of events to be used for testing",     default=0.25,  type=float          )
+    parser.add_option("--batch_size",       dest="batch_size",       help="Batch size for the training",                   default=2048,  type=int            )
+    parser.add_option("--validation_split", dest="validation_split", help="Fraction of events to be used for testing",     default=0.20,  type=float          )
     parser.add_option("--no-verbose",       dest="verbose",          help="Deactivate verbose training",                   default=True,  action='store_false')
     parser.add_option("--readTfDatasets",   dest="readTfDatasets",   help="Do not do pre-processing and load TF datasets", default=False, action='store_true' )
     parser.add_option("--makeOnlyPlots",    dest="makeOnlyPlots",    help="Do not do the training, just make the plots",   default=False, action='store_true' )
@@ -556,7 +556,7 @@ if __name__ == "__main__" :
             y_pred, z_pred = model([x, z], training=True)
             losses = compute_losses(y, y_pred, z_pred)
 
-        grads = tape.gradient([losses[0], losses[3]], model.trainable_weights)
+        grads = tape.gradient([losses[1], losses[2], losses[3]], model.trainable_weights)
         optimizer.apply_gradients(zip(grads, model.trainable_weights))
         train_acc_metric.update_state(y, y_pred)
 
