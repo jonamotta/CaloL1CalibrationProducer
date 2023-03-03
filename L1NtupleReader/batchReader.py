@@ -319,7 +319,7 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
     if Hcalcut != False:
         group = dfFlatEJT.groupby('uniqueIdx')
         dfFlatEJT['hoe'] = group['hcalET'].sum()/(group['iem'].sum()+group['hcalET'].sum())
-        dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.90]
+        dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.95]
 
     # [Elena] Training with only jets formad by 10 TT maximum
     if TTNumberCut != False:
@@ -491,23 +491,31 @@ if __name__ == "__main__" :
 
     if options.target == 'reco':
         if options.type == 'ele':
-            keyReco = "l1ElectronRecoTree/ElectronRecoTree"
+            keyTarget = "l1ElectronRecoTree/ElectronRecoTree"
             branchesTarget = ["Electron/eta", "Electron/phi", "Electron/et"]
             energy = b'et'
+            eta = b'eta'
+            phi = b'phi'
 
         if options.type == 'jet':
-            keyReco = "l1JetRecoTree/JetRecoTree"
+            keyTarget = "l1JetRecoTree/JetRecoTree"
             branchesTarget = ["Jet/eta", "Jet/phi", "Jet/etCorr"]
             energy = b'etCorr'
+            eta = b'eta'
+            phi = b'phi'
 
     if options.target == 'gen':
+        keyTarget = "l1GeneratorTree/L1GenTree"
         branchesTarget = ["Generator/jetEta", "Generator/jetPhi", "Generator/jetPt"]
+        energy = b'jetPt'
+        eta = b'jetEta'
+        phi = b'jetPhi'
 
     InFile = uproot3.open(options.fin)
 
     eventsTree = InFile[keyEvents]
     towersTree = InFile[keyTowers]
-    targetTree = InFile[keyReco]
+    targetTree = InFile[keyTarget]
 
     del InFile
 
@@ -547,9 +555,9 @@ if __name__ == "__main__" :
             })
 
         dfFlatEJ = pd.DataFrame({
-            'event': np.repeat(EJ[b'event'].values, EJ[b'eta'].str.len()), # event IDs are copied to keep proper track of what is what
-            'jetEta': list(chain.from_iterable(EJ[b'eta'])),
-            'jetPhi': list(chain.from_iterable(EJ[b'phi'])),
+            'event': np.repeat(EJ[b'event'].values, EJ[eta].str.len()), # event IDs are copied to keep proper track of what is what
+            'jetEta': list(chain.from_iterable(EJ[eta])),
+            'jetPhi': list(chain.from_iterable(EJ[phi])),
             'jetPt' : list(chain.from_iterable(EJ[energy]))
             })
 
