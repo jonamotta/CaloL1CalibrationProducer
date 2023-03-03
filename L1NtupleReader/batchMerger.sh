@@ -6,8 +6,10 @@
 
 
 # python3 batchMerger.py --indir 2023_02_28_NtuplesV31 --batchdir ElectronTraining_JSON     --v ECAL --odir DataReco --sample train
-python3 batchMerger.py --indir 2023_02_28_NtuplesV31 --batchdir JetTraining_JSON          --v HCAL --odir DataReco --sample train --flattenEtaDistribution
-
+# python3 batchMerger.py --indir 2023_02_28_NtuplesV31 --batchdir JetTraining_JSON          --v HCAL --odir DataReco --sample train --flattenEtaDistribution
+python3 batchMerger.py  --indir 2023_03_03_NtuplesV32 \
+                        --batchdir SinglePionGun_E0p2to200__Run3Winter23Digi-NoPU_126X_mcRun3_2023_forPU65_v1-v2__GEN-SIM-RAW__GT130XmcRun32022realisticv2_CaloParams2022v06_noL1calib \
+                        --v HCAL --odir MCGen --sample train
 
 
 
