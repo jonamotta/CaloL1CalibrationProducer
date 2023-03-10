@@ -37,11 +37,36 @@ source /opt/exp_soft/cms/t3/t3setup
 #                               --queue short \
 #                               --etacut 41 --hcalcut True --lJetPtCut 30 --uJetPtCut 1000
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePionGun_E0p2to200__Run3Winter23Digi-NoPU_126X_mcRun3_2023_forPU65_v1-v2__GEN-SIM-RAW__GT130XmcRun32022realisticv2_CaloParams2022v06_noL1calib \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_03_NtuplesV32 \
-                              --target gen --type jet --chunk_size 5000 \
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SinglePionGun_E0p2to200__Run3Winter23Digi-NoPU_126X_mcRun3_2023_forPU65_v1-v2__GEN-SIM-RAW__GT130XmcRun32022realisticv2_CaloParams2022v06_noL1calib \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_03_NtuplesV32 \
+#                               --target gen --type jet --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 41 --hcalcut True --lJetPtCut 30 --uJetPtCut 1000
+
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+#                               --target reco --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022E-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+                              --target reco --type ele --chunk_size 5000 \
                               --queue short \
-                              --etacut 41 --hcalcut True --lJetPtCut 30 --uJetPtCut 1000
+                              --etacut 28 --ecalcut True --applyCut_3_6_9 True #--resubmit_failed
+
+python3 batchSubmitOnTier3_resubmit.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022F-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+                              --target reco --type ele --chunk_size 5000 \
+                              --queue short \
+                              --etacut 28 --ecalcut True --applyCut_3_6_9 True #--resubmit_failed
+
+python3 batchSubmitOnTier3_resubmit.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+                              --target reco --type ele --chunk_size 5000 \
+                              --queue short \
+                              --etacut 28 --ecalcut True --applyCut_3_6_9 True #--resubmit_failed
+
 
 ####################################################################################################################################################################################################
 ####################################################################################################################################################################################################

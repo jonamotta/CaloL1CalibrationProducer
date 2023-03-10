@@ -212,5 +212,9 @@ Calibration on new MC samples: /SinglePionGun_E0p2to200/Run3Winter23Digi-NoPU_12
 Just for HCAL (issue with the eta distribution stopping at |eta| = 2)
 The ECAL model used for the training is copied from 2023_01_16_NtuplesV27/ECALtraining_0pt500/ into 2023_03_03_NtuplesV32/ECALtrainingDataReco
 
+2023_03_06_Ntuplesv33
+Calibration on electron data (adding era E and F)
+
+
 
 
