@@ -1,8 +1,4 @@
-import os
-import sys
-import glob
 import numpy as np
-import argparse
 
 TowersEta = {
     1: [0,      0.087],
