@@ -106,6 +106,42 @@ source /opt/exp_soft/cms/t3/t3setup
 #                         --globalTag 124X_dataRun3_Prompt_v10 \
 #                         --data
 
+python submitOnTier3.py --inFileList EGamma__Run2022E-ZElectron-PromptReco-v1__RAW-RECO \
+                        --outTag GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json_resubmit2 \
+                        --nJobs 1826 \
+                        --queue short \
+                        --maxEvts -1 \
+                        --inJson Cert_Collisions2022_355100_362760_Golden \
+                        --caloParams caloParams_2022_v0_6_cfi \
+                        --noL1calib \
+                        --globalTag 124X_dataRun3_Prompt_v10 \
+                        --data \
+                        --recoFromSKIM
+
+python submitOnTier3.py --inFileList EGamma__Run2022F-ZElectron-PromptReco-v1__RAW-RECO \
+                        --outTag GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json_resubmit2 \
+                        --nJobs 5515 \
+                        --queue short \
+                        --maxEvts -1 \
+                        --inJson Cert_Collisions2022_355100_362760_Golden \
+                        --caloParams caloParams_2022_v0_6_cfi \
+                        --noL1calib \
+                        --globalTag 124X_dataRun3_Prompt_v10 \
+                        --data \
+                        --recoFromSKIM
+
+python submitOnTier3.py --inFileList EGamma__Run2022G-ZElectron-PromptReco-v1__RAW-RECO \
+                        --outTag GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json_resubmit2 \
+                        --nJobs 922 \
+                        --queue short \
+                        --maxEvts -1 \
+                        --inJson Cert_Collisions2022_355100_362760_Golden \
+                        --caloParams caloParams_2022_v0_6_cfi \
+                        --noL1calib \
+                        --globalTag 124X_dataRun3_Prompt_v10 \
+                        --data \
+                        --recoFromSKIM
+
 # python submitOnTier3.py --inFileList EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO \
 #                         --outTag GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
 #                         --nJobs 116 \
@@ -251,11 +287,11 @@ source /opt/exp_soft/cms/t3/t3setup
 #                         --data \
 #                         --recoFromAOD
                         
-python submitOnTier3.py --inFileList SinglePionGun_E0p2to200__Run3Winter23Digi-NoPU_126X_mcRun3_2023_forPU65_v1-v2__GEN-SIM-RAW \
-                        --outTag GT130XmcRun32022realisticv2_CaloParams2022v06_noL1calib \
-                        --nJobs 2218 \
-                        --queue short \
-                        --maxEvts -1 \
-                        --caloParams caloParams_2022_v0_6_cfi \
-                        --noL1calib \
-                        --globalTag 130X_mcRun3_2022_realistic_v2 \
+# python submitOnTier3.py --inFileList SinglePionGun_E0p2to200__Run3Winter23Digi-NoPU_126X_mcRun3_2023_forPU65_v1-v2__GEN-SIM-RAW \
+#                         --outTag GT130XmcRun32022realisticv2_CaloParams2022v06_noL1calib \
+#                         --nJobs 2218 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --caloParams caloParams_2022_v0_6_cfi \
+#                         --noL1calib \
+#                         --globalTag 130X_mcRun3_2022_realistic_v2 \
