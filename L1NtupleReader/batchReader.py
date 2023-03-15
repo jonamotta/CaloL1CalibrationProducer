@@ -303,13 +303,13 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
         
         # get the correct caloParams for the calibration on the fly
         if whichECALcalib == "oldCalib":
-            energy_bins = layer1ECalScaleETBins_oldCalib
-            labels = layer1ECalScaleETLabels_oldCalib
-            SFs = layer1ECalScaleFactors_oldCalib
-        elif whichECALcalib == "newCalib":
-            energy_bins = layer1ECalScaleETBins_newCalib
-            labels = layer1ECalScaleETLabels_newCalib
-            SFs = layer1ECalScaleFactors_newCalib
+            energy_bins = layer1ECalScaleETBins_currCalib
+            labels = layer1ECalScaleETLabels_currCalib
+            SFs = layer1ECalScaleFactors_currCalib
+        elif whichECALcalib == "currCalib":
+            energy_bins = layer1ECalScaleETBins_currCalib
+            labels = layer1ECalScaleETLabels_currCalib
+            SFs = layer1ECalScaleFactors_currCalib
         
         dfFlatEJT['iemBin'] = pd.cut(dfFlatEJT['iem'], bins = energy_bins, labels=labels)
         dfFlatEJT['iem'] = dfFlatEJT.apply(lambda row: math.floor(row['iem'] * SFs[int( abs(row['ieta']) + 28*(row['iemBin']-1) ) -1]), axis=1)
@@ -343,10 +343,10 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
             energy_bins = layer1HCalScaleETBins_oldCalib
             labels = layer1HCalScaleETLabels_oldCalib
             SFs = layer1HCalScaleFactors_oldCalib
-        elif whichHCALcalib == "newCalib":
-            energy_bins = layer1HCalScaleETBins_newCalib
-            labels = layer1HCalScaleETLabels_newCalib
-            SFs = layer1HCalScaleFactors_newCalib
+        elif whichHCALcalib == "currCalib":
+            energy_bins = layer1HCalScaleETBins_currCalib
+            labels = layer1HCalScaleETLabels_currCalib
+            SFs = layer1HCalScaleFactors_currCalib
         
         dfFlatEJT['ihadBin'] = pd.cut(dfFlatEJT['hcalET'], bins = energy_bins, labels=labels)
         dfFlatEJT['hcalET'] = dfFlatEJT.apply(lambda row: math.floor(row['hcalET'] * SFs[int( abs(row['ieta']) + 40*(row['ihadBin']-1) ) -1]), axis=1)
@@ -508,6 +508,13 @@ if __name__ == "__main__" :
         keyTarget = "l1GeneratorTree/L1GenTree"
         branchesTarget = ["Generator/jetEta", "Generator/jetPhi", "Generator/jetPt"]
         energy = b'jetPt'
+        eta = b'jetEta'
+        phi = b'jetPhi'
+
+    if options.target == 'emu':
+        keyTarget = "l1UpgradeEmuTree/L1UpgradeTree"
+        branchesTarget = ["L1Upgrade/jetEta", "L1Upgrade/jetPhi", "L1Upgrade/jetEt"]
+        energy = b'jetEt'
         eta = b'jetEta'
         phi = b'jetPhi'
 

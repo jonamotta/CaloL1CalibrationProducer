@@ -33,27 +33,28 @@ def splitInBlocks (l, n):
 
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("--indir",     dest="indir",    default=None)
-parser.add_option("--outdir",     dest="outdir",    default="")
-parser.add_option("--target",      dest="target",      default='')
-parser.add_option("--type",        dest="type",        default='')
-parser.add_option("--queue",        dest="queue",        default='long')
-parser.add_option("--chunk_size", dest="chunk_size",    default=5000,  type=int)
-parser.add_option("--uJetPtCut", dest="uJetPtCut", default=False)
-parser.add_option("--lJetPtCut", dest="lJetPtCut", default=False)
-parser.add_option("--etacut",   dest="etacut",  default=False)
+parser.add_option("--indir",              dest="indir",              default=None)
+parser.add_option("--outdir",             dest="outdir",             default="")
+parser.add_option("--addtag",             dest="addtag",             default="")
+parser.add_option("--target",             dest="target",             default='')
+parser.add_option("--type",               dest="type",               default='')
+parser.add_option("--queue",              dest="queue",              default='long')
+parser.add_option("--chunk_size",         dest="chunk_size",         default=5000,  type=int)
+parser.add_option("--uJetPtCut",          dest="uJetPtCut",          default=False)
+parser.add_option("--lJetPtCut",          dest="lJetPtCut",          default=False)
+parser.add_option("--etacut",             dest="etacut",             default=False)
 parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
-parser.add_option("--ecalcut",  dest="ecalcut", default=False)
-parser.add_option("--hcalcut",  dest="hcalcut", default=False)
-parser.add_option("--TTNumberCut",  dest="TTNumberCut", default=False)
-parser.add_option("--TTNumberCutInverse",  dest="TTNumberCutInverse", default=False)
-parser.add_option("--flatPtDist",     dest="flatPtDist",     default=False)
-parser.add_option("--flatEtaDist",     dest="flatEtaDist",     default=False)
-parser.add_option("--calibECALOnTheFly",  dest="calibECALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
-parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly", default=False, help="oldCalib or newCalib; not specified == noCalib")
-parser.add_option("--trainPtVers",  dest="trainPtVers", default=False)
-parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
-parser.add_option("--resubmit_failed", dest="resubmit_failed", default=False, action='store_true')
+parser.add_option("--ecalcut",            dest="ecalcut",            default=False)
+parser.add_option("--hcalcut",            dest="hcalcut",            default=False)
+parser.add_option("--TTNumberCut",        dest="TTNumberCut",        default=False)
+parser.add_option("--TTNumberCutInverse", dest="TTNumberCutInverse", default=False)
+parser.add_option("--flatPtDist",         dest="flatPtDist",         default=False)
+parser.add_option("--flatEtaDist",        dest="flatEtaDist",        default=False)
+parser.add_option("--calibECALOnTheFly",  dest="calibECALOnTheFly",  default=False, help="oldCalib or currCalib; not specified == noCalib")
+parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly",  default=False, help="oldCalib or currCalib; not specified == noCalib")
+parser.add_option("--trainPtVers",        dest="trainPtVers",        default=False)
+parser.add_option("--applyOnTheFly",      dest="applyOnTheFly",      default=False)
+parser.add_option("--resubmit_failed",    dest="resubmit_failed",    default=False, action='store_true')
 (options, args) = parser.parse_args()
 
 if not options.indir or not options.outdir or not options.target or not options.type:
@@ -61,7 +62,7 @@ if not options.indir or not options.outdir or not options.target or not options.
     print('** EXITING')
     exit()
 
-folder = options.outdir+'/'+options.indir.split('/')[-1]
+folder = options.outdir+'/'+options.indir.split('/')[-1]+options.addtag
 os.system('mkdir -p '+folder+'/dataframes ; mkdir -p '+folder+'/tensors')
 
 ###########
