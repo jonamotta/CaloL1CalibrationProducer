@@ -7,11 +7,15 @@
 
 # python3 batchMerger.py --indir 2023_02_28_NtuplesV31 --batchdir ElectronTraining_JSON     --v ECAL --odir DataReco --sample train
 # python3 batchMerger.py --indir 2023_02_28_NtuplesV31 --batchdir JetTraining_JSON          --v HCAL --odir DataReco --sample train --flattenEtaDistribution
-python3 batchMerger.py  --indir 2023_03_03_NtuplesV32 \
-                        --batchdir SinglePionGun_E0p2to200__Run3Winter23Digi-NoPU_126X_mcRun3_2023_forPU65_v1-v2__GEN-SIM-RAW__GT130XmcRun32022realisticv2_CaloParams2022v06_noL1calib \
-                        --v HCAL --odir MCGen --sample train
+# python3 batchMerger.py  --indir 2023_03_03_NtuplesV32 \
+#                         --batchdir SinglePionGun_E0p2to200__Run3Winter23Digi-NoPU_126X_mcRun3_2023_forPU65_v1-v2__GEN-SIM-RAW__GT130XmcRun32022realisticv2_CaloParams2022v06_noL1calib \
+#                         --v HCAL --odir MCGen --sample train
 
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --batchdir EGamma__Run2022* --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v ECAL --odir DataReco --filesPerRecord 50
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --batchdir JetTraining_*    --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v HCAL --odir DataReco --filesPerRecord 50
 
+python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v ECAL --odir DataRecoCurrCalib --filesPerRecord 50
+python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v HCAL --odir DataRecoCurrCalib --filesPerRecord 50
 
 
 
