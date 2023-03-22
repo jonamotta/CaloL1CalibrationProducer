@@ -46,6 +46,7 @@ parser.add_option("--etacut",             dest="etacut",             default=Fal
 parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
 parser.add_option("--ecalcut",            dest="ecalcut",            default=False)
 parser.add_option("--hcalcut",            dest="hcalcut",            default=False)
+parser.add_option("--HoTotcut",           dest="HoTotcut",           default=False)
 parser.add_option("--TTNumberCut",        dest="TTNumberCut",        default=False)
 parser.add_option("--TTNumberCutInverse", dest="TTNumberCutInverse", default=False)
 parser.add_option("--flatPtDist",         dest="flatPtDist",         default=False)
@@ -55,6 +56,7 @@ parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly",  default=Fal
 parser.add_option("--trainPtVers",        dest="trainPtVers",        default=False)
 parser.add_option("--applyOnTheFly",      dest="applyOnTheFly",      default=False)
 parser.add_option("--resubmit_failed",    dest="resubmit_failed",    default=False, action='store_true')
+parser.add_option("--no_exec",            dest="no_exec",            default=False, action='store_true')
 (options, args) = parser.parse_args()
 
 if not options.indir or not options.outdir or not options.target or not options.type:
@@ -78,7 +80,7 @@ n_empty = 0
 
 for file in InFiles:
 
-    idx = file.split(".root")[0].split("Ntuple")[1].split("_")[1]
+    idx = file.split(".root")[0].split("/Ntuple")[1].split("_")[1]
 
     # skip the ntuple if it is empty
     ret = os.popen('du -sh '+options.indir+'/Ntuple_'+idx+'.root').read()
@@ -100,7 +102,7 @@ for file in InFiles:
             else:
                 continue
 
-    print(idx, file)
+    # print(idx, file)
 
     cmsRun = "python3 batchReader.py --fin "+file+" --fout "+folder+" --target "+options.target+" --type "+options.type
     cmsRun = cmsRun + " --chunk_size "+str(options.chunk_size)
@@ -116,6 +118,8 @@ for file in InFiles:
         cmsRun = cmsRun + " --ecalcut "+options.ecalcut
     if options.hcalcut != False:
         cmsRun = cmsRun + " --hcalcut "+options.hcalcut
+    if options.HoTotcut != False:
+        cmsRun = cmsRun + " --HoTotcut "+options.HoTotcut
     if options.TTNumberCut != False:
         cmsRun = cmsRun + " --TTNumberCut "+options.TTNumberCut
     if options.TTNumberCutInverse != False:
@@ -149,7 +153,8 @@ for file in InFiles:
     os.system ('chmod u+rwx ' + outJobName)
     command = ('/data_CMS/cms/motta/CaloL1calibraton/t3submit -'+options.queue+' \'' + outJobName +"\'")
     print(command)
-    os.system (command)
+    if options.no_exec == False:
+        os.system (command)
     # break
 
 print("n_empty = ", n_empty)

@@ -7,6 +7,8 @@ import numpy as np
 import uproot3
 import math
 import os,sys
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 def chunker(seq, size):
