@@ -198,7 +198,7 @@ for i, thr in enumerate(thresholds):
     mapping_dict['pt90eff'].append(np.interp(0.90, turnonY, offline_pts)) #,right=-99,left=-98)
     mapping_dict['pt50eff'].append(np.interp(0.50, turnonY, offline_pts)) #,right=-99,left=-98)
 
-save_obj(mapping_dict, 'ROOTs/online2offline_mapping_'+label+'.pkl')
+save_obj(mapping_dict, outdir+'/PerformancePlots/'+label+'/ROOTs/online2offline_mapping_'+label+'.pkl')
 
 fig, ax = plt.subplots(figsize=(10,10))
 plt.plot(thresholds, mapping_dict['pt95eff'], label='@ 95% efficiency', linewidth=2, color='blue')

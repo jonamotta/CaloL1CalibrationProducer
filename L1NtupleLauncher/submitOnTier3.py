@@ -64,6 +64,8 @@ if __name__ == "__main__" :
 
     fileblocks = splitInBlocks (files, options.nJobs)
 
+    resubmit = 0
+
     for idx, block in enumerate(fileblocks):
         #print idx, block
 
@@ -73,8 +75,9 @@ if __name__ == "__main__" :
         outLogName  = folder + "/log_" + str(idx) + ".txt"
 
         if options.resubmit:
-            if len(os.popen('grep "Failed to open the file" '+outLogName).read()) == 0:
+            if (len(os.popen('grep "Failed to open the file" '+outLogName).read()) == 0) or (len(os.popen('grep "Begin processing the 2nd record." '+outLogName).read()) > 0) :
                 continue
+            resubmit = resubmit + 1
 
         jobfilelist = open(outListName, 'w')
         for f in block: jobfilelist.write(f+"\n")
@@ -112,3 +115,5 @@ if __name__ == "__main__" :
         if not options.no_exec: os.system (command)
         # break
         # if idx == 2: break
+
+    print("resubmit = ", resubmit)
