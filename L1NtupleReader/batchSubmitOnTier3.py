@@ -85,18 +85,27 @@ for file in InFiles:
     # skip the ntuple if it is empty
     ret = os.popen('du -sh '+options.indir+'/Ntuple_'+idx+'.root').read()
     if '4.0K' in ret:
-        # print("Empty")
+        print("Empty")
         n_empty = n_empty + 1
         continue
 
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
+    # [Elena] if the job has already finished we skip it
+    if os.path.exists(outLogName):
+        if len('grep "DONE" '+outLogName) > 0:
+            continue
+        else:
+            print(outLogName)
+    else:
+        print(outLogName)
+
     # only resubmit failed jobs
     # grep "ModuleNotFoundError: No module named 'uproot3'" log* -R | wc -l
     if options.resubmit_failed:
         if os.path.isfile(outLogName):
-            if 'uproot3' in os.popen('cat '+outLogName+' | grep "ModuleNotFoundError: No module named"').read():
+            if len(os.popen('grep "ModuleNotFoundError: No module named" '+outLogName).read()) > 0:
                 print('Resubmit failed job due to uproot problem')
                 n_failed = n_failed + 1
             else:

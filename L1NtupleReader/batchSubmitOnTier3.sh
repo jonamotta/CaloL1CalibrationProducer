@@ -102,7 +102,19 @@ source /opt/exp_soft/cms/t3/t3setup
 #                               --etacut 41 --calibECALOnTheFly currCalib --calibHCALOnTheFly currCalib \
 #                               --resubmit_failed
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X/L1Ntuples/ \
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X/L1Ntuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_22_NtuplesV35 \
+                              --target reco_corr --type jet --chunk_size 2500 \
+                              --queue short \
+                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_7000_10000/L1Ntuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_22_NtuplesV35 \
+                              --target reco_corr --type jet --chunk_size 2500 \
+                              --queue short \
+                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_15000_20000/L1Ntuples \
                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_22_NtuplesV35 \
                               --target reco_corr --type jet --chunk_size 2500 \
                               --queue short \

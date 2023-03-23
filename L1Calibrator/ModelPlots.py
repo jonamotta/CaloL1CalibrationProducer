@@ -2,9 +2,10 @@
 from re import S
 from math import *
 import pandas as pd
+import sys
+sys.path.insert(0,'..')
 from matplotlib.transforms import Affine2D
 from NNModelTraining_FullyCustom_GPUdistributed_batchedRate import *
-sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
 import mplhep

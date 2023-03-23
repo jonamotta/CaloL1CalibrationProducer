@@ -30,6 +30,7 @@ if __name__ == "__main__" :
     parser.add_option("--nJobs",      dest="nJobs",      type=int,            default=None,   help="Number of jobs to run per filelist")
     parser.add_option("--queue",      dest="queue",      type=str,            default='long', help="long or short queue")
     parser.add_option("--no_exec",    dest="no_exec",    action='store_true', default=False)
+    parser.add_option("--resubmit",   dest="resubmit",   action='store_true', default=False)
 
     parser.add_option("--maxEvts",      dest="maxEvts",      type=str,            default='-1',   help="Number of events to process")
     parser.add_option("--inJson",       dest="inJson",       type=str,            default=None,   help="Input list of data certification Json files")
@@ -70,6 +71,10 @@ if __name__ == "__main__" :
         outJobName  = folder + '/job_' + str(idx) + '.sh'
         outListName = folder + "/filelist_" + str(idx) + ".txt"
         outLogName  = folder + "/log_" + str(idx) + ".txt"
+
+        if options.resubmit:
+            if len(os.popen('grep "Failed to open the file" '+outLogName).read()) == 0:
+                continue
 
         jobfilelist = open(outListName, 'w')
         for f in block: jobfilelist.write(f+"\n")

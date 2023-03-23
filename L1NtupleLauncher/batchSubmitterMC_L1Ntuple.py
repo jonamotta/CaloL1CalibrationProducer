@@ -56,7 +56,7 @@ if __name__ == "__main__" :
         # if the outRootName already exists there is no need of resubmitting
         # but files not correctly closed have to be resubmitted
         if os.path.isfile(outRootName):
-            if len(os.popen('grep "Run 1, Event 2000," '+outLogName).read()) > 0:
+            if len(os.popen('grep "Closed file file" '+outLogName).read()) > 0:
                 # print("Skipping "+outRootName)
                 skipped = skipped + 1
                 continue

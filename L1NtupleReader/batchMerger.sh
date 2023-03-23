@@ -17,7 +17,7 @@
 python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v ECAL --odir DataRecoCurrCalib --filesPerRecord 50
 python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v HCAL --odir DataRecoCurrCalib --filesPerRecord 50
 
-
+python3 batchMerger.py --indir 2023_03_22_NtuplesV35 --batchdir L1Ntuples --v HCAL --odir MCRecoCorr --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data
 
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir ElectronTraining_JSON --v ECAL --odir DataReco --sample train
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HCAL --odir DataReco --sample train
