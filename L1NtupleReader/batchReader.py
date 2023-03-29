@@ -6,7 +6,9 @@ import pandas as pd
 import numpy as np
 import uproot3
 import math
-import os
+import os,sys
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 def chunker(seq, size):
@@ -159,7 +161,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
         
     return padded
 
-def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, flattenEtaDistribution, applyOnTheFly):
+def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, HoTotcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, flattenEtaDistribution, applyOnTheFly):
     if len(dfFlatET) == 0 or len(dfFlatEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
@@ -176,6 +178,11 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
         dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] < float(uJetPtcut)]
     if lJetPtcut != False:
         dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] > float(lJetPtcut)]
+
+    # Apply cut on HoTot (ony for the Private MC L1Ntuples)
+    if HoTotcut != False:
+        print("Applying cut HoTot > ", HoTotcut)
+        dfFlatEJ = dfFlatEJ[dfFlatEJ['HoTot'] > float(HoTotcut)]
 
     # flatten the pT distribution of the QCD samples
     # ideally this flattening would go after the hoe cut by I was not able to make it work there :(
@@ -474,6 +481,7 @@ if __name__ == "__main__" :
     parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
     parser.add_option("--ecalcut",     dest="ecalcut",     default=False)
     parser.add_option("--hcalcut",     dest="hcalcut",     default=False)
+    parser.add_option("--HoTotcut",    dest="HoTotcut",    default=False)
     parser.add_option("--TTNumberCut", dest="TTNumberCut", default=False)
     parser.add_option("--TTNumberCutInverse", dest="TTNumberCutInverse", default=False)
     parser.add_option("--flattenPtDistribution",     dest="flattenPtDistribution",     default=False)
@@ -518,6 +526,16 @@ if __name__ == "__main__" :
         eta = b'jetEta'
         phi = b'jetPhi'
 
+    if options.target == 'reco_corr':
+        if options.type == 'jet':
+            keyTarget = "l1JetRecoTree/JetRecoTree"
+            branchesTarget = ["Jet/eta", "Jet/phi", "Jet/PtHCAL", "Jet/HoTot"] #PtHCAL is defined as etCorr - ecalEnergy
+            energy = b'PtHCAL'
+            eta = b'eta'
+            phi = b'phi'
+        if options.type == 'ele':
+            sys.exit('This is not implemented yet')
+
     InFile = uproot3.open(options.fin)
 
     eventsTree = InFile[keyEvents]
@@ -561,12 +579,22 @@ if __name__ == "__main__" :
             'iet' : list(chain.from_iterable(ET[b'iet']))
             })
 
-        dfFlatEJ = pd.DataFrame({
-            'event': np.repeat(EJ[b'event'].values, EJ[eta].str.len()), # event IDs are copied to keep proper track of what is what
-            'jetEta': list(chain.from_iterable(EJ[eta])),
-            'jetPhi': list(chain.from_iterable(EJ[phi])),
-            'jetPt' : list(chain.from_iterable(EJ[energy]))
-            })
+        if options.target == 'reco_corr': #[FIXME] In this option the L1Ntuples contain the HoTot information for the cut
+            dfFlatEJ = pd.DataFrame({
+                'event': np.repeat(EJ[b'event'].values, EJ[eta].str.len()), # event IDs are copied to keep proper track of what is what
+                'jetEta': list(chain.from_iterable(EJ[eta])),
+                'jetPhi': list(chain.from_iterable(EJ[phi])),
+                'jetPt' : list(chain.from_iterable(EJ[energy])),
+                'HoTot' : list(chain.from_iterable(EJ[b'HoTot'])),
+                })
+            
+        else:
+            dfFlatEJ = pd.DataFrame({
+                'event': np.repeat(EJ[b'event'].values, EJ[eta].str.len()), # event IDs are copied to keep proper track of what is what
+                'jetEta': list(chain.from_iterable(EJ[eta])),
+                'jetPhi': list(chain.from_iterable(EJ[phi])),
+                'jetPt' : list(chain.from_iterable(EJ[energy]))
+                })
 
         # define the paths where to save the hdf5 files
         saveToDFs = {
@@ -581,7 +609,7 @@ if __name__ == "__main__" :
 
         j += 1
 
-        mainReader(dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.flattenEtaDistribution, options.applyOnTheFly)
+        mainReader(dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.HoTotcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.flattenEtaDistribution, options.applyOnTheFly)
     
     print("DONE!")
 

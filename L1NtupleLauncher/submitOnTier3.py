@@ -30,6 +30,7 @@ if __name__ == "__main__" :
     parser.add_option("--nJobs",      dest="nJobs",      type=int,            default=None,   help="Number of jobs to run per filelist")
     parser.add_option("--queue",      dest="queue",      type=str,            default='long', help="long or short queue")
     parser.add_option("--no_exec",    dest="no_exec",    action='store_true', default=False)
+    parser.add_option("--resubmit",   dest="resubmit",   action='store_true', default=False)
 
     parser.add_option("--maxEvts",      dest="maxEvts",      type=str,            default='-1',   help="Number of events to process")
     parser.add_option("--inJson",       dest="inJson",       type=str,            default=None,   help="Input list of data certification Json files")
@@ -52,7 +53,7 @@ if __name__ == "__main__" :
 
     ###########
 
-    # os.system ('source /opt/exp_soft/cms/t3/t3setup')
+    os.system('source /opt/exp_soft/cms/t3/t3setup')
 
     os.system('mkdir -p ' + folder)
     os.system('cp listAll.sh /data_CMS/cms/motta/CaloL1calibraton/L1NTuples')
@@ -63,6 +64,8 @@ if __name__ == "__main__" :
 
     fileblocks = splitInBlocks (files, options.nJobs)
 
+    resubmit = 0
+
     for idx, block in enumerate(fileblocks):
         #print idx, block
 
@@ -70,6 +73,11 @@ if __name__ == "__main__" :
         outJobName  = folder + '/job_' + str(idx) + '.sh'
         outListName = folder + "/filelist_" + str(idx) + ".txt"
         outLogName  = folder + "/log_" + str(idx) + ".txt"
+
+        if options.resubmit:
+            if (len(os.popen('grep "Failed to open the file" '+outLogName).read()) == 0) or (len(os.popen('grep "Begin processing the 2nd record." '+outLogName).read()) > 0) :
+                continue
+            resubmit = resubmit + 1
 
         jobfilelist = open(outListName, 'w')
         for f in block: jobfilelist.write(f+"\n")
@@ -107,3 +115,5 @@ if __name__ == "__main__" :
         if not options.no_exec: os.system (command)
         # break
         # if idx == 2: break
+
+    print("resubmit = ", resubmit)

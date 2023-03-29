@@ -46,6 +46,7 @@ parser.add_option("--etacut",             dest="etacut",             default=Fal
 parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
 parser.add_option("--ecalcut",            dest="ecalcut",            default=False)
 parser.add_option("--hcalcut",            dest="hcalcut",            default=False)
+parser.add_option("--HoTotcut",           dest="HoTotcut",           default=False)
 parser.add_option("--TTNumberCut",        dest="TTNumberCut",        default=False)
 parser.add_option("--TTNumberCutInverse", dest="TTNumberCutInverse", default=False)
 parser.add_option("--flatPtDist",         dest="flatPtDist",         default=False)
@@ -55,6 +56,7 @@ parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly",  default=Fal
 parser.add_option("--trainPtVers",        dest="trainPtVers",        default=False)
 parser.add_option("--applyOnTheFly",      dest="applyOnTheFly",      default=False)
 parser.add_option("--resubmit_failed",    dest="resubmit_failed",    default=False, action='store_true')
+parser.add_option("--no_exec",            dest="no_exec",            default=False, action='store_true')
 (options, args) = parser.parse_args()
 
 if not options.indir or not options.outdir or not options.target or not options.type:
@@ -78,29 +80,38 @@ n_empty = 0
 
 for file in InFiles:
 
-    idx = file.split(".root")[0].split("Ntuple")[1].split("_")[1]
+    idx = file.split(".root")[0].split("/Ntuple")[1].split("_")[1]
 
     # skip the ntuple if it is empty
     ret = os.popen('du -sh '+options.indir+'/Ntuple_'+idx+'.root').read()
     if '4.0K' in ret:
-        # print("Empty")
+        print("Empty")
         n_empty = n_empty + 1
         continue
 
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
 
+    # [Elena] if the job has already finished we skip it
+    if os.path.exists(outLogName):
+        if len('grep "DONE" '+outLogName) > 0:
+            continue
+        else:
+            print(outLogName)
+    else:
+        print(outLogName)
+
     # only resubmit failed jobs
     # grep "ModuleNotFoundError: No module named 'uproot3'" log* -R | wc -l
     if options.resubmit_failed:
         if os.path.isfile(outLogName):
-            if 'uproot3' in os.popen('cat '+outLogName+' | grep "ModuleNotFoundError: No module named"').read():
+            if len(os.popen('grep "ModuleNotFoundError: No module named" '+outLogName).read()) > 0:
                 print('Resubmit failed job due to uproot problem')
                 n_failed = n_failed + 1
             else:
                 continue
 
-    print(idx, file)
+    # print(idx, file)
 
     cmsRun = "python3 batchReader.py --fin "+file+" --fout "+folder+" --target "+options.target+" --type "+options.type
     cmsRun = cmsRun + " --chunk_size "+str(options.chunk_size)
@@ -116,6 +127,8 @@ for file in InFiles:
         cmsRun = cmsRun + " --ecalcut "+options.ecalcut
     if options.hcalcut != False:
         cmsRun = cmsRun + " --hcalcut "+options.hcalcut
+    if options.HoTotcut != False:
+        cmsRun = cmsRun + " --HoTotcut "+options.HoTotcut
     if options.TTNumberCut != False:
         cmsRun = cmsRun + " --TTNumberCut "+options.TTNumberCut
     if options.TTNumberCutInverse != False:
@@ -149,7 +162,8 @@ for file in InFiles:
     os.system ('chmod u+rwx ' + outJobName)
     command = ('/data_CMS/cms/motta/CaloL1calibraton/t3submit -'+options.queue+' \'' + outJobName +"\'")
     print(command)
-    os.system (command)
+    if options.no_exec == False:
+        os.system (command)
     # break
 
 print("n_empty = ", n_empty)

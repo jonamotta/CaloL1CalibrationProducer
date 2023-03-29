@@ -23,6 +23,7 @@ def load_obj(source):
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--indir",     dest="indir",    default=None)
+parser.add_option("--tag",       dest="tag",      default='')
 parser.add_option("--outdir",    dest="outdir",   default=None)
 parser.add_option("--label",     dest="label",    default=None)
 parser.add_option("--nEvts",     dest="nEvts",    type=int, default=-1)
@@ -35,9 +36,9 @@ parser.add_option("--offline",   dest="offline",  action='store_true', default=F
 indir = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/"+options.indir
 outdir = "/data_CMS/cms/motta/CaloL1calibraton/"+options.outdir
 label = options.label
-os.system('mkdir -p '+outdir+'/PerformancePlots/'+label+'/PDFs')
-os.system('mkdir -p '+outdir+'/PerformancePlots/'+label+'/PNGs')
-os.system('mkdir -p '+outdir+'/PerformancePlots/'+label+'/ROOTs')
+os.system('mkdir -p '+outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs')
+os.system('mkdir -p '+outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs')
+os.system('mkdir -p '+outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs')
 
 # define input trees
 if options.unpacked: level1Tree = ROOT.TChain("l1UpgradeTree/L1UpgradeTree")
@@ -71,7 +72,7 @@ rateDiProgression0er2p5 = ROOT.TH1F("rateDiProgression0er2p5","rateDiProgression
 
 offline = options.offline
 if offline:
-    mapping_dict = load_obj('ROOTs/online2offline_mapping_'+label+'.pkl')
+    mapping_dict = load_obj(outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/online2offline_mapping_'+label+'.pkl')
     online_thresholds = np.linspace(20,150,131).tolist()
 
 print("looping on events")
@@ -204,8 +205,8 @@ for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
 plt.grid()
 mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/rate_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/rate_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/rate_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/rate_'+label+'_'+options.target+'.png')
 plt.close()
 
 
@@ -252,14 +253,14 @@ for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
 plt.grid()
 mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/rateEr2p5_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/rateEr2p5_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/rateEr2p5_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/rateEr2p5_'+label+'_'+options.target+'.png')
 plt.close()
 
 ####################
 
 print("saving histograms and efficiencies in root file for later plotting if desired")
-fileout = ROOT.TFile(outdir+'/PerformancePlots/'+label+'/ROOTs/rate_graphs_'+label+'_'+options.target+'.root','RECREATE')
+fileout = ROOT.TFile(outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/rate_graphs_'+label+'_'+options.target+'.root','RECREATE')
 ptProgression0.Write()
 ptDiProgression0.Write()
 rateProgression0.Write()
