@@ -300,7 +300,7 @@ if __name__ == "__main__" :
 
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("--indir",            dest="indir",            help="Input folder with X_train.npx and Y_train.npz", default=None                       )
+    parser.add_option("--indir",            dest="indir",            help="Base input and output folder",                  default=None                       )
     parser.add_option("--tag",              dest="tag",              help="Tag of the training folder",                    default=""                         )
     parser.add_option("--v",                dest="v",                help="Which training to perform: ECAL or HCAL?",      default=None                       )
     parser.add_option("--ngpus",            dest="ngpus",            help="Number of GPUs on which to distribute",         default=4,     type=int            )
@@ -387,12 +387,6 @@ if __name__ == "__main__" :
         print('** INFO : done batching TensorFlow datasets')
 
 
-        # print(train_dataset, '-->', train_dataset.cardinality())
-        # print(test_dataset, '-->', test_dataset.cardinality())
-        # print(rate_dataset, '-->', rate_dataset.cardinality())
-        # exit()
-
-
     ##############################################################################
     ########################### GPU DISTRIBUTION SETUP ###########################
     ##############################################################################
@@ -448,12 +442,18 @@ if __name__ == "__main__" :
             regressionLoss_value = regressionLoss(y, y_pred)
             weightsLoss_value = weightsLoss()
             
+            # split regions computed on SingleNeutrino
             # if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 3636.454)
             # if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 150.26064)
             # if VERSION == 'HF':   rateLoss_value = rateLoss(z_pred, 175.66269)
             
-            if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 3756.696)
-            if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 191.8348)
+            # normal regions computed on SingleNeutrino
+            # if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 3756.696)
+            # if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 191.8348)
+
+            # normal regions computed on ZeroBias
+            if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 2610.6602)
+            if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 751.14514)
 
             fullLoss = regressionLoss_value + weightsLoss_value + rateLoss_value
 
