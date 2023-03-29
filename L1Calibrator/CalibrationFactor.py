@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 from NNModelTraining_FullyCustom_GPUdistributed_batchedRate import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
-
+import warnings
+warnings.simplefilter(action='ignore')
 
 #######################################################################
 ######################### SCRIPT BODY #################################
@@ -43,7 +44,7 @@ if __name__ == "__main__" :
     if options.odir:
         odir = options.odir
     else:
-        odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/data'
+        odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/data'
     os.system('mkdir -p '+ odir)
     print('\nOutput dir = {}\n'.format(odir))
 
