@@ -214,6 +214,35 @@ The ECAL model used for the training is copied from 2023_01_16_NtuplesV27/ECALtr
 
 2023_03_06_Ntuplesv33
 Calibration on electron data (adding era E and F)
+_normalOrder: calibrate ECAL first and HCAL later
+_invertedOrder: calibrate HCAL first and ECAL later
+_Rate0p8: target rate proxy 0.8*rate
+_Rate1p2: target rate proxy 1.2*rate
+
+2023_03_15_Ntuplesv34
+Training on MC for jets but the stat is too small after applying pt and HoE cut.
+
+2023_03_22_Ntuplesv35
+Training on private MC data (1M events)
+Target is defined as pt - ECAL(transerve)
+The ECAL(transerve) deposit is computed from the eta value inside the L1Ntuplizer.
+
+2023_03_24_Ntuplesv36
+Training on private MC data (1M events)
+Target is pt
+We expect to have much lower stat than the v35 training (180314)
+
+2023_03_25_Ntuplesv37
+Training on private MC data (3M events)
+Target is private MC data (1M events)
+Target is defined as pt - ECAL(transerve)
+The ECAL(transerve) deposit is computed from the eta value inside the L1Ntuplizer.
+
+2023_03_26_Ntuplesv38
+Training on private MC data (3M events)
+Target is pt
+We expect to have much lower stat than the v37 training but maybe as much as v35
+
 
 
 
