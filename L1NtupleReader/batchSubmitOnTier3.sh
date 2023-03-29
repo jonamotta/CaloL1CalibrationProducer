@@ -120,6 +120,53 @@ python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/Priva
                               --queue short \
                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
+# Training wrt GenPt
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X/L1Ntuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_24_NtuplesV36 \
+                              --target gen --type jet --chunk_size 2500 \
+                              --queue short \
+                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_7000_10000/L1Ntuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_24_NtuplesV36 \
+                              --target gen --type jet --chunk_size 2500 \
+                              --queue short \
+                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_15000_20000/L1Ntuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_24_NtuplesV36 \
+                              --target gen --type jet --chunk_size 2500 \
+                              --queue short \
+                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+
+# Training with 3M events
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_10000_15000/L1Ntuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
+                              --target reco_corr --type jet --chunk_size 2500 \
+                              --queue short \
+                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_20000_25000/L1Ntuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
+                              --target reco_corr --type jet --chunk_size 2500 \
+                              --queue short \
+                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_692488_to_694487/L1Ntuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
+                              --target reco_corr --type jet --chunk_size 2500 \
+                              --queue short \
+                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_694488_to_696487/L1Ntuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
+                              --target reco_corr --type jet --chunk_size 2500 \
+                              --queue short \
+                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_696488_to_698487/L1Ntuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
+                              --target reco_corr --type jet --chunk_size 2500 \
+                              --queue short \
+                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
 ####################################################################################################################################################################################################
 ####################################################################################################################################################################################################
