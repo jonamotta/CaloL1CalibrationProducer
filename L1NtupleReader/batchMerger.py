@@ -1,6 +1,6 @@
-# from L1Calibrator.NNModelTraining_FullyCustom_GPUdistributed_batchedRate import Fgrad
 from sklearn.model_selection import train_test_split
 from optparse import OptionParser
+from tensorflow import keras
 from TowerGeometry import *
 import tensorflow as tf
 import pandas as pd
@@ -8,7 +8,12 @@ import numpy as np
 import zipfile
 import pickle
 import glob
+import sys
 import os
+
+sys.path.insert(0,'..')
+from L1Calibrator.NNModelTraining_FullyCustom_GPUdistributed_batchedRate import Fgrad
+
 
 # split list l in sublists of length n each
 def splitInBlocks (l, n):
@@ -56,7 +61,7 @@ def convert_rate_samples(Z, version):
 
     return Z
 
-# application of ECAL calibration ot the HCAL rate proxy samples
+# application of ECAL calibration to the HCAL rate proxy samples
 def applyECALcalib(Z, TTP):
     xDim = Z.shape[0] ; yDim = 81 ; zDim = 42
     Z = Z.reshape(xDim*yDim, zDim) # reshape so that every TT becomes an event
@@ -67,15 +72,12 @@ def applyECALcalib(Z, TTP):
     Z = Z.reshape(xDim, yDim, zDim) # reshape so that 81xTT becomes an event again
     return Z
 
-# application of HCAL calibration ot the HCAL rate proxy samples
+# application of HCAL calibration to the ECAL rate proxy samples
 def applyHCALcalib(Z, TTP):
-    xDim = Z.shape[0] ; yDim = 81 ; zDim = 42
-    Z = Z.reshape(xDim*yDim, zDim) # reshape so that every TT becomes an event
     Z[:,[0,1]] = Z[:,[1,0]] # order iem and ihad to have the needed one on the right
     TT_had_pred = TTP.predict(Z[:,1:], batch_size=2048)
     Z[:,[0,1]] = Z[:,[1,0]] # order iem and ihad to have the needed one on the right
     Z[:,[0]] = TT_had_pred
-    Z = Z.reshape(xDim, yDim, zDim) # reshape so that 81xTT becomes an event again
     return Z
 
 # tf.train.example serialization function to store in TFRecord
@@ -108,7 +110,7 @@ if __name__ == "__main__" :
     parser.add_option("--ratedir",                dest="ratedir",                default=None,                         help="Sub-folder with npz files for the rate")
     parser.add_option("--odir",                   dest="odir",                   default=None,                         help="Output tag of the output folder")
     parser.add_option("--v",                      dest="v",                      default=None,                         help="Ntuple type (ECAL, HCAL, or HF)")
-    parser.add_option("--rate_only",              dest="rate_only",              default=False,   action='store_true', help="Make only rate datasets")
+    parser.add_option("--rate_only",              dest="rate_only",              default=0,       type=int,            help="Make only rate datasets to reach this stats value")
     parser.add_option("--filesLim",               dest="filesLim",               default=1000000, type=int,            help="Maximum number of npz files to use")
     parser.add_option("--filesPerRecord",         dest="filesPerRecord",         default=500,     type=int,            help="Maximum number of npz files per TFRecord")
     parser.add_option("--validation_split",       dest="validation_split",       default=0.20,    type=float,          help="Fraction of events to be used for testing")
@@ -300,6 +302,7 @@ if __name__ == "__main__" :
 
         print('\nUsing', len(InFilesRate), 'files batched in', len(InFilesRateBlocks), 'blocks\n')
 
+        if options.rate_only: train_total_dimension = options.rate_only
         rate_dimensions = []
 
         # for each block create a TFRecordDataset
@@ -382,22 +385,21 @@ if __name__ == "__main__" :
 
         rate_total_dimension = np.sum(rate_dimensions)
 
-        if not options.rate_only:
-            # generally the rate datasets are smaller than the raining datasets therefore we need to 
-            # copy the rate TFRecords to have their final dimenion equal to the train sample
-            repeatIdx = 0
-            records = glob.glob(training_folder+'/rateTFRecords/record_*.tfrecord')
-            print('--------------------------------------------')
-            while rate_total_dimension < train_total_dimension:
-                repeatIdx += 1
-                print('Copying rate datasets '+str(repeatIdx)+'th time')
-                for record, recordDim in zip(records, rate_dimensions):
-                    recordCopy = record.replace('.tfrecord', '_'+str(repeatIdx)+'.tfrecord')
-                    os.system('cp '+record+' '+recordCopy)
+        # generally the rate datasets are smaller than the raining datasets therefore we need to 
+        # copy the rate TFRecords to have their final dimenion equal to the train sample
+        repeatIdx = 0
+        records = glob.glob(training_folder+'/rateTFRecords/record_*.tfrecord')
+        print('--------------------------------------------')
+        while rate_total_dimension < train_total_dimension:
+            repeatIdx += 1
+            print('Copying rate datasets '+str(repeatIdx)+'th time')
+            for record, recordDim in zip(records, rate_dimensions):
+                recordCopy = record.replace('.tfrecord', '_'+str(repeatIdx)+'.tfrecord')
+                os.system('cp '+record+' '+recordCopy)
 
-                    rate_total_dimension += recordDim
-                    # directly break as soon as the dimension is met
-                    if rate_total_dimension > train_total_dimension: break
+                rate_total_dimension += recordDim
+                # directly break as soon as the dimension is met
+                if rate_total_dimension > train_total_dimension: break
 
         print('rate sample total domension =', rate_total_dimension)
 
