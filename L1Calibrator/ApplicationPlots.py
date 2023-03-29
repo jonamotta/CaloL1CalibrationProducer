@@ -11,13 +11,13 @@ from matplotlib.transforms import Affine2D
 
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
-from NNModelTraining_FullyCustom_GPUdistributed_batchedRate import *
+from NNModelTraining_FullyCustom_GPUdistributed_batchedRate_oldDatasets import *
 
 import mplhep
 plt.style.use(mplhep.style.CMS)
 
-c_uncalib = 'royalblue'
-c_oldcalib = 'darkorange'
+c_uncalib = 'black'
+c_oldcalib = 'red'
 c_newcalib = 'green'
 eta_towers = list(TowersEta.keys())
 
@@ -193,9 +193,9 @@ def PlotResolution_bins(df_newCalib, df_oldCalib, df_unCalib, odir, v_sample, bi
     resolution = resolution.sort_values(name, axis=0)
 
     fig = plt.figure(figsize = [18,10])
-    plt.bar(resolution[column_bin], resolution['uncalib_std']/resolution['uncalib_mean'], width=-0.4, alpha=0.7, align='edge',  label=leg_uncalib, color=c_uncalib)
-    plt.bar(resolution[column_bin], resolution['oldcalib_std']/resolution['oldcalib_mean'], width=0.4, alpha=0.7, align='center',  label=leg_oldcalib, color=c_oldcalib)
-    plt.bar(resolution[column_bin], resolution['newcalib_std']/resolution['newcalib_mean'], width=0.4, alpha=0.7, align='edge', label=leg_newcalib, color=c_newcalib)
+    plt.bar(resolution[column_bin], resolution['uncalib_std']/resolution['uncalib_mean'], width=-0.4, alpha=1, align='edge',  label=leg_uncalib, color=c_uncalib)
+    plt.bar(resolution[column_bin], resolution['oldcalib_std']/resolution['oldcalib_mean'], width=0.4, alpha=1, align='center',  label=leg_oldcalib, color=c_oldcalib)
+    plt.bar(resolution[column_bin], resolution['newcalib_std']/resolution['newcalib_mean'], width=0.4, alpha=1, align='edge', label=leg_newcalib, color=c_newcalib)
     plt.xticks(rotation=45)
     # if options.v == "HCAL": plt.ylim(0.0,0.8)
     # else:                   plt.ylim(0.0,0.5)
@@ -334,7 +334,7 @@ if __name__ == "__main__" :
     (options, args) = parser.parse_args()
     print(options)
 
-    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/AppliedTraining_' + options.v + '_' + options.tag
+    indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/AppliedTraining_' + options.v + options.tag
 
     # Definition of output folder
     if options.odir:
