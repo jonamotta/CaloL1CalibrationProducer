@@ -13,31 +13,21 @@ def findXPoint (xa, xb, ya, yb, yc):
     xc = s1[s1.index==yc].values[0]
     return xc
 
-# python3 rate_HCAL_JB.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW_newCalibManualSaturation_2_applyHCALpfa1p/ /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW_newCalibManualSaturation_2_applyHCALpfa1p/ HCAL_newCalibManualSaturation_2 Plots_JB 10000000
+# python3 rate_HCAL_JB.py <turnons inputs> <rate inputs> <label> <n events tunrons> <n events rate> <output folder>
 
 # reading input parameters
-if len(sys.argv) > 2 :
-    directory_TurnOns = sys.argv[1]
-    directory_Rates = sys.argv[2]
-else:
-    directory = '/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/'
-    directory_TurnOns = directory + 'QCD_Pt15to7000_TuneCP5_14TeV-pythia8__Run3Summer21DR-NoPUFEVT_castor_120X_mcRun3_2021_realistic_v6-v1__GEN-SIM-DIGI-RAW_newCalibManualSaturation_2_applyHCALpfa1p/'
-    directory_Rates = directory + 'SingleNeutrino_Pt-2To20-gun__Run3Summer21DRPremix-SNB_120X_mcRun3_2021_realistic_v6-v2__GEN-SIM-DIGI-RAW_newCalibManualSaturation_2_applyHCALpfa1p/'
+directory_TurnOns = sys.argv[1]
+directory_Rates = sys.argv[2]
+label = sys.argv[3]
+if len(sys.argv) > 4 : neventsTO = int(sys.argv[4])
+else:                  neventsTO = 10000
+if len(sys.argv) > 5 : neventsRT = int(sys.argv[5])
+else:                  neventsRT = 10000
+if len(sys.argv) > 6 : unpacked = sys.argv[6]
+else:                  unpacked = 0
+if len(sys.argv) > 7 : outdir = sys.argv[7]
+else:                  outdir = '.'
 
-if len(sys.argv) > 3 :
-    label = sys.argv[3]
-else:
-    label = 'HCAL_newCalibManualSaturation_2'
-
-if len(sys.argv) > 4 :
-    outdir = sys.argv[4]
-else:
-    outdir = 'Plots_JB'
-
-if len(sys.argv) > 5 :
-    nevents = int(sys.argv[5])
-else:
-    nevents = 10000
 
 ##########################################################################################
 ######################################## TURN ONS ########################################
@@ -46,44 +36,32 @@ else:
 # I have to convert the x axis from L1 pt threshold to offline pt threshold
 # for each L1 pt from 0 to 300 we build a turn on and we extract the offline pt giving a 95% efficiency
 
-TurnOn_folder_png = outdir+'/TurnOns/PNGs/'+label
-TurnOn_folder_pdf = outdir+'/TurnOns/PDFs/'+label
+folder_png = outdir+'/PNGs/'+label+'/'
+folder_pdf = outdir+'/PDFs/'+label+'/'
+ROOTs_folder = outdir+'/ROOTs/'
 
-Rates_folder_png = outdir+'/Rates/PNGs/'+label
-Rates_folder_pdf = outdir+'/Rates/PDFs/'+label
+os.system('mkdir -p '+folder_png)
+os.system('mkdir -p '+folder_pdf)
+os.system('mkdir -p '+ROOTs_folder)
 
-ROOTs_folder = outdir+'/ROOTs'
-
-os.system('mkdir -p '+outdir)
-os.system('mkdir -p '+outdir+'/ROOTs')
-os.system('mkdir -p '+outdir+'/TurnOns/')
-os.system('mkdir -p '+outdir+'/TurnOns/PNGs')
-os.system('mkdir -p '+outdir+'/TurnOns/PNGs/'+label)
-os.system('mkdir -p '+outdir+'/TurnOns/PDFs')
-os.system('mkdir -p '+outdir+'/TurnOns/PDFs/'+label)
-os.system('mkdir -p '+outdir+'/Rates/')
-os.system('mkdir -p '+outdir+'/Rates/PNGs/'+label)
-os.system('mkdir -p '+outdir+'/Rates/PNGs')
-os.system('mkdir -p '+outdir+'/Rates/PDFs/'+label)
 
 print("\n\nCREATE TURN ONS\n\n")
 
 print("defining input trees")
-eventTree = ROOT.TChain("l1EventTree/L1EventTree")
-genTree = ROOT.TChain("l1GeneratorTree/L1GenTree")
-emuTree = ROOT.TChain("l1UpgradeEmuTree/L1UpgradeTree")
+recoTree = ROOT.TChain("l1JetRecoTree/JetRecoTree")
+if unpacked: emuTree = ROOT.TChain("l1UpgradeTree/L1UpgradeTree")
+else:        emuTree = ROOT.TChain("l1UpgradeEmuTree/L1UpgradeTree")
 
 print("reading input files")
-eventTree.Add(directory_TurnOns + "/Ntuple*.root")
-genTree.Add(directory_TurnOns + "/Ntuple*.root")
+recoTree.Add(directory_TurnOns + "/Ntuple*.root")
 emuTree.Add(directory_TurnOns + "/Ntuple*.root")
 
 print("getting entries")
-nEntries = eventTree.GetEntries()
+nEntries = recoTree.GetEntries()
 
 #run on entries specified by usuer, or only on entries available if that is exceeded
-if (nevents > nEntries) or (nevents==-1): nevents = nEntries
-print("will process",nevents,"events...")
+if (neventsTO > nEntries) or (neventsTO==-1): neventsTO = nEntries
+print("will process",neventsTO,"events...")
 
 #defining binning of histogram
 #we wnat to have the same binning for the turnons (Offline JetPt) and for the rate:
@@ -109,48 +87,42 @@ for L1_cut in L1_cuts:
     Numerators.append(ROOT.TH1F(name,name,Nbins_TurnOn,Min_TurnOn,Max_TurnOn))
 
 # loop over all events
-for i in range(0, nevents):
+for i in range(0, neventsTO):
 
     # print('\nEvent', i)
     if i%10000==0: print(i)
 
-    entry1 = eventTree.GetEntry(i)
     entry2 = emuTree.GetEntry(i)
-    entry3 = genTree.GetEntry(i)
+    entry3 = recoTree.GetEntry(i)
 
     L1_nJets = emuTree.L1Upgrade.nJets
-    Gen_nJets = genTree.Generator.nJet
+    reco_nJets = recoTree.Jet.nJets
 
-    matched = False
-    myGoodGenPt = -99.
-    myGoodL1Pt = -99.
+    for irecoJet in range(0,reco_nJets):
+        recoJet = ROOT.TLorentzVector()
+        recoJet.SetPtEtaPhiM(recoTree.Jet.et[irecoJet], recoTree.Jet.eta[irecoJet], recoTree.Jet.phi[irecoJet], 0)
 
-    for igenJet in range(0,Gen_nJets):
+        if recoJet.Eta()>5.191: continue
+        if recoJet.Pt()<15.: continue
 
-        # print('JetPt', genTree.Generator.jetPt[igenJet])
-        if not matched:
-            Gen_jet = ROOT.TLorentzVector()
-            Gen_jet.SetPtEtaPhiM(genTree.Generator.jetPt[igenJet], genTree.Generator.jetEta[igenJet], genTree.Generator.jetPhi[igenJet], 0)
+        Denominator.Fill(recoJet.Pt())
+        
+        matched = False
+        highestL1Pt = -99.
 
-            for iL1jet in range(0,L1_nJets):
+        for iL1jet in range(0,L1_nJets):
+            # for HCAL (Pt in Et)
+            L1_jet = ROOT.TLorentzVector()
+            L1_jet.SetPtEtaPhiM(emuTree.L1Upgrade.jetEt[iL1jet], emuTree.L1Upgrade.jetEta[iL1jet], emuTree.L1Upgrade.jetPhi[iL1jet], 0)
 
-                if not matched:
-                    # for HCAL (Pt in Et)
-                    L1_jet = ROOT.TLorentzVector()
-                    L1_jet.SetPtEtaPhiM(emuTree.L1Upgrade.jetEt[iL1jet], emuTree.L1Upgrade.jetEta[iL1jet], emuTree.L1Upgrade.jetPhi[iL1jet], 0)
-                    # for ECAL (Pt in Et)
-                    # L1_jet.SetPtEtaPhiM(emuTree.L1Upgrade.egEt[ijet], emuTree.L1Upgrade.egEta[ijet], emuTree.L1Upgrade.egPhi[ijet], 0)
+            if recoJet.DeltaR(L1_jet)<0.5:
+                matched = True
+                if L1_jet.Pt()>highestL1Pt:
+                    highestL1Pt = L1_jet.Pt()
 
-                    if Gen_jet.DeltaR(L1_jet)<0.5:
-                        matched = True
-                        myGoodGenPt = Gen_jet.Pt()
-                        myGoodL1Pt = L1_jet.Pt()
-                        break
-
-    Denominator.Fill(myGoodGenPt)
-    for i, L1_cut in enumerate(L1_cuts):
-        if myGoodL1Pt > L1_cut:
-            Numerators[i].Fill(myGoodGenPt)
+        for i, L1_cut in enumerate(L1_cuts):
+            if matched and highestL1Pt > L1_cut:
+                Numerators[i].Fill(recoJet.Pt())
 
 empty = ROOT.TH1F("empty","empty",Nbins_TurnOn,Min_TurnOn,Max_TurnOn)
 empty1 = ROOT.TH1F("empty1","empty1",Nbins_TurnOn,Min_TurnOn,Max_TurnOn)
@@ -204,8 +176,8 @@ for i, L1_cut in enumerate(L1_cuts):
     Tex2.Draw("same")
 
     if int(L1_cut) % 20 == 0:
-        canvas1.SaveAs(TurnOn_folder_png+"/JetPassing_{}.png".format(int(L1_cut)))
-        canvas1.SaveAs(TurnOn_folder_pdf+"/JetPassing_{}.pdf".format(int(L1_cut)))
+        canvas1.SaveAs(folder_png+"/JetPassing_{}.png".format(int(L1_cut)))
+        canvas1.SaveAs(folder_pdf+"/JetPassing_{}.pdf".format(int(L1_cut)))
 
     # -----------------------------------------------------------
 
@@ -253,8 +225,8 @@ for i, L1_cut in enumerate(L1_cuts):
     Tex22.Draw("same")
 
     if int(L1_cut) % 20 == 0:
-        canvas.SaveAs(TurnOn_folder_png+"/TurnOn_{}.png".format(int(L1_cut)))
-        canvas.SaveAs(TurnOn_folder_pdf+"/TurnOn_{}.pdf".format(int(L1_cut)))
+        canvas.SaveAs(folder_png+"/TurnOn_{}.png".format(int(L1_cut)))
+        canvas.SaveAs(folder_pdf+"/TurnOn_{}.pdf".format(int(L1_cut)))
 
     Numerators[i].Write()
     TurnOn_Jet.Write()
@@ -333,21 +305,18 @@ fileout.Close()
 print("\n\nCOMPUTE RATES\n\n")
 
 print("defining input trees")
-eventTree = ROOT.TChain("l1EventTree/L1EventTree")
-genTree = ROOT.TChain("l1GeneratorTree/L1GenTree")
-emuTree = ROOT.TChain("l1UpgradeEmuTree/L1UpgradeTree")
+if unpacked: emuTree = ROOT.TChain("l1UpgradeTree/L1UpgradeTree")
+else:        emuTree = ROOT.TChain("l1UpgradeEmuTree/L1UpgradeTree")
 
 print("reading input files")
-eventTree.Add(directory_Rates + "/Ntuple*.root")
-genTree.Add(directory_Rates + "/Ntuple*.root")
 emuTree.Add(directory_Rates + "/Ntuple*.root")
 
 print("getting entries")
-nEntries = eventTree.GetEntries()
+nEntries = emuTree.GetEntries()
 
 #run on entries specified by usuer, or only on entries available if that is exceeded
-if (nevents > nEntries) or (nevents==-1): nevents = nEntries
-print("will process",nevents,"events...")
+if (neventsRT > nEntries) or (neventsRT==-1): neventsRT = nEntries
+print("will process",neventsRT,"events...")
 
 thresholds = [0]
 threshold = 0
@@ -359,21 +328,22 @@ scale = 0.001*(nb*11245.6)
 ptProgression = ROOT.TH1F("ptProgression","ptProgression",Nbins_L1,Min_L1,Max_L1)
 
 print("looping on events")
-for i in range(0, nevents):
+for i in range(0, neventsRT):
     if i%1000==0: print(i)
     #getting entries
-    entry1 = eventTree.GetEntry(i)
     entry2 = emuTree.GetEntry(i)
-    entry3 = genTree.GetEntry(i)
 
     denominator += 1.
 
-    # I'm just filling a histogram with the most energetic L1 jet
-    # Then I will do the integral
-
     L1_nJets = emuTree.L1Upgrade.nJets
-    if L1_nJets > 0:
-        ptProgression.Fill(emuTree.L1Upgrade.jetEt[0])
+
+    highestL1Pt = -99.
+
+    for iL1jet in range(0,L1_nJets):
+        if emuTree.L1Upgrade.jetEt[iL1jet] > highestL1Pt:
+            highestL1Pt = emuTree.L1Upgrade.jetEt[iL1jet]
+
+    ptProgression.Fill(highestL1Pt)
 
 # plot the distribution of the leading jet L1 pt
 canvas2 = ROOT.TCanvas("c_2","c_2",800,800)
@@ -398,15 +368,15 @@ Tex22.SetTextAlign(31)
 Tex22.DrawLatexNDC(0.90,0.91,"(14 TeV)")
 Tex22.Draw("same")
 
-canvas2.SaveAs(Rates_folder_png+"/L1JetPtDistribution.png")
-canvas2.SaveAs(Rates_folder_pdf+"/L1JetPtDistribution.pdf")
+canvas2.SaveAs(folder_png+"/L1JetPtDistribution.png")
+canvas2.SaveAs(folder_pdf+"/L1JetPtDistribution.pdf")
 
 for i, L1_cut in enumerate(L1_cuts[:-1]):
     in_bin = i+1 # [FIXME] conversion between binning of turn on and L1 pt binning
     fin_bin = Nbins_L1
     # print(L1_cut, ptProgression.GetBinLowEdge(in_bin))
     # print(ptProgression.Integral(in_bin, fin_bin))
-    Rates.append(ptProgression.Integral(in_bin, fin_bin))
+    Rates.append(ptProgression.Integral(in_bin, fin_bin)/denominator*scale)
 
 print("\L1_cuts:\n",L1_cuts)
 print("\nOffline_cuts_95:\n",Offline_cuts_95)
@@ -442,8 +412,8 @@ Tex32.SetTextAlign(31)
 Tex32.DrawLatexNDC(0.90,0.91,"(14 TeV)")
 Tex32.Draw("same")
 
-canvas3.SaveAs(Rates_folder_png+"/RatesVSOffline_95.png")
-canvas3.SaveAs(Rates_folder_pdf+"/RatesVSOffline_95.pdf")
+canvas3.SaveAs(folder_png+"/RatesVSOffline_95.png")
+canvas3.SaveAs(folder_pdf+"/RatesVSOffline_95.pdf")
 
 #Rates for 90% efficiency
 
@@ -475,10 +445,10 @@ Tex42.SetTextAlign(31)
 Tex42.DrawLatexNDC(0.90,0.91,"(14 TeV)")
 Tex42.Draw("same")
 
-canvas4.SaveAs(Rates_folder_png+"/RatesVSOffline_90.png")
-canvas4.SaveAs(Rates_folder_pdf+"/RatesVSOffline_90.pdf")
+canvas4.SaveAs(folder_png+"/RatesVSOffline_90.png")
+canvas4.SaveAs(folder_pdf+"/RatesVSOffline_90.pdf")
 
-#Rates for 90% efficiency
+#Rates for 50% efficiency
 
 RatesVSOffline_50 = ROOT.TGraphErrors(len(Offline_cuts_50), Offline_cuts_50, Rates)
 RatesVSOnline = ROOT.TGraphErrors(len(L1_cuts), L1_cuts, Rates)
@@ -508,8 +478,8 @@ Tex52.SetTextAlign(31)
 Tex52.DrawLatexNDC(0.90,0.91,"(14 TeV)")
 Tex52.Draw("same")
 
-canvas5.SaveAs(Rates_folder_png+"/RatesVSOffline_50.png")
-canvas5.SaveAs(Rates_folder_pdf+"/RatesVSOffline_50.pdf")
+canvas5.SaveAs(folder_png+"/RatesVSOffline_50.png")
+canvas5.SaveAs(folder_pdf+"/RatesVSOffline_50.pdf")
 
 #saving root graphs
 fileout = ROOT.TFile(ROOTs_folder + "/Rate_"+label+".root","RECREATE")
@@ -517,4 +487,26 @@ fileout.WriteObject(RatesVSOffline_95, "RatesVSOffline_95")
 fileout.WriteObject(RatesVSOffline_90, "RatesVSOffline_90")
 fileout.WriteObject(RatesVSOffline_50, "RatesVSOffline_50")
 fileout.WriteObject(RatesVSOnline, "RatesVSOnline")
+
+Offline_cuts_95_V = ROOT.TVectorF(len(Offline_cuts_95))
+for i, cut in enumerate(Offline_cuts_95):
+    Offline_cuts_95_V[i] = cut
+Offline_cuts_95_V.Write("Offline_cuts_95")
+
+Offline_cuts_90_V = ROOT.TVectorF(len(Offline_cuts_90))
+for i, cut in enumerate(Offline_cuts_90):
+    Offline_cuts_90_V[i] = cut
+Offline_cuts_90_V.Write("Offline_cuts_90")
+
+Offline_cuts_50_V = ROOT.TVectorF(len(Offline_cuts_50))
+for i, cut in enumerate(Offline_cuts_50):
+    Offline_cuts_50_V[i] = cut
+Offline_cuts_50_V.Write("Offline_cuts_50")
+
+L1_cuts_V = ROOT.TVectorF(len(L1_cuts))
+for i, cut in enumerate(L1_cuts):
+    L1_cuts_V[i] = cut
+L1_cuts_V.Write("L1_cuts")
+
+
 fileout.Close()
