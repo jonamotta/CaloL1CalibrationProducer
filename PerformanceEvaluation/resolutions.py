@@ -23,6 +23,7 @@ def save_obj(obj,dest):
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--indir",     dest="indir",    default=None)
+parser.add_option("--tag",       dest="tag",      default='')
 parser.add_option("--outdir",    dest="outdir",   default=None)
 parser.add_option("--label",     dest="label",    default=None)
 parser.add_option("--nEvts",     dest="nEvts",    type=int, default=-1)
@@ -36,9 +37,9 @@ parser.add_option("--unpacked",  dest="unpacked", action='store_true', default=F
 indir = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/"+options.indir
 outdir = "/data_CMS/cms/motta/CaloL1calibraton/"+options.outdir
 label = options.label
-os.system('mkdir -p '+outdir+'/PerformancePlots/'+label+'/PDFs')
-os.system('mkdir -p '+outdir+'/PerformancePlots/'+label+'/PNGs')
-os.system('mkdir -p '+outdir+'/PerformancePlots/'+label+'/ROOTs')
+os.system('mkdir -p '+outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs')
+os.system('mkdir -p '+outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs')
+os.system('mkdir -p '+outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs')
 
 # define input trees
 if options.reco:
@@ -358,8 +359,8 @@ for i in range(len(barrel_response_ptBins)):
     plt.grid()
     if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
     else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-    plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/response_'+str(ptBins[i])+"pt"+str(ptBins[i+1])+'_'+label+'_'+options.target+'.pdf')
-    plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/response_'+str(ptBins[i])+"pt"+str(ptBins[i+1])+'_'+label+'_'+options.target+'.png')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/response_'+str(ptBins[i])+"pt"+str(ptBins[i+1])+'_'+label+'_'+options.target+'.pdf')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/response_'+str(ptBins[i])+"pt"+str(ptBins[i+1])+'_'+label+'_'+options.target+'.png')
     plt.close()
 
 ############################################################################################
@@ -410,8 +411,8 @@ for xtick in ax.xaxis.get_major_ticks():
 plt.grid()
 if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
 else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/response_ptInclusive_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/response_ptInclusive_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/response_ptInclusive_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/response_ptInclusive_'+label+'_'+options.target+'.png')
 plt.close()
 
 ############################################################################################
@@ -452,8 +453,8 @@ for xtick in ax.xaxis.get_major_ticks():
 plt.grid()
 if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
 else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/resolution_ptBins_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/resolution_ptBins_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/resolution_ptBins_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/resolution_ptBins_'+label+'_'+options.target+'.png')
 plt.close()
 
 ############################################################################################
@@ -481,8 +482,8 @@ for xtick in ax.xaxis.get_major_ticks():
 plt.grid()
 if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
 else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/scale_ptBins_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/scale_ptBins_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/scale_ptBins_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/scale_ptBins_'+label+'_'+options.target+'.png')
 plt.close()
 
 ############################################################################################
@@ -522,8 +523,8 @@ for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
 if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
 else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/resolution_etaBins_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/resolution_etaBins_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/resolution_etaBins_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/resolution_etaBins_'+label+'_'+options.target+'.png')
 plt.close()
 
 ############################################################################################
@@ -563,8 +564,8 @@ for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
 if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
 else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/scale_etaBins_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/scale_etaBins_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/scale_etaBins_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/scale_etaBins_'+label+'_'+options.target+'.png')
 plt.close()
 
 ############################################################################################
@@ -615,8 +616,8 @@ for i in range(len(absEta_response_ptBins)):
     plt.grid()
     if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
     else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-    plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/response_'+str(etaBins[i])+"eta"+str(etaBins[i+1])+'_'+label+'_'+options.target+'.pdf')
-    plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/response_'+str(etaBins[i])+"eta"+str(etaBins[i+1])+'_'+label+'_'+options.target+'.png')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/response_'+str(etaBins[i])+"eta"+str(etaBins[i+1])+'_'+label+'_'+options.target+'.pdf')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/response_'+str(etaBins[i])+"eta"+str(etaBins[i+1])+'_'+label+'_'+options.target+'.png')
     plt.close()
 
 
@@ -655,8 +656,8 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs(outdir+'/PerformancePlots/'+label+'/PDFs/resolution_ptVSeta_'+label+'_'+options.target+'.pdf')
-canvas.SaveAs(outdir+'/PerformancePlots/'+label+'/PDFs/resolution_ptVSeta_'+label+'_'+options.target+'.png')
+canvas.SaveAs(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/resolution_ptVSeta_'+label+'_'+options.target+'.pdf')
+canvas.SaveAs(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/resolution_ptVSeta_'+label+'_'+options.target+'.png')
 
 del canvas
 
@@ -696,15 +697,15 @@ tex2.SetTextAlign(31);
 tex2.DrawLatexNDC(0.90,0.91,"(14 TeV)");
 tex2.Draw("same");
 
-canvas.SaveAs(outdir+'/PerformancePlots/'+label+'/PDFs/scale_ptVSeta_'+label+'_'+options.target+'.pdf')
-canvas.SaveAs(outdir+'/PerformancePlots/'+label+'/PDFs/scale_ptVSeta_'+label+'_'+options.target+'.png')
+canvas.SaveAs(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/scale_ptVSeta_'+label+'_'+options.target+'.pdf')
+canvas.SaveAs(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/scale_ptVSeta_'+label+'_'+options.target+'.png')
 
 del canvas
 
 ##############
 
 #saving histograms and efficiencies in root file for later plotting if desired
-fileout = ROOT.TFile(outdir+'/PerformancePlots/'+label+'/ROOTs/resolution_graphs_'+label+'_'+options.target+'.root','RECREATE')
+fileout = ROOT.TFile(outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/resolution_graphs_'+label+'_'+options.target+'.root','RECREATE')
 pt_scale_fctPt.Write()
 pt_scale_fctEta.Write()
 pt_resol_fctPt.Write()

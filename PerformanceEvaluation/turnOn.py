@@ -23,6 +23,7 @@ def save_obj(obj,dest):
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--indir",     dest="indir",    default=None)
+parser.add_option("--tag",       dest="tag",      default='')
 parser.add_option("--outdir",    dest="outdir",   default=None)
 parser.add_option("--label",     dest="label",    default=None)
 parser.add_option("--nEvts",     dest="nEvts",    type=int, default=-1)
@@ -36,9 +37,9 @@ parser.add_option("--unpacked",  dest="unpacked", action='store_true', default=F
 indir = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/"+options.indir
 outdir = "/data_CMS/cms/motta/CaloL1calibraton/"+options.outdir
 label = options.label
-os.system('mkdir -p '+outdir+'/PerformancePlots/'+label+'/PDFs')
-os.system('mkdir -p '+outdir+'/PerformancePlots/'+label+'/PNGs')
-os.system('mkdir -p '+outdir+'/PerformancePlots/'+label+'/ROOTs')
+os.system('mkdir -p '+outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs')
+os.system('mkdir -p '+outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs')
+os.system('mkdir -p '+outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs')
 
 # define input trees
 if options.reco:
@@ -68,8 +69,8 @@ print("will process",nevents,"events...")
 bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 100, 120, 150, 180, 250]
 
 #list the ET thresholds to be tested
-thresholds = np.linspace(20,150,131).tolist()
-thresholds2plot = [20, 35, 50, 100, 150]
+thresholds = np.linspace(8,150,143).tolist()
+thresholds2plot = [10, 20, 35, 50, 100, 150]
 
 # passing histograms (numerators)
 passing = []
@@ -198,7 +199,7 @@ for i, thr in enumerate(thresholds):
     mapping_dict['pt90eff'].append(np.interp(0.90, turnonY, offline_pts)) #,right=-99,left=-98)
     mapping_dict['pt50eff'].append(np.interp(0.50, turnonY, offline_pts)) #,right=-99,left=-98)
 
-save_obj(mapping_dict, outdir+'/PerformancePlots/'+label+'/ROOTs/online2offline_mapping_'+label+'.pkl')
+save_obj(mapping_dict, outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/online2offline_mapping_'+label+'.pkl')
 
 fig, ax = plt.subplots(figsize=(10,10))
 plt.plot(thresholds, mapping_dict['pt95eff'], label='@ 95% efficiency', linewidth=2, color='blue')
@@ -217,8 +218,8 @@ for xtick in ax.xaxis.get_major_ticks():
 plt.grid()
 if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
 else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/online2offline_mapping_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/online2offline_mapping_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/online2offline_mapping_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/online2offline_mapping_'+label+'_'+options.target+'.png')
 plt.close()
 
 
@@ -252,12 +253,12 @@ plt.ylim(0, 1.05)
 plt.grid()
 if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
 else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PDFs/turnOns_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots/'+label+'/PNGs/turnOns_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/turnOns_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/turnOns_'+label+'_'+options.target+'.png')
 plt.close()
 
 print("saving histograms and efficiencies in root file for later plotting if desired")
-fileout = ROOT.TFile(outdir+'/PerformancePlots/'+label+'/ROOTs/efficiency_graphs_'+label+'_'+options.target+'.root','RECREATE')
+fileout = ROOT.TFile(outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/efficiency_graphs_'+label+'_'+options.target+'.root','RECREATE')
 total.Write()
 for i, thr in enumerate(thresholds): 
     passing[i].Write()
