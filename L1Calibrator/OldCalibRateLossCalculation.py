@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import glob
 import sys
 import os
 
@@ -89,20 +90,38 @@ parser.add_option("--v",              dest="v",              help="Which trainin
 parser.add_option("--tag",            dest="tag",            help="Tag of the training folder",                    default=""                         )
 (options, args) = parser.parse_args()
 
+indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
+if options.v == 'ECAL':                      batch_size = 256
+if options.v == 'HCAL' or options.v == 'HF': batch_size = 2048
 
-Z_train = np.load('/data_CMS/cms/motta/CaloL1calibraton/'+options.indir+'/'+options.v+'training'+options.tag+'/X_trainRate.npz')['arr_0']
-Z_train = convert_samples(Z_train, options.v)
-z_rate = tf.convert_to_tensor(Z_train, dtype=tf.float32)
-if options.v == 'ECAL':                      rateLoss_value = rateLossEgs(z_rate, 3, 4, 50) # remember the thresholds are in HW units!
-if options.v == 'HCAL' or options.v == 'HF': rateLoss_value = rateLossJets(z_rate, 8, 100)  # remember the thresholds are in HW units!
-print(options.v, 'UNCALIBRATED : rateLoss_value =', rateLoss_value, '(computed as: passing / total * 0.001*2500*11245.6)')
+# description of the features for reading out
+feature_description = {
+    'chuncky_donut': tf.io.FixedLenFeature([], tf.string, default_value=''), # byteslist to be read as string 
+    'trainingPt'   : tf.io.FixedLenFeature([], tf.float32, default_value=0)  # single float values
+}
 
+# parse proto input based on description
+def parse_function(example_proto):
+    example = tf.io.parse_single_example(example_proto, feature_description)
+    chuncky_donut = tf.io.parse_tensor(example['chuncky_donut'], out_type=tf.float32) # decode byteslist to original 81x43 tensor
+    return chuncky_donut, example['trainingPt']
 
-Z_train = np.load('/data_CMS/cms/motta/CaloL1calibraton/'+options.indir+'/'+options.v+'training'+options.tag+'/X_targetRate.npz')['arr_0']
-Z_train = convert_samples(Z_train, options.v)
-z_rate = tf.convert_to_tensor(Z_train, dtype=tf.float32)
-if options.v == 'ECAL':                      rateLoss_value = rateLossEgs(z_rate, 3, 4, 50) # remember the thresholds are in HW units!
-if options.v == 'HCAL' or options.v == 'HF': rateLoss_value = rateLossJets(z_rate, 8, 100)  # remember the thresholds are in HW units!
-print(options.v, 'OLD CALIBRATION : rateLoss_value =', rateLoss_value, '(computed as: passing / total * 0.001*2500*11245.6)')
+# read raw rate dataset and parse it 
+InRateRecords = glob.glob(indir+'/rateTFRecords/record_*.tfrecord')
+raw_rate_dataset = tf.data.TFRecordDataset(InRateRecords)
+rate_dataset = raw_rate_dataset.map(parse_function)
+rate_dataset = rate_dataset.batch(batch_size, drop_remainder=True)
+del InRateRecords, raw_rate_dataset
+
+num_batches = 0
+rateLoss_value = 0
+for rate_batch in rate_dataset:
+    if not num_batches%100: print('at batch', num_batches)
+    num_batches += 1
+    z, _ = rate_batch
+    if options.v == 'ECAL':                      rateLoss_value += rateLossEgs(z, 3, 4, 50) # remember the thresholds are in HW units!
+    if options.v == 'HCAL' or options.v == 'HF': rateLoss_value += rateLossJets(z, 8, 100)  # remember the thresholds are in HW units!
+
+print(options.v, 'OLD CALIBRATION : rateLoss_value =', rateLoss_value/num_batches, '(computed as: passing / total * 0.001*2500*11245.6)')
 
 
