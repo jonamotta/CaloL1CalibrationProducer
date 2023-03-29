@@ -53,7 +53,7 @@ if __name__ == "__main__" :
 
     ###########
 
-    # os.system ('source /opt/exp_soft/cms/t3/t3setup')
+    os.system('source /opt/exp_soft/cms/t3/t3setup')
 
     os.system('mkdir -p ' + folder)
     os.system('cp listAll.sh /data_CMS/cms/motta/CaloL1calibraton/L1NTuples')

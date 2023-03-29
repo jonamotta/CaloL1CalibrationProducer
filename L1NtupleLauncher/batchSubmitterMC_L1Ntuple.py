@@ -16,11 +16,28 @@ python3 batchSubmitterMC_L1Ntuple.py --indir /data_CMS/cms/motta/CaloL1calibrato
 python3 batchSubmitterMC_L1Ntuple.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_10000_15000/AOD \
 --secondarydir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_10000_15000/RAW \
 --out /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_10000_15000/L1Ntuples \
---maxEvents -1 --queue short --globalTag 124X_mcRun3_2022_realistic_postEE_v1 --caloParams caloParams_2022_v0_6_cfi --reco
+--maxEvents -1 --queue short --globalTag 124X_mcRun3_2022_realistic_postEE_v1 --caloParams caloParams_2022_v0_6_cfi --reco #(DONE)
 python3 batchSubmitterMC_L1Ntuple.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_15000_20000/AOD \
 --secondarydir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_15000_20000/RAW \
 --out /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_15000_20000/L1Ntuples \
---maxEvents -1 --queue short --globalTag 124X_mcRun3_2022_realistic_postEE_v1 --caloParams caloParams_2022_v0_6_cfi --reco
+--maxEvents -1 --queue short --globalTag 124X_mcRun3_2022_realistic_postEE_v1 --caloParams caloParams_2022_v0_6_cfi --reco #(DONE) 5000
+python3 batchSubmitterMC_L1Ntuple.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_20000_25000/AOD \
+--secondarydir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_20000_25000/RAW \
+--out /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_20000_25000/L1Ntuples \
+--maxEvents -1 --queue short --globalTag 124X_mcRun3_2022_realistic_postEE_v1 --caloParams caloParams_2022_v0_6_cfi --reco #(DONE)
+
+python3 batchSubmitterMC_L1Ntuple.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_692488_to_694487/AOD \
+--secondarydir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_692488_to_694487/RAW \
+--out /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_692488_to_694487/L1Ntuples \
+--maxEvents -1 --queue short --globalTag 124X_mcRun3_2022_realistic_postEE_v1 --caloParams caloParams_2022_v0_6_cfi --reco #(DONE)
+python3 batchSubmitterMC_L1Ntuple.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_694488_to_696487/AOD \
+--secondarydir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_694488_to_696487/RAW \
+--out /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_694488_to_696487/L1Ntuples \
+--maxEvents -1 --queue short --globalTag 124X_mcRun3_2022_realistic_postEE_v1 --caloParams caloParams_2022_v0_6_cfi --reco #(DONE)
+python3 batchSubmitterMC_L1Ntuple.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_696488_to_698487/AOD \
+--secondarydir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_696488_to_698487/RAW \
+--out /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_696488_to_698487/L1Ntuples \
+--maxEvents -1 --queue short --globalTag 124X_mcRun3_2022_realistic_postEE_v1 --caloParams caloParams_2022_v0_6_cfi --reco #(DONE)
 '''
 
 if __name__ == "__main__" :
@@ -44,6 +61,8 @@ if __name__ == "__main__" :
 
     skipped = 0
     resubmitting = 0
+
+    os.system('source /opt/exp_soft/cms/t3/t3setup')
 
     for inRootName in inRootNameList:
 
