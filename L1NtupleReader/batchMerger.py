@@ -380,8 +380,8 @@ if __name__ == "__main__" :
             rate_writer.write(serialized_rate_dataset)
             del serialized_rate_dataset
 
-            # directly break as soon as the dimension is met
-            if np.sum(rate_dimensions) > train_total_dimension: break
+            # # directly break as soon as the dimension is met
+            # if np.sum(rate_dimensions) > train_total_dimension: break
 
         rate_total_dimension = np.sum(rate_dimensions)
 

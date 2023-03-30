@@ -23,13 +23,15 @@ python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only 9000000  --rate
 
 python3 batchMerger.py --indir 2023_03_22_NtuplesV35 --batchdir L1Ntuples --v HCAL --odir MCRecoCorr --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 200
 
-
 python3 batchMerger.py --indir 2023_03_24_NtuplesV36 --batchdir L1Ntuples --v HCAL --odir MCGen --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 300
 
 python3 batchMerger.py --indir 2023_03_25_NtuplesV37 --batchdir L1Ntuples --v HCAL --odir MCRecoCorr --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 300
 
 python3 batchMerger.py --indir 2023_03_25_NtuplesV37 --batchdir L1Ntuples --v HCAL --odir MCRecoCorr_FlattenEta --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 300 --flattenEtaDistribution
 
+python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest --v ECAL --odir v33RateTest --rate_only 1 --filesPerRecord 300
+python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest0p8 --v ECAL --odir v33RateTest0p8 --rate_only 1 --filesPerRecord 300
+python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest1p2 --v ECAL --odir v33RateTest1p2 --rate_only 1 --filesPerRecord 300
 
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir ElectronTraining_JSON --v ECAL --odir DataReco --sample train
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HCAL --odir DataReco --sample train
