@@ -168,6 +168,28 @@ python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/Priva
                               --queue short \
                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
+# test rate
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+                              --target emu --type ele --chunk_size 5000 \
+                              --queue short \
+                              --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33_newCalib \
+                              --addtag _v33RateTest
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+                              --target emu --type ele --chunk_size 5000 \
+                              --queue short \
+                              --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33Rate0p8_newCalib \
+                              --addtag _v33RateTest0p8
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+                              --target emu --type ele --chunk_size 5000 \
+                              --queue short \
+                              --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33Rate1p2_newCalib \
+                              --addtag _v33RateTest1p2
+
 ####################################################################################################################################################################################################
 ####################################################################################################################################################################################################
 ####################################################################################################################################################################################################

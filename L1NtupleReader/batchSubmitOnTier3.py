@@ -91,6 +91,7 @@ for file in InFiles:
 
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
+    print(outLogName)
 
     # [Elena] if the job has already finished we skip it
     if os.path.exists(outLogName):

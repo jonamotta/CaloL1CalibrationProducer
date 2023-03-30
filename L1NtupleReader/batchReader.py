@@ -317,6 +317,18 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
             energy_bins = layer1ECalScaleETBins_currCalib
             labels = layer1ECalScaleETLabels_currCalib
             SFs = layer1ECalScaleFactors_currCalib
+        elif whichECALcalib == "v33_newCalib":
+            energy_bins = layer1ECalScaleETBins_v33_newCalib
+            labels = layer1ECalScaleETLabels_v33_newCalib
+            SFs = layer1ECalScaleFactors_v33_newCalib
+        elif whichECALcalib == "v33Rate0p8_newCalib":
+            energy_bins = layer1ECalScaleETBins_v33Rate0p8_newCalib
+            labels = layer1ECalScaleETLabels_v33Rate0p8_newCalib
+            SFs = layer1ECalScaleFactors_v33Rate0p8_newCalib
+        elif whichECALcalib == "v33Rate1p2_newCalib":
+            energy_bins = layer1ECalScaleETBins_v33Rate1p2_newCalib
+            labels = layer1ECalScaleETLabels_v33Rate1p2_newCalib
+            SFs = layer1ECalScaleFactors_v33Rate1p2_newCalib
         
         dfFlatEJT['iemBin'] = pd.cut(dfFlatEJT['iem'], bins = energy_bins, labels=labels)
         dfFlatEJT['iem'] = dfFlatEJT.apply(lambda row: math.floor(row['iem'] * SFs[int( abs(row['ieta']) + 28*(row['iemBin']-1) ) -1]), axis=1)
