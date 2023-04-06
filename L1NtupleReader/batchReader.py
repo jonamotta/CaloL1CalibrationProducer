@@ -8,8 +8,10 @@ import uproot3
 import math
 import os,sys
 import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action='ignore')
 
+n_electrons = 0
+n_mismatch = 0
 
 def chunker(seq, size):
     for pos in range(0, len(seq), size):
@@ -69,6 +71,142 @@ def ChunkyDonutTowers(jetIeta, jetIphi):
                 CD.append([ieta,iphi])
     return CD
 
+def NextPhiTower(iphi):
+    if iphi == 72: return 1
+    else:          return iphi + 1
+def PrevPhiTower(iphi):
+    if iphi == 1: return 72
+    else:         return iphi - 1
+def NextEtaTower(ieta):
+    if ieta == -1: return 1
+    else:          return ieta + 1
+def PrevEtaTower(ieta):
+    if ieta == 1: return -1
+    else:         return ieta - 1
+
+def FindClusterCoordinates(iEta, iPhi, egShape, direction):
+
+    # define snake coordinates for left or right cluster
+    SnakeCoords = []
+    if direction == +1: iEtaShift = NextEtaTower(iEta) #right = EAST = eta+1
+    if direction == -1: iEtaShift = PrevEtaTower(iEta) #left  = WEST = eta-1 
+
+    SnakeCoords.append((iEta, PrevPhiTower(iPhi)))                  # bit 1 = N = phi-1
+    SnakeCoords.append((iEta, NextPhiTower(iPhi)))                  # bit 2 = S = phi+1
+    SnakeCoords.append((iEtaShift, iPhi))                           # bit 3 = E/W = eta+/-1
+    SnakeCoords.append((iEtaShift, PrevPhiTower(iPhi)))             # bit 4 = NE/NW = eta+/-1,phi-1
+    SnakeCoords.append((iEtaShift, NextPhiTower(iPhi)))             # bit 5 = SE/SW = eta+/-1,phi+1
+    SnakeCoords.append((iEta, PrevPhiTower(PrevPhiTower(iPhi))))    # bit 6 = NN = phi-2
+    SnakeCoords.append((iEta, NextPhiTower(NextPhiTower(iPhi))))    # bit 7 = SS = phi+2
+    
+    # decode the shape to bits and revert the order so that: 
+    # bit 1 (position 0) corresponds to the first entry of SnakeCoords
+    # bit 2 (position 1) corresponds to the second entry of SnakeCoords
+    padded_num = str(bin(egShape)[2:]).rjust(9, '0')[::-1]
+    
+    # keep only the eta, phi coordinates belonging to the cluster
+    ClusterCoords = [(iEta, iPhi)] #seed is always in the cluster
+    for i, coord in enumerate(SnakeCoords):
+        if padded_num[i] != '0':
+            ClusterCoords.append(coord)
+    
+    return ClusterCoords
+
+def FindDirection(iEta, iPhi, df):
+    # define the 3 neighbour towers on the right
+    RigthTowers = []
+    RigthTowers.append((NextEtaTower(iEta), PrevPhiTower(iPhi)))
+    RigthTowers.append((NextEtaTower(iEta), iPhi))
+    RigthTowers.append((NextEtaTower(iEta), NextPhiTower(iPhi)))
+    # define the 3 neighbour towers on the left
+    LeftTowers = []
+    LeftTowers.append((PrevEtaTower(iEta), PrevPhiTower(iPhi)))
+    LeftTowers.append((PrevEtaTower(iEta), iPhi))
+    LeftTowers.append((PrevEtaTower(iEta), NextPhiTower(iPhi)))
+    # compute the energy sum of ECAL and HCAL deposit in the left and right towers
+    EtRight = df[df[['ieta', 'iphi']].apply(tuple, axis=1).isin(RigthTowers)].iesum.sum()
+    EtLeft = df[df[['ieta', 'iphi']].apply(tuple, axis=1).isin(LeftTowers)].iesum.sum()
+    # decide if the cluster is left or right
+    if EtRight >= EtLeft:
+        return +1 # right
+    else:
+        return -1 # left
+
+def padDataFrameWithZerosMaskedCluster( dfFlatEJT ):
+    padded = pd.DataFrame()
+    for i, uniqueIdx in enumerate(dfFlatEJT.index.unique()):
+        if i%100 == 0:
+            print('{:.4f}%'.format(i/len(dfFlatEJT.index.unique())*100))
+        
+        if len(dfFlatEJT[dfFlatEJT.index == uniqueIdx]) > 1:
+            # get shape and position of the cluster
+            jetIeta     = dfFlatEJT['jetIeta'][uniqueIdx].unique()[0]
+            jetIphi     = dfFlatEJT['jetIphi'][uniqueIdx].unique()[0]
+            trainingPt  = dfFlatEJT['trainingPt'][uniqueIdx].unique()[0]
+            jetShape    = dfFlatEJT['jetShape'][uniqueIdx].unique()[0]
+            jetPt       = dfFlatEJT['jetPt'][uniqueIdx].unique()[0]
+            jetEta      = dfFlatEJT['jetEta'][uniqueIdx].unique()[0]
+            jetPhi      = dfFlatEJT['jetPhi'][uniqueIdx].unique()[0]
+            clusterIeta = dfFlatEJT['TowerIeta'][uniqueIdx].unique()[0]
+            clusterIphi = dfFlatEJT['TowerIphi'][uniqueIdx].unique()[0]
+        else:
+            # get shape and position of the cluster
+            jetIeta     = dfFlatEJT['jetIeta'][uniqueIdx]
+            jetIphi     = dfFlatEJT['jetIphi'][uniqueIdx]
+            trainingPt  = dfFlatEJT['trainingPt'][uniqueIdx]
+            jetShape    = dfFlatEJT['jetShape'][uniqueIdx]
+            jetPt       = dfFlatEJT['jetPt'][uniqueIdx]
+            jetEta      = dfFlatEJT['jetEta'][uniqueIdx]
+            jetPhi      = dfFlatEJT['jetPhi'][uniqueIdx]
+            clusterIeta = dfFlatEJT['TowerIeta'][uniqueIdx]
+            clusterIphi = dfFlatEJT['TowerIphi'][uniqueIdx]
+
+        # get the true cluster seed coordinates (mismatch often happens between the offline and L1)
+        # check if the cluster is right or left
+        df_i = dfFlatEJT[dfFlatEJT.index == uniqueIdx]
+        df_i['iesum'] = df_i['iem'] + df_i['hcalET']
+
+        # mask TT outside the cluster shape
+        Direction = FindDirection(clusterIeta, clusterIphi, df_i)
+        ClusterCoordinates = FindClusterCoordinates(clusterIeta, clusterIphi, jetShape, Direction)
+        filtered_padded = df_i[df_i[['ieta', 'iphi']].apply(tuple, axis=1).isin(ClusterCoordinates)]
+        padded = pd.concat([padded, filtered_padded])
+
+        # keep only the number of towers inside the cluster shape
+        N = len(filtered_padded)
+
+        # crosscheck for debug
+        N_TT_cluster = int(str(bin(jetShape)[2:]).rjust(9, '0')[::-1].count('1')) + 1 # add one for the central tower
+        if N_TT_cluster != N:
+            global n_mismatch
+            n_mismatch += 1
+            print("\nMismatched")
+            print("\nShape of the cluster is: ", jetShape) #DEBUG
+            print("Direction: ", Direction) #DEBUG
+            print("ClusterCoordinates: ", ClusterCoordinates) #DEBUG
+            print("iEsum = ", list(df_i['iesum'].values)) #DEBUG
+            print("iEta = ", list(df_i['ieta'].values)) #DEBUG
+            print("iPhi = ", list(df_i['iphi'].values)) #DEBUG
+
+        padder = pd.DataFrame(columns=dfFlatEJT.columns, index=range(0,81-N))
+        padder['uniqueId'] = uniqueIdx
+        padder['jetPt'] = jetPt
+        padder['trainingPt'] = trainingPt
+        padder['jetEta'] = jetEta
+        padder['jetPhi'] = jetPhi
+        padder['jetIeta'] = jetIeta
+        padder['jetIphi'] = jetIphi
+        padder['iem'] = 0
+        padder['ihad'] = 0
+        padder['iet'] = 0
+        padder['hcalET'] = 0
+        padder['ieta'] = 0
+        padder['iphi'] = 0
+
+        padded = pd.concat([padded, padder])
+        del padder
+
+    return padded
 
 def padDataFrame( dfFlatEJT ):
     padded = dfFlatEJT
@@ -161,11 +299,14 @@ def padDataFrameWithZeros( dfFlatEJT ):
         
     return padded
 
-def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, Hcalcut, HoTotcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, flattenPtDistribution, flattenEtaDistribution, applyOnTheFly):
+def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, \
+                Hcalcut, HoTotcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, \
+                flattenPtDistribution, flattenEtaDistribution, applyOnTheFly, ClusterFilter):
+    
     if len(dfFlatET) == 0 or len(dfFlatEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
-
+    
     dfFlatEJ['jetId'] = dfFlatEJ.index # each jet gets an identifier based on a progressive value independent of event -> this allows further flexibility of ID on top of event
 
     #########################################################################
@@ -239,6 +380,10 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
     dfFlatEJ = dfFlatEJ[dfFlatEJ.jetId.isin(notSafe) == False]
     dfFlatEJ.drop(['jetEta_joined', 'jetPhi_joined', 'jetPt_joined', 'jetId_joined', 'dRsafe'], axis=1, inplace=True) # drop columns not needed anymore
     dfFlatEJ.drop_duplicates('jetId', keep='first', inplace=True) # drop duplicates of the jets
+
+    global n_electrons
+    n_electrons += len(dfFlatEJ)
+    # print(n_electrons) #DEBUG
 
     ## DEBUG
     print('starting conversion eta/phi->ieta/iphi')
@@ -329,6 +474,14 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
             energy_bins = layer1ECalScaleETBins_v33Rate1p2_newCalib
             labels = layer1ECalScaleETLabels_v33Rate1p2_newCalib
             SFs = layer1ECalScaleFactors_v33Rate1p2_newCalib
+        elif whichECALcalib == "v33Rate0p8True_newCalib":
+            energy_bins = layer1ECalScaleETBins_v33Rate0p8True_newCalib
+            labels = layer1ECalScaleETLabels_v33Rate0p8True_newCalib
+            SFs = layer1ECalScaleFactors_v33Rate0p8True_newCalib
+        elif whichECALcalib == "v33Rate1p2True_newCalib":
+            energy_bins = layer1ECalScaleETBins_v33Rate1p2True_newCalib
+            labels = layer1ECalScaleETLabels_v33Rate1p2True_newCalib
+            SFs = layer1ECalScaleFactors_v33Rate1p2True_newCalib
         
         dfFlatEJT['iemBin'] = pd.cut(dfFlatEJT['iem'], bins = energy_bins, labels=labels)
         dfFlatEJT['iem'] = dfFlatEJT.apply(lambda row: math.floor(row['iem'] * SFs[int( abs(row['ieta']) + 28*(row['iemBin']-1) ) -1]), axis=1)
@@ -345,12 +498,14 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
         group_jet = dfFlatEJT.groupby('uniqueIdx')
         dfFlatEJT['FiredTTs'] = group_jet['hcalET'].count()
         dfFlatEJT = dfFlatEJT[dfFlatEJT['FiredTTs'] <= 10]
+        dfFlatEJT.drop(['FiredTTs'], axis=1, inplace=True)
 
     # [Elena] Training with only jets formad by 10 TT minimum
     if TTNumberCutInverse != False:
         group_jet = dfFlatEJT.groupby('uniqueIdx')
         dfFlatEJT['FiredTTs'] = group_jet['hcalET'].count()
         dfFlatEJT = dfFlatEJT[dfFlatEJT['FiredTTs'] > 10]
+        dfFlatEJT.drop(['FiredTTs'], axis=1, inplace=True)
 
     # apply HCAL calibration on the fly
     if whichHCALcalib != False:
@@ -382,7 +537,13 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
     # do the padding of the dataframe to have 81 rows for each jet        
     #paddedEJT = padDataFrame(dfFlatEJT)
     #paddedEJT.drop_duplicates(['uniqueId', 'ieta', 'iphi'], keep='first', inplace=True)
-    paddedEJT = padDataFrameWithZeros(dfFlatEJT)
+    if ClusterFilter:
+        paddedEJT = padDataFrameWithZerosMaskedCluster(dfFlatEJT)
+    else:
+        paddedEJT = padDataFrameWithZeros(dfFlatEJT)
+
+    # avoid problems when the dataframe is empty
+    if len(paddedEJT) == 0: return False
     paddedEJT.set_index('uniqueId',inplace=True)
 
     # subtract iem/ihad to jetPt in oprder to get the correct training Pt to be be used for the NN
@@ -499,6 +660,7 @@ if __name__ == "__main__" :
     parser.add_option("--flattenPtDistribution",     dest="flattenPtDistribution",     default=False)
     parser.add_option("--flattenEtaDistribution",     dest="flattenEtaDistribution",     default=False)
     parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
+    parser.add_option("--ClusterFilter", dest="ClusterFilter", default=False)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.fout=='' or options.target=='' or options.type==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
@@ -547,6 +709,16 @@ if __name__ == "__main__" :
             phi = b'phi'
         if options.type == 'ele':
             sys.exit('This is not implemented yet')
+
+    if options.target == 'rate':
+        if options.type == 'jet':
+            sys.exit('This is not implemented yet')
+        if options.type == 'ele':
+            keyTarget = "l1UpgradeEmuTree/L1UpgradeTree"
+            branchesTarget = ["L1Upgrade/egEt", "L1Upgrade/egEta", "L1Upgrade/egPhi", "L1Upgrade/egShape", "L1Upgrade/egTowerIEta", "L1Upgrade/egTowerIPhi"]
+            energy = b'egEt'
+            eta = b'egEta'
+            phi = b'egPhi'
 
     InFile = uproot3.open(options.fin)
 
@@ -600,6 +772,17 @@ if __name__ == "__main__" :
                 'HoTot' : list(chain.from_iterable(EJ[b'HoTot'])),
                 })
             
+        if options.target == 'rate':
+            dfFlatEJ = pd.DataFrame({
+                'event': np.repeat(EJ[b'event'].values, EJ[eta].str.len()), # event IDs are copied to keep proper track of what is what
+                'jetEta': list(chain.from_iterable(EJ[eta])),
+                'jetPhi': list(chain.from_iterable(EJ[phi])),
+                'jetPt' : list(chain.from_iterable(EJ[energy])),
+                'jetShape' : list(chain.from_iterable(EJ[b'egShape'])),
+                'TowerIeta' : list(chain.from_iterable(EJ[b'egTowerIEta'])),
+                'TowerIphi' : list(chain.from_iterable(EJ[b'egTowerIPhi'])),
+                })
+            
         else:
             dfFlatEJ = pd.DataFrame({
                 'event': np.repeat(EJ[b'event'].values, EJ[eta].str.len()), # event IDs are copied to keep proper track of what is what
@@ -621,7 +804,12 @@ if __name__ == "__main__" :
 
         j += 1
 
-        mainReader(dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, options.ecalcut, options.hcalcut, options.HoTotcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.flattenEtaDistribution, options.applyOnTheFly)
-    
+        mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, \
+                    options.ecalcut, options.hcalcut, options.HoTotcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, \
+                    options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.flattenEtaDistribution, options.applyOnTheFly, \
+                    options.ClusterFilter)
+
+    print("\nNumber of electrons = ", n_electrons)
+    print("Mismatched = ", n_mismatch)
     print("DONE!")
 

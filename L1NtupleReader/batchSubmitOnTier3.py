@@ -55,6 +55,7 @@ parser.add_option("--calibECALOnTheFly",  dest="calibECALOnTheFly",  default=Fal
 parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly",  default=False, help="oldCalib or currCalib; not specified == noCalib")
 parser.add_option("--trainPtVers",        dest="trainPtVers",        default=False)
 parser.add_option("--applyOnTheFly",      dest="applyOnTheFly",      default=False)
+parser.add_option("--ClusterFilter",      dest="ClusterFilter",      default=False)
 parser.add_option("--resubmit_failed",    dest="resubmit_failed",    default=False, action='store_true')
 parser.add_option("--no_exec",            dest="no_exec",            default=False, action='store_true')
 (options, args) = parser.parse_args()
@@ -91,7 +92,7 @@ for file in InFiles:
 
     outJobName  = folder + '/job_' + str(idx) + '.sh'
     outLogName  = folder + "/log_" + str(idx) + ".txt"
-    print(outLogName)
+    # print(outLogName)
 
     # [Elena] if the job has already finished we skip it
     if os.path.exists(outLogName):
@@ -146,6 +147,8 @@ for file in InFiles:
         cmsRun = cmsRun + " --flattenEtaDistribution "+options.flatEtaDist
     if options.applyOnTheFly != False:
         cmsRun = cmsRun + " --applyOnTheFly "+options.applyOnTheFly
+    if options.ClusterFilter != False:
+        cmsRun = cmsRun + " --ClusterFilter "+options.ClusterFilter
 
     cmsRun = cmsRun + " >& "+outLogName
 
