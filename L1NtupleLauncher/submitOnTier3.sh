@@ -418,3 +418,15 @@ python submitOnTier3.py --inFileList EphemeralZeroBias0__Run2022G-v1__Run362616_
                         --caloParams caloParams_2022_v0_6_cfi \
                         --globalTag 124X_dataRun3_Prompt_v10 \
                         --data
+
+# currCalib RATE full 362616 stat
+python submitOnTier3.py --inFileList EphemeralZeroBias__Run2022G-v1__Run362616__RAW \
+    --outTag GT124XdataRun3v11_CaloParams2022v06_data \
+    --nJobs 2502 \
+    --queue short \
+    --maxEvts -1 \
+    --caloParams caloParams_2022_v0_6_cfi \
+    --globalTag 124X_dataRun3_v11 \
+    --data
+
+# export SITECONFIG_PATH=/cvmfs/cms.cern.ch/SITECONF/T2_FR_GRIF_LLR/GRIF-LLR
