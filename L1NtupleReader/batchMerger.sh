@@ -33,6 +33,12 @@ python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias
 python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest0p8 --v ECAL --odir v33RateTest0p8 --rate_only 1 --filesPerRecord 300
 python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest1p2 --v ECAL --odir v33RateTest1p2 --rate_only 1 --filesPerRecord 300
 
+python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest0p8True --v ECAL --odir v33RateTest0p8True --rate_only 1 --filesPerRecord 300
+python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest1p2True --v ECAL --odir v33RateTest1p2True --rate_only 1 --filesPerRecord 300
+
+# new rate proxy woth clusterfilter
+python3 batchMerger.py --indir 0000_00_00_NtuplesRateVunc --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_RateProxyCluster --v ECAL --odir RateProxyFilterCluster --rate_only 1 --filesPerRecord 300
+
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir ElectronTraining_JSON --v ECAL --odir DataReco --sample train
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HCAL --odir DataReco --sample train
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HF   --odir DataReco --sample train

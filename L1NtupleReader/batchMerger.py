@@ -52,8 +52,11 @@ def convert_rate_samples(Z, version):
     # Z vector columns: iem, ihad, iesum, ieta
     if version == 'ECAL':
         Z = np.delete(Z, 2, axis=2) # delete iesum column (always start deleting from right columns)
-        Z = Z[ Z[:,:,0] >= 29 ] # remove TTs that have iEM<=29 : 29 = (50-(50*0.12))/1.5 = (egThr-(egThr*hoeThrEB))/bigSF [this already reshapes so that every TT becomes an event]
+        # print(len(Z))
+        # Z = Z[ np.sum(Z[:,:,0], axis=1) >= 29 ] # remove EGAMMAs that have iEM<=29 : 29 = (50-(50*0.12))/1.5 = (egThr-(egThr*hoeThrEB))/bigSF
+        # the cut at 15 GeV is already defined in the clustering and uses the offline JetPt information
         Z[:,[0,1]] = Z[:,[1,0]] # order iem and ihad to have iem on the right
+        # print(len(Z))
 
     elif version == 'HCAL' or version == 'HF':
         Z = Z[ np.sum(Z[:,:,2], axis=1) >= 50 ] # remove JETs that have E<=50 : 50 ~ (100/n)/1.66*n = (jetThr/nActiveTT)/bigSF*nActiveTT
