@@ -243,7 +243,8 @@ Training on private MC data (3M events)
 Target is pt
 We expect to have much lower stat than the v37 training but maybe as much as v35
 
-
-
-
+2023_04_06_NtuplesV39
+Training ECAL on data with study of the NN
+The training sample is copied from 2023_03_06_NtuplesV33/EGamma__Run2022E-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json/tensors
+in order to have enough statistics but not too long training
 

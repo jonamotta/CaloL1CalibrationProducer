@@ -206,13 +206,31 @@ python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTu
                               --addtag _v33RateTest1p2True
 
 # rate studies
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/0000_00_00_NtuplesRateVunc \
-                              --target rate --type ele --chunk_size 1000 --ClusterFilter True \
-                              --queue short \
-                              --etacut 28 --lJetPtCut 15 --applyCut_3_6_9 True \
-                              --addtag _RateProxyCluster 
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/0000_00_00_NtuplesRateVunc \
+#                               --target rate --type ele --chunk_size 1000 --ClusterFilter True \
+#                               --queue short \
+#                               --etacut 28 --lJetPtCut 15 --applyCut_3_6_9 True \
+#                               --addtag _RateProxyCluster
 
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/0000_00_00_NtuplesRateVcurr \
+#                               --target rate --type ele --chunk_size 5000 --ClusterFilter True \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --lJetPtCut 15 --applyCut_3_6_9 True \
+#                               --addtag _RateProxyCluster 
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_06_NtuplesV39 \
+                              --target rate --type ele --chunk_size 5000 --ClusterFilter True \
+                              --queue short \
+                              --etacut 28 --lJetPtCut 15 --applyCut_3_6_9 True
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_06_NtuplesV39 \
+                              --target rate --type ele --chunk_size 5000 --ClusterFilter True \
+                              --queue short \
+                              --etacut 28 --lJetPtCut 15 --applyCut_3_6_9 True
 
 
 ####################################################################################################################################################################################################

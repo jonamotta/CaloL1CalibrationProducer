@@ -2,6 +2,7 @@
 from re import S
 from math import *
 import pandas as pd
+import matplotlib.cm as cm
 import sys
 sys.path.insert(0,'..')
 from matplotlib.transforms import Affine2D

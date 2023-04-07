@@ -10,7 +10,7 @@ import os,sys
 import warnings
 warnings.simplefilter(action='ignore')
 
-n_electrons = 0
+n_clusters = 0
 n_mismatch = 0
 
 def chunker(seq, size):
@@ -381,9 +381,9 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
     dfFlatEJ.drop(['jetEta_joined', 'jetPhi_joined', 'jetPt_joined', 'jetId_joined', 'dRsafe'], axis=1, inplace=True) # drop columns not needed anymore
     dfFlatEJ.drop_duplicates('jetId', keep='first', inplace=True) # drop duplicates of the jets
 
-    global n_electrons
-    n_electrons += len(dfFlatEJ)
-    # print(n_electrons) #DEBUG
+    global n_clusters
+    n_clusters += len(dfFlatEJ)
+    # print(n_clusters) #DEBUG
 
     ## DEBUG
     print('starting conversion eta/phi->ieta/iphi')
@@ -809,7 +809,7 @@ if __name__ == "__main__" :
                     options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.flattenEtaDistribution, options.applyOnTheFly, \
                     options.ClusterFilter)
 
-    print("\nNumber of electrons = ", n_electrons)
+    print("\nNumber of clusters = ", n_clusters)
     print("Mismatched = ", n_mismatch)
     print("DONE!")
 

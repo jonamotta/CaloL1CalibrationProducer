@@ -38,6 +38,14 @@ python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias
 
 # new rate proxy woth clusterfilter
 python3 batchMerger.py --indir 0000_00_00_NtuplesRateVunc --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_RateProxyCluster --v ECAL --odir RateProxyFilterCluster --rate_only 1 --filesPerRecord 300
+python3 batchMerger.py --indir 2023_04_06_NtuplesV39 --ratedir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data --v ECAL --odir TargetRateProxy --rate_only 1 --filesPerRecord 300
+
+# prepare input to NN testing with different options
+python3 batchMerger.py --indir 2023_04_06_NtuplesV39 \
+        --batchdir EGamma__Run2022E-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
+        --v ECAL --odir DataReco --filesPerRecord 300 \
+        --ratedir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
+
 
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir ElectronTraining_JSON --v ECAL --odir DataReco --sample train
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HCAL --odir DataReco --sample train
