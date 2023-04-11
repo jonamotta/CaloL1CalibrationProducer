@@ -44,7 +44,7 @@ python3 batchMerger.py --indir 2023_04_06_NtuplesV39 --ratedir EphemeralZeroBias
 python3 batchMerger.py --indir 2023_04_06_NtuplesV39 \
         --batchdir EGamma__Run2022E-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
         --v ECAL --odir DataReco --filesPerRecord 300 \
-        --ratedir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
+        --ratedir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data --filesLim 500
 
 
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir ElectronTraining_JSON --v ECAL --odir DataReco --sample train

@@ -440,4 +440,25 @@ python submitOnTier3.py --inFileList EphemeralZeroBias__Run2022G-v1__Run362616__
     --noL1calib \
     --data
 
+# v39
+python submitOnTier3.py --inFileList EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO \
+                        --outTag GT124XdataRun3Promptv10_CaloParams2022v39newCalib_data_reco_json \
+                        --nJobs 2879 \
+                        --queue short \
+                        --maxEvts -1 \
+                        --inJson Cert_Collisions2022_355100_362760_Golden \
+                        --caloParams caloParams_2022_v39_newCalib_cfi \
+                        --globalTag 124X_dataRun3_v11 \
+                        --data \
+                        --recoFromSKIM
+
+python submitOnTier3.py --inFileList EphemeralZeroBias0__Run2022G-v1__Run362616__RAW \
+                        --outTag GT124XdataRun3Promptv10_CaloParams2022v39newCalib_data \
+                        --nJobs 278 \
+                        --queue short \
+                        --maxEvts -1 \
+                        --caloParams caloParams_2022_v39_newCalib_cfi \
+                        --globalTag 124X_dataRun3_v11 \
+                        --data
+
 # export SITECONFIG_PATH=/cvmfs/cms.cern.ch/SITECONF/T2_FR_GRIF_LLR/GRIF-LLR
