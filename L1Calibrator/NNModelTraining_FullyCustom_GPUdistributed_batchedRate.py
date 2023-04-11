@@ -30,7 +30,7 @@ def makePlots(HISTORY, odir):
     plt.style.use(mplhep.style.CMS)
     cmap = matplotlib.cm.get_cmap('Set1')
 
-    plt.plot(HISTORY['x'], HISTORY['train_loss'], label='Taining', lw=2, ls='-', marker='o', color=cmap(0))
+    plt.plot(HISTORY['x'], HISTORY['train_loss'], label='Training', lw=2, ls='-', marker='o', color=cmap(0))
     plt.plot(HISTORY['x'], HISTORY['test_loss'], label='Testing', lw=2, ls='-', marker='o', color=cmap(1))
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
@@ -41,7 +41,7 @@ def makePlots(HISTORY, odir):
     plt.savefig(odir+'/plots/loss.pdf')
     plt.close()
 
-    plt.plot(HISTORY['x'], HISTORY['train_RMSE'], label='Taining', lw=2, ls='-', marker='o', color=cmap(0))
+    plt.plot(HISTORY['x'], HISTORY['train_RMSE'], label='Training', lw=2, ls='-', marker='o', color=cmap(0))
     plt.plot(HISTORY['x'], HISTORY['test_RMSE'], label='Testing', lw=2, ls='-', marker='o', color=cmap(1))
     plt.ylabel('RMSE')
     plt.xlabel('Epoch')
@@ -52,7 +52,7 @@ def makePlots(HISTORY, odir):
     plt.savefig(odir+'/plots/RootMeanSquaredError.pdf')
     plt.close()
 
-    plt.plot(HISTORY['x'], HISTORY['train_regressionLoss'], label='Taining', lw=2, ls='-', marker='o', color=cmap(0))
+    plt.plot(HISTORY['x'], HISTORY['train_regressionLoss'], label='Training', lw=2, ls='-', marker='o', color=cmap(0))
     plt.plot(HISTORY['x'], HISTORY['test_regressionLoss'], label='Testing', lw=2, ls='-', marker='o', color=cmap(1))
     plt.ylabel('Regression loss')
     plt.xlabel('Epoch')
@@ -63,7 +63,7 @@ def makePlots(HISTORY, odir):
     plt.savefig(odir+'/plots/regressionLoss.pdf')
     plt.close()
 
-    plt.plot(HISTORY['x'], HISTORY['train_weightsLoss'], label='Taining', lw=2, ls='-', marker='o', color=cmap(0))
+    plt.plot(HISTORY['x'], HISTORY['train_weightsLoss'], label='Training', lw=2, ls='-', marker='o', color=cmap(0))
     plt.plot(HISTORY['x'], HISTORY['test_weightsLoss'], label='Testing', lw=2, ls='-', marker='o', color=cmap(1))
     plt.ylabel('Weights loss')
     plt.xlabel('Epoch')
@@ -74,13 +74,13 @@ def makePlots(HISTORY, odir):
     plt.savefig(odir+'/plots/weightsLoss.pdf')
     plt.close()
 
-    plt.plot(HISTORY['x'], HISTORY['train_rateLoss'], label='Taining', lw=2, ls='-', marker='o', color=cmap(0))
+    plt.plot(HISTORY['x'], HISTORY['train_rateLoss'], label='Training', lw=2, ls='-', marker='o', color=cmap(0))
     plt.plot(HISTORY['x'], HISTORY['test_rateLoss'], label='Testing', lw=2, ls='-', marker='o', color=cmap(1))
     plt.ylabel('Rate loss')
     plt.xlabel('Epoch')
     plt.grid()
     plt.yscale('log')
-    plt.ylim(0.000475,0.0007)
+    # plt.ylim(0.000475,0.0007)
     plt.subplots_adjust(left=0.17)
     leg = plt.legend(loc='upper right', fontsize=20)
     leg._legend_box.align = "left"
@@ -230,7 +230,9 @@ def create_model(version, seedThr=None, jetThr=None, hoeThrEB=None, hoeThrEE=Non
         exit()
 
     TTP_input = keras.Input(shape=(81,42), dtype=tf.float32, name='chunky_donut')
-    if version == 'ECAL':                    rate_input = keras.Input(shape=42, dtype=tf.float32, name='rate_proxy')
+    # if version == 'ECAL':                    rate_input = keras.Input(shape=42, dtype=tf.float32, name='rate_proxy')
+    # in the new rate proxy for ECAL we keep the full cluster in a 9x9 matrix
+    if version == 'ECAL':                    rate_input = keras.Input(shape=(81,42), dtype=tf.float32, name='rate_proxy')
     if version == 'HCAL' or version == 'HF': rate_input = keras.Input(shape=(81,42), dtype=tf.float32, name='rate_proxy')
     
     layer1 = Dense(82,  name='nn1', input_dim=41, activation='relu', kernel_initializer=RN(seed=7), use_bias=False)
@@ -247,26 +249,42 @@ def create_model(version, seedThr=None, jetThr=None, hoeThrEB=None, hoeThrEE=Non
     MainPredictionList = make_AddList(TTP, TTP_input)
     TTP_output = lay.Add(name="main_predicted_energy")(MainPredictionList)
     
+    # [FIXME] HERE WE NEED TO CHANGE THE WAY OF COMPUTING THE RATE PROXY
     if version == 'ECAL':
-        # 'hardcoded' threshold on hcal over ecal deposit
-        hasEBthr = lay.Lambda(lambda x : tf.reduce_sum(x[:,2:30], axis=1, keepdims=True) * pow(2, -hoeThrEB), name='has_hoe_eb_thr')(rate_input)
-        hasEEthr = lay.Lambda(lambda x : tf.reduce_sum(x[:,30:], axis=1, keepdims=True) * pow(2, -hoeThrEE), name='has_hoe_ee_thr')(rate_input)
-        hoeThr = lay.Lambda(lambda x : x[0] + x[1], name="has_hoe_thr")((hasEBthr, hasEEthr))
+        # # 'hardcoded' threshold on hcal over ecal deposit
+        # hasEBthr = lay.Lambda(lambda x : tf.reduce_sum(x[:,2:30], axis=1, keepdims=True) * pow(2, -hoeThrEB), name='has_hoe_eb_thr')(rate_input)
+        # hasEEthr = lay.Lambda(lambda x : tf.reduce_sum(x[:,30:], axis=1, keepdims=True) * pow(2, -hoeThrEE), name='has_hoe_ee_thr')(rate_input)
+        # hoeThr = lay.Lambda(lambda x : x[0] + x[1], name="has_hoe_thr")((hasEBthr, hasEEthr))
 
-        # hadronic deposit behind the ecal one
-        TT_had = lay.Lambda(lambda x : x[:,0:1], name='tt_had_deposit')(rate_input)
+        # # hadronic deposit behind the ecal one
+        # TT_had = lay.Lambda(lambda x : x[:,0:1], name='tt_had_deposit')(rate_input)
 
-        # # predict TT energy, add correspondong non-calibrated had part, and apply threshold
-        TT_em_pred = TTP(lay.Lambda(lambda x : x[:,1:], name="tt_em_pred")(rate_input))
-        TT_pred = lay.Lambda(lambda x : x[0] + x[1], name="tt_tot_energy")((TT_em_pred, TT_had))
-        TT_eAT = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, egThr, 10.), name="apply_eg_threshold")(TT_pred) # sharpness 10. means +/-0.5 GeV tunron region
+        # # # predict TT energy, add correspondong non-calibrated had part, and apply threshold
+        # TT_em_pred = TTP(lay.Lambda(lambda x : x[:,1:], name="tt_em_pred")(rate_input))
+        # TT_pred = lay.Lambda(lambda x : x[0] + x[1], name="tt_tot_energy")((TT_em_pred, TT_had))
+        # TT_eAT = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, egThr, 10.), name="apply_eg_threshold")(TT_pred) # sharpness 10. means +/-0.5 GeV tunron region
 
-        # # calculate HoE for each TT and apply threshold (this is a <= threshold so need 1-sigmoid)
-        TT_hoe = lay.Lambda(lambda x : tf.math.divide_no_nan(x[0], x[1]), name="compute_tt_hoe")((TT_had, TT_em_pred))
-        TT_hoeAT = lay.Lambda(lambda x : threshold_relaxation_inverseSigmoid(x[0], x[1], 1000.), name="apply_hoe_threshold")((TT_hoe,hoeThr)) # sharpness 1000. means +/-0.005 tunron region
+        # # # calculate HoE for each TT and apply threshold (this is a <= threshold so need 1-sigmoid)
+        # TT_hoe = lay.Lambda(lambda x : tf.math.divide_no_nan(x[0], x[1]), name="compute_tt_hoe")((TT_had, TT_em_pred))
+        # TT_hoeAT = lay.Lambda(lambda x : threshold_relaxation_inverseSigmoid(x[0], x[1], 1000.), name="apply_hoe_threshold")((TT_hoe,hoeThr)) # sharpness 1000. means +/-0.005 tunron region
 
-        # do logical AND between TT_eAT and TT_hoeAT
-        rate_output = lay.Lambda(lambda x : x[0] * x[1], name="thresholds_or")((TT_eAT, TT_hoeAT))
+        # # do logical AND between TT_eAT and TT_hoeAT
+        # rate_output = lay.Lambda(lambda x : x[0] * x[1], name="thresholds_or")((TT_eAT, TT_hoeAT))
+
+        # no need to apply the hoe cut anymore, since it's intrinsically included in the cluster
+        # new structure of the rate input for ECAL
+
+        # predict jet energy and apply threshold: sum all the ihad energies z[:,:,0] of the 9x9 and all the iem energies z[:,:,1] of the 9x9
+        # sum hadronic deposit behind the ecal one
+        eg_had = lay.Lambda(lambda x : tf.reduce_sum(x, axis=1, keepdims=True)[:,:,0], name='eg_had_deposit')(rate_input)
+        # apply model to the em component
+        RatePredictionList = make_AddList(TTP, rate_input, name="rate_")
+        eg_em_pred = lay.Add(name="rate_predicted_energy")(RatePredictionList)
+        # sum had energy and calibrated em energy
+        eg_pred = lay.Lambda(lambda x : x[0] + x[1], name="eg_tot_energy")((eg_em_pred, eg_had))
+        # apply threshold
+        eg_AT = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, egThr, 10.), name="apply_eg_threshold")(eg_pred) # sharpness 10. means +/-0.5 GeV tunron region
+        rate_output = eg_AT
 
     if version == 'HCAL' or version == 'HF':
         # predict seed energy (including the correspondong EM TT part) and apply threshold
@@ -308,11 +326,12 @@ if __name__ == "__main__" :
     parser.add_option("--batch_size",       dest="batch_size",       help="Batch size for the training",                   default=2048,  type=int            )
     parser.add_option("--no-verbose",       dest="verbose",          help="Deactivate verbose training",                   default=True,  action='store_false')
     parser.add_option("--makeOnlyPlots",    dest="makeOnlyPlots",    help="Do not do the training, just make the plots",   default=False, action='store_true' )
+    parser.add_option("--addtag",           dest="addtag",           help="Add tag to distinguish different trainings",    default="",                        )
     (options, args) = parser.parse_args()
     print(options)
 
     indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
-    odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/model_' + options.v
+    odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/model_' + options.v + options.addtag
     CKPTdir = odir+'/training_checkpoints'
     CKPTpf = os.path.join(CKPTdir, "ckpt")
     os.system('mkdir -p '+ odir)
@@ -343,7 +362,19 @@ if __name__ == "__main__" :
                 'train_loss' : [], 'train_regressionLoss' : [], 'train_weightsLoss' : [], 'train_rateLoss' : [], 'train_RMSE' : [],
                 'test_loss'  : [], 'test_regressionLoss'  : [], 'test_weightsLoss'  : [], 'test_rateLoss'  : [], 'test_RMSE'  : []
               }
-
+    # new method to change learning rate over time (not to miss local minima)
+    lr_schedule = keras.optimizers.schedules.ExponentialDecay(initial_learning_rate=MAX_LEARNING_RATE, decay_steps=5, decay_rate=0.1)
+    # will stop the training the monito doesn't improve after the patience step
+    # tf.keras.callbacks.EarlyStopping(
+    #     monitor='val_loss',
+    #     min_delta=0,
+    #     patience=0,
+    #     verbose=0,
+    #     mode='auto',
+    #     baseline=None,
+    #     restore_best_weights=False,
+    #     start_from_epoch=0
+    # )
 
     ##############################################################################
     ################################# LOAD INPUTS ################################
@@ -424,18 +455,26 @@ if __name__ == "__main__" :
         # part of the loss that controls the weights overtraining
         def weightsLoss():
             modelWeights = model.trainable_weights
-            modelWeights_ss = float( tf.math.reduce_sum(tf.math.square(modelWeights[0]), keepdims=True) +
-                                     tf.math.reduce_sum(tf.math.square(modelWeights[1]), keepdims=True) +
-                                     tf.math.reduce_sum(tf.math.square(modelWeights[2]), keepdims=True)
-                                    )
+            # modelWeights_ss = float( tf.math.reduce_sum(tf.math.square(modelWeights[0]), keepdims=True) +
+            #                          tf.math.reduce_sum(tf.math.square(modelWeights[1]), keepdims=True) +
+            #                          tf.math.reduce_sum(tf.math.square(modelWeights[2]), keepdims=True)
+            #                         )
+            # Suggested be Frederic
+            modelWeights_ss = float( tf.math.reduce_sum(tf.math.abs(modelWeights[0]), keepdims=True) +
+                                     tf.math.reduce_sum(tf.math.abs(modelWeights[1]), keepdims=True) +
+                                     tf.math.reduce_sum(tf.math.abs(modelWeights[2]), keepdims=True)
+                                    )            
             return  modelWeights_ss * 1 # FIXME: scaling to be optimized
 
         # part of the loss that controls the rate
         def rateLoss(z_pred, targetRate):
             # compute fraction of passing events and multiply by rate scaling
-            proxyRate = tf.reduce_sum(z_pred, keepdims=True) / BATCH_SIZE_PER_REPLICA * 0.001*2500*11245.6
-            realtive_diff = (proxyRate - targetRate) / targetRate
-            return tf.cosh(1.5 * realtive_diff) * 1 # FIXME: scaling to be optimized
+            scale_to_rate = 0.001*2500*11245.6 * 0.016549667686051477
+            proxyRate = tf.reduce_sum(z_pred, keepdims=True) / BATCH_SIZE_PER_REPLICA * scale_to_rate
+            # realtive_diff = (proxyRate - targetRate) / targetRate
+            # return tf.cosh(1.5 * realtive_diff) * 1 # FIXME: scaling to be optimized
+            # sharpness of 10 corresponds to +/- 1 kHz
+            return threshold_relaxation_sigmoid(proxyRate, targetRate, 10) * 1 # FIXME: scaling to be optimized
 
         # GPU distribution friendly loss computation
         def compute_losses(y, y_pred, z_pred):
@@ -452,7 +491,8 @@ if __name__ == "__main__" :
             # if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 191.8348)
 
             # normal regions computed on ZeroBias
-            if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 2610.6602)
+            # if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 2610.6602)
+            if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 44.63708)
             if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 751.14514)
 
             fullLoss = regressionLoss_value + weightsLoss_value + rateLoss_value
@@ -465,6 +505,7 @@ if __name__ == "__main__" :
         # define model and related stuff
         if VERSION == 'ECAL':                    model, TTP = create_model(VERSION, hoeThrEB=3., hoeThrEE=4., egThr=50.)
         if VERSION == 'HCAL' or VERSION == 'HF': model, TTP = create_model(VERSION, seedThr=8., jetThr=100.)
+        # optimizer = keras.optimizers.Adam(learning_rate=lr_schedule)
         optimizer = keras.optimizers.Adam(learning_rate=MAX_LEARNING_RATE)
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
         train_acc_metric = keras.metrics.RootMeanSquaredError(name='train_accuracy')
@@ -480,7 +521,9 @@ if __name__ == "__main__" :
             y_pred, z_pred = model([x, z], training=True)
             losses = compute_losses(y, y_pred, z_pred)
 
-        grads = tape.gradient([losses[1], losses[2], losses[3]], model.trainable_weights)
+        # grads = tape.gradient([losses[1], losses[2], losses[3]], model.trainable_weights)
+        # suggested by Frederic but it doesn't work
+        grads = tape.gradient(losses[0], model.trainable_weights)
         optimizer.apply_gradients(zip(grads, model.trainable_weights))
         train_acc_metric.update_state(y, y_pred)
 
