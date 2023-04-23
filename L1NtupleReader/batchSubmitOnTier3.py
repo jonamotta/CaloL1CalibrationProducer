@@ -56,6 +56,7 @@ parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly",  default=Fal
 parser.add_option("--trainPtVers",        dest="trainPtVers",        default=False)
 parser.add_option("--applyOnTheFly",      dest="applyOnTheFly",      default=False)
 parser.add_option("--ClusterFilter",      dest="ClusterFilter",      default=False)
+parser.add_option("--applyZS",            dest="applyZS",            default=False)
 parser.add_option("--resubmit_failed",    dest="resubmit_failed",    default=False, action='store_true')
 parser.add_option("--no_exec",            dest="no_exec",            default=False, action='store_true')
 (options, args) = parser.parse_args()
@@ -149,6 +150,8 @@ for file in InFiles:
         cmsRun = cmsRun + " --applyOnTheFly "+options.applyOnTheFly
     if options.ClusterFilter != False:
         cmsRun = cmsRun + " --ClusterFilter "+options.ClusterFilter
+    if options.applyZS != False:
+        cmsRun = cmsRun + " --applyZS "+options.applyZS
 
     cmsRun = cmsRun + " >& "+outLogName
 

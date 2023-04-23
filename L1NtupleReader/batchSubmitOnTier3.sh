@@ -102,108 +102,108 @@ source /opt/exp_soft/cms/t3/t3setup
 #                               --etacut 41 --calibECALOnTheFly currCalib --calibHCALOnTheFly currCalib \
 #                               --resubmit_failed
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_22_NtuplesV35 \
-                              --target reco_corr --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_22_NtuplesV35 \
+#                               --target reco_corr --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_7000_10000/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_22_NtuplesV35 \
-                              --target reco_corr --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_7000_10000/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_22_NtuplesV35 \
+#                               --target reco_corr --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_15000_20000/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_22_NtuplesV35 \
-                              --target reco_corr --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_15000_20000/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_22_NtuplesV35 \
+#                               --target reco_corr --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
-# Training wrt GenPt
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_24_NtuplesV36 \
-                              --target gen --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_7000_10000/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_24_NtuplesV36 \
-                              --target gen --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_15000_20000/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_24_NtuplesV36 \
-                              --target gen --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+# # Training wrt GenPt
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_24_NtuplesV36 \
+#                               --target gen --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_7000_10000/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_24_NtuplesV36 \
+#                               --target gen --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_15000_20000/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_24_NtuplesV36 \
+#                               --target gen --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
 
-# Training with 3M events
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_10000_15000/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
-                              --target reco_corr --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+# # Training with 3M events
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_10000_15000/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
+#                               --target reco_corr --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_20000_25000/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
-                              --target reco_corr --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_20000_25000/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
+#                               --target reco_corr --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_692488_to_694487/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
-                              --target reco_corr --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_692488_to_694487/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
+#                               --target reco_corr --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_694488_to_696487/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
-                              --target reco_corr --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_694488_to_696487/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
+#                               --target reco_corr --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_696488_to_698487/L1Ntuples \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
-                              --target reco_corr --type jet --chunk_size 2500 \
-                              --queue short \
-                              --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_696488_to_698487/L1Ntuples \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_25_NtuplesV37 \
+#                               --target reco_corr --type jet --chunk_size 2500 \
+#                               --queue short \
+#                               --etacut 41 --lJetPtCut 30 --uJetPtCut 1000 --HoTotcut 0.3
 
-# test rate
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
-                              --target emu --type ele --chunk_size 5000 \
-                              --queue short \
-                              --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33_newCalib \
-                              --addtag _v33RateTest
+# # test rate
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+#                               --target emu --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33_newCalib \
+#                               --addtag _v33RateTest
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
-                              --target emu --type ele --chunk_size 5000 \
-                              --queue short \
-                              --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33Rate0p8_newCalib \
-                              --addtag _v33RateTest0p8
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+#                               --target emu --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33Rate0p8_newCalib \
+#                               --addtag _v33RateTest0p8
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
-                              --target emu --type ele --chunk_size 5000 \
-                              --queue short \
-                              --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33Rate1p2_newCalib \
-                              --addtag _v33RateTest1p2
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+#                               --target emu --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33Rate1p2_newCalib \
+#                               --addtag _v33RateTest1p2
 
-# correct rate
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
-                              --target emu --type ele --chunk_size 5000 \
-                              --queue short \
-                              --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33Rate0p8True_newCalib \
-                              --addtag _v33RateTest0p8True
+# # correct rate
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+#                               --target emu --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33Rate0p8True_newCalib \
+#                               --addtag _v33RateTest0p8True
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
-                              --target emu --type ele --chunk_size 5000 \
-                              --queue short \
-                              --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33Rate1p2True_newCalib \
-                              --addtag _v33RateTest1p2True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_03_06_NtuplesV33 \
+#                               --target emu --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True --calibECALOnTheFly v33Rate1p2True_newCalib \
+#                               --addtag _v33RateTest1p2True
 
 # rate studies
 # python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data \
@@ -220,18 +220,70 @@ python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTu
 #                               --etacut 28 --ecalcut True --lJetPtCut 15 --applyCut_3_6_9 True \
 #                               --addtag _RateProxyCluster 
 
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_06_NtuplesV39 \
-                              --target rate --type ele --chunk_size 5000 --ClusterFilter True \
-                              --queue short \
-                              --etacut 28 --lJetPtCut 15 --applyCut_3_6_9 True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_06_NtuplesV39 \
+#                               --target rate --type ele --chunk_size 5000 --ClusterFilter True \
+#                               --queue short \
+#                               --etacut 28 --lJetPtCut 15 --applyCut_3_6_9 True
 
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_06_NtuplesV39 \
+#                               --target rate --type ele --chunk_size 5000 --ClusterFilter True \
+#                               --queue short \
+#                               --etacut 28 --lJetPtCut 15 --applyCut_3_6_9 True
+
+# New training on MC after talking to Mariarosaria
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X/L1Ntuples \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target reco --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 50 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_7000_10000/L1Ntuples \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target reco --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 50 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_10000_15000/L1Ntuples \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target reco --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 50 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_15000_20000/L1Ntuples \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target reco --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 50 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_20000_25000/L1Ntuples \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target reco --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 50 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/QCD_Pt30_500_TuneCP5_13p6TeV_124X_25000_30000/L1Ntuples \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target reco --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 50 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_692488_to_694487/L1Ntuples \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target reco --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 50 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_694488_to_696487/L1Ntuples \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target reco --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 50 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/PrivateMC/FromOlivier_March23/QCD_30_500_696488_to_698487/L1Ntuples \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target reco --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 50 --uJetPtCut 1000 --hcalcut True --applyZS True
+
+# removed the shuffle in order to keep track of the position of the seed
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target emu --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_13_NtuplesV40 --target emu --type jet --chunk_size 2500 \
+#     --queue short --etacut 28 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+
+# training on data in the barrel
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON \
+    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41 --target reco --type jet --chunk_size 2500 \
+    --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True --applyZS True
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON_Early_G_Era \
+    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41 --target reco --type jet --chunk_size 2500 \
+    --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True --applyZS True
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON_Late_G_Era \
+    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41 --target reco --type jet --chunk_size 2500 \
+    --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True --applyZS True
+# not sure about these cuts but for v41 we don't use the rate
 python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data \
-                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_06_NtuplesV39 \
-                              --target rate --type ele --chunk_size 5000 --ClusterFilter True \
-                              --queue short \
-                              --etacut 28 --lJetPtCut 15 --applyCut_3_6_9 True
-
+    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41 --target emu --type jet --chunk_size 2500 \
+    --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
 
 ####################################################################################################################################################################################################
 ####################################################################################################################################################################################################

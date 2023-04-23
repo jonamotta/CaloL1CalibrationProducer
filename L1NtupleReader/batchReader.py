@@ -10,7 +10,7 @@ import os,sys
 import warnings
 warnings.simplefilter(action='ignore')
 
-n_clusters = 0
+n_jets = 0
 n_mismatch = 0
 
 def chunker(seq, size):
@@ -301,13 +301,21 @@ def padDataFrameWithZeros( dfFlatEJT ):
 
 def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, \
                 Hcalcut, HoTotcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, \
-                flattenPtDistribution, flattenEtaDistribution, applyOnTheFly, ClusterFilter):
+                flattenPtDistribution, flattenEtaDistribution, applyOnTheFly, ClusterFilter, applyZS):
     
     if len(dfFlatET) == 0 or len(dfFlatEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
         return
     
     dfFlatEJ['jetId'] = dfFlatEJ.index # each jet gets an identifier based on a progressive value independent of event -> this allows further flexibility of ID on top of event
+
+    #########################################################################
+    ###################### Application of ZS to inputs ######################
+    if applyZS != False:
+        # print(dfFlatET[dfFlatET['ihad'] == 1]['ieta'].unique()) #DEBUG
+        # apply ZS mehod to the MC inputs for ihad == 1 and |ieta| <= 15
+        dfFlatET.loc[(dfFlatET['ihad'] == 1) & (dfFlatET['ieta'].abs() <= 15), 'ihad'] = 0
+        # print(dfFlatET[dfFlatET['ihad'] == 1]['ieta'].unique()) #DEBUG
 
     #########################################################################
     ########################## Application of cuts ##########################
@@ -380,10 +388,6 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
     dfFlatEJ = dfFlatEJ[dfFlatEJ.jetId.isin(notSafe) == False]
     dfFlatEJ.drop(['jetEta_joined', 'jetPhi_joined', 'jetPt_joined', 'jetId_joined', 'dRsafe'], axis=1, inplace=True) # drop columns not needed anymore
     dfFlatEJ.drop_duplicates('jetId', keep='first', inplace=True) # drop duplicates of the jets
-
-    global n_clusters
-    n_clusters += len(dfFlatEJ)
-    # print(n_clusters) #DEBUG
 
     ## DEBUG
     print('starting conversion eta/phi->ieta/iphi')
@@ -526,6 +530,10 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
         dfFlatEJT['hcalET'] = dfFlatEJT.apply(lambda row: math.floor(row['hcalET'] * SFs[int( abs(row['ieta']) + 40*(row['ihadBin']-1) ) -1]), axis=1)
         dfFlatEJT.set_index('uniqueIdx', inplace=True)
 
+    global n_jets
+    n_jets += len(dfFlatEJT.index.unique())
+    print(dfFlatEJT.index.unique()) #DEBUG
+
     # store number of TT fired by the jet
     # dfFlatEJT['nFT'] = dfFlatEJT.groupby('uniqueIdx')['uniqueId'].count()
 
@@ -558,7 +566,8 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
 
     # shuffle the rows so that no order of the chunky donut gets learned
     paddedEJT.reset_index(inplace=True)
-    paddedEJT = paddedEJT.sample(frac=1).copy(deep=True)
+    # remove the shiffling to keep track of the seed for the HCAL rate estimate (from v40)
+    # paddedEJT = paddedEJT.sample(frac=1).copy(deep=True)
 
     dfTowers = paddedEJT[['uniqueId','ieta','iem','hcalET']].copy(deep=True) #'contained', 'nFT'
     dfJets = paddedEJT[['uniqueId','jetPt','jetEta','jetPhi','trainingPt']].copy(deep=True)
@@ -661,6 +670,7 @@ if __name__ == "__main__" :
     parser.add_option("--flattenEtaDistribution",     dest="flattenEtaDistribution",     default=False)
     parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
     parser.add_option("--ClusterFilter", dest="ClusterFilter", default=False)
+    parser.add_option("--applyZS",       dest="applyZS",       default=False)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.fout=='' or options.target=='' or options.type==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
@@ -745,6 +755,8 @@ if __name__ == "__main__" :
     dfET = dfET.dropna(axis=0)
     dfEJ = dfEJ.dropna(axis=0)
 
+    n_events = len(dfE[b'event'].unique())
+
     del dfE, dfT, dfJ
 
     # index of rhe Ntuple as tag
@@ -807,9 +819,10 @@ if __name__ == "__main__" :
         mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, \
                     options.ecalcut, options.hcalcut, options.HoTotcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, \
                     options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.flattenEtaDistribution, options.applyOnTheFly, \
-                    options.ClusterFilter)
+                    options.ClusterFilter, options.applyZS)
 
-    print("\nNumber of clusters = ", n_clusters)
+    print("\nNumber of events = ", n_events)
+    print("Number of jets passing reader conditions = ", n_jets)
     print("Mismatched = ", n_mismatch)
     print("DONE!")
 
