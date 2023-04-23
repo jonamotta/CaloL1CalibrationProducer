@@ -31,6 +31,7 @@ parser.add_option("--target",    dest="target",   default=None)
 parser.add_option("--reco",      dest="reco",     action='store_true', default=False)
 parser.add_option("--gen",       dest="gen",      action='store_true', default=False)
 parser.add_option("--unpacked",  dest="unpacked", action='store_true', default=False)
+parser.add_option("--raw",       dest="raw",      action='store_true', default=False)
 (options, args) = parser.parse_args()
 
 # get/create folders
@@ -156,8 +157,18 @@ for i in range(0, nevents):
         #loop on L1 jets to find match
         for iL1Obj in range(0, L1_nObjs):
             level1Obj = ROOT.TLorentzVector()
-            if options.target == 'jet': level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
-            if options.target == 'ele': level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+            if options.target == 'jet': 
+                if options.raw:
+                    # new method of plotting results by just looking at the raw output from the Layer-1
+                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetRawEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
+                else:
+                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
+            if options.target == 'ele': 
+                if options.raw:
+                    # new method of plotting results by just looking at the raw output from the Layer-1
+                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egRawEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+                else:
+                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
 
             #check matching
             if targetObj.DeltaR(level1Obj)<0.5:
