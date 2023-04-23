@@ -250,13 +250,13 @@ The training sample is copied from 2023_03_06_NtuplesV33/EGamma__Run2022E-ZElect
 (era E) in order to have enough statistics but not too long training
     - model_ECAL   : full loss      (regularization term with absolute value),  LR=10^-3,   new proxy rate (sigmoid)
     - model_ECALB  : full loss      (regularization term with square),          LR=10^-3,   new proxy rate (sigmoid)
-    - model_ECALC  : regression term only                                       LR=10^-3,   new proxy rate (sigmoid)
+    - model_ECALC  : regression term only                                       LR=10^-3,
     - model_ECALD  : regression term + rate                                     LR=10^-3,   new proxy rate (sigmoid)
     - model_ECALD1 : regression term + rate                                     LR=10^-3,   0.5*new proxy rate (sigmoid)
     - model_ECALD2 : regression term + rate                                     LR=10^-3,   1.5*new proxy rate (sigmoid)
     - model_ECALE  : regression term + rate                                     LR=10^-3,   new proxy rate (relu)
     - model_ECALF  : regression term + rate                                     LR=10^-3,   new proxy rate (cosh)
-    - model_ECALG  : (check)
+    - model_ECALG  : regression term only                                       LR=10^-5,
 - ECALtrainingDataRecoFullStat
 Few trainings with full stat only for interesting tests, including three hidden layers in the NN (version H)
 
