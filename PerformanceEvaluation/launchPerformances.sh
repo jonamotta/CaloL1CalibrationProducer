@@ -106,72 +106,146 @@
 # python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data_reco_json
 
 # EGAMMA
-python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data/GoodNtuples  --outdir 2023_03_25_NtuplesV37 --label EGamma_data_reco --nEvts 500000 --target ele
-python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV37  --label EGamma_data_reco --reco --nEvts 500000 --target ele
-python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV37  --label EGamma_data_reco --reco --nEvts 500000 --target ele
-# python3 comparisonPlots.py --indir 2023_03_25_NtuplesV37 --label EGamma_data_reco --target ele --reco --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40r
-python3 comparisonPlots.py --indir 2023_03_25_NtuplesV37 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
-        --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data/GoodNtuples  --outdir 2023_03_25_NtuplesV37 --label EGamma_data_reco --nEvts 500000 --target ele
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV37  --label EGamma_data_reco --reco --nEvts 500000 --target ele
+# python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV37  --label EGamma_data_reco --reco --nEvts 500000 --target ele
+# # python3 comparisonPlots.py --indir 2023_03_25_NtuplesV37 --label EGamma_data_reco --target ele --reco --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40r
+# python3 comparisonPlots.py --indir 2023_03_25_NtuplesV37 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib
 
-# MUON
-python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data/GoodNtuples  --outdir 2023_03_25_NtuplesV37  --label Muon_data_reco   --nEvts 500000 --target jet
-python3 resolutions.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV37  --label Muon_data_reco --reco --nEvts 500000 --target jet
-python3 turnOn.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV37 --label Muon_data_reco --reco --nEvts 500000 --target jet
-# python3 comparisonPlots.py --indir 2023_03_25_NtuplesV37 --label Muon_data_reco  --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100
-python3 comparisonPlots.py --indir 2023_03_25_NtuplesV37 --label Muon_data_reco  --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
-        --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib
+# # MUON
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data/GoodNtuples  --outdir 2023_03_25_NtuplesV37  --label Muon_data_reco   --nEvts 500000 --target jet
+# python3 resolutions.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV37  --label Muon_data_reco --reco --nEvts 500000 --target jet
+# python3 turnOn.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v37newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV37 --label Muon_data_reco --reco --nEvts 500000 --target jet
+# # python3 comparisonPlots.py --indir 2023_03_25_NtuplesV37 --label Muon_data_reco  --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100
+# python3 comparisonPlots.py --indir 2023_03_25_NtuplesV37 --label Muon_data_reco  --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib
 
-# v38 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# # v38 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data
-# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json
-# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json
+# # python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data
+# # python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json
+# # python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json
 
-# EGAMMA
-python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data/GoodNtuples  --outdir 2023_03_25_NtuplesV38 --label EGamma_data_reco --nEvts 500000 --target ele
-python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV38  --label EGamma_data_reco --reco --nEvts 500000 --target ele
-python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV38  --label EGamma_data_reco --reco --nEvts 500000 --target ele
-# python3 comparisonPlots.py --indir 2023_03_25_NtuplesV38 --label EGamma_data_reco --target ele --reco --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40r
-python3 comparisonPlots.py --indir 2023_03_25_NtuplesV38 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
-        --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib
+# # EGAMMA
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data/GoodNtuples  --outdir 2023_03_25_NtuplesV38 --label EGamma_data_reco --nEvts 500000 --target ele
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV38  --label EGamma_data_reco --reco --nEvts 500000 --target ele
+# python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV38  --label EGamma_data_reco --reco --nEvts 500000 --target ele
+# # python3 comparisonPlots.py --indir 2023_03_25_NtuplesV38 --label EGamma_data_reco --target ele --reco --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40r
+# python3 comparisonPlots.py --indir 2023_03_25_NtuplesV38 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib
 
-# MUON
-python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data/GoodNtuples  --outdir 2023_03_25_NtuplesV38  --label Muon_data_reco   --nEvts 500000 --target jet
-python3 resolutions.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV38  --label Muon_data_reco --reco --nEvts 500000 --target jet
-python3 turnOn.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV38 --label Muon_data_reco --reco --nEvts 500000 --target jet
-# python3 comparisonPlots.py --indir 2023_03_25_NtuplesV38 --label Muon_data_reco  --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100
-python3 comparisonPlots.py --indir 2023_03_25_NtuplesV38 --label Muon_data_reco  --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
-        --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib
+# # MUON
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data/GoodNtuples  --outdir 2023_03_25_NtuplesV38  --label Muon_data_reco   --nEvts 500000 --target jet
+# python3 resolutions.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV38  --label Muon_data_reco --reco --nEvts 500000 --target jet
+# python3 turnOn.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v38newCalib_data_reco_json/GoodNtuples --outdir 2023_03_25_NtuplesV38 --label Muon_data_reco --reco --nEvts 500000 --target jet
+# # python3 comparisonPlots.py --indir 2023_03_25_NtuplesV38 --label Muon_data_reco  --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100
+# python3 comparisonPlots.py --indir 2023_03_25_NtuplesV38 --label Muon_data_reco  --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib
 
-# v33 0p8 rate -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# # v33 0p8 rate -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# EGAMMA
-python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data  --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco   --nEvts 500000 --target ele --tag _Rate0p8
-python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data_reco_json
-python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data_reco_json/GoodNtuples --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _Rate0p8
-python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data_reco_json/GoodNtuples --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _Rate0p8
-python3 comparisonPlots.py --indir 2023_03_06_NtuplesV33 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
-        --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib --tag _Rate0p8
+# # EGAMMA
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data  --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco   --nEvts 500000 --target ele --tag _Rate0p8
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data_reco_json
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data_reco_json/GoodNtuples --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _Rate0p8
+# python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data_reco_json/GoodNtuples --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _Rate0p8
+# python3 comparisonPlots.py --indir 2023_03_06_NtuplesV33 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib --tag _Rate0p8
 
-python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v33Rate1p2newCalib_data  --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco   --nEvts 500000 --target ele --tag _Rate1p2
-python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate1p2newCalib_data_reco_json
-python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data_reco_json/GoodNtuples --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _Rate1p2
-python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data_reco_json/GoodNtuples --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _Rate1p2
-python3 comparisonPlots.py --indir 2023_03_06_NtuplesV33 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
-        --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib --tag _Rate1p2
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v33Rate1p2newCalib_data  --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco   --nEvts 500000 --target ele --tag _Rate1p2
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate1p2newCalib_data_reco_json
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data_reco_json/GoodNtuples --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _Rate1p2
+# python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v33Rate0p8newCalib_data_reco_json/GoodNtuples --outdir 2023_03_06_NtuplesV33  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _Rate1p2
+# python3 comparisonPlots.py --indir 2023_03_06_NtuplesV33 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --ref _currCalib --tag _Rate1p2
 
-# v39 
-mv /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v39_data /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v39newCalib_data
-python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v39newCalib_data  --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco   --nEvts 500000 --target ele --tag _NewRateProxy
+# # v39 
+# mv /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v39_data /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v39newCalib_data
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v39newCalib_data  --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco   --nEvts 500000 --target ele --tag _NewRateProxy
 
-python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v39newCalib_data_reco_json
-python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v39newCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _NewRateProxy
-python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v39newCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _NewRateProxy
-python3 comparisonPlots.py --indir 2023_04_06_NtuplesV39 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
-        --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --tag _NewRateProxy
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39newCalib_data_reco_json
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39newCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _NewRateProxy
+# python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39newCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag _NewRateProxy
+# python3 comparisonPlots.py --indir 2023_04_06_NtuplesV39 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --tag _NewRateProxy
 
+# # v39 C
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v39CnewCalib_data  --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --nEvts 500000 --target ele --tag C
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39CnewCalib_data_reco_json
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39CnewCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag C
+# python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39CnewCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag C
+# python3 comparisonPlots.py --indir 2023_04_06_NtuplesV39 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --tag C
 
+# v39 D
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v39DnewCalib_data  --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --nEvts 500000 --target ele --tag D
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39DnewCalib_data_reco_json
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39DnewCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag D
+# python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39DnewCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag D
+# python3 comparisonPlots.py --indir 2023_04_06_NtuplesV39 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --tag D
 
+# find rate target HCAL
+# python3 rate.py --indir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data  --outdir 0000_00_00_NtuplesVcurGT  --label EGamma_data_reco --nEvts 500000 --target ele --er 2.5
+# python3 rate.py --indir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data  --outdir 0000_00_00_NtuplesVcurGT  --label Muon_data_reco --nEvts 500000 --target jet --er 2.5
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v06_data_reco_json
+# python3 resolutions.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v06_data_reco_json/GoodNtuples --outdir 0000_00_00_NtuplesVcurGT  --label Muon_data_reco --reco --nEvts 500000 --target jet
+# python3 turnOn.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v06_data_reco_json/GoodNtuples --outdir 0000_00_00_NtuplesVcurGT  --label Muon_data_reco --reco --nEvts 500000 --target jet
+
+# v40 C3
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v40C3DnewCalib_data  --outdir 2023_04_13_NtuplesV40  --label Muon_data_reco --nEvts 500000 --target jet --tag C3
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v40C3newCalib_data_reco_json
+# python3 resolutions.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v40C3newCalib_data_reco_json/GoodNtuples --outdir 2023_04_13_NtuplesV40  --label Muon_data_reco --reco --nEvts 500000 --target jet --tag C3
+# python3 turnOn.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v40C3newCalib_data_reco_json/GoodNtuples --outdir 2023_04_13_NtuplesV40  --label Muon_data_reco --reco --nEvts 500000 --target jet --tag C3
+# python3 comparisonPlots.py --indir 2023_04_13_NtuplesV40 --label Muon_data_reco --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
+#         --old 0000_00_00_NtuplesVcurGT --unc 0000_00_00_NtuplesVunc --tag C3
+
+# v40 C6
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v40C6DnewCalib_data  --outdir 2023_04_13_NtuplesV40  --label Muon_data_reco --nEvts 500000 --target jet --tag C6
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v40C6newCalib_data_reco_json
+# python3 resolutions.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v40C6newCalib_data_reco_json/GoodNtuples --outdir 2023_04_13_NtuplesV40  --label Muon_data_reco --reco --nEvts 500000 --target jet --tag C6
+# python3 turnOn.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v40C6newCalib_data_reco_json/GoodNtuples --outdir 2023_04_13_NtuplesV40  --label Muon_data_reco --reco --nEvts 500000 --target jet --tag C6
+# python3 comparisonPlots.py --indir 2023_04_13_NtuplesV40 --label Muon_data_reco --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
+#         --old 0000_00_00_NtuplesVcurGT --unc 0000_00_00_NtuplesVunc --tag C6
+
+# v39 H1
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v39H1newCalib_data  --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --nEvts 500000 --target ele --tag H1
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39H1newCalib_data_reco_json
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39H1newCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag H1
+# python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39H1newCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag H1
+# python3 comparisonPlots.py --indir 2023_04_06_NtuplesV39 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --tag H1
+
+# v39 H2
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v39H2newCalib_data  --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --nEvts 500000 --target ele --tag H2
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39H2newCalib_data_reco_json
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39H1newCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag H1
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39H2newCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag H2
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json       --outdir 0000_00_00_NtuplesVunc --label EGamma_data_reco --reco --nEvts 500000 --target ele
+# python3 resolutions.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362617__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06oldHcalL1Calib_data_reco_json   --outdir 0000_00_00_NtuplesVcur --label EGamma_data_reco --reco --nEvts 500000 --target ele
+# python3 turnOn.py --indir EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO__GT124XdataRun3v11_CaloParams2022v39H2newCalib_data_reco_json/GoodNtuples --outdir 2023_04_06_NtuplesV39  --label EGamma_data_reco --reco --nEvts 500000 --target ele --tag H2
+# python3 comparisonPlots.py --indir 2023_04_06_NtuplesV39 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --tag H1
+# python3 comparisonPlots.py --indir 2023_04_06_NtuplesV39 --label EGamma_data_reco --target ele --reco --thrsFixRate 10 --thrsFixRate 12 --thrsFixRate 15 --thrsFixRate 30 --thrsFixRate 36 --thrsFixRate 40 \
+#         --old 0000_00_00_NtuplesVcur --unc 0000_00_00_NtuplesVunc --tag H2
+
+# v41 C
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v41CnewCalib_data  --outdir 2023_04_18_NtuplesV41  --label Muon_data_reco --nEvts 500000 --target jet --tag C --raw
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v41CnewCalib_data_reco_json
+# python3 turnOn.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v41CnewCalib_data_reco_json/GoodNtuples --outdir 2023_04_18_NtuplesV41  --label Muon_data_reco --reco --nEvts 500000 --target jet --tag C --raw
+# python3 resolutions.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v41CnewCalib_data_reco_json/GoodNtuples --outdir 2023_04_18_NtuplesV41 --label Muon_data_reco --reco --nEvts 500000 --target jet --tag C --raw
+
+# python3 rate.py --indir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data  --outdir 0000_00_00_NtuplesVcurRaw  --label Muon_data_reco --nEvts 500000 --target jet --raw
+# python3 resolutions.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v06_data_reco_json/GoodNtuples --outdir 0000_00_00_NtuplesVcurRaw  --label Muon_data_reco --reco --nEvts 500000 --target jet --raw
+# python3 turnOn.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v06_data_reco_json/GoodNtuples --outdir 0000_00_00_NtuplesVcurRaw --label Muon_data_reco --reco --nEvts 500000 --target jet --raw
+
+# python3 rate.py --indir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data --outdir 0000_00_00_NtuplesVuncRaw  --label Muon_data_reco --nEvts 500000 --target jet --raw
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data_reco_json
+python3 resolutions.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data_reco_json/GoodNtuples --outdir 0000_00_00_NtuplesVuncRaw  --label Muon_data_reco --reco --nEvts 500000 --target jet --raw
+python3 turnOn.py --indir Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data_reco_json/GoodNtuples --outdir 0000_00_00_NtuplesVuncRaw --label Muon_data_reco --reco --nEvts 500000 --target jet --raw
+python3 comparisonPlots.py --indir 2023_04_18_NtuplesV41 --label Muon_data_reco --target jet --reco --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
+        --old 0000_00_00_NtuplesVcurRaw --unc 0000_00_00_NtuplesVuncRaw --tag C
 
 ###############################################################################################################################################################################################################################################################################################
 ###############################################################################################################################################################################################################################################################################################
