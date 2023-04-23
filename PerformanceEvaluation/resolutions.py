@@ -31,6 +31,7 @@ parser.add_option("--target",    dest="target",   default=None)
 parser.add_option("--reco",      dest="reco",     action='store_true', default=False)
 parser.add_option("--gen",       dest="gen",      action='store_true', default=False)
 parser.add_option("--unpacked",  dest="unpacked", action='store_true', default=False)
+parser.add_option("--raw",       dest="raw",      action='store_true', default=False)
 (options, args) = parser.parse_args()
 
 # get/create folders
@@ -76,27 +77,28 @@ if options.target == 'ele':
     signedEtaBins = [-3.0, -2.5, -2.0, -1.479, -1.305, -1.0, -0.5, 0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
 
 # PT RESPONSE - INCLUSIVE HISTOGRAMS
-pt_response_ptInclusive = ROOT.TH1F("pt_response_ptInclusive","pt_response_ptInclusive",60,0,3)
-pt_barrel_resp_ptInclusive = ROOT.TH1F("pt_barrel_resp_ptInclusive","pt_barrel_resp_ptInclusive",60,0,3)
-pt_endcap_resp_ptInclusive = ROOT.TH1F("pt_endcap_resp_ptInclusive","pt_endcap_resp_ptInclusive",60,0,3)
+res_bins = 240
+pt_response_ptInclusive = ROOT.TH1F("pt_response_ptInclusive","pt_response_ptInclusive",res_bins,0,3)
+pt_barrel_resp_ptInclusive = ROOT.TH1F("pt_barrel_resp_ptInclusive","pt_barrel_resp_ptInclusive",res_bins,0,3)
+pt_endcap_resp_ptInclusive = ROOT.TH1F("pt_endcap_resp_ptInclusive","pt_endcap_resp_ptInclusive",res_bins,0,3)
 
 # PT RESPONSE - PT BINS HISTOGRAMS
 response_ptBins = []
 barrel_response_ptBins = []
 endcap_response_ptBins = []
 for i in range(len(ptBins)-1):
-    response_ptBins.append(ROOT.TH1F("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),"pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),60,0,3))
-    barrel_response_ptBins.append(ROOT.TH1F("pt_barrel_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),"pt_barrel_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),60,0,3))
-    endcap_response_ptBins.append(ROOT.TH1F("pt_endcap_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),"pt_endcap_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),60,0,3))
+    response_ptBins.append(ROOT.TH1F("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),"pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),res_bins,0,3))
+    barrel_response_ptBins.append(ROOT.TH1F("pt_barrel_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),"pt_barrel_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),res_bins,0,3))
+    endcap_response_ptBins.append(ROOT.TH1F("pt_endcap_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),"pt_endcap_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]),res_bins,0,3))
 
 # PT RESPONSE -  ETA BINS HISTIGRAMS
 absEta_response_ptBins = []
 minusEta_response_ptBins = []
 plusEta_response_ptBins = []
 for i in range(len(etaBins)-1):
-    absEta_response_ptBins.append(ROOT.TH1F("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),"pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),60,0,3))
-    minusEta_response_ptBins.append(ROOT.TH1F("pt_resp_MinusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),"pt_resp_MinusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),60,0,3))
-    plusEta_response_ptBins.append(ROOT.TH1F("pt_resp_PlusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),"pt_resp_PlusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),60,0,3))
+    absEta_response_ptBins.append(ROOT.TH1F("pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),"pt_resp_AbsEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),res_bins,0,3))
+    minusEta_response_ptBins.append(ROOT.TH1F("pt_resp_MinusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),"pt_resp_MinusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),res_bins,0,3))
+    plusEta_response_ptBins.append(ROOT.TH1F("pt_resp_PlusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),"pt_resp_PlusEtaBin"+str(etaBins[i])+"to"+str(etaBins[i+1]),res_bins,0,3))
 
 pt_resp_PtEtaBin = []
 for i in range(len(ptBins)-1):
@@ -105,7 +107,7 @@ for i in range(len(ptBins)-1):
         lowE  = str(etaBins[j])
         highP = str(ptBins[i+1])
         highE = str(etaBins[j+1])
-        pt_resp_PtEtaBin.append(ROOT.TH1F("pt_resp_PtBin"+lowP+"to"+highP+"_EtaBin"+lowE+"to"+highE,"pt_resp_PtBin"+lowP+"to"+highP+"_EtaBin"+lowE+"to"+highE,60,0,3))
+        pt_resp_PtEtaBin.append(ROOT.TH1F("pt_resp_PtBin"+lowP+"to"+highP+"_EtaBin"+lowE+"to"+highE,"pt_resp_PtBin"+lowP+"to"+highP+"_EtaBin"+lowE+"to"+highE,res_bins,0,3))
 
 print("looping on events")
 for i in range(0, nevents):
@@ -148,8 +150,18 @@ for i in range(0, nevents):
         #loop on L1 jets to find match
         for iL1Obj in range(0, L1_nObjs):
             level1Obj = ROOT.TLorentzVector()
-            if options.target == 'jet': level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
-            if options.target == 'ele': level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+            if options.target == 'jet': 
+                if options.raw:
+                    # new method of plotting results by just looking at the raw output from the Layer-1
+                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetRawEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
+                else:
+                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
+            if options.target == 'ele': 
+                if options.raw:
+                    # new method of plotting results by just looking at the raw output from the Layer-1
+                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egRawEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+                else:
+                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
 
             #check matching
             if targetObj.DeltaR(level1Obj)<0.5:
@@ -246,12 +258,18 @@ pt_resol_fctEta = ROOT.TH1F("pt_resol_fctEta","pt_resol_fctEta",len(signedEtaBin
 pt_scale_fctPt = ROOT.TH1F("pt_scale_fctPt","pt_scale_fctPt",len(ptBins)-1, array('f',ptBins))
 pt_scale_fctEta = ROOT.TH1F("pt_scale_fctEta","pt_scale_fctEta",len(signedEtaBins)-1, array('f',signedEtaBins))
 
+pt_scale_max_fctPt = ROOT.TH1F("pt_scale_max_fctPt","pt_scale_max_fctPt",len(ptBins)-1, array('f',ptBins))
+pt_scale_max_fctEta = ROOT.TH1F("pt_scale_max_fctEta","pt_scale_max_fctEta",len(signedEtaBins)-1, array('f',signedEtaBins))
+
 PTvsETA_resolution = ROOT.TH2F("PTvsETA_resolution","PTvsETA_resolution",len(ptBins)-1, array('f',ptBins),len(etaBins)-1, array('f',etaBins));
 PTvsETA_scale = ROOT.TH2F("PTvsETA_events","PTvsETA_events",len(ptBins)-1, array('f',ptBins),len(etaBins)-1, array('f',etaBins));
 
 for i in range(len(barrel_response_ptBins)):
     pt_scale_fctPt.SetBinContent(i+1, response_ptBins[i].GetMean())
     pt_scale_fctPt.SetBinError(i+1, response_ptBins[i].GetMeanError())
+
+    pt_scale_max_fctPt.SetBinContent(i+1, response_ptBins[i].GetBinCenter(response_ptBins[i].GetMaximumBin()))
+    pt_scale_max_fctPt.SetBinError(i+1, response_ptBins[i].GetBinWidth(response_ptBins[i].GetMaximumBin()))
 
     pt_resol_fctPt.SetBinContent(i+1, response_ptBins[i].GetRMS()/response_ptBins[i].GetMean())
     pt_resol_fctPt.SetBinError(i+1, response_ptBins[i].GetRMSError()/response_ptBins[i].GetMean())
@@ -267,6 +285,11 @@ for i in range(len(minusEta_response_ptBins)):
     pt_scale_fctEta.SetBinError(len(etaBins)-1-i, minusEta_response_ptBins[i].GetMeanError())
     pt_scale_fctEta.SetBinContent(i+len(etaBins), plusEta_response_ptBins[i].GetMean())
     pt_scale_fctEta.SetBinError(i+len(etaBins), plusEta_response_ptBins[i].GetMeanError())
+
+    pt_scale_max_fctEta.SetBinContent(len(etaBins)-1-i, minusEta_response_ptBins[i].GetBinCenter(minusEta_response_ptBins[i].GetMaximumBin()))
+    pt_scale_max_fctEta.SetBinError(len(etaBins)-1-i, minusEta_response_ptBins[i].GetBinWidth(minusEta_response_ptBins[i].GetMaximumBin()))
+    pt_scale_max_fctEta.SetBinContent(i+len(etaBins), plusEta_response_ptBins[i].GetBinCenter(plusEta_response_ptBins[i].GetMaximumBin()))
+    pt_scale_max_fctEta.SetBinError(i+len(etaBins), plusEta_response_ptBins[i].GetBinWidth(plusEta_response_ptBins[i].GetMaximumBin()))
 
     pt_resol_fctEta.SetBinContent(len(etaBins)-1-i, minusEta_response_ptBins[i].GetRMS()/minusEta_response_ptBins[i].GetMean())
     pt_resol_fctEta.SetBinError(len(etaBins)-1-i, minusEta_response_ptBins[i].GetRMSError()/minusEta_response_ptBins[i].GetMean())
@@ -487,6 +510,35 @@ plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/scale_ptBins
 plt.close()
 
 ############################################################################################
+## scale from maximum in pt bins
+
+fig, ax = plt.subplots(figsize=(10,10))
+    
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = pt_scale_max_fctPt
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, lw=2, marker='o', color=cmap(0))
+
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.xlabel(x_label)
+plt.ylabel('Energy scale')
+plt.xlim()
+plt.ylim(0.5, 1.5)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/scale_max_ptBins_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/scale_max_ptBins_'+label+'_'+options.target+'.png')
+plt.close()
+
+############################################################################################
 ## resolution in eta bins
 
 if options.reco:
@@ -566,6 +618,41 @@ if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
 else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
 plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/scale_etaBins_'+label+'_'+options.target+'.pdf')
 plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/scale_etaBins_'+label+'_'+options.target+'.png')
+plt.close()
+
+############################################################################################
+## scale from maximum in eta bins
+
+fig, ax = plt.subplots(figsize=(10,10))
+plt.grid(zorder=0)
+
+X = [] ; Y = [] ; X_err = [] ; Y_err = []
+histo = pt_scale_max_fctEta
+for ibin in range(0,histo.GetNbinsX()):
+    X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+    Y.append(histo.GetBinContent(ibin+1))
+    X_err.append(histo.GetBinWidth(ibin+1)/2.)
+    Y_err.append(histo.GetBinError(ibin+1))
+ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, lw=2, marker='o', color=cmap(0), zorder=1)
+Ymax = max(Y)
+
+rect1 = patches.Rectangle((-1.479, 0.5), 0.174, 1.5, linewidth=1, edgecolor='gray', facecolor='gray', zorder=2)
+rect2 = patches.Rectangle((1.305, 0.5), 0.174, 1.5, linewidth=1, edgecolor='gray', facecolor='gray', zorder=2)
+ax.add_patch(rect1)
+ax.add_patch(rect2)
+
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.xlabel(x_label)
+plt.ylabel('Energy scale')
+plt.xlim()
+plt.ylim(0.5, 1.5)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/scale_max_etaBins_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/scale_max_etaBins_'+label+'_'+options.target+'.png')
 plt.close()
 
 ############################################################################################
@@ -708,6 +795,8 @@ del canvas
 fileout = ROOT.TFile(outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/resolution_graphs_'+label+'_'+options.target+'.root','RECREATE')
 pt_scale_fctPt.Write()
 pt_scale_fctEta.Write()
+pt_scale_max_fctPt.Write()
+pt_scale_max_fctEta.Write()
 pt_resol_fctPt.Write()
 pt_resol_barrel_fctPt.Write()
 pt_resol_endcap_fctPt.Write()
