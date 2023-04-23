@@ -134,7 +134,7 @@ if __name__ == "__main__" :
         InFilesTrain = glob.glob(filedir+'/'+options.batchdir+'/tensors/towers_*.npz')[:options.filesLim]
         InFilesTrainBlocks = splitInBlocks(InFilesTrain, options.filesPerRecord)
 
-    InFilesRate = glob.glob(filedir+'/'+options.ratedir+'/tensors/towers_*.npz')[:options.filesLim]
+    InFilesRate = glob.glob(options.ratedir+'/tensors/towers_*.npz')[:options.filesLim]
     InFilesRateBlocks = splitInBlocks(InFilesRate, options.filesPerRecord)
 
     with tf.device('/CPU:0'):
