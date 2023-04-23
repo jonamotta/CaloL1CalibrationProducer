@@ -30,6 +30,8 @@ parser.add_option("--nEvts",     dest="nEvts",    type=int, default=-1)
 parser.add_option("--target",    dest="target",   default=None)
 parser.add_option("--unpacked",  dest="unpacked", action='store_true', default=False)
 parser.add_option("--offline",   dest="offline",  action='store_true', default=False)
+parser.add_option("--er",        dest="er",       default='2.5') #eta restriction
+parser.add_option("--raw",       dest="raw",      action='store_true', default=False)
 (options, args) = parser.parse_args()
 
 # get/create folders
@@ -61,14 +63,15 @@ denominator = 0.
 nb = 2544.
 scale = 0.001*(nb*11245.6)
 
+er_label = options.er.replace(".", "p")
 ptProgression0 = ROOT.TH1F("ptProgression0","ptProgression0",240,0.,240.)
 ptDiProgression0 = ROOT.TH2F("ptDiProgression0","ptDiProgression0",240,0.,240.,240,0.,240.)
 rateProgression0 = ROOT.TH1F("rateProgression0","rateProgression0",240,0.,240.)
 rateDiProgression0 = ROOT.TH1F("rateDiProgression0","rateDiProgression0",240,0.,240.)
-ptProgression0er2p5 = ROOT.TH1F("ptProgression0er2p5","ptProgression0er2p5",240,0.,240.)
-ptDiProgression0er2p5 = ROOT.TH2F("ptDiProgression0er2p5","ptDiProgression0er2p5",240,0.,240.,240,0.,240.)
-rateProgression0er2p5 = ROOT.TH1F("rateProgression0er2p5","rateProgression0er2p5",240,0.,240.)
-rateDiProgression0er2p5 = ROOT.TH1F("rateDiProgression0er2p5","rateDiProgression0er2p5",240,0.,240.)
+ptProgression0er2p5 = ROOT.TH1F("ptProgression0er{}".format(er_label),"ptProgression0er{}".format(er_label),240,0.,240.)
+ptDiProgression0er2p5 = ROOT.TH2F("ptDiProgression0er{}".format(er_label),"ptDiProgression0er{}".format(er_label),240,0.,240.,240,0.,240.)
+rateProgression0er2p5 = ROOT.TH1F("rateProgression0er{}".format(er_label),"rateProgression0er{}".format(er_label),240,0.,240.)
+rateDiProgression0er2p5 = ROOT.TH1F("rateDiProgression0er{}".format(er_label),"rateProgression0er{}".format(er_label),240,0.,240.)
 
 offline = options.offline
 if offline:
@@ -108,8 +111,18 @@ for i in range(0, nevents):
         if options.target == 'ele' and level1Tree.L1Upgrade.egBx[iL1Obj] != 0: continue
 
         level1Obj = ROOT.TLorentzVector()
-        if options.target == 'jet': level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
-        if options.target == 'ele': level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+        if options.target == 'jet': 
+            if options.raw:
+                # new method of plotting results by just looking at the raw output from the Layer-1
+                level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetRawEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
+            else:
+                level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
+        if options.target == 'ele': 
+            if options.raw:
+                # new method of plotting results by just looking at the raw output from the Layer-1
+                level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egRawEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+            else:
+                level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
         
         # single
         if filledProgression0==False:
@@ -127,7 +140,7 @@ for i in range(0, nevents):
             IndexJetsProgression0[1]=iL1Obj
             ptJetsProgression0[1]=level1Obj.Pt()
 
-        if abs(level1Obj.Eta())>2.5000: continue
+        if abs(level1Obj.Eta())>float(options.er): continue
 
         # single
         if filledProgression0er2p5==False:
@@ -211,12 +224,12 @@ plt.close()
 
 
 if options.target == 'jet':
-    label_singleObj = r'Single-jet $|\eta|<2.5$'
-    label_doubleObj = r'Double-jet $|\eta|<2.5$'
+    label_singleObj = r'Single-jet $|\eta|<{}$'.format(options.er)
+    label_doubleObj = r'Double-jet $|\eta|<{}$'.format(options.er)
     x_label = r'$E_{T}^{jet, L1}$'
 if options.target == 'ele':
-    label_singleObj = r'Single-$e/\gamma$ $|\eta|<2.5$'
-    label_doubleObj = r'Double-$e/\gamma$ $|\eta|<2.5$'
+    label_singleObj = r'Single-$e/\gamma$ $|\eta|<{}$'.format(options.er)
+    label_doubleObj = r'Double-$e/\gamma$ $|\eta|<{}$'.format(options.er)
     x_label = r'$E_{T}^{e/\gamma, L1}$'
 
 fig, ax = plt.subplots(figsize=(10,10))
@@ -253,8 +266,8 @@ for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
 plt.grid()
 mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/rateEr2p5_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/rateEr2p5_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/rate'+er_label+'_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/rate'+er_label+'_'+label+'_'+options.target+'.png')
 plt.close()
 
 ####################
