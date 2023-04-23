@@ -100,11 +100,11 @@ def PlotSF2D (SF_matrix, bins, odir, v_sample):
         else:
             plt.xticks(np.linspace(0,200,21))
 
-    elif v_sample == HCAL:
+    elif v_sample == 'HCAL':
         max_=2.0
         EMcmap = cm.get_cmap('plasma')
         plt.figure(figsize=(20,16))
-    elif v_sample == HCAL:
+    elif v_sample == 'HCAL':
         max_=2.0
         EMcmap = cm.get_cmap('plasma')
         plt.figure(figsize=(20,8))
@@ -399,17 +399,18 @@ if __name__ == "__main__" :
     parser.add_option("--sf",       dest="sf",      help="SF csv file",                         default=None)
     parser.add_option("--sf_HF",    dest="sf_HF",   help="SF HF csv file",                      default=None)
     parser.add_option("--energystep", dest="energystep", help="Energy steps",                   type=int,   default=1)
+    parser.add_option("--addtag",   dest="addtag",  help="Add tag to distinguish different trainings",  default="",)
     (options, args) = parser.parse_args()
     print(options)
  
     # Definition of the trained model
     indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
-    modeldir = indir + '/model_' + options.v
+    modeldir = indir + '/model_' + options.v + options.addtag
     # Definition of output folder
     if options.odir:
        odir = options.odir
     else: 
-       odir = indir + '/plots'
+       odir = indir + '/plots' + options.addtag
     os.system('mkdir -p '+ odir)
 
     #######################################################
@@ -424,7 +425,7 @@ if __name__ == "__main__" :
         if options.sf:
             SF_filename = options.sf
         else:
-            SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/data/ScaleFactors_ECAL_energystep'+str(energy_step)+'iEt.csv'
+            SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/data' + options.addtag + '/ScaleFactors_ECAL_energystep'+str(energy_step)+'iEt.csv'
         ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',', usecols=range(0,28))
         eta_towers = range(1, len(ScaleFactors[1])+1)
 
@@ -445,7 +446,7 @@ if __name__ == "__main__" :
         if options.sf:
             SF_filename = options.sf
         else:
-            SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/data/ScaleFactors_HCAL_energystep'+str(energy_step)+'iEt.csv'
+            SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/data' + options.addtag + '/ScaleFactors_HCAL_energystep'+str(energy_step)+'iEt.csv'
         ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',', usecols=range(0,28))
         eta_towers = range(1, len(ScaleFactors[1])+1)
 
@@ -460,14 +461,14 @@ if __name__ == "__main__" :
         bin_edges = [ int(x) for x in bin_edges ]
 
         PlotSF(ScaleFactors, bin_edges, odir, "HCAL", eta_towers)
-        PlotSF2D(ScaleFactors, bin_edges, odir, "HCAL")
+        # PlotSF2D(ScaleFactors, bin_edges, odir, "HCAL")
 
         ## HF
         # Read the Scale factors
         if options.sf_HF:
             SF_filename = options.sf_HF
         else:
-            SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/data/ScaleFactors_HF_energystep'+str(energy_step)+'iEt.csv'
+            SF_filename = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/data' + options.addtag + '/ScaleFactors_HF_energystep'+str(energy_step)+'iEt.csv'
         ScaleFactors = np.loadtxt(open(SF_filename, "rb"), delimiter=',', usecols=range(0,12))
         eta_towers = range(30, 30+len(ScaleFactors[1]))
 
@@ -482,7 +483,7 @@ if __name__ == "__main__" :
         bin_edges = [ int(x) for x in bin_edges ]
 
         PlotSF(ScaleFactors, bin_edges, odir, "HF", eta_towers)
-        PlotSF2D(ScaleFactors, bin_edges, odir, "HF")
+        # PlotSF2D(ScaleFactors, bin_edges, odir, "HF")
 
         ## HCAL+HF
         PlotSF(ScaleFactors_HCALpHF, bin_edges, odir, "HCALpHF", range(1, 40+1))

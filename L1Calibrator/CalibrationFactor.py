@@ -30,12 +30,13 @@ if __name__ == "__main__" :
     parser.add_option("--minenergy",  dest="minenergy",  help="Energy tower min",                type=int,   default=1                          )
     parser.add_option("--maxenergy",  dest="maxenergy",  help="Energy tower max",                type=int,   default=200                        )
     parser.add_option("--energystep", dest="energystep", help="Energy steps",                    type=int,   default=1                          )
+    parser.add_option("--addtag",     dest="addtag",     help="Add tag to distinguish different trainings",  default="",                        )
     (options, args) = parser.parse_args()
     print(options)
 
     # Definition of the trained model
     indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
-    modeldir = indir + '/model_' + options.v
+    modeldir = indir + '/model_' + options.v + options.addtag
     print('\nModel dir = {}\n'.format(modeldir))
 
     TTP = keras.models.load_model(modeldir + '/TTP', compile=False, custom_objects={'Fgrad': Fgrad})
@@ -44,7 +45,7 @@ if __name__ == "__main__" :
     if options.odir:
         odir = options.odir
     else:
-        odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/data'
+        odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/data' + options.addtag
     os.system('mkdir -p '+ odir)
     print('\nOutput dir = {}\n'.format(odir))
 
