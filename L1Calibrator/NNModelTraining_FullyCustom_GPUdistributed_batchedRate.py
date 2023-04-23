@@ -63,6 +63,17 @@ def makePlots(HISTORY, odir):
     plt.savefig(odir+'/plots/regressionLoss.pdf')
     plt.close()
 
+    plt.plot(HISTORY['x'][1:], HISTORY['train_regressionLoss'][1:], label='Training', lw=2, ls='-', marker='o', color=cmap(0))
+    plt.plot(HISTORY['x'][1:], HISTORY['test_regressionLoss'][1:], label='Testing', lw=2, ls='-', marker='o', color=cmap(1))
+    plt.ylabel('Regression loss')
+    plt.xlabel('Epoch')
+    plt.grid()
+    leg = plt.legend(loc='upper right', fontsize=20)
+    leg._legend_box.align = "left"
+    mplhep.cms.label('Preliminary', data=True, rlabel=r'')
+    plt.savefig(odir+'/plots/regressionLoss_zoom.pdf')
+    plt.close()
+
     plt.plot(HISTORY['x'], HISTORY['train_weightsLoss'], label='Training', lw=2, ls='-', marker='o', color=cmap(0))
     plt.plot(HISTORY['x'], HISTORY['test_weightsLoss'], label='Testing', lw=2, ls='-', marker='o', color=cmap(1))
     plt.ylabel('Weights loss')
