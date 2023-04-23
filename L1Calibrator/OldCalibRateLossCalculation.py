@@ -18,18 +18,18 @@ os.system('export PYTHONHASHSEED=7')
 ############################## HELPER FUNCTIONS ##############################
 ##############################################################################
 
-def convert_samples(Z, version):
-    # X vector columns: iem, ihad, iesum, ieta
-    if version == 'ECAL':
-        Z = np.delete(Z, 2, axis=2)
-        Z = Z[ Z[:,:,0] >= 29 ] # remove TTs that have iEM<=29 : 29 ~ (50-(50*0.12))/1.5 = (egThr-(egThr*hoeThrEB))/bigSF [this already reshapes so that every TT becomes an event]
-        Z[:,[0,1]] = Z[:,[1,0]] # order iem and ihad to have iem on the right
+# def convert_samples(Z, version):
+#     # X vector columns: iem, ihad, iesum, ieta
+#     if version == 'ECAL':
+#         Z = np.delete(Z, 2, axis=2)
+#         Z = Z[ Z[:,:,0] >= 29 ] # remove TTs that have iEM<=29 : 29 ~ (50-(50*0.12))/1.5 = (egThr-(egThr*hoeThrEB))/bigSF [this already reshapes so that every TT becomes an event]
+#         Z[:,[0,1]] = Z[:,[1,0]] # order iem and ihad to have iem on the right
 
-    elif version == 'HCAL':
-        Z = Z[ np.sum(Z[:,:,2], axis=1) >= 50 ] # remove TTs that have iSUM<=50 : 50 ~ (100/n)/1.66*n = (jetThr/nActiveTT)/bigSF*nActiveTT
-        Z = np.delete(Z, 2, axis=2)
+#     elif version == 'HCAL':
+#         Z = Z[ np.sum(Z[:,:,2], axis=1) >= 50 ] # remove TTs that have iSUM<=50 : 50 ~ (100/n)/1.66*n = (jetThr/nActiveTT)/bigSF*nActiveTT
+#         Z = np.delete(Z, 2, axis=2)
 
-    return Z
+#     return Z
 
 def threshold_relaxation_sigmoid(x, mean, sharpness):
     k = sharpness * (x - mean)
@@ -54,8 +54,26 @@ def rateLossJets(z, seedThr, jetThr):
 
     return proxyRate
 
+def SimpleRateLossEgs (z, egThr):
+    # no need to act on the seed (already clusterized)
+    # predict jet energy and apply threshold: sum all the ihad energies z[:,:,0] of the 9x9 and all the iem energies z[:,:,1] of the 9x9
+    jet_pred = tf.reduce_sum(z[:,:,0], axis=1, keepdims=True) + tf.reduce_sum(z[:,:,1], axis=1, keepdims=True)
+    # for each entry of jet_pred, apply sigmoid cut at egThr (50): if jet_pred > 50 TT_eAT = 1, else 0
+    TT_eAT = threshold_relaxation_sigmoid(jet_pred, egThr, 10.)
+    # compute the number of clusters passing the egThr cut
+    passing = tf.reduce_sum(TT_eAT, keepdims=False)
+
+    # the rate of each single batch is computed as: (# of clusters passing egThr)/(# of clusters in the batch)
+    proxyRate = passing / z.shape[0] * 0.001*2500*11245.6
+
+    # apply cut on eoh !!!!
+
+    return proxyRate
+
+
 # part of the loss that controls the rate for e/gammas
 def rateLossEgs(z, hoeThrEB, hoeThrEE, egThr):
+
     # 'hardcoded' threshold on hcal over ecal deposit
     hasEBthr = tf.reduce_sum(z[:,2:30], axis=1, keepdims=True) * pow(2, -hoeThrEB)
     hasEEthr = tf.reduce_sum(z[:,30:], axis=1, keepdims=True) * pow(2, -hoeThrEE)
@@ -77,7 +95,6 @@ def rateLossEgs(z, hoeThrEB, hoeThrEE, egThr):
     proxyRate = passing / z.shape[0] * 0.001*2500*11245.6
 
     return proxyRate
-
 
 ##############################################################################
 ################################## MAIN BODY #################################
@@ -119,7 +136,9 @@ for rate_batch in rate_dataset:
     if not num_batches%100: print('at batch', num_batches)
     num_batches += 1
     z, _ = rate_batch
-    if options.v == 'ECAL':                      rateLoss_value += rateLossEgs(z, 3, 4, 50) # remember the thresholds are in HW units!
+    # for the new version of the Rate Proxy we have defined a 9x9 also for ECAL
+    if options.v == 'ECAL':                      rateLoss_value += SimpleRateLossEgs(z, 50) # remember the thresholds are in HW units!
+    # if options.v == 'ECAL':                      rateLoss_value += rateLossEgs(z, 3, 4, 50) # remember the thresholds are in HW units!
     if options.v == 'HCAL' or options.v == 'HF': rateLoss_value += rateLossJets(z, 8, 100)  # remember the thresholds are in HW units!
 
 print(options.v, 'OLD CALIBRATION : rateLoss_value =', rateLoss_value/num_batches, '(computed as: passing / total * 0.001*2500*11245.6)')

@@ -4,7 +4,7 @@ sleep 15
 python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_03_06_NtuplesV33 --tag DataReco_normalOrder --v HCAL
 sleep 15
 
-
+python NNModelTraining_FullyCustom_GPUdistributed_batchedRate_C.py --indir 2023_04_18_NtuplesV41 --tag DataReco --v HCAL --addtag C
 
 
 # python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_02_22_NtuplesV30 --tag DataReco --v ECAL --epochs 20 --batch_size 2048 --validation_split 0.2 --ngpus 4

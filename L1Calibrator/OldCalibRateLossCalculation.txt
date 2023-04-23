@@ -6,3 +6,14 @@ HCAL OLD CALIBRATION : rateLoss_value = tf.Tensor(150.26064, shape=(), dtype=flo
 
 HF UNCALIBRATED    : rateLoss_value = tf.Tensor(152.14156, shape=(), dtype=float32) (computed as: passing / total * 0.001*2500*11245.6)
 HF OLD CALIBRATION : rateLoss_value = tf.Tensor(175.66269, shape=(), dtype=float32) (computed as: passing / total * 0.001*2500*11245.6)
+
+v33RateTest
+ECAL OLD CALIBRATION : rateLoss_value = tf.Tensor(2600.1526, shape=(), dtype=float32) (computed as: passing / total * 0.001*2500*11245.6)
+
+v33RateTest0p8
+ECAL OLD CALIBRATION : rateLoss_value = tf.Tensor(2813.322, shape=(), dtype=float32) (computed as: passing / total * 0.001*2500*11245.6)
+
+v33RateTest1p2
+ECAL OLD CALIBRATION : rateLoss_value = tf.Tensor(2847.3208, shape=(), dtype=float32) (computed as: passing / total * 0.001*2500*11245.6)
+
+ECAL UNCALIBRATED : rateLoss_value = tf.Tensor(2267.0051, shape=(), dtype=float32) (computed as: passing / total * 0.001*2500*11245.6)
