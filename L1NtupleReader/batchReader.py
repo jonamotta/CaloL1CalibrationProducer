@@ -252,6 +252,7 @@ def padDataFrame( dfFlatEJT ):
     return padded
 
 def padDataFrameWithZeros( dfFlatEJT ):
+
     padded = dfFlatEJT
     for i, uniqueIdx in enumerate(dfFlatEJT.index.unique()):
         if i%100 == 0:
@@ -300,7 +301,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
     return padded
 
 def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, \
-                Hcalcut, HoTotcut, TTNumberCut, TTNumberCutInverse, trainingPtVersion, whichECALcalib, whichHCALcalib, \
+                Hcalcut, HoTotcut, TTNumberCut, TTNumberCutInverse, trainPtVers, whichECALcalib, whichHCALcalib, \
                 flattenPtDistribution, flattenEtaDistribution, applyOnTheFly, ClusterFilter, applyZS):
     
     if len(dfFlatET) == 0 or len(dfFlatEJ) == 0:
@@ -556,10 +557,10 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
 
     # subtract iem/ihad to jetPt in oprder to get the correct training Pt to be be used for the NN
     # here the jetPt is already in hardware units so no */2 is needed
-    if trainingPtVersion != False:
+    if trainPtVers != False:
         group = paddedEJT.groupby('uniqueId')
-        if trainingPtVersion=="ECAL": paddedEJT['trainingPt'] = group['trainingPt'].mean() - group['hcalET'].sum()
-        if trainingPtVersion=="HCAL": paddedEJT['trainingPt'] = group['trainingPt'].mean() - group['iem'].sum()
+        if trainPtVers=="ECAL": paddedEJT['trainingPt'] = group['trainingPt'].mean() - group['hcalET'].sum()
+        if trainPtVers=="HCAL": paddedEJT['trainingPt'] = group['trainingPt'].mean() - group['iem'].sum()
 
     # keep only the jets that have a meaningful trainingPt to be used (this selection should actually be redundant with )
     paddedEJT = paddedEJT[paddedEJT['trainingPt']>=1]
@@ -612,6 +613,15 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
         dfEOneHotEncoded = dfEOneHotEncoded[['iem', 'hcalET', 'iesum', 'ieta_1', 'ieta_2', 'ieta_3', 'ieta_4', 'ieta_5', 'ieta_6', 'ieta_7', 'ieta_8', 'ieta_9', 'ieta_10', 'ieta_11', 'ieta_12', 'ieta_13', 'ieta_14', 'ieta_15', 'ieta_16', 'ieta_17', 'ieta_18', 'ieta_19', 'ieta_20', 'ieta_21', 'ieta_22', 'ieta_23', 'ieta_24', 'ieta_25', 'ieta_26', 'ieta_27', 'ieta_28', 'ieta_30', 'ieta_31', 'ieta_32', 'ieta_33', 'ieta_34', 'ieta_35', 'ieta_36', 'ieta_37', 'ieta_38', 'ieta_39', 'ieta_40', 'ieta_41']]#, 'contained', 'nFT']]
     else:
         dfEOneHotEncoded = dfE.copy(deep=True)
+
+    # add this not to bias input to the NN
+    # print('\n### BEFORE:',dfEOneHotEncoded.loc[dfEOneHotEncoded['hcalET'] == 0, 'ieta_1':'ieta_41'].max()) #DEBUG
+    if options.type == 'jet':
+        dfEOneHotEncoded.loc[dfEOneHotEncoded['hcalET'] == 0, 'ieta_1':'ieta_41'] = 0
+    if options.type == 'ele':
+        dfEOneHotEncoded.loc[dfEOneHotEncoded['iem'] == 0, 'ieta_1':'ieta_41'] = 0
+    # print('\n### AFTER:',dfEOneHotEncoded.loc[dfEOneHotEncoded['hcalET'] == 0, 'ieta_1':'ieta_41'].max()) #DEBUG
+
 
     ## DEBUG
     print('starting tensorisation')
