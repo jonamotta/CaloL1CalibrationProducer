@@ -410,7 +410,7 @@ if __name__ == "__main__" :
     if options.odir:
        odir = options.odir
     else: 
-       odir = indir + '/plots' + options.addtag
+       odir = indir + '/plots' + options.addtag + '/' + str(options.energystep) + 'iEt'
     os.system('mkdir -p '+ odir)
 
     #######################################################
