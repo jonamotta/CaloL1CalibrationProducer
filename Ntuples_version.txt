@@ -264,7 +264,20 @@ Few trainings with full stat only for interesting tests, including three hidden 
 Training on HCAL with MC : apply ZeroSuppression, consider only HBHE (etacut 28), HoE 0.95, jetpt > 50
 
 2023_04_18_NtuplesV41
-Training of HCAL on data for the barrel only: ieta <= 15, pt > 30, apply ZeroSuppression
+Training of HCAL on data for the barrel only: ieta <= 15, pt > 30, apply ZeroSuppression 
 Re-emulation considering raw energy
+This version is bugged because of the ZS: we remove the ihad but not the 1 oncoded eta value
+
+# found bug of one hot encoding!
+2023_04_29_NtuplesV42
+Training of HCAL in data for barrel only: ieta <-15, pt > 30, apply ZeroSuppression
+- HCALtrainingDataReco
+    - model_HCAL_A  : regression term only      LR=10^-3        Nodes_1=82      Nodes_2=256     epochs=20
+
+
+2023_04_29_NtuplesV43
+Training of HCAL in data for barrel only: ieta <-15, pt > 30, NO ZeroSuppression
+- HCALtrainingDataReco
+    - model_HCAL_A  : regression term only      LR=10^-3        Nodes_1=82      Nodes_2=256     epochs=20
 
 

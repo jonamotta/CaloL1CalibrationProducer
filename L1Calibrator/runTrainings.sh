@@ -1,11 +1,16 @@
-python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_03_06_NtuplesV33 --tag DataReco_invertedOrder --v ECAL
-sleep 15
+# python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_03_06_NtuplesV33 --tag DataReco_invertedOrder --v ECAL
+# sleep 15
 
-python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_03_06_NtuplesV33 --tag DataReco_normalOrder --v HCAL
-sleep 15
+# python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_03_06_NtuplesV33 --tag DataReco_normalOrder --v HCAL
+# sleep 15
 
-python NNModelTraining_FullyCustom_GPUdistributed_batchedRate_C.py --indir 2023_04_18_NtuplesV41 --tag DataReco --v HCAL --addtag C
+# python NNModelTraining_FullyCustom_GPUdistributed_batchedRate_C.py --indir 2023_04_18_NtuplesV41 --tag DataReco --v HCAL --addtag C
+# python NNModelTraining_FullyCustom_GPUdistributed_batchedRate_C_32Nodes.py --indir 2023_04_18_NtuplesV41 --tag DataReco50to80 --v HCAL --batch_size 512 --epochs 20 --addtag leesNodes
 
+# python NNModelTraining_FullyCustom_GPUdistributed_batchedRate_C.py --indir 2023_04_29_NtuplesV42 --tag DataReco --v HCAL --addtag _A --epochs 20
+# python3 PrepareReEmulation.py --indir 2023_04_29_NtuplesV42 --v HCAL --tag DataReco --addtag _A
+# python NNModelTraining_FullyCustom_GPUdistributed_batchedRate_C.py --indir 2023_04_29_NtuplesV43 --tag DataReco --v HCAL --addtag _A --epochs 20
+# python3 PrepareReEmulation.py --indir 2023_04_29_NtuplesV43 --v HCAL --tag DataReco --addtag _A
 
 # python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_02_22_NtuplesV30 --tag DataReco --v ECAL --epochs 20 --batch_size 2048 --validation_split 0.2 --ngpus 4
 # sleep 5

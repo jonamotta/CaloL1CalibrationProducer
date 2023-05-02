@@ -14,54 +14,68 @@
 # python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --batchdir EGamma__Run2022* --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v ECAL --odir DataReco --filesPerRecord 50
 # python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --batchdir JetTraining_*    --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v HCAL --odir DataReco --filesPerRecord 50
 
-python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v ECAL --odir DataRecoCurrCalib --filesPerRecord 50
-python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v HCAL --odir DataRecoCurrCalib --filesPerRecord 50
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v ECAL --odir DataRecoCurrCalib --filesPerRecord 50
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v HCAL --odir DataRecoCurrCalib --filesPerRecord 50
 
 
-python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only 16000000 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v ECAL --odir DataReco_invertedOrder --HCALcalib4rate 2023_03_06_NtuplesV33/HCALtrainingDataReco_invertedOrder --filesPerRecord 50
-python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only 9000000  --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v HCAL --odir DataReco_normalOrder   --ECALcalib4rate 2023_03_06_NtuplesV33/ECALtrainingDataReco_normalOrder   --filesPerRecord 25
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only 16000000 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v ECAL --odir DataReco_invertedOrder --HCALcalib4rate 2023_03_06_NtuplesV33/HCALtrainingDataReco_invertedOrder --filesPerRecord 50
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --rate_only 9000000  --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --v HCAL --odir DataReco_normalOrder   --ECALcalib4rate 2023_03_06_NtuplesV33/ECALtrainingDataReco_normalOrder   --filesPerRecord 25
 
-python3 batchMerger.py --indir 2023_03_22_NtuplesV35 --batchdir L1Ntuples --v HCAL --odir MCRecoCorr --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 200
+# python3 batchMerger.py --indir 2023_03_22_NtuplesV35 --batchdir L1Ntuples --v HCAL --odir MCRecoCorr --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 200
 
-python3 batchMerger.py --indir 2023_03_24_NtuplesV36 --batchdir L1Ntuples --v HCAL --odir MCGen --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 300
+# python3 batchMerger.py --indir 2023_03_24_NtuplesV36 --batchdir L1Ntuples --v HCAL --odir MCGen --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 300
 
-python3 batchMerger.py --indir 2023_03_25_NtuplesV37 --batchdir L1Ntuples --v HCAL --odir MCRecoCorr --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 300
+# python3 batchMerger.py --indir 2023_03_25_NtuplesV37 --batchdir L1Ntuples --v HCAL --odir MCRecoCorr --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 300
 
-python3 batchMerger.py --indir 2023_03_25_NtuplesV37 --batchdir L1Ntuples --v HCAL --odir MCRecoCorr_FlattenEta --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 300 --flattenEtaDistribution
+# python3 batchMerger.py --indir 2023_03_25_NtuplesV37 --batchdir L1Ntuples --v HCAL --odir MCRecoCorr_FlattenEta --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data --filesPerRecord 300 --flattenEtaDistribution
 
-python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest --v ECAL --odir v33RateTest --rate_only 1 --filesPerRecord 300
-python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest0p8 --v ECAL --odir v33RateTest0p8 --rate_only 1 --filesPerRecord 300
-python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest1p2 --v ECAL --odir v33RateTest1p2 --rate_only 1 --filesPerRecord 300
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest --v ECAL --odir v33RateTest --rate_only 1 --filesPerRecord 300
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest0p8 --v ECAL --odir v33RateTest0p8 --rate_only 1 --filesPerRecord 300
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest1p2 --v ECAL --odir v33RateTest1p2 --rate_only 1 --filesPerRecord 300
 
-python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest0p8True --v ECAL --odir v33RateTest0p8True --rate_only 1 --filesPerRecord 300
-python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest1p2True --v ECAL --odir v33RateTest1p2True --rate_only 1 --filesPerRecord 300
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest0p8True --v ECAL --odir v33RateTest0p8True --rate_only 1 --filesPerRecord 300
+# python3 batchMerger.py --indir 2023_03_06_NtuplesV33 --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_v33RateTest1p2True --v ECAL --odir v33RateTest1p2True --rate_only 1 --filesPerRecord 300
 
-# new rate proxy woth clusterfilter
-python3 batchMerger.py --indir 0000_00_00_NtuplesRateVunc --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_RateProxyCluster --v ECAL --odir RateProxyFilterCluster --rate_only 1 --filesPerRecord 300
-python3 batchMerger.py --indir 2023_04_06_NtuplesV39 --ratedir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data --v ECAL --odir TargetRateProxy --rate_only 1 --filesPerRecord 300
+# # new rate proxy woth clusterfilter
+# python3 batchMerger.py --indir 0000_00_00_NtuplesRateVunc --ratedir EphemeralZeroBias0__Run2022G-v1__Run362616__RAW__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_RateProxyCluster --v ECAL --odir RateProxyFilterCluster --rate_only 1 --filesPerRecord 300
+# python3 batchMerger.py --indir 2023_04_06_NtuplesV39 --ratedir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_data --v ECAL --odir TargetRateProxy --rate_only 1 --filesPerRecord 300
 
-# prepare input to NN testing with different options
-python3 batchMerger.py --indir 2023_04_06_NtuplesV39 \
-        --batchdir EGamma__Run2022E-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
-        --v ECAL --odir DataReco --filesPerRecord 300 \
-        --ratedir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data --filesLim 500
+# # prepare input to NN testing with different options
+# python3 batchMerger.py --indir 2023_04_06_NtuplesV39 \
+#         --batchdir EGamma__Run2022E-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
+#         --v ECAL --odir DataReco --filesPerRecord 300 \
+#         --ratedir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data --filesLim 500
 
-# prepare input to NN with full ECAL stat
-python3 batchMerger.py --indir 2023_04_06_NtuplesV39 \
-        --batchdir EGamma__Run2022*-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
-        --v ECAL --odir DataRecoFullStat --filesPerRecord 300 \
-        --ratedir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
+# # prepare input to NN with full ECAL stat
+# python3 batchMerger.py --indir 2023_04_06_NtuplesV39 \
+#         --batchdir EGamma__Run2022*-ZElectron-PromptReco-v1__RAW-RECO__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
+#         --v ECAL --odir DataRecoFullStat --filesPerRecord 300 \
+#         --ratedir EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
 
-# prepare input to NN training for HCAL
-python3 batchMerger.py --indir 2023_04_13_NtuplesV40 \
-        --batchdir L1Ntuples \
-        --v HCAL --odir MCReco --filesPerRecord 300 \
-        --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_06_NtuplesV39/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
+# # prepare input to NN training for HCAL
+# python3 batchMerger.py --indir 2023_04_13_NtuplesV40 \
+#         --batchdir L1Ntuples \
+#         --v HCAL --odir MCReco --filesPerRecord 300 \
+#         --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_06_NtuplesV39/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
 
-# prepare input to NN training for HCAL with data ieta <= 15 (80K jets)
-python3 batchMerger.py --indir 2023_04_18_NtuplesV41 --batchdir JetTraining_JSON*  --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data --v HCAL --odir DataReco --filesPerRecord 1000
+# # prepare input to NN training for HCAL with data ieta <= 15 (80K jets)
+# python3 batchMerger.py --indir 2023_04_18_NtuplesV41 --batchdir JetTraining_JSON* --v HCAL --odir DataReco --filesPerRecord 1000 \
+#  --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
 
+# # prepare input to NN training for HCAL with data ieta <= 15 and jetPt restriction (16K jets)
+# python3 batchMerger.py --indir 2023_04_18_NtuplesV41 --batchdir JetTraining_JSON* --v HCAL --odir DataReco50to80 --ljetPtcut 50 --ujetPtcut 80 --filesPerRecord 1000 \
+#  --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
 
+# prepare input to NN training for HCAL with data ieta <= 15 with ZS and suppression of one hot encoding
+# python3 batchMerger.py --indir 2023_04_29_NtuplesV42 --batchdir JetTraining_JSON* --v HCAL --odir DataReco --filesPerRecord 1000 \
+#  --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
+
+# prepare input to NN training for HCAL with data ieta <= 15 without ZS and suppression of one hot encoding
+# python3 batchMerger.py --indir 2023_04_29_NtuplesV43 --batchdir JetTraining_JSON* --v HCAL --odir DataReco --filesPerRecord 1000 \
+#  --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
+
+python3 batchMerger.py --indir 2023_05_01_NtuplesV44 --batchdir GoodNtuples --v HCAL --odir DataReco --filesPerRecord 1000 \
+ --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
 
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir ElectronTraining_JSON --v ECAL --odir DataReco --sample train
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HCAL --odir DataReco --sample train
