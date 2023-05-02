@@ -597,34 +597,156 @@ source /opt/exp_soft/cms/t3/t3setup
 #                         --data
 
 # v41
+# python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__AOD \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v41CnewCalib_data_reco_json \
+#                         --nJobs 7745 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v41_C_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_v11 \
+#                         --data \
+#                         --recoFromAOD
+# python submitOnTier3.py --inFileList EphemeralZeroBias0__Run2022G-v1__Run362616__RAW \
+#                         --outTag GT124XdataRun3v11_CaloParams2022v41CnewCalib_data \
+#                         --nJobs 278 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --caloParams caloParams_2022_v41_C_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_v11 \
+#                         --data
+# python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__AOD \
+#                         --outTag GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data_reco_json \
+#                         --nJobs 7745 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v0_6_cfi \
+#                         --globalTag 124X_dataRun3_v11 \
+#                         --data \
+#                         --noL1calib \
+#                         --recoFromAOD
+
+# correct v41
+# python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__AOD \
+#                         --outTag GT124XdataRun3v11_CaloParams2022v41CZSnewCalib_data_reco_json \
+#                         --nJobs 7745 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v41_C_ZS_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_v11 \
+#                         --data \
+#                         --recoFromAOD
+# python submitOnTier3.py --inFileList EphemeralZeroBias0__Run2022G-v1__Run362616__RAW \
+#                         --outTag GT124XdataRun3v11_CaloParams2022v41CZSnewCalib_data \
+#                         --nJobs 278 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --caloParams caloParams_2022_v41_C_ZS_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_v11 \
+#                         --data  
+# python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__AOD \
+#                         --outTag GT124XdataRun3v11_CaloParams2022v06modZS0p5_data_reco_json \
+#                         --nJobs 7745 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v0_6_modZS0p5_cfi \
+#                         --globalTag 124X_dataRun3_v11 \
+#                         --data \
+#                         --recoFromAOD
+# python submitOnTier3.py --inFileList EphemeralZeroBias0__Run2022G-v1__Run362616__RAW \
+#                         --outTag GT124XdataRun3v11_CaloParams2022v06modZS0p5_data \
+#                         --nJobs 2502 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --caloParams caloParams_2022_v0_6_modZS0p5_cfi \
+#                         --globalTag 124X_dataRun3_v11 \
+#                         --data
+
+# # v42
 python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__AOD \
-                        --outTag GT124XdataRun3Promptv10_CaloParams2022v41CnewCalib_data_reco_json \
+                        --outTag GT124XdataRun3Promptv10_CaloParams2022v42newCalib_data_reco_json_1 \
                         --nJobs 7745 \
                         --queue short \
                         --maxEvts -1 \
                         --inJson Cert_Collisions2022_355100_362760_Golden \
-                        --caloParams caloParams_2022_v41_C_newCalib_cfi \
-                        --globalTag 124X_dataRun3_v11 \
+                        --caloParams caloParams_2022_v42_newCalib_cfi \
+                        --globalTag 124X_dataRun3_Prompt_v10 \
                         --data \
                         --recoFromAOD
-python submitOnTier3.py --inFileList EphemeralZeroBias0__Run2022G-v1__Run362616__RAW \
-                        --outTag GT124XdataRun3v11_CaloParams2022v41CnewCalib_data \
-                        --nJobs 278 \
-                        --queue short \
-                        --maxEvts -1 \
-                        --caloParams caloParams_2022_v41_C_newCalib_cfi \
-                        --globalTag 124X_dataRun3_v11 \
-                        --data            
-python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__AOD \
-                        --outTag GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data_reco_json \
-                        --nJobs 7745 \
+
+# python submitOnTier3.py --inFileList EphemeralZeroBias0__Run2022G-v1__Run362616__RAW \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v42newCalib_data \
+#                         --nJobs 278 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --caloParams caloParams_2022_v42_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data  
+
+# # v43
+# python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__AOD \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v43newCalib_data_reco_json \
+#                         --nJobs 7745 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v43_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --recoFromAOD
+
+# python submitOnTier3.py --inFileList EphemeralZeroBias0__Run2022G-v1__Run362616__RAW \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v43newCalib_data \
+#                         --nJobs 278 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --caloParams caloParams_2022_v43_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data
+
+python submitOnTier3.py --inFileList EGamma__Run2022G-ZElectron-PromptReco-v1__Run362616__RAW-RECO \
+                        --outTag GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
+                        --nJobs 2879 \
                         --queue short \
                         --maxEvts -1 \
                         --inJson Cert_Collisions2022_355100_362760_Golden \
                         --caloParams caloParams_2022_v0_6_cfi \
-                        --globalTag 124X_dataRun3_v11 \
-                        --data \
+                        --globalTag 124X_dataRun3_Prompt_v10 \
                         --noL1calib \
-                        --recoFromAOD
+                        --data \
+                        --recoFromSKIM
 
+# found that GT v11 is wrong --> go back to Promptv10
+# python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__AOD \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json \
+#                         --nJobs 7745 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v0_6_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --noL1calib \
+#                         --recoFromAOD
+# python submitOnTier3.py --inFileList Muon__Run2022G-PromptReco-v1__AOD \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v41CZSnewCalib_data_reco_json \
+#                         --nJobs 7745 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --inJson Cert_Collisions2022_355100_362760_Golden \
+#                         --caloParams caloParams_2022_v41_C_ZS_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data \
+#                         --recoFromAOD
+# python submitOnTier3.py --inFileList EphemeralZeroBias0__Run2022G-v1__Run362616__RAW \
+#                         --outTag GT124XdataRun3Promptv10_CaloParams2022v41CZSnewCalib_data \
+#                         --nJobs 278 \
+#                         --queue short \
+#                         --maxEvts -1 \
+#                         --caloParams caloParams_2022_v41_C_ZS_newCalib_cfi \
+#                         --globalTag 124X_dataRun3_Prompt_v10 \
+#                         --data
 # export SITECONFIG_PATH=/cvmfs/cms.cern.ch/SITECONF/T2_FR_GRIF_LLR/GRIF-LLR
