@@ -59,6 +59,7 @@ if options.target == 'jet':
 if options.target == 'ele':
     ptBins  = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200]
     etaBins = [0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
+HoTotBins = [0, 0.2, 0.4, 0.6, 0.8, 0.95, 1.0]
 
 #############################
 ## RESOLUTIONS COMPARISONS ##
@@ -280,6 +281,69 @@ if options.doResponse == True:
         plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/response_'+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+'_'+target+'.png')
         print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/response_'+str(etaBins[i])+"eta"+str(etaBins[i+1])+"_"+label+'_'+target)
         plt.close()
+
+    #######
+    # HoTotBins responses
+
+    legend_label = r'$<H/Tot<$'
+
+    for i in range(len(HoTotBins)-1):
+        HoTotBins_resp_unCalib = file_unCalib.Get("pt_resp_HoTotBin"+str(HoTotBins[i])+"to"+str(HoTotBins[i+1]))
+        HoTotBins_resp_oldCalib = file_oldCalib.Get("pt_resp_HoTotBin"+str(HoTotBins[i])+"to"+str(HoTotBins[i+1]))
+        HoTotBins_resp_newCalib = file_newCalib.Get("pt_resp_HoTotBin"+str(HoTotBins[i])+"to"+str(HoTotBins[i+1]))
+        fig, ax = plt.subplots(figsize=(10,10))
+
+        X = [] ; Y = [] ; X_err = [] ; Y_err = []
+        histo = HoTotBins_resp_unCalib
+        for ibin in range(0,histo.GetNbinsX()):
+            X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+            Y.append(histo.GetBinContent(ibin+1))
+            X_err.append(histo.GetBinWidth(ibin+1)/2.)
+            Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+        ax.step(np.array((np.array(X[:-1])+np.array(X[1:]))/2), np.array(Y[:-1]), color='black')
+        Ymax = max(Y)
+
+        X = [] ; Y = [] ; X_err = [] ; Y_err = []
+        histo = HoTotBins_resp_oldCalib
+        for ibin in range(0,histo.GetNbinsX()):
+            X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+            Y.append(histo.GetBinContent(ibin+1))
+            X_err.append(histo.GetBinWidth(ibin+1)/2.)
+            Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+        ax.step(np.array((np.array(X[:-1])+np.array(X[1:]))/2), np.array(Y[:-1]), color='red')
+        Ymax = max(Ymax, max(Y))
+
+        X = [] ; Y = [] ; X_err = [] ; Y_err = []
+        histo = HoTotBins_resp_newCalib
+        for ibin in range(0,histo.GetNbinsX()):
+            X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+            Y.append(histo.GetBinContent(ibin+1))
+            X_err.append(histo.GetBinWidth(ibin+1)/2.)
+            Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+        ax.step(np.array((np.array(X[:-1])+np.array(X[1:]))/2), np.array(Y[:-1]), color='green')
+        Ymax = max(Ymax, max(Y))
+
+        for xtick in ax.xaxis.get_major_ticks():
+            xtick.set_pad(10)
+        leg = plt.legend(loc='upper right', fontsize=20, title=str(HoTotBins[i])+legend_label+str(HoTotBins[i+1]), title_fontsize=18)
+        leg._legend_box.align = "left"
+        plt.xlabel(x_label)
+        plt.ylabel('a.u.')
+        plt.xlim(x_lim)
+        plt.ylim(0., Ymax*1.3)
+        for xtick in ax.xaxis.get_major_ticks():
+            xtick.set_pad(10)
+        plt.grid()
+        if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+        else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+        plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/response_'+str(HoTotBins[i])+"HoTot"+str(HoTotBins[i+1])+"_"+label+'_'+target+'.pdf')
+        plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/response_'+str(HoTotBins[i])+"HoTot"+str(HoTotBins[i+1])+"_"+label+'_'+target+'.png')
+        print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/response_'+str(HoTotBins[i])+"HoTot"+str(HoTotBins[i+1])+"_"+label+'_'+target)
+        plt.close()
+
 
 if options.doResolution == True:
 
@@ -735,6 +799,213 @@ if options.doResolution == True:
     plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/scale_max_etaBins_'+label+'_'+target+'.pdf')
     plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/scale_max_etaBins_'+label+'_'+target+'.png')
     print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/scale_max_etaBins_'+label+'_'+target)
+    plt.close()
+
+    # HoTotBins resolution
+
+    x_lim = (0,1)
+    x_label = r'H/Tot$'
+
+    HoTotBins_resol_unCalib  = file_unCalib.Get("pt_resol_fctHoTot")
+    HoTotBins_resol_oldCalib = file_oldCalib.Get("pt_resol_fctHoTot")
+    HoTotBins_resol_newCalib = file_newCalib.Get("pt_resol_fctHoTot")
+
+    fig, ax = plt.subplots(figsize=(10,10))
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = HoTotBins_resol_unCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+    X_r_uncalib = X; Y_r_uncalib = Y
+    Ymax = max(Y)
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = HoTotBins_resol_oldCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+    X_r_oldcalib = X; Y_r_oldcalib = Y
+    Ymax = max(Ymax, max(Y))
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = HoTotBins_resol_newCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+    X_r_newcalib = X; Y_r_newcalib = Y
+    Ymax = max(Ymax, max(Y))
+
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc='upper right', fontsize=20)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('Energy resolution')
+    plt.xlim(0, 200)
+    plt.ylim(0., Ymax*1.3)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/resolution_HoTotBins_'+label+'_'+target+'.pdf')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/resolution_HoTotBins_'+label+'_'+target+'.png')
+    print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/resolution_HoTotBins_'+label+'_'+target)
+    plt.close()
+
+    #######
+    # HoTotBins scale
+
+    HoTotBins_scale_unCalib  = file_unCalib.Get("pt_scale_fctHoTot")
+    HoTotBins_scale_oldCalib = file_oldCalib.Get("pt_scale_fctHoTot")
+    HoTotBins_scale_newCalib = file_newCalib.Get("pt_scale_fctHoTot")
+
+    fig, ax = plt.subplots(figsize=(10,10))
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = HoTotBins_scale_unCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+    X_s_uncalib = X; Y_s_uncalib = Y
+    Ymax = max(Y)
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = HoTotBins_scale_oldCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+    X_s_oldcalib = X; Y_s_oldcalib = Y
+    Ymax = max(Ymax, max(Y))
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = HoTotBins_scale_newCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+    X_s_newcalib = X; Y_s_newcalib = Y
+    Ymax = max(Ymax, max(Y))
+
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc='upper right', fontsize=20)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('Energy scale')
+    plt.xlim(0, 200)
+    plt.ylim(0.5, 1.5)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/scale_HoTotBins_'+label+'_'+target+'.pdf')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/scale_HoTotBins_'+label+'_'+target+'.png')
+    print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/scale_HoTotBins_'+label+'_'+target)
+    plt.close()
+
+    fig, ax = plt.subplots(figsize=(14,10))
+    trans_l = ax.transData + ScaledTranslation(-4/72, 0, fig.dpi_scale_trans)
+    trans_r = ax.transData + ScaledTranslation(+4/72, 0, fig.dpi_scale_trans)
+    ax.errorbar(X_s_uncalib, Y_s_uncalib, yerr=Y_r_uncalib, label='No Calibration', ls='None', lw=2, marker='v', capsize=3, color='black', zorder=0, transform=trans_l)
+    ax.errorbar(X_s_oldcalib, Y_s_oldcalib, yerr=Y_r_oldcalib, label='Old Calibration', ls='None', lw=2, marker='^', capsize=3, color='red', zorder=1)
+    ax.errorbar(X_s_newcalib, Y_s_newcalib, yerr=Y_r_newcalib, label='New Calibration', ls='None', lw=2, marker='o', capsize=3, color='green', zorder=2, transform=trans_r)
+
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc='upper right', fontsize=20)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('Energy scale')
+    plt.xlim(0, 200)
+    plt.ylim(0.3, 1.8)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/scale_res_HoTotBins_'+label+'_'+target+'.pdf')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/scale_res_HoTotBins_'+label+'_'+target+'.png')
+    print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/scale_res_HoTotBins_'+label+'_'+target)
+    plt.close()
+
+    #######
+    # HoTotBins scale from maximum
+
+    HoTotBins_scale_max_unCalib  = file_unCalib.Get("pt_scale_max_fctHoTot")
+    HoTotBins_scale_max_oldCalib = file_oldCalib.Get("pt_scale_max_fctHoTot")
+    HoTotBins_scale_max_newCalib = file_newCalib.Get("pt_scale_max_fctHoTot")
+
+    fig, ax = plt.subplots(figsize=(10,10))
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = HoTotBins_scale_max_unCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+    X_s_uncalib = X; Y_s_uncalib = Y
+    Ymax = max(Y)
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = HoTotBins_scale_max_oldCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+    X_s_oldcalib = X; Y_s_oldcalib = Y
+    Ymax = max(Ymax, max(Y))
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = HoTotBins_scale_max_newCalib
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+    X_s_newcalib = X; Y_s_newcalib = Y
+    Ymax = max(Ymax, max(Y))
+
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc='upper right', fontsize=20)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('Energy scale')
+    plt.xlim(0, 200)
+    plt.ylim(0.5, 1.5)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/scale_max_HoTotBins_'+label+'_'+target+'.pdf')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/scale_max_HoTotBins_'+label+'_'+target+'.png')
+    print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/scale_max_HoTotBins_'+label+'_'+target)
     plt.close()
 
 # #######
