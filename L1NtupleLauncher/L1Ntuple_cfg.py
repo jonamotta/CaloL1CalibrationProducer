@@ -188,6 +188,13 @@ if options.noL1calib:
     process.simCaloStage2Layer1Digis.useHCALLUT = cms.bool(False)
     process.simCaloStage2Layer1Digis.useHFLUT   = cms.bool(False)
 
+# from uGT to MP units
+process.load("L1Trigger.L1TNtuples.l1UpgradeTree_cfi")
+process.l1UpgradeTree.egToken   = cms.untracked.InputTag("caloStage2Digis","MP")
+process.l1UpgradeTree.tauTokens = cms.untracked.VInputTag(cms.InputTag("caloStage2Digis","MP"))
+process.l1UpgradeTree.jetToken  = cms.untracked.InputTag("caloStage2Digis","MP")
+process.l1UpgradeTree.sumToken  = cms.untracked.InputTag("caloStage2Digis","MP") 
+
 # End of customisation functions
 
 # Customisation from command line
