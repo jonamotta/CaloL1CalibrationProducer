@@ -285,6 +285,10 @@ if __name__ == "__main__" :
     parser.add_option("--HFnewSF",      dest="HFnewSF",     help="New HCAL calibration",                default='/data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV43/HCALtrainingDataReco/data_A/ScaleFactors_HF_energystep2iEt.csv')
     parser.add_option("--filesLim",     dest="filesLim",    help="Maximum number of npz files to use",  default=1000000, type=int)
     parser.add_option("--addtag",       dest="addtag",      help="Add tag for different trainings",     default="")
+    parser.add_option("--ietacut",      dest="ietacut",     help="Apply ieta cut",                      default=None)
+    parser.add_option("--ljetPtcut",    dest="ljetPtcut",   help="Apply lowerjetPt cut [GeV]",          default=None)
+    parser.add_option("--ujetPtcut",    dest="ujetPtcut",   help="Apply upperjetPt cut [GeV]",          default=None)
+    parser.add_option("--HoEcut",       dest="HoEcut",      help="Apply HoE cut at 0.95",               default=None)
     # parser.add_option("--EstepECAL",    dest="EstepECAL",   help="Energy step ECAL SFs",                default=2, type=int)
     # parser.add_option("--EstepHCAL",    dest="EstepHCAL",   help="Energy step HCAL SFs",                default=2, type=int)
     (options, args) = parser.parse_args()
@@ -346,12 +350,27 @@ if __name__ == "__main__" :
     id_arr = np.repeat(np.arange(len(Towers)), Towers.shape[1])
     jetPt_arr = np.repeat(Jets, Towers.shape[1])
 
+    if options.v == 'ECAL':
+        dummy_rateProxy_input = np.repeat([np.zeros(42)], len(list(dataset)), axis=0)
+    if options.v == 'HCAL':
+        dummy_rateProxy_input = np.repeat([np.repeat([np.zeros(42)], 81, axis=0)], len(list(dataset)), axis=0)
+    modeldir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/model_' + options.v + options.addtag
+    print('\n ### Reading model from: ' + modeldir)
+    model = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'Fgrad': Fgrad})
+    modelPt = model.predict([Towers, dummy_rateProxy_input])[0]
+    modelPt_arr = np.repeat(modelPt, Towers.shape[1])
+
     # Combine the arrays into a dictionary and create the dataframe
-    df_Towers = pd.DataFrame({'id': id_arr, 'jetPt': jetPt_arr, 'iem': iem, 'hcalET': hcalET, 'ieta': ieta})
+    df_Towers = pd.DataFrame({'id': id_arr, 'jetPt': jetPt_arr, 'modelPt': modelPt_arr, 'iem': iem, 'hcalET': hcalET, 'ieta': ieta})
+
+    if options.ljetPtcut:
+        df_Towers = df_Towers[df_Towers['jetPt'] > float(options.ljetPtcut)*2]
+    if options.ujetPtcut:
+        df_Towers = df_Towers[df_Towers['jetPt'] < float(options.ujetPtcut)*2]
 
     # apply oldCalib
     # taken from the caloParams file (always the same)
-    if options.applyECAL:
+    if options.applyECAL == True:
         print('\n ### Apply current calibration to ECAL')
         energy_bins = np.array(layer1ECalScaleETBins_currCalib)*2+0.1 # to convert to iEt and shift to center of bin
         SFs = layer1ECalScaleFactors_currCalib
@@ -364,7 +383,7 @@ if __name__ == "__main__" :
     else:
         df_Towers['oldCalib_iem'] = df_Towers['iem']
 
-    if options.applyHCAL:
+    if options.applyHCAL == True:
         print('\n ### Apply current calibration to HCAL')
         energy_bins = np.array(layer1HCalScaleETBins_currCalib)*2+0.1 # to convert to iEt and shift to center of bin
         SFs = layer1HCalScaleFactors_currCalib
@@ -379,7 +398,7 @@ if __name__ == "__main__" :
 
     # apply newCalib
     # taken directly from the SFs extracted from the NN in the "data" folder
-    if options.applyECAL:
+    if options.applyECAL == True:
         print('\n ### Apply new calibration to ECAL')
         print(' ### ECAL SFs from: ' + options.ECALnewSF)
         print(' ### Energy bins:', newECALEnergyBins)
@@ -396,7 +415,7 @@ if __name__ == "__main__" :
     else:
         df_Towers['newCalib_iem'] = df_Towers['iem']
 
-    if options.applyHCAL:
+    if options.applyHCAL == True:
         print('\n ### Apply new calibration to HCAL')
         print(' ### HCAL SFs from: ' + options.HCALnewSF)
         print(' ### HF SFs from: ' + options.HFnewSF)
@@ -418,22 +437,25 @@ if __name__ == "__main__" :
 
     # compute sum of the raw energy 
     df_jets = pd.DataFrame()
-    df_jets['oldCalib'] = df_Towers.groupby('id').oldCalib_iem.sum() + df_Towers.groupby('id').oldCalib_ihad.sum()
-    df_jets['newCalib'] = df_Towers.groupby('id').newCalib_iem.sum() + df_Towers.groupby('id').newCalib_ihad.sum()
-    df_jets['unCalib']  = df_Towers.groupby('id').iem.sum() + df_Towers.groupby('id').hcalET.sum()
-    df_jets['jetPt']    = df_Towers.groupby('id').jetPt.median()
-    df_jets['jetIEta']  = df_Towers.groupby('id').ieta.first()
-    df_jets['jetEta']   = df_jets.apply(lambda row: (TowersEta[row['jetIEta']][0] + TowersEta[row['jetIEta']][1])/2, axis=1)
+    df_jets['oldCalib']   = df_Towers.groupby('id').oldCalib_iem.sum() + df_Towers.groupby('id').oldCalib_ihad.sum()
+    df_jets['newCalib']   = df_Towers.groupby('id').newCalib_iem.sum() + df_Towers.groupby('id').newCalib_ihad.sum()
+    df_jets['unCalib']    = df_Towers.groupby('id').iem.sum() + df_Towers.groupby('id').hcalET.sum()
+    df_jets['jetPt']      = df_Towers.groupby('id').jetPt.median()
+    df_jets['modelCalib'] = df_Towers.groupby('id').modelPt.median()
+    df_jets['jetIEta']    = df_Towers.groupby('id').ieta.first()
+    df_jets['jetEta']     = df_jets.apply(lambda row: (TowersEta[row['jetIEta']][0] + TowersEta[row['jetIEta']][1])/2, axis=1)
 
-    dummy_rateProxy_input = np.repeat([np.repeat([np.zeros(42)], 81, axis=0)], len(list(dataset)), axis=0)
-    modeldir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/model_HCAL' + options.addtag
-    print('\n ### Reading model from: ' + modeldir)
-    model = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'Fgrad': Fgrad})
-    df_jets['modelCalib'] = model.predict([Towers, dummy_rateProxy_input])[0]
     if options.v == 'ECAL':
         df_jets['SFCalib'] = df_Towers.groupby('id').newCalib_iem.sum()
     if options.v == 'HCAL':
         df_jets['SFCalib'] = df_Towers.groupby('id').newCalib_ihad.sum()
+
+    if options.ietacut:
+        df_jets = df_jets[(df_jets['jetIEta'] < float(options.ietacut)) & (df_jets['jetIEta'] > -1*float(options.ietacut))]
+
+    if options.HoEcut:
+        df_jets['HoE'] = df_Towers.groupby('id').hcalET.sum() / (df_Towers.groupby('id').iem.sum() + df_Towers.groupby('id').hcalET.sum())
+        df_jets = df_jets[df_jets['HoE'] >= 0.95]
 
     # compute resolution
     df_jets['old_res'] = df_jets.apply(lambda row: row['oldCalib']/row['jetPt'], axis=1)
