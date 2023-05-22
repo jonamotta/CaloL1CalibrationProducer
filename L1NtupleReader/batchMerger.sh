@@ -77,6 +77,16 @@
 python3 batchMerger.py --indir 2023_05_01_NtuplesV44 --batchdir GoodNtuples --v HCAL --odir DataReco --filesPerRecord 1000 \
  --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
 
+######################################################################################################################
+######################################################################################################################
+# New ECAL Calib (23919637)
+
+python3 batchMerger.py --indir 2023_05_19_NtuplesV46 \
+    --batchdir EGamma__Run2022*-ZElectron-PromptReco-v1__RAW-RECO__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json \
+    --v ECAL --odir DataReco --filesPerRecord 300 \
+    --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
+
+
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir ElectronTraining_JSON --v ECAL --odir DataReco --sample train
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HCAL --odir DataReco --sample train
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HF   --odir DataReco --sample train
