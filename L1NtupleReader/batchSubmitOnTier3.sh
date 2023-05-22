@@ -286,34 +286,55 @@ source /opt/exp_soft/cms/t3/t3setup
 #     --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
 
 # training on data in the barrel with ZS
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON \
-    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV42 --target reco --type jet --chunk_size 5000 \
-    --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True --applyZS True
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON_Early_G_Era \
-    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV42 --target reco --type jet --chunk_size 5000 \
-    --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True --applyZS True
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON_Late_G_Era \
-    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV42 --target reco --type jet --chunk_size 5000 \
-    --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV42 --target reco --type jet --chunk_size 5000 \
+#     --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON_Early_G_Era \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV42 --target reco --type jet --chunk_size 5000 \
+#     --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True --applyZS True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON_Late_G_Era \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV42 --target reco --type jet --chunk_size 5000 \
+#     --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True --applyZS True
 
-# training on data in the barrel without ZS
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON \
-    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV43 --target reco --type jet --chunk_size 5000 \
-    --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON_Early_G_Era \
-    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV43 --target reco --type jet --chunk_size 5000 \
-    --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON_Late_G_Era \
-    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV43 --target reco --type jet --chunk_size 5000 \
-    --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+# # training on data in the barrel without ZS
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV43 --target reco --type jet --chunk_size 5000 \
+#     --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON_Early_G_Era \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV43 --target reco --type jet --chunk_size 5000 \
+#     --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON_Late_G_Era \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV43 --target reco --type jet --chunk_size 5000 \
+#     --queue short --etacut 15 --lJetPtCut 30 --uJetPtCut 1000 --hcalcut True
 
-# test!!!
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples//Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json/GoodNtuples \
-    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_05_01_NtuplesV44 --target reco --type jet --chunk_size 100 \
-    --queue short
-python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON \
-    --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_05_01_NtuplesV45 --target reco --type jet --chunk_size 100 \
-    --queue short
+# # test!!!
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples//Muon__Run2022G-PromptReco-v1__AOD__GT124XdataRun3Promptv10_CaloParams2022v06_noL1Calib_data_reco_json/GoodNtuples \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_05_01_NtuplesV44 --target reco --type jet --chunk_size 100 \
+#     --queue short
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/davignon/Layer1SFsNTPLS/JetTraining_JSON \
+#     --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_05_01_NtuplesV45 --target reco --type jet --chunk_size 100 \
+#     --queue short
+
+########################################################################################################################
+########################################################################################################################
+# New training with EGamma GT130
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022E-ZElectron-PromptReco-v1__RAW-RECO__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_05_19_NtuplesV46 \
+#                               --target reco --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True --LooseEle
+
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022F-ZElectron-PromptReco-v1__RAW-RECO__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_05_19_NtuplesV46 \
+#                               --target reco --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True --LooseEle
+
+# python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/EGamma__Run2022G-ZElectron-PromptReco-v1__RAW-RECO__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json \
+#                               --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_05_19_NtuplesV46 \
+#                               --target reco --type ele --chunk_size 5000 \
+#                               --queue short \
+#                               --etacut 28 --ecalcut True --applyCut_3_6_9 True --LooseEle
 
 
 ####################################################################################################################################################################################################

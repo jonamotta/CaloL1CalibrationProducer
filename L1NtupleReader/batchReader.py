@@ -302,7 +302,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
 
 def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, \
                 Hcalcut, HoTotcut, TTNumberCut, TTNumberCutInverse, trainPtVers, whichECALcalib, whichHCALcalib, \
-                flattenPtDistribution, flattenEtaDistribution, applyOnTheFly, ClusterFilter, applyZS):
+                flattenPtDistribution, flattenEtaDistribution, applyOnTheFly, ClusterFilter, applyZS, LooseEle):
     
     if len(dfFlatET) == 0 or len(dfFlatEJ) == 0:
         print(' ** WARNING: Zero data here --> EXITING!\n')
@@ -322,6 +322,10 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
     ########################## Application of cuts ##########################
 
     print('starting cuts') # DEBUG
+
+    if LooseEle != False:
+        dfFlatEJ = dfFlatEJ[dfFlatEJ['LooseEle'] == 1]
+        dfFlatEJ.drop(['LooseEle'], axis=1, inplace=True) # drop column not needed anymore
 
     # Apply cut on jetPt
     if uJetPtcut != False:
@@ -581,14 +585,15 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
     # print(len(dfTowers), 'rows')
     print('storing')
 
+    # [FIXME] To save space
     # save hdf5 files with dataframe formatted datasets
-    storeT = pd.HDFStore(saveToDFs['towers']+'.hdf5', mode='w')
-    storeT['towers'] = dfTowers
-    storeT.close()
+    # storeT = pd.HDFStore(saveToDFs['towers']+'.hdf5', mode='w')
+    # storeT['towers'] = dfTowers
+    # storeT.close()
 
-    storeJ = pd.HDFStore(saveToDFs['jets']+'.hdf5', mode='w')
-    storeJ['jets'] = dfJets
-    storeJ.close()
+    # storeJ = pd.HDFStore(saveToDFs['jets']+'.hdf5', mode='w')
+    # storeJ['jets'] = dfJets
+    # storeJ.close()
 
     ## DEBUG
     print('starting one hot encoding')
@@ -681,6 +686,7 @@ if __name__ == "__main__" :
     parser.add_option("--applyOnTheFly", dest="applyOnTheFly", default=False)
     parser.add_option("--ClusterFilter", dest="ClusterFilter", default=False)
     parser.add_option("--applyZS",       dest="applyZS",       default=False)
+    parser.add_option("--LooseEle",      dest="LooseEle", action='store_true', default=False)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.fout=='' or options.target=='' or options.type==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
@@ -694,7 +700,7 @@ if __name__ == "__main__" :
     if options.target == 'reco':
         if options.type == 'ele':
             keyTarget = "l1ElectronRecoTree/ElectronRecoTree"
-            branchesTarget = ["Electron/eta", "Electron/phi", "Electron/et"]
+            branchesTarget = ["Electron/eta", "Electron/phi", "Electron/et", "Electron/isLooseElectron"]
             energy = b'et'
             eta = b'eta'
             phi = b'phi'
@@ -805,6 +811,15 @@ if __name__ == "__main__" :
                 'TowerIphi' : list(chain.from_iterable(EJ[b'egTowerIPhi'])),
                 })
             
+        if options.target == 'reco' and options.type == 'ele' and options.LooseEle:
+            dfFlatEJ = pd.DataFrame({
+                'event': np.repeat(EJ[b'event'].values, EJ[eta].str.len()), # event IDs are copied to keep proper track of what is what
+                'jetEta': list(chain.from_iterable(EJ[eta])),
+                'jetPhi': list(chain.from_iterable(EJ[phi])),
+                'jetPt' : list(chain.from_iterable(EJ[energy])),
+                'LooseEle' : list(chain.from_iterable(EJ[b'isLooseElectron']))
+                })            
+            
         else:
             dfFlatEJ = pd.DataFrame({
                 'event': np.repeat(EJ[b'event'].values, EJ[eta].str.len()), # event IDs are copied to keep proper track of what is what
@@ -829,7 +844,7 @@ if __name__ == "__main__" :
         mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, \
                     options.ecalcut, options.hcalcut, options.HoTotcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, \
                     options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.flattenEtaDistribution, options.applyOnTheFly, \
-                    options.ClusterFilter, options.applyZS)
+                    options.ClusterFilter, options.applyZS, options.LooseEle)
 
     print("\nNumber of events = ", n_events)
     print("Number of jets passing reader conditions = ", n_jets)
