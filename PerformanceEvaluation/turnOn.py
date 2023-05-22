@@ -5,6 +5,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 import sys
 import os
+from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 import matplotlib
@@ -15,6 +16,18 @@ def save_obj(obj,dest):
     with open(dest,'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
+def NextPhiTower(iphi):
+    if iphi == 72: return 1
+    else:          return iphi + 1
+def PrevPhiTower(iphi):
+    if iphi == 1: return 72
+    else:         return iphi - 1
+def NextEtaTower(ieta):
+    if ieta == -1: return 1
+    else:          return ieta + 1
+def PrevEtaTower(ieta):
+    if ieta == 1: return -1
+    else:         return ieta - 1
 
 #######################################################################
 ######################### SCRIPT BODY #################################
@@ -32,7 +45,13 @@ parser.add_option("--reco",      dest="reco",     action='store_true', default=F
 parser.add_option("--gen",       dest="gen",      action='store_true', default=False)
 parser.add_option("--unpacked",  dest="unpacked", action='store_true', default=False)
 parser.add_option("--raw",       dest="raw",      action='store_true', default=False)
+parser.add_option("--jetPtcut",  dest="jetPtcut", type=float, default=None)
+parser.add_option("--etacut",    dest="etacut",   type=float, default=None)
+parser.add_option("--LooseEle",  dest="LooseEle", action='store_true', default=False)
+parser.add_option("--PuppiJet",  dest="PuppiJet", action='store_true', default=False)
 (options, args) = parser.parse_args()
+
+cmap = matplotlib.colormaps.get_cmap('Set1')
 
 # get/create folders
 indir = "/data_CMS/cms/motta/CaloL1calibraton/L1NTuples/"+options.indir
@@ -82,14 +101,14 @@ for threshold in thresholds:
 total = ROOT.TH1F("total","total",len(bins)-1, array('f',bins))
 
 print("looping on events")
-for i in range(0, nevents):
-    if i%1000==0: print(i)
+for i in tqdm(range(0, nevents)):
+    # if i%1000==0: print(i)
     #getting entries
-    entry1 = level1Tree.GetEntry(i)
-    entry2 = targetTree.GetEntry(i)
+    entry2 = level1Tree.GetEntry(i)
+    entry3 = targetTree.GetEntry(i)
 
     # skip corrupted entries
-    if not entry1 or not entry2: continue
+    if not entry2 or not entry3: continue
 
     if options.target == 'met':
 
@@ -124,7 +143,10 @@ for i in range(0, nevents):
     L1_nObjs = 0
     if options.target == 'jet':
         L1_nObjs = level1Tree.L1Upgrade.nJets
-        target_nObjs = targetTree.Jet.nJets
+        if options.PuppiJet:
+            target_nObjs = targetTree.Jet.puppi_nJets
+        else:
+            target_nObjs = targetTree.Jet.nJets
     if options.target == 'ele':
         L1_nObjs = level1Tree.L1Upgrade.nEGs
         target_nObjs = targetTree.Electron.nElectrons
@@ -134,7 +156,10 @@ for i in range(0, nevents):
 
         if options.target == 'jet':
             targetObj = ROOT.TLorentzVector()
-            targetObj.SetPtEtaPhiM(targetTree.Jet.etCorr[iTargetObj], targetTree.Jet.eta[iTargetObj], targetTree.Jet.phi[iTargetObj], 0)
+            if options.PuppiJet:
+                targetObj.SetPtEtaPhiM(targetTree.Jet.puppi_etCorr[iTargetObj], targetTree.Jet.puppi_eta[iTargetObj], targetTree.Jet.puppi_phi[iTargetObj], 0)
+            else:
+                targetObj.SetPtEtaPhiM(targetTree.Jet.etCorr[iTargetObj], targetTree.Jet.eta[iTargetObj], targetTree.Jet.phi[iTargetObj], 0)
 
         if options.target == 'ele':
             targetObj = ROOT.TLorentzVector()
@@ -144,17 +169,26 @@ for i in range(0, nevents):
         if targetObj.Eta()>5.0: continue
         
         # skip egs that cannot be reconstructed by L1 (limit is 3.0)
-        if options.target == 'ele' and targetObj.Eta()>3.0: continue
-
+        # if options.target == 'ele' and targetObj.Eta()>3.0: continue
         #reject very soft jets, usually poorly defined
-        if options.target == 'jet' and targetObj.Pt()<15.: continue
+        # if options.target == 'jet' and targetObj.Pt()<30.: continue
+        
+        ################# APPLY CUTS #################
+        if options.jetPtcut: 
+            if targetObj.Pt() < float(options.jetPtcut): continue
+        if options.etacut: 
+            if np.abs(targetObj.Eta()) > float(options.etacut): continue
+        if options.target == 'ele' and options.LooseEle:
+            if targetTree.Electron.isLooseElectron[iTargetObj] == 0: continue
+        #############################################
 
         total.Fill(targetObj.Pt())
 
+        # loop on L1 jets to find match
         matched = False
         highestL1Pt = -99.
-
-        #loop on L1 jets to find match
+        myGood_iL1Obj = 0
+        myGoodLevel1Obj = ROOT.TLorentzVector()
         for iL1Obj in range(0, L1_nObjs):
             level1Obj = ROOT.TLorentzVector()
             if options.target == 'jet': 
@@ -174,12 +208,15 @@ for i in range(0, nevents):
             if targetObj.DeltaR(level1Obj)<0.5:
                 matched = True
                 #keep only L1 match with highest pT
-                if level1Obj.Pt()>highestL1Pt:
+                if level1Obj.Pt() > highestL1Pt:
+                    myGoodLevel1Obj = level1Obj
+                    myGood_iL1Obj = iL1Obj
                     highestL1Pt = level1Obj.Pt()
 
-        #fill numerator histograms for every thresholds
-        for i, thr in enumerate(thresholds): 
-            if matched and highestL1Pt > float(thr): passing[i].Fill(targetObj.Pt())
+        if matched:
+            #fill numerator histograms for every thresholds
+            for i, thr in enumerate(thresholds): 
+                if matched and highestL1Pt > float(thr): passing[i].Fill(targetObj.Pt())
 
 #define TGraphAsymmErrors for efficiency turn-ons
 turnons = []
@@ -242,7 +279,6 @@ if options.gen:
     x_label = '$E_{T}^{jet, gen}$ [GeV]'
 
 # cmap = matplotlib.cm.get_cmap('tab20c')
-cmap = matplotlib.cm.get_cmap('Set1')
 fig, ax = plt.subplots(figsize=(10,10))
 for i, thr in enumerate(thresholds2plot):
     X = [] ; Y = [] ; Y_low = [] ; Y_high = []

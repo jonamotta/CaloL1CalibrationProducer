@@ -22,10 +22,12 @@ for log in logs:
         idx = log.split('/log_')[1].split('.txt')[0]
         ntuple = log.split('/log_')[0] + '/Ntuple_' + idx + '.root'
         filelist = log.split('/log_')[0] + '/filelist_' + idx + '.txt'
-        print(ntuple)
+        # print(ntuple)
         # os.system('cat '+filelist)
         if doMove:
-            os.system('mv ' + ntuple + ' ' + gooddir)
+            cmd = 'mv ' + log.split('/log_')[0] + '/*' + idx + '* ' + gooddir
+            print(cmd)
+            os.system(cmd)
         good = good + 1
 
 print('Number good = ',good)

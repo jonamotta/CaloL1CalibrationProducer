@@ -5,6 +5,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 import sys
 import os
+from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 import matplotlib
@@ -79,8 +80,8 @@ if offline:
     online_thresholds = np.linspace(20,150,131).tolist()
 
 print("looping on events")
-for i in range(0, nevents):
-    if i%1000==0: print(i)
+for i in tqdm(range(0, nevents)):
+    # if i%1000==0: print(i)
     #getting entries
     entry = level1Tree.GetEntry(i)
 
