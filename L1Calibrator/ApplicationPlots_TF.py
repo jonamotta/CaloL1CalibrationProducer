@@ -73,15 +73,15 @@ def GetHCALSFs (file_HCAL, file_HF):
 
 def PlotResolutionInclusive(df_jets, odir, v_sample):
 
-    bins_res = np.linspace(0,3,50)
+    bins_res = np.linspace(0,3,240)
 
     plt.figure(figsize=(10,10))
     text_1 = leg_uncalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['unc_res'].mean(), df_jets['unc_res'].std()/df_jets['unc_res'].mean())
-    plt.hist(df_jets['unc_res'], bins=bins_res, label=text_1, histtype='step', density=True, stacked=True, linewidth=2, color=c_uncalib)
+    plt.hist(df_jets['unc_res'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=c_uncalib)
     text_2 = leg_oldcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['old_res'].mean(), df_jets['old_res'].std()/df_jets['old_res'].mean())
-    plt.hist(df_jets['old_res'], bins=bins_res, label=text_2, histtype='step', density=True, stacked=True, linewidth=2, color=c_oldcalib)
+    plt.hist(df_jets['old_res'], bins=bins_res, label=text_2, histtype='step', stacked=True, linewidth=2, color=c_oldcalib)
     text_3 = leg_newcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['new_res'].mean(), df_jets['new_res'].std()/df_jets['new_res'].mean())
-    plt.hist(df_jets['new_res'], bins=bins_res, label=text_3, histtype='step', density=True, stacked=True, linewidth=2, color=c_newcalib)
+    plt.hist(df_jets['new_res'], bins=bins_res, label=text_3, histtype='step', stacked=True, linewidth=2, color=c_newcalib)
     plt.xlabel('Response')
     plt.ylabel('a.u.')
     plt.grid(linestyle='dotted')
@@ -99,7 +99,7 @@ def PlotResolutionInclusive(df_jets, odir, v_sample):
 
 def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
     
-    bins_res = np.linspace(0,3,50)
+    bins_res = np.linspace(0,3,240)
 
     if v_sample == 'HCAL':
         if bin_type == 'pt':
@@ -117,6 +117,11 @@ def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
             key = 'jetIEta'
             legend_label = r'$<|i_{\eta}^{jet, offline}|<$'
             x_label = r'$\eta^{jet, offline}$'
+        elif bin_type == 'HoTot':
+            keyBins = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
+            key = 'HoTot'
+            legend_label = r'$<|H/Tot|<$'
+            x_label = r'$H/Tot$'
         x_lim = (0.,3.)
         x_label_res = r'$E_{T}^{jet, L1} / p_{T}^{jet, offline}$'
     if v_sample == 'ECAL':
@@ -130,6 +135,16 @@ def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
             key = 'jetEta'
             legend_label = r'$<|\eta^{e, offline}|<$'
             x_label = r'$\eta^{e, offline}$'
+        elif bin_type == 'ieta':
+            keyBins = np.arange(1,40)
+            key = 'jetIEta'
+            legend_label = r'$<|i_{\eta}^{e, offline}|<$'
+            x_label = r'$\eta^{e, offline}$'
+        elif bin_type == 'EoTot':
+            keyBins = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
+            key = 'EoTot'
+            legend_label = r'$<|E/Tot|<$'
+            x_label = r'$E/Tot$'
         x_lim = (0.2,1.5)
         x_label_res = r'$E_{T}^{e/\gamma, L1} / p_{T}^{e, offline}$'
 
@@ -143,26 +158,27 @@ def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
     res_vs_pt_new = []
     maximum_vs_pt_new = []
 
+    Ymax = 0
     for i in range(len(keyBins)-1):
         
         fig, ax = plt.subplots(figsize=(10,10))
         if bin_type == 'pt': sel_pt = (df_jets[key] > keyBins[i]*2) & (df_jets[key] < keyBins[i+1]*2)
-        elif bin_type == 'eta': sel_pt = (df_jets[key] > keyBins[i]) & (df_jets[key] < keyBins[i+1])
-        h = plt.hist(df_jets[sel_pt]['unc_res'], bins=bins_res, label=leg_uncalib, histtype='step', density=True, stacked=True, linewidth=2, color=c_uncalib)
+        else: sel_pt = (df_jets[key] > keyBins[i]) & (df_jets[key] < keyBins[i+1])
+        h = plt.hist(df_jets[sel_pt]['unc_res'], bins=bins_res, label=leg_uncalib, histtype='step', stacked=True, linewidth=2, color=c_uncalib)
         mean_vs_pt_unc.append(df_jets[sel_pt]['unc_res'].mean())
         res_vs_pt_unc.append(df_jets[sel_pt]['unc_res'].std()/df_jets[sel_pt]['unc_res'].mean())
         if h[0][0] >= 0: maximum_vs_pt_unc.append(h[1][np.where(h[0] == h[0].max())][0])
         else: maximum_vs_pt_unc.append(0)
         if h[0][0] >= 0: Ymax = h[0].max()
 
-        h = plt.hist(df_jets[sel_pt]['old_res'], bins=bins_res, label=leg_oldcalib, histtype='step', density=True, stacked=True, linewidth=2, color=c_oldcalib)
+        h = plt.hist(df_jets[sel_pt]['old_res'], bins=bins_res, label=leg_oldcalib, histtype='step', stacked=True, linewidth=2, color=c_oldcalib)
         mean_vs_pt_old.append(df_jets[sel_pt]['old_res'].mean())
         res_vs_pt_old.append(df_jets[sel_pt]['old_res'].std()/df_jets[sel_pt]['old_res'].mean())
         if h[0][0] >= 0: maximum_vs_pt_old.append(h[1][np.where(h[0] == h[0].max())][0])
         else: maximum_vs_pt_old.append(0)
         if h[0][0] >= 0: Ymax = max(Ymax, h[0].max())
 
-        h = plt.hist(df_jets[sel_pt]['new_res'], bins=bins_res, label=leg_newcalib, histtype='step', density=True, stacked=True, linewidth=2, color=c_newcalib)
+        h = plt.hist(df_jets[sel_pt]['new_res'], bins=bins_res, label=leg_newcalib, histtype='step', stacked=True, linewidth=2, color=c_newcalib)
         mean_vs_pt_new.append(df_jets[sel_pt]['new_res'].mean())
         res_vs_pt_new.append(df_jets[sel_pt]['new_res'].std()/df_jets[sel_pt]['new_res'].mean())
         if h[0][0] >= 0: maximum_vs_pt_new.append(h[1][np.where(h[0] == h[0].max())][0])
@@ -188,6 +204,7 @@ def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
 
     # plot resolution vs keyBins
 
+    Ymax = 0
     fig = plt.figure(figsize = [10,10])
     X = [(keyBins[i] + keyBins[i+1])/2 for i in range(len(keyBins)-1)]
     X_err = [(keyBins[i+1] - keyBins[i])/2 for i in range(len(keyBins)-1)]
@@ -205,7 +222,7 @@ def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
     plt.xlabel(x_label)
     plt.ylabel('Energy resolution')
     plt.xlim(keyBins[0], keyBins[-1])
-    plt.ylim(0., Ymax*1.3)
+    # plt.ylim(0., Ymax*1.3)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
     plt.grid()
@@ -216,6 +233,7 @@ def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
     plt.close()
 
     # plot scale vs keyBins
+    Ymax = 0
     fig = plt.figure(figsize = [10,10])
     plt.errorbar(X, mean_vs_pt_unc, xerr=X_err, label=leg_uncalib, ls='None', lw=2, marker='o', color=c_uncalib, zorder=0)
     Ymax = max(mean_vs_pt_unc)
@@ -231,7 +249,7 @@ def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
     plt.xlabel(x_label)
     plt.ylabel('Energy scale')
     plt.xlim(keyBins[0], keyBins[-1])
-    plt.ylim(0., Ymax*1.3)
+    plt.ylim(0.5, 1.5)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
     plt.grid()
@@ -242,6 +260,7 @@ def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
     plt.close()
 
     # plot scale from maximum vs keybins
+    Ymax = 0
     fig = plt.figure(figsize = [10,10])
     plt.errorbar(X, maximum_vs_pt_unc, xerr=X_err, label=leg_uncalib, ls='None', lw=2, marker='o', color=c_uncalib, zorder=0)
     Ymax = max(maximum_vs_pt_unc)
@@ -257,7 +276,7 @@ def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
     plt.xlabel(x_label)
     plt.ylabel('Energy scale')
     plt.xlim(keyBins[0], keyBins[-1])
-    plt.ylim(0., Ymax*1.3)
+    plt.ylim(0.5, 1.5)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
     plt.grid()
@@ -351,7 +370,8 @@ if __name__ == "__main__" :
     jetPt_arr = np.repeat(Jets, Towers.shape[1])
 
     if options.v == 'ECAL':
-        dummy_rateProxy_input = np.repeat([np.zeros(42)], len(list(dataset)), axis=0)
+        # dummy_rateProxy_input = np.repeat([np.zeros(42)], len(list(dataset)), axis=0) # old version 33
+        dummy_rateProxy_input = np.repeat([np.repeat([np.zeros(42)], 81, axis=0)], len(list(dataset)), axis=0)
     if options.v == 'HCAL':
         dummy_rateProxy_input = np.repeat([np.repeat([np.zeros(42)], 81, axis=0)], len(list(dataset)), axis=0)
     modeldir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/model_' + options.v + options.addtag
@@ -444,6 +464,8 @@ if __name__ == "__main__" :
     df_jets['modelCalib'] = df_Towers.groupby('id').modelPt.median()
     df_jets['jetIEta']    = df_Towers.groupby('id').ieta.first()
     df_jets['jetEta']     = df_jets.apply(lambda row: (TowersEta[row['jetIEta']][0] + TowersEta[row['jetIEta']][1])/2, axis=1)
+    df_jets['EoTot']      = df_Towers.groupby('id').iem.sum() / df_jets['unCalib']
+    df_jets['HoTot']      = df_Towers.groupby('id').hcalET.sum() / df_jets['unCalib']
 
     if options.v == 'ECAL':
         df_jets['SFCalib'] = df_Towers.groupby('id').newCalib_iem.sum()
@@ -474,8 +496,8 @@ if __name__ == "__main__" :
 
     # plots for debug
     plt.figure(figsize=(12,8))
-    plt.hist(df_jets['SFs_res'], bins=np.linspace(0,3,50), histtype='step', density=True, stacked=True, linewidth=2, label='Calib from SFs')
-    plt.hist(df_jets['mod_res'], bins=np.linspace(0,3,50), histtype='step', density=True, stacked=True, linewidth=2, label='Calib from model')
+    plt.hist(df_jets['SFs_res'], bins=np.linspace(0,3,50), histtype='step', stacked=True, linewidth=2, label='Calib from SFs')
+    plt.hist(df_jets['mod_res'], bins=np.linspace(0,3,50), histtype='step', stacked=True, linewidth=2, label='Calib from model')
     plt.xlabel('L1 Et / jet Pt')
     plt.legend()
     plt.grid()
@@ -486,8 +508,8 @@ if __name__ == "__main__" :
     plt.close()
 
     plt.figure(figsize=(12,8))
-    plt.hist(df_jets['SFs_mape'], bins=np.linspace(0,3,50), histtype='step', density=True, stacked=True, linewidth=2, label='Calib from SFs')
-    plt.hist(df_jets['mod_mape'], bins=np.linspace(0,3,50), histtype='step', density=True, stacked=True, linewidth=2, label='Calib from model')
+    plt.hist(df_jets['SFs_mape'], bins=np.linspace(0,3,50), histtype='step', stacked=True, linewidth=2, label='Calib from SFs')
+    plt.hist(df_jets['mod_mape'], bins=np.linspace(0,3,50), histtype='step', stacked=True, linewidth=2, label='Calib from model')
     plt.xlabel('MAPE')
     plt.legend()
     plt.grid()
@@ -501,3 +523,7 @@ if __name__ == "__main__" :
     PlotResolutionInclusive(df_jets, odir, options.v)
     PlotResolutionPtBins(df_jets, odir, options.v, 'pt')
     PlotResolutionPtBins(df_jets, odir, options.v, 'eta')
+    if options.v == 'ECAL':
+        PlotResolutionPtBins(df_jets, odir, options.v, 'EoTot')
+    if options.v == 'HCAL':
+        PlotResolutionPtBins(df_jets, odir, options.v, 'HoTot')

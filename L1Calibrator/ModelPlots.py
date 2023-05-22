@@ -94,11 +94,11 @@ def PlotSF2D (SF_matrix, bins, odir, v_sample):
         EMcmap = cm.get_cmap('viridis')
         plt.figure(figsize=(20,16))
         if len(bins) < 15: #old calib
-            plt.xticks(np.linspace(0,14,15), [0, 3, 6, 9, 12, 15, 20, 25, 30, 35, 40, 45, 55, 70, 256])
+            plt.yticks(np.linspace(0,14,15), [0, 3, 6, 9, 12, 15, 20, 25, 30, 35, 40, 45, 55, 70, 256])
         elif 15 < len(bins) < 150:
-            plt.xticks(np.linspace(0,100,11))
+            plt.yticks(np.linspace(0,100,11))
         else:
-            plt.xticks(np.linspace(0,200,21))
+            plt.yticks(np.linspace(0,200,21))
 
     elif v_sample == 'HCAL':
         max_=2.0
@@ -115,10 +115,10 @@ def PlotSF2D (SF_matrix, bins, odir, v_sample):
     colorbar.set_ticks(np.linspace(min_, max_, nticks))
     colorbar.ax.tick_params(which='minor', width=0, length=0)
     plt.tick_params(which='both', width=0, length=0)
-    plt.yticks(np.linspace(0,28,29))
+    plt.xticks(np.linspace(0,28,29))
 
-    plt.xlabel(f'$Et$ $[GeV]$')
-    plt.ylabel(f'$i\eta$')
+    plt.ylabel(f'$Et$ $[GeV]$')
+    plt.xlabel(f'$i\eta$')
     savefile = odir + '/SFs_2D_'+v_sample
     plt.savefig(savefile+'.png')
     plt.savefig(savefile+'.pdf')
@@ -432,11 +432,14 @@ if __name__ == "__main__" :
         # Definition of energy bin edges from the header
         with open(SF_filename) as f:
             header = f.readline().rstrip()
-        bin_edges = header.split(',')[1:]
+        if energy_step == 1:
+            bin_edges = [0] + header.split(',')[1:]
+        else:
+            bin_edges = header.split(',')[1:]
         bin_edges[-1] = bin_edges[-1][:-1]
-        if bin_edges[-1] == '256': bin_edges[-1] = '200'
+        if bin_edges[-1] == ' 256': bin_edges[-1] = '200'
         bin_edges = [ int(x) for x in bin_edges ]
-
+        
         PlotSF(ScaleFactors, bin_edges, odir, "ECAL", eta_towers)
         PlotSF2D(ScaleFactors, bin_edges, odir, "ECAL")
 
@@ -455,7 +458,10 @@ if __name__ == "__main__" :
         # Definition of energy bin edges from the header
         with open(SF_filename) as f:
             header = f.readline().rstrip()
-        bin_edges = header.split(',')[1:]
+        if energy_step == 1:
+            bin_edges = [0] + header.split(',')[1:]
+        else:
+            bin_edges = header.split(',')[1:]
         bin_edges[-1] = bin_edges[-1][:-1]
         if bin_edges[-1] == '256': bin_edges[-1] = '200'
         bin_edges = [ int(x) for x in bin_edges ]

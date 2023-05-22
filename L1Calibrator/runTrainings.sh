@@ -21,7 +21,9 @@
 # python NNModelTraining_FullyCustom_GPUdistributed_batchedRate.py --indir 2023_02_22_NtuplesV30 --tag DataReco --v HF   --epochs 20 --batch_size 2048 --validation_split 0.2 --ngpus 4
 # sleep 5
 
-
+python3 NNModelTraining_FullyCustom_GPUdistributed_batchedRate_OnlyRegression.py --indir 2023_05_19_NtuplesV46 --v ECAL --tag DataReco --addtag _OnlyRegression
+sleep 5
+python3 NNModelTraining_FullyCustom_GPUdistributed_batchedRate_OnlyRegressionAndRegularization.py --indir 2023_05_19_NtuplesV46 --v ECAL --tag DataReco --addtag _OnlyRegressionAndRegularization
 
 
 

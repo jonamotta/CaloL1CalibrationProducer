@@ -27,7 +27,7 @@ if __name__ == "__main__" :
     parser.add_option("--out",        dest="odir",       help="Output folder",                               default=None                       )
     parser.add_option("--v",          dest="v",          help="Ntuple type ('ECAL' or 'HCAL')",              default='ECAL'                     )
     parser.add_option("--reg",        dest="reg",        help="Ntuple type ('ECAL' or 'HCAL' or 'HF'')",     default='ECAL'                     )
-    parser.add_option("--minenergy",  dest="minenergy",  help="Energy tower min",                type=int,   default=1                          )
+    # parser.add_option("--minenergy",  dest="minenergy",  help="Energy tower min",                type=int,   default=1                          )
     parser.add_option("--maxenergy",  dest="maxenergy",  help="Energy tower max",                type=int,   default=200                        )
     parser.add_option("--energystep", dest="energystep", help="Energy steps",                    type=int,   default=1                          )
     parser.add_option("--addtag",     dest="addtag",     help="Add tag to distinguish different trainings",  default="",                        )
@@ -81,19 +81,27 @@ if __name__ == "__main__" :
 
         # change binning of Scale Factors a posteriori
         max_energy = options.maxenergy
-        min_energy = options.energystep
+        min_energy = 1
         energy_step = options.energystep
         index = np.array(range(0,max_energy,energy_step))
 
+        # old method using the mean, but not entirely correct
+        # SFs_new = []
+        # for i in index:
+        #     mean_ienergy = []
+        #     for j in range(0,28):
+        #         mean_jeta = 0
+        #         for k in range(energy_step):
+        #             mean_jeta += SFs[i+k][j]
+        #         mean_ienergy.append(mean_jeta/energy_step)
+        #     SFs_new.append(mean_ienergy)
+
+        # new method considering only the odd lines
         SFs_new = []
-        for i in index:
-            mean_ienergy = []
-            for j in range(0,28):
-                mean_jeta = 0
-                for k in range(energy_step):
-                    mean_jeta += SFs[i+k][j]
-                mean_ienergy.append(mean_jeta/energy_step)
-            SFs_new.append(mean_ienergy)
+        SFs_new.append(SFs[0])
+        for i in range(1,max_energy+1):
+            if (i%energy_step == 0):
+                SFs_new.append(SFs[i])
 
         head_text = 'energy bins iEt       = [0'
         for i in range(min_energy, max_energy, energy_step):
@@ -141,19 +149,27 @@ if __name__ == "__main__" :
 
         # change binning of Scale Factors a posteriori
         max_energy = options.maxenergy
-        min_energy = options.energystep
+        min_energy = 1
         energy_step = options.energystep
         index = np.array(range(0,max_energy,energy_step))
 
+        # old method using the mean, but not entirely correct
+        # SFs_new = []
+        # for i in index:
+        #     mean_ienergy = []
+        #     for j in range(0,12):
+        #         mean_jeta = 0
+        #         for k in range(energy_step):
+        #             mean_jeta += SFs[i+k][j]
+        #         mean_ienergy.append(mean_jeta/energy_step)
+        #     SFs_new.append(mean_ienergy)
+        
+        # new method considering only the odd lines
         SFs_new = []
-        for i in index:
-            mean_ienergy = []
-            for j in range(0,12):
-                mean_jeta = 0
-                for k in range(energy_step):
-                    mean_jeta += SFs[i+k][j]
-                mean_ienergy.append(mean_jeta/energy_step)
-            SFs_new.append(mean_ienergy)
+        SFs_new.append(SFs[0])
+        for i in range(1,max_energy+1):
+            if (i%energy_step == 0):
+                SFs_new.append(SFs[i])
 
         head_text = 'energy bins iEt       = [0'
         for i in range(min_energy, max_energy, energy_step):
