@@ -483,7 +483,10 @@ if __name__ == "__main__" :
         # Definition of energy bin edges from the header
         with open(SF_filename) as f:
             header = f.readline().rstrip()
-        bin_edges = header.split(',')[1:]
+        if energy_step == 1:
+            bin_edges = [0] + header.split(',')[1:]
+        else:
+            bin_edges = header.split(',')[1:]
         bin_edges[-1] = bin_edges[-1][:-1]
         if bin_edges[-1] == '256': bin_edges[-1] = '200'
         bin_edges = [ int(x) for x in bin_edges ]
