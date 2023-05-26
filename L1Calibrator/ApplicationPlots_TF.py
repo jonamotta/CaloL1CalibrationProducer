@@ -93,6 +93,44 @@ def PlotResolutionInclusive(df_jets, odir, v_sample):
     print(savefile)
     plt.close()
 
+    if v_sample == "ECAL":
+        plt.figure(figsize=(10,10))
+        text_1 = leg_uncalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['unc_res'].mean(), df_jets['unc_res'].std()/df_jets['unc_res'].mean())
+        plt.hist(df_jets['unc_res'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=c_uncalib)
+        text_2 = leg_oldcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['old_res'].mean(), df_jets['old_res'].std()/df_jets['old_res'].mean())
+        plt.hist(df_jets['old_res'], bins=bins_res, label=text_2, histtype='step', stacked=True, linewidth=2, color=c_oldcalib)
+        text_3 = leg_newcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['new_res_iem'].mean(), df_jets['new_res_iem'].std()/df_jets['new_res_iem'].mean())
+        plt.hist(df_jets['new_res_iem'], bins=bins_res, label=text_3, histtype='step', stacked=True, linewidth=2, color=c_newcalib)
+        plt.xlabel('Response EM')
+        plt.ylabel('a.u.')
+        plt.grid(linestyle='dotted')
+        plt.legend(fontsize=15, loc='upper left')
+        mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+        # plt.title('Jets Resolution {}'.format(v_sample))
+        savefile = odir + '/Res_{}_Iem.png'.format(v_sample)
+        plt.savefig(savefile)
+        print(savefile)
+        plt.close()
+    
+    if v_sample == "HCAL":
+        plt.figure(figsize=(10,10))
+        text_1 = leg_uncalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['unc_res'].mean(), df_jets['unc_res'].std()/df_jets['unc_res'].mean())
+        plt.hist(df_jets['unc_res'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=c_uncalib)
+        text_2 = leg_oldcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['old_res'].mean(), df_jets['old_res'].std()/df_jets['old_res'].mean())
+        plt.hist(df_jets['old_res'], bins=bins_res, label=text_2, histtype='step', stacked=True, linewidth=2, color=c_oldcalib)
+        text_3 = leg_newcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['new_res_ihad'].mean(), df_jets['new_res_ihad'].std()/df_jets['new_res_ihad'].mean())
+        plt.hist(df_jets['new_res_ihad'], bins=bins_res, label=text_3, histtype='step', stacked=True, linewidth=2, color=c_newcalib)
+        plt.xlabel('Response HAD')
+        plt.ylabel('a.u.')
+        plt.grid(linestyle='dotted')
+        plt.legend(fontsize=15, loc='upper left')
+        mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+        # plt.title('Jets Resolution {}'.format(v_sample))
+        savefile = odir + '/Res_{}_Ihad.png'.format(v_sample)
+        plt.savefig(savefile)
+        print(savefile)
+        plt.close()
+
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
@@ -466,6 +504,10 @@ if __name__ == "__main__" :
     df_jets['jetEta']     = df_jets.apply(lambda row: (TowersEta[row['jetIEta']][0] + TowersEta[row['jetIEta']][1])/2, axis=1)
     df_jets['EoTot']      = df_Towers.groupby('id').iem.sum() / df_jets['unCalib']
     df_jets['HoTot']      = df_Towers.groupby('id').hcalET.sum() / df_jets['unCalib']
+    if options.v == "ECAL":
+        df_jets['newCalib_iem']   = df_Towers.groupby('id').newCalib_iem.sum()
+    if options.v == "HCAL":
+        df_jets['newCalib_ihad']  = df_Towers.groupby('id').newCalib_ihad.sum()
 
     if options.v == 'ECAL':
         df_jets['SFCalib'] = df_Towers.groupby('id').newCalib_iem.sum()
@@ -485,6 +527,11 @@ if __name__ == "__main__" :
     df_jets['unc_res'] = df_jets.apply(lambda row: row['unCalib']/row['jetPt'], axis=1)
     df_jets['mod_res'] = df_jets.apply(lambda row: row['modelCalib']/row['jetPt'], axis=1)
     df_jets['SFs_res'] = df_jets.apply(lambda row: row['SFCalib']/row['jetPt'], axis=1)
+    if options.v == "ECAL":
+        df_jets['new_res_iem'] = df_jets.apply(lambda row: row['newCalib_iem']/row['jetPt'], axis=1)
+    if options.v == "HCAL":
+        df_jets['new_res_ihad'] = df_jets.apply(lambda row: row['newCalib_ihad']/row['jetPt'], axis=1)
+    
     # compute MAPE value
     df_jets['old_mape'] = df_jets.apply(lambda row: np.abs(row['oldCalib']-row['jetPt'])/row['jetPt'], axis=1)
     df_jets['new_mape'] = df_jets.apply(lambda row: np.abs(row['newCalib']-row['jetPt'])/row['jetPt'], axis=1)
