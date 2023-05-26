@@ -497,10 +497,15 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
         dfFlatEJT.set_index('uniqueIdx', inplace=True)
 
     # HCAL cuts depending on energy must come after the ECAL calibration (hoe depends on iem too!!)
-    if Hcalcut != False:
+    if Hcalcut != "False":
+        if Hcalcut == "True":
+            Hcalcut_value = 0.95
+        else:
+            Hcalcut_value = float(Hcalcut)
+        print(" ### INFO: Apply H/Tot cut = {}".format(Hcalcut_value))
         group = dfFlatEJT.groupby('uniqueIdx')
         dfFlatEJT['hoe'] = group['hcalET'].sum()/(group['iem'].sum()+group['hcalET'].sum())
-        dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>0.95]
+        dfFlatEJT = dfFlatEJT[dfFlatEJT['hoe']>float(Hcalcut_value)]
 
     # [Elena] Training with only jets formad by 10 TT maximum
     if TTNumberCut != False:
@@ -677,7 +682,7 @@ if __name__ == "__main__" :
     parser.add_option("--etacut",      dest="etacut",      default=False)
     parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
     parser.add_option("--ecalcut",     dest="ecalcut",     default=False)
-    parser.add_option("--hcalcut",     dest="hcalcut",     default=False)
+    parser.add_option("--hcalcut",     dest="hcalcut",     default="False",  type=str)
     parser.add_option("--HoTotcut",    dest="HoTotcut",    default=False)
     parser.add_option("--TTNumberCut", dest="TTNumberCut", default=False)
     parser.add_option("--TTNumberCutInverse", dest="TTNumberCutInverse", default=False)
@@ -687,6 +692,7 @@ if __name__ == "__main__" :
     parser.add_option("--ClusterFilter", dest="ClusterFilter", default=False)
     parser.add_option("--applyZS",       dest="applyZS",       default=False)
     parser.add_option("--LooseEle",      dest="LooseEle", action='store_true', default=False)
+    parser.add_option("--PuppiJet",      dest="PuppiJet", action='store_true', default=False)
     (options, args) = parser.parse_args()
 
     if (options.fin=='' or options.fout=='' or options.target=='' or options.type==''): print('** ERROR: wrong input options --> EXITING!!'); exit()
@@ -706,11 +712,18 @@ if __name__ == "__main__" :
             phi = b'phi'
 
         if options.type == 'jet':
-            keyTarget = "l1JetRecoTree/JetRecoTree"
-            branchesTarget = ["Jet/eta", "Jet/phi", "Jet/etCorr"]
-            energy = b'etCorr'
-            eta = b'eta'
-            phi = b'phi'
+            if options.PuppiJet:
+                keyTarget = "l1JetRecoTree/JetRecoTree"
+                branchesTarget = ["Jet/puppi_eta", "Jet/puppi_phi", "Jet/puppi_etCorr"]
+                energy = b'puppi_etCorr'
+                eta = b'puppi_eta'
+                phi = b'puppi_phi'
+            else:
+                keyTarget = "l1JetRecoTree/JetRecoTree"
+                branchesTarget = ["Jet/eta", "Jet/phi", "Jet/etCorr"]
+                energy = b'etCorr'
+                eta = b'eta'
+                phi = b'phi'
 
     if options.target == 'gen':
         keyTarget = "l1GeneratorTree/L1GenTree"

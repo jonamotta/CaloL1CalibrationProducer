@@ -336,6 +336,26 @@ source /opt/exp_soft/cms/t3/t3setup
 #                               --queue short \
 #                               --etacut 28 --ecalcut True --applyCut_3_6_9 True --LooseEle
 
+########################################################################################################################
+########################################################################################################################
+# New training with Jets GT130
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G_Early-PromptReco-v1__AOD__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json/GoodNtuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_05_20_NtuplesV47/JetMET_HoTot95_puppi_barrel \
+                              --target reco --type jet --chunk_size 5000 \
+                              --queue short \
+                              --etacut 15 --hcalcut 0.95 --lJetPtCut 30 --PuppiJet
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G_Early-PromptReco-v1__AOD__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json/GoodNtuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_05_20_NtuplesV47/JetMET_HoTot80_puppi_barrel \
+                              --target reco --type jet --chunk_size 5000 \
+                              --queue short \
+                              --etacut 15 --hcalcut 0.8 --lJetPtCut 30 --PuppiJet
+
+python3 batchSubmitOnTier3.py --indir /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G_Early-PromptReco-v1__AOD__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json/GoodNtuples \
+                              --outdir /data_CMS/cms/motta/CaloL1calibraton/2023_05_20_NtuplesV47/JetMET_HoTot50_puppi_barrel_MinusIem \
+                              --target reco --type jet --chunk_size 5000 \
+                              --queue short \
+                              --etacut 15 --hcalcut 0.5 --lJetPtCut 30 --PuppiJet --trainPtVers HCAL
 
 ####################################################################################################################################################################################################
 ####################################################################################################################################################################################################

@@ -25,7 +25,10 @@ python3 NNModelTraining_FullyCustom_GPUdistributed_batchedRate_OnlyRegression.py
 sleep 5
 python3 NNModelTraining_FullyCustom_GPUdistributed_batchedRate_OnlyRegressionAndRegularization.py --indir 2023_05_19_NtuplesV46 --v ECAL --tag DataReco --addtag _OnlyRegressionAndRegularization
 
-
+python3 NNModelTraining_FullyCustom_GPUdistributed_batchedRate_OnlyRegression.py --indir 2023_05_20_NtuplesV47/JetMET_HoTot95_puppi_barrel --v HCAL --tag DataReco \
+ --addtag _OnlyRegression_LRe-3 --batch_size 256 --epochs 50
+python3 NNModelTraining_FullyCustom_GPUdistributed_batchedRate_OnlyRegression.py --indir 2023_05_20_NtuplesV47/JetMET_HoTot80_puppi_barrel --v HCAL --tag DataReco \
+ --addtag _OnlyRegression_LRe-4 --batch_size 1024 --epochs 20
 
 
 

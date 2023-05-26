@@ -58,6 +58,7 @@ parser.add_option("--applyOnTheFly",      dest="applyOnTheFly",      default=Fal
 parser.add_option("--ClusterFilter",      dest="ClusterFilter",      default=False)
 parser.add_option("--applyZS",            dest="applyZS",            default=False)
 parser.add_option("--LooseEle",           dest="LooseEle",           default=False, action='store_true')
+parser.add_option("--PuppiJet",           dest="PuppiJet",           default=False, action='store_true')
 parser.add_option("--resubmit_failed",    dest="resubmit_failed",    default=False, action='store_true')
 parser.add_option("--no_exec",            dest="no_exec",            default=False, action='store_true')
 (options, args) = parser.parse_args()
@@ -156,6 +157,8 @@ for file in InFiles:
         cmsRun = cmsRun + " --applyZS "+options.applyZS
     if options.LooseEle != False:
         cmsRun = cmsRun + " --LooseEle"
+    if options.PuppiJet != False:
+        cmsRun = cmsRun + " --PuppiJet"
 
     cmsRun = cmsRun + " >& "+outLogName
 
