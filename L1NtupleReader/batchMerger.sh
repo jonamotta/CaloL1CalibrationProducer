@@ -80,12 +80,25 @@ python3 batchMerger.py --indir 2023_05_01_NtuplesV44 --batchdir GoodNtuples --v 
 ######################################################################################################################
 ######################################################################################################################
 # New ECAL Calib (23919637)
-
 python3 batchMerger.py --indir 2023_05_19_NtuplesV46 \
     --batchdir EGamma__Run2022*-ZElectron-PromptReco-v1__RAW-RECO__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json \
     --v ECAL --odir DataReco --filesPerRecord 300 \
     --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
 
+# New HCAL Calib (6896)
+python3 batchMerger.py --indir 2023_05_20_NtuplesV47/JetMET_HoTot95_puppi_barrel \
+    --batchdir GoodNtuples --v HCAL --odir DataReco --filesPerRecord 300 --selectResp \
+    --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
+
+# New HCAL Calib (299650)
+python3 batchMerger.py --indir 2023_05_20_NtuplesV47/JetMET_HoTot80_puppi_barrel \
+    --batchdir GoodNtuples --v HCAL --odir DataReco --filesPerRecord 300 --selectResp \
+    --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
+
+# New HCAL Calib (3022087)
+python3 batchMerger.py --indir 2023_05_20_NtuplesV47/JetMET_HoTot50_puppi_barrel_MinusIem \
+    --batchdir GoodNtuples --v HCAL --odir DataReco --filesPerRecord 300 --selectResp \
+    --ratedir /data_CMS/cms/motta/CaloL1calibraton/2023_04_18_NtuplesV41/EphemeralZeroBias__Run2022G-v1__Run362616__RAW__GT124XdataRun3v11_CaloParams2022v06_noL1Calib_data
 
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir ElectronTraining_JSON --v ECAL --odir DataReco --sample train
 # python3 batchMerger.py --indir 2023_02_22_NtuplesV30 --batchdir JetTraining_JSON      --v HCAL --odir DataReco --sample train

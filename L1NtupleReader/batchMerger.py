@@ -122,7 +122,7 @@ if __name__ == "__main__" :
     parser.add_option("--HCALcalib4rate",         dest="HCALcalib4rate",         default=None,                         help="Model for HCAL calibration in ECAL rate proxy dataset ('/data_CMS/cms/motta/CaloL1calibraton/'+options.HCALcalib4rate+'/model_HCAL/TTP')")
     parser.add_option("--ljetPtcut",              dest="ljetPtcut",              default=None,                         help="Lower jet pt cut (in iET units)")
     parser.add_option("--ujetPtcut",              dest="ujetPtcut",              default=None,                         help="Upper jet pt cut (in iET units)")
-    parser.add_option("--select",                 dest="select",                 default=None,                         help="Apply selections about uncalib response")
+    parser.add_option("--selectResp",             dest="selectResp",             default=False,   action='store_true', help="Apply selections about uncalib response")
     (options, args) = parser.parse_args()
     print(options)
 
@@ -202,7 +202,7 @@ if __name__ == "__main__" :
                 # pre-process to have correct shape and entires
                 X, Y = convert_train_samples(X, Y, options.v)
 
-                if options.select:
+                if options.selectResp:
                     # clean from the events that are completely outside of a 'regular' resposne
                     uncalibResp = Y / np.sum(X[:,:,1], axis=1)
                     selection = (uncalibResp < 3) & (uncalibResp > 0.3)

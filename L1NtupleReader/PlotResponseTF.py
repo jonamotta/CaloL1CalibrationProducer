@@ -69,6 +69,52 @@ def PlotResolutionInclusive(df_jets, odir, v_sample):
     print(savefile)
     plt.close()
 
+    if v_sample == "ECAL":
+        plt.figure(figsize=(10,10))
+        sel_barrel = np.abs(df_jets['jetEta']) < 1.305
+        text_1 = leg_uncalib+r' barrel : $\mu={:.3f}, res={:.3f}$'.format(df_jets[sel_barrel]['unc_res_iem'].mean(), df_jets[sel_barrel]['unc_res_iem'].std()/df_jets[sel_barrel]['unc_res_iem'].mean())
+        plt.hist(df_jets[sel_barrel]['unc_res_iem'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=cmap(0))
+        sel_endcap = np.abs(df_jets['jetEta']) >= 1.305
+        text_1 = leg_uncalib+r' endcap : $\mu={:.3f}, res={:.3f}$'.format(df_jets[sel_endcap]['unc_res_iem'].mean(), df_jets[sel_endcap]['unc_res_iem'].std()/df_jets[sel_endcap]['unc_res_iem'].mean())
+        plt.hist(df_jets[sel_endcap]['unc_res_iem'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=cmap(1))
+        text_1 = leg_uncalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['unc_res_iem'].mean(), df_jets['unc_res_iem'].std()/df_jets['unc_res_iem'].mean())
+        counts, bins, _ = plt.hist(df_jets['unc_res_iem'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=cmap(2))
+        plt.xlabel('Response Only Iem')
+        plt.ylabel('a.u.')
+        plt.ylim(0, 1.3*np.max(counts))
+        plt.xlim(0,3)
+        plt.grid(linestyle='dotted')
+        plt.legend(fontsize=15, loc='upper left')
+        mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+        # plt.title('Jets Resolution {}'.format(v_sample))
+        savefile = odir + '/Res_{}_Iem.png'.format(v_sample)
+        plt.savefig(savefile)
+        print(savefile)
+        plt.close()
+
+    if v_sample == "HCAL":
+        plt.figure(figsize=(10,10))
+        sel_barrel = np.abs(df_jets['jetEta']) < 1.305
+        text_1 = leg_uncalib+r' barrel : $\mu={:.3f}, res={:.3f}$'.format(df_jets[sel_barrel]['unc_res_ihad'].mean(), df_jets[sel_barrel]['unc_res_ihad'].std()/df_jets[sel_barrel]['unc_res_ihad'].mean())
+        plt.hist(df_jets[sel_barrel]['unc_res_ihad'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=cmap(0))
+        sel_endcap = np.abs(df_jets['jetEta']) >= 1.305
+        text_1 = leg_uncalib+r' endcap : $\mu={:.3f}, res={:.3f}$'.format(df_jets[sel_endcap]['unc_res_ihad'].mean(), df_jets[sel_endcap]['unc_res_ihad'].std()/df_jets[sel_endcap]['unc_res_ihad'].mean())
+        plt.hist(df_jets[sel_endcap]['unc_res_ihad'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=cmap(1))
+        text_1 = leg_uncalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['unc_res_ihad'].mean(), df_jets['unc_res_ihad'].std()/df_jets['unc_res_ihad'].mean())
+        counts, bins, _ = plt.hist(df_jets['unc_res_ihad'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=cmap(2))
+        plt.xlabel('Response')
+        plt.ylabel('a.u.')
+        plt.ylim(0, 1.3*np.max(counts))
+        plt.xlim(0,3)
+        plt.grid(linestyle='dotted')
+        plt.legend(fontsize=15, loc='upper left')
+        mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+        # plt.title('Jets Resolution {}'.format(v_sample))
+        savefile = odir + '/Res_{}_Ihad.png'.format(v_sample)
+        plt.savefig(savefile)
+        print(savefile)
+        plt.close()
+
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
@@ -235,7 +281,7 @@ if __name__ == "__main__" :
     odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/plots' + options.addtag + '/PerformancePlots_Uncalib'
     os.system('mkdir -p '+ odir)
     print('\n ### Reading TF records from: ' + indir + '/testTFRecords/record_*.tfrecord')
-    InTestRecords = glob.glob(indir+'/testTFRecords/record_*.tfrecord')[:options.filesLim]
+    InTestRecords = glob.glob(indir+'/t*TFRecords/record_*.tfrecord')[:options.filesLim]
     dataset = tf.data.TFRecordDataset(InTestRecords)
     batch_size = len(list(dataset))
     parsed_dataset = dataset.map(parse_function)
@@ -270,6 +316,8 @@ if __name__ == "__main__" :
 
     # compute sum of the raw energy 
     df_jets = pd.DataFrame()
+    df_jets['SumIem']     = df_Towers.groupby('id').iem.sum()
+    df_jets['SumIhad']    = df_Towers.groupby('id').hcalET.sum()
     df_jets['unCalib']    = df_Towers.groupby('id').iem.sum() + df_Towers.groupby('id').hcalET.sum()
     df_jets['jetPt']      = df_Towers.groupby('id').jetPt.median()
     df_jets['jetIEta']    = df_Towers.groupby('id').ieta.first()
@@ -284,6 +332,8 @@ if __name__ == "__main__" :
 
     # compute resolution
     df_jets['unc_res'] = df_jets.apply(lambda row: row['unCalib']/row['jetPt'], axis=1)
+    df_jets['unc_res_iem'] = df_jets.apply(lambda row: row['SumIem']/row['jetPt'], axis=1)
+    df_jets['unc_res_ihad'] = df_jets.apply(lambda row: row['SumIhad']/row['jetPt'], axis=1)
 
     print('\n ### Saving plots in: ' + odir)
 
