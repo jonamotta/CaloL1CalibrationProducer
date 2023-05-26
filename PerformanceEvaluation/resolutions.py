@@ -507,7 +507,7 @@ if options.reco:
         inclusive_label = r'Inclusive $|\eta^{jet, offline}|<5.191$'
         legend_label = r'$<|p_{T}^{jet, offline}|<$'
         x_label = r'$p_{T}^{jet, offline}$'
-        x_label_response = r'$E_{T}^{jet, L1} / p_{T}^{e, offline}$'
+        x_label_response = r'$E_{T}^{jet, L1} / p_{T}^{jet, offline}$'
     if options.target == 'ele':
         barrel_label = r'Barrel $|\eta^{e, offline}|<1.305$'
         endcap_label = r'Endcap $1.479<|\eta^{e, offline}|<3.0$'
@@ -522,7 +522,7 @@ if options.gen:
         inclusive_label = r'Inclusive $|\eta^{jet, gen}|<5.191$'
         legend_label = r'$<|p_{T}^{jet, gen}|<$'
         x_label = r'$p_{T}^{jet, gen}$'
-        x_label_response = r'$E_{T}^{jet, L1} / p_{T}^{e, gen}$'
+        x_label_response = r'$E_{T}^{jet, L1} / p_{T}^{jet, gen}$'
     if options.target == 'ele':
         barrel_label = r'Barrel $|\eta^{e, gen}|<1.305$'
         endcap_label = r'Endcap $1.479<|\eta^{e, gen}|<3.0$'
