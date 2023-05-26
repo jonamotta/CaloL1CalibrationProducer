@@ -55,6 +55,8 @@ parser.add_option("--LooseEle",  dest="LooseEle", action='store_true', default=F
 parser.add_option("--PuppiJet",  dest="PuppiJet", action='store_true', default=False)
 parser.add_option("--do_HoTot",  dest="do_HoTot", action='store_true', default=False)
 parser.add_option("--do_EoTot",  dest="do_EoTot", action='store_true', default=False)
+parser.add_option("--OnlyIem",   dest="OnlyIem",  action='store_true', default=False)
+parser.add_option("--OnlyIhad",  dest="OnlyIhad", action='store_true', default=False)
 (options, args) = parser.parse_args()
 
 cmap = matplotlib.colormaps.get_cmap('Set1')
@@ -268,7 +270,12 @@ for i in tqdm(range(0, nevents)):
                 # continue
 
             # L1Pt = (iem_sum)/2
-            L1Pt = (ihad_sum + iem_sum)/2
+            if options.OnlyIem:
+                L1Pt = (iem_sum)/2
+            elif options.OnlyIhad:
+                L1Pt = (ihad_sum)/2
+            else:
+                L1Pt = (ihad_sum + iem_sum)/2
 
             # print("Res = {:2f}".format(L1Pt/targetObj.Pt()))
 
