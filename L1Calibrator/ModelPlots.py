@@ -6,10 +6,11 @@ import matplotlib.cm as cm
 import sys
 sys.path.insert(0,'..')
 from matplotlib.transforms import Affine2D
-from NNModelTraining_FullyCustom_GPUdistributed_batchedRate import *
-from L1NtupleReader.TowerGeometry import *
 import warnings
 warnings.simplefilter(action='ignore')
+
+from NNModelTraining_FullyCustom_GPUdistributed_batchedRate import *
+from L1NtupleReader.TowerGeometry import *
 
 import mplhep
 plt.style.use(mplhep.style.CMS)
@@ -432,13 +433,11 @@ if __name__ == "__main__" :
         # Definition of energy bin edges from the header
         with open(SF_filename) as f:
             header = f.readline().rstrip()
-        if energy_step == 1:
-            bin_edges = [0] + header.split(',')[1:]
-        else:
-            bin_edges = header.split(',')[1:]
+        bin_edges = header.split(',')[1:]
         bin_edges[-1] = bin_edges[-1][:-1]
-        if bin_edges[-1] == ' 256': bin_edges[-1] = '200'
+        if int(bin_edges[-1]) == 256: bin_edges[-1] = '200'
         bin_edges = [ int(x) for x in bin_edges ]
+        bin_edges = bin_edges[:np.array(ScaleFactors).shape[0]]
         
         PlotSF(ScaleFactors, bin_edges, odir, "ECAL", eta_towers)
         PlotSF2D(ScaleFactors, bin_edges, odir, "ECAL")
@@ -458,13 +457,11 @@ if __name__ == "__main__" :
         # Definition of energy bin edges from the header
         with open(SF_filename) as f:
             header = f.readline().rstrip()
-        if energy_step == 1:
-            bin_edges = [0] + header.split(',')[1:]
-        else:
-            bin_edges = header.split(',')[1:]
+        bin_edges = header.split(',')[1:]
         bin_edges[-1] = bin_edges[-1][:-1]
-        if bin_edges[-1] == '256': bin_edges[-1] = '200'
+        if int(bin_edges[-1]) == 256: bin_edges[-1] = '200'
         bin_edges = [ int(x) for x in bin_edges ]
+        bin_edges = bin_edges[:np.array(ScaleFactors).shape[0]]
 
         PlotSF(ScaleFactors, bin_edges, odir, "HCAL", eta_towers)
         # PlotSF2D(ScaleFactors, bin_edges, odir, "HCAL")
@@ -483,13 +480,11 @@ if __name__ == "__main__" :
         # Definition of energy bin edges from the header
         with open(SF_filename) as f:
             header = f.readline().rstrip()
-        if energy_step == 1:
-            bin_edges = [0] + header.split(',')[1:]
-        else:
-            bin_edges = header.split(',')[1:]
+        bin_edges = header.split(',')[1:]
         bin_edges[-1] = bin_edges[-1][:-1]
-        if bin_edges[-1] == '256': bin_edges[-1] = '200'
+        if int(bin_edges[-1]) == 256: bin_edges[-1] = '200'
         bin_edges = [ int(x) for x in bin_edges ]
+        bin_edges = bin_edges[:np.array(ScaleFactors).shape[0]]
 
         PlotSF(ScaleFactors, bin_edges, odir, "HF", eta_towers)
         # PlotSF2D(ScaleFactors, bin_edges, odir, "HF")
