@@ -51,12 +51,15 @@ parser.add_option("--unpacked",  dest="unpacked", action='store_true', default=F
 parser.add_option("--raw",       dest="raw",      action='store_true', default=False)
 parser.add_option("--jetPtcut",  dest="jetPtcut", type=float, default=None)
 parser.add_option("--etacut",    dest="etacut",   type=float, default=None)
+parser.add_option("--HoTotcut",  dest="HoTotcut", type=float, default=None)
+parser.add_option("--EoTotcut",  dest="EoTotcut", type=float, default=None)
 parser.add_option("--LooseEle",  dest="LooseEle", action='store_true', default=False)
 parser.add_option("--PuppiJet",  dest="PuppiJet", action='store_true', default=False)
 parser.add_option("--do_HoTot",  dest="do_HoTot", action='store_true', default=False)
 parser.add_option("--do_EoTot",  dest="do_EoTot", action='store_true', default=False)
 parser.add_option("--OnlyIem",   dest="OnlyIem",  action='store_true', default=False)
 parser.add_option("--OnlyIhad",  dest="OnlyIhad", action='store_true', default=False)
+parser.add_option("--MinusIem",  dest="MinusIem", action='store_true', default=False)
 (options, args) = parser.parse_args()
 
 cmap = matplotlib.colormaps.get_cmap('Set1')
@@ -107,6 +110,7 @@ if options.target == 'ele':
     signedEtaBins = [-3.0, -2.5, -2.0, -1.479, -1.305, -1.0, -0.5, 0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
 HoTotBins = [0, 0.2, 0.4, 0.6, 0.8, 0.95, 1.0]
 EoTotBins = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
+x_lim_response = (0,3)
 
 # PT RESPONSE - INCLUSIVE HISTOGRAMS
 res_bins = 240
@@ -278,47 +282,57 @@ for i in tqdm(range(0, nevents)):
                 L1Pt = (ihad_sum + iem_sum)/2
 
             # print("Res = {:2f}".format(L1Pt/targetObj.Pt()))
+            
+            if options.HoTotcut:
+                if HoTot < float(options.HoTotcut): continue
+            if options.EoTotcut:
+                if EoTot < float(options.EoTotcut): continue
+
+            if options.MinusIem:
+                targetPt = targetObj.Pt() - iem_sum/2
+            else:
+                targetPt = targetObj.Pt()
 
             ##########################################################################################
 
             if options.do_HoTot:
                 for i in range(len(HoTotBins)-1):
                     if HoTot > HoTotBins[i] and HoTot <= HoTotBins[i+1]:
-                        response_HoTotBins[i].Fill(L1Pt/targetObj.Pt())
+                        response_HoTotBins[i].Fill(L1Pt/targetPt)
             if options.do_EoTot:
                 for i in range(len(EoTotBins)-1):
                     if EoTot > EoTotBins[i] and EoTot <= EoTotBins[i+1]:
-                        response_EoTotBins[i].Fill(L1Pt/targetObj.Pt())
+                        response_EoTotBins[i].Fill(L1Pt/targetPt)
             
             ##########################################################################################
 
             ##########################################################################################
 
-            pt_response_ptInclusive.Fill(L1Pt/targetObj.Pt())
+            pt_response_ptInclusive.Fill(L1Pt/targetPt)
 
             if abs(targetObj.Eta()) < 1.305:
-                pt_barrel_resp_ptInclusive.Fill(L1Pt/targetObj.Pt())
+                pt_barrel_resp_ptInclusive.Fill(L1Pt/targetPt)
             elif abs(targetObj.Eta()) < 5.191 and abs(targetObj.Eta()) > 1.479:
-                pt_endcap_resp_ptInclusive.Fill(L1Pt/targetObj.Pt())
+                pt_endcap_resp_ptInclusive.Fill(L1Pt/targetPt)
 
             for i in range(len(ptBins)-1):
-                if targetObj.Pt() > ptBins[i] and targetObj.Pt() <= ptBins[i+1]:
-                    response_ptBins[i].Fill(L1Pt/targetObj.Pt())
+                if targetPt > ptBins[i] and targetPt <= ptBins[i+1]:
+                    response_ptBins[i].Fill(L1Pt/targetPt)
                     
                     if abs(targetObj.Eta()) < 1.305:
-                        barrel_response_ptBins[i].Fill(L1Pt/targetObj.Pt())
+                        barrel_response_ptBins[i].Fill(L1Pt/targetPt)
                     elif abs(targetObj.Eta()) < 5.191 and abs(targetObj.Eta()) > 1.479:
-                        endcap_response_ptBins[i].Fill(L1Pt/targetObj.Pt())
+                        endcap_response_ptBins[i].Fill(L1Pt/targetPt)
 
             for i in range(len(etaBins)-1):
                 if abs(targetObj.Eta()) > etaBins[i] and abs(targetObj.Eta()) < etaBins[i+1]:
-                    absEta_response_ptBins[i].Fill(L1Pt/targetObj.Pt())
+                    absEta_response_ptBins[i].Fill(L1Pt/targetPt)
 
                 if targetObj.Eta() > etaBins[i] and targetObj.Eta() < etaBins[i+1]:
-                    plusEta_response_ptBins[i].Fill(L1Pt/targetObj.Pt())
+                    plusEta_response_ptBins[i].Fill(L1Pt/targetPt)
 
                 elif targetObj.Eta() < -etaBins[i] and targetObj.Eta() > -etaBins[i+1]:
-                    minusEta_response_ptBins[i].Fill(L1Pt/targetObj.Pt())
+                    minusEta_response_ptBins[i].Fill(L1Pt/targetPt)
 
 
 # [FIXME] I have removed it to debug
@@ -459,15 +473,13 @@ if options.do_EoTot:
 
 if options.reco:
     if options.target == 'jet':
-        x_lim = (0.,3.)
         barrel_label = r'Barrel $|\eta^{jet, offline}|<1.305$'
         endcap_label = r'Endcap $1.479<|\eta^{jet, offline}|<5.191$'
         inclusive_label = r'Inclusive $|\eta^{jet, offline}|<5.191$'
         legend_label = r'$<|p_{T}^{jet, offline}|<$'
         x_label = r'$p_{T}^{jet, offline}$'
-        x_label_response = r'$E_{T}^{jet, L1} / p_{T}^{e, offline}$'
+        x_label_response = r'$E_{T}^{jet, L1} / p_{T}^{jet, offline}$'
     if options.target == 'ele':
-        x_lim = (0.,3.)
         barrel_label = r'Barrel $|\eta^{e, offline}|<1.305$'
         endcap_label = r'Endcap $1.479<|\eta^{e, offline}|<3.0$'
         inclusive_label = r'Inclusive $|\eta^{e, offline}|<3.0$'
@@ -476,15 +488,13 @@ if options.reco:
         x_label_response = r'$E_{T}^{e/\gamma, L1} / p_{T}^{e, offline}$'
 if options.gen:
     if options.target == 'jet':
-        x_lim = (0.,3.)
         barrel_label = r'Barrel $|\eta^{jet, gen}|<1.305$'
         endcap_label = r'Endcap $1.479<|\eta^{jet, gen}|<5.191$'
         inclusive_label = r'Inclusive $|\eta^{jet, gen}|<5.191$'
         legend_label = r'$<|p_{T}^{jet, gen}|<$'
         x_label = r'$p_{T}^{jet, gen}$'
-        x_label_response = r'$E_{T}^{jet, L1} / p_{T}^{e, gen}$'
+        x_label_response = r'$E_{T}^{jet, L1} / p_{T}^{jet, gen}$'
     if options.target == 'ele':
-        x_lim = (0.,3.)
         barrel_label = r'Barrel $|\eta^{e, gen}|<1.305$'
         endcap_label = r'Endcap $1.479<|\eta^{e, gen}|<3.0$'
         inclusive_label = r'Inclusive $|\eta^{e, gen}|<3.0$'
@@ -520,7 +530,7 @@ for i in range(len(barrel_response_ptBins)):
     leg._legend_box.align = "left"
     plt.xlabel(x_label_response)
     plt.ylabel('a.u.')
-    plt.xlim(x_lim)
+    plt.xlim(x_lim_response)
     plt.ylim(0., Ymax*1.3)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
@@ -570,9 +580,9 @@ for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
 leg = plt.legend(loc = 'upper right', fontsize=20)
 leg._legend_box.align = "left"
-plt.xlabel(x_label)
+plt.xlabel(x_label_response)
 plt.ylabel('Entries')
-plt.xlim(x_lim)
+plt.xlim(x_lim_response)
 plt.ylim(0., Ymax*1.3)
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
@@ -685,31 +695,25 @@ plt.close()
 
 if options.reco:
     if options.target == 'jet':
-        x_lim = (0.,3.)
+        x_lim = (-5.2,5.2)
         legend_label = r'$<|\eta^{jet, offline}|<$'
         x_label = r'$E_{T}^{jet, L1} / p_{T}^{jet, offline}$'
     if options.target == 'ele':
-        x_lim = (0.,3.)
+        x_lim = (-5.2,5.2)
         legend_label = r'$<|\eta^{ele, offline}|<$'
         x_label = r'$E_{T}^{e/\gamma, L1} / p_{T}^{e, offline}$'
 if options.gen:
     if options.target == 'jet':
-        x_lim = (0.,3.)
+        x_lim = (-5.2,5.2)
         legend_label = r'$<|\eta^{jet, gen}|<$'
         x_label = r'$E_{T}^{jet, L1} / p_{T}^{jet, gen}$'
     if options.target == 'ele':
-        x_lim = (0.,3.)
+        x_lim = (-5.2,5.2)
         legend_label = r'$<|\eta^{ele, gen}|<$'
         x_label = r'$E_{T}^{e/\gamma, L1} / p_{T}^{e, gen}$'
 
 ############################################################################################
 ## resolution in eta bins
-
-if options.reco:
-    if options.target == 'jet':
-        x_lim = (-5.2,5.2)
-    if options.target == 'ele':
-        x_lim = (-3.01,3.01)
 
 fig, ax = plt.subplots(figsize=(10,10))
 plt.grid(zorder=0)
@@ -733,7 +737,7 @@ for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
 plt.xlabel(x_label)
 plt.ylabel('Energy resolution')
-plt.xlim()
+plt.xlim(x_lim)
 plt.ylim(0., Ymax*1.3)
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
@@ -745,12 +749,6 @@ plt.close()
 
 ############################################################################################
 ## scale in eta bins
-
-if options.reco:
-    if options.target == 'jet':
-        x_lim = (-5.2,5.2)
-    if options.target == 'ele':
-        x_lim = (-3.01,3.01)
 
 fig, ax = plt.subplots(figsize=(10,10))
 plt.grid(zorder=0)
@@ -774,7 +772,7 @@ for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
 plt.xlabel(x_label)
 plt.ylabel('Energy scale')
-plt.xlim()
+plt.xlim(x_lim)
 plt.ylim(0.5, 1.5)
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
@@ -809,7 +807,7 @@ for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
 plt.xlabel(x_label)
 plt.ylabel('Energy scale')
-plt.xlim()
+plt.xlim(x_lim)
 plt.ylim(0.5, 1.5)
 for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
@@ -840,7 +838,7 @@ for i in range(len(absEta_response_ptBins)):
     leg._legend_box.align = "left"
     plt.xlabel(x_label_response)
     plt.ylabel('a.u.')
-    plt.xlim(x_lim)
+    plt.xlim(x_lim_response)
     plt.ylim(0., Ymax*1.3)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
@@ -856,20 +854,16 @@ for i in range(len(absEta_response_ptBins)):
 
 if options.reco:
     if options.target == 'jet':
-        x_lim = (0.,3.)
         legend_label = r'$<H/Tot<$'
         x_label = r'$H/Tot$'
     if options.target == 'ele':
-        x_lim = (0.,3.)
         legend_label = r'$<H/Tot<$'
         x_label = r'$H/Tot$'
 if options.gen:
     if options.target == 'jet':
-        x_lim = (0.,3.)
         legend_label = r'$<H/Tot<$'
         x_label = r'$H/Tot$'
     if options.target == 'ele':
-        x_lim = (0.,3.)
         legend_label = r'$<H/Tot<$'
         x_label = r'$H/Tot$'
 
@@ -893,7 +887,7 @@ if options.do_HoTot:
     #     leg._legend_box.align = "left"
     #     plt.xlabel(x_label_response)
     #     plt.ylabel('a.u.')
-    #     plt.xlim(x_lim)
+    #     plt.xlim(x_lim_response)
     #     plt.ylim(0., Ymax*1.3)
     #     for xtick in ax.xaxis.get_major_ticks():
     #         xtick.set_pad(10)
@@ -923,7 +917,7 @@ if options.do_HoTot:
     leg._legend_box.align = "left"
     plt.xlabel(x_label_response)
     plt.ylabel('a.u.')
-    plt.xlim(x_lim)
+    plt.xlim(x_lim_response)
     plt.ylim(0., Ymax*1.3)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
@@ -954,7 +948,6 @@ if options.do_HoTot:
         xtick.set_pad(10)
     plt.xlabel(x_label)
     plt.ylabel('Energy resolution')
-    plt.xlim()
     plt.ylim(0., Ymax*1.3)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
@@ -982,7 +975,6 @@ if options.do_HoTot:
         xtick.set_pad(10)
     plt.xlabel(x_label)
     plt.ylabel('Energy scale')
-    plt.xlim()
     plt.ylim(0.5, 1.5)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
@@ -1011,7 +1003,6 @@ if options.do_HoTot:
         xtick.set_pad(10)
     plt.xlabel(x_label)
     plt.ylabel('Energy scale')
-    plt.xlim()
     plt.ylim(0.5, 1.5)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
@@ -1027,20 +1018,16 @@ if options.do_HoTot:
 
 if options.reco:
     if options.target == 'jet':
-        x_lim = (0.,3.)
         legend_label = r'$<E/Tot<$'
         x_label = r'$E/Tot$'
     if options.target == 'ele':
-        x_lim = (0.,3.)
         legend_label = r'$<E/Tot<$'
         x_label = r'$E/Tot$'
 if options.gen:
     if options.target == 'jet':
-        x_lim = (0.,3.)
         legend_label = r'$<E/Tot<$'
         x_label = r'$E/Tot$'
     if options.target == 'ele':
-        x_lim = (0.,3.)
         legend_label = r'$<E/Tot<$'
         x_label = r'$E/Tot$'
 
@@ -1094,7 +1081,7 @@ if options.do_EoTot:
     leg._legend_box.align = "left"
     plt.xlabel(x_label_response)
     plt.ylabel('a.u.')
-    plt.xlim(x_lim)
+    plt.xlim(x_lim_response)
     plt.ylim(0., Ymax*1.3)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
@@ -1125,7 +1112,6 @@ if options.do_EoTot:
         xtick.set_pad(10)
     plt.xlabel(x_label)
     plt.ylabel('Energy resolution')
-    plt.xlim()
     plt.ylim(0., Ymax*1.3)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
@@ -1153,7 +1139,6 @@ if options.do_EoTot:
         xtick.set_pad(10)
     plt.xlabel(x_label)
     plt.ylabel('Energy scale')
-    plt.xlim()
     plt.ylim(0.5, 1.5)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
@@ -1182,7 +1167,6 @@ if options.do_EoTot:
         xtick.set_pad(10)
     plt.xlabel(x_label)
     plt.ylabel('Energy scale')
-    plt.xlim()
     plt.ylim(0.5, 1.5)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
