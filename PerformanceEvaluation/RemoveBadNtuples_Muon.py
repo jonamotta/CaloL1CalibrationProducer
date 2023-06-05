@@ -25,7 +25,9 @@ for log in logs:
         # print(ntuple)
         # os.system('cat '+filelist)
         if doMove:
-            cmd = 'mv ' + log.split('/log_')[0] + '/*' + idx + '* ' + gooddir
+            cmd = 'mv ' + log.split('/log_')[0] + '/Ntuple_' + idx + '* ' + gooddir
+            os.system(cmd)
+            cmd = 'mv ' + log.split('/log_')[0] + '/*_' + idx + '.* ' + gooddir
             print(cmd)
             os.system(cmd)
         good = good + 1

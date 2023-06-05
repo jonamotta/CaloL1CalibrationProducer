@@ -64,10 +64,11 @@ if options.target == 'jet':
 if options.target == 'ele':
     ptBins  = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200]
     etaBins = [0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
-HoTotBins = [0, 0.2, 0.4, 0.6, 0.8, 0.95, 1.0]
+HoTotBins = [0, 0.4, 0.8, 0.95, 1.0]
 EoTotBins = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
 
-x_lim_response = (0.5,1.5)
+# x_lim_response = (0.5,1.5)
+x_lim_response = (0.,3.)
 
 #############################
 ## RESOLUTIONS COMPARISONS ##
@@ -892,8 +893,8 @@ if options.doResolution == True:
             X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
             Y.append(histo.GetBinContent(ibin+1))
             X_err.append(histo.GetBinWidth(ibin+1)/2.)
-            Y_err.append(histo.GetBinError(ibin+1))
-        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+            # Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
         X_r_uncalib = X; Y_r_uncalib = Y
         Ymax = max(Y)
 
@@ -903,8 +904,8 @@ if options.doResolution == True:
             X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
             Y.append(histo.GetBinContent(ibin+1))
             X_err.append(histo.GetBinWidth(ibin+1)/2.)
-            Y_err.append(histo.GetBinError(ibin+1))
-        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+            # Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
         X_r_oldcalib = X; Y_r_oldcalib = Y
         Ymax = max(Ymax, max(Y))
 
@@ -914,8 +915,8 @@ if options.doResolution == True:
             X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
             Y.append(histo.GetBinContent(ibin+1))
             X_err.append(histo.GetBinWidth(ibin+1)/2.)
-            Y_err.append(histo.GetBinError(ibin+1))
-        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+            # Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
         X_r_newcalib = X; Y_r_newcalib = Y
         Ymax = max(Ymax, max(Y))
 
@@ -952,8 +953,8 @@ if options.doResolution == True:
             X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
             Y.append(histo.GetBinContent(ibin+1))
             X_err.append(histo.GetBinWidth(ibin+1)/2.)
-            Y_err.append(histo.GetBinError(ibin+1))
-        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+            # Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
         X_s_uncalib = X; Y_s_uncalib = Y
         Ymax = max(Y)
 
@@ -963,8 +964,8 @@ if options.doResolution == True:
             X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
             Y.append(histo.GetBinContent(ibin+1))
             X_err.append(histo.GetBinWidth(ibin+1)/2.)
-            Y_err.append(histo.GetBinError(ibin+1))
-        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+            # Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
         X_s_oldcalib = X; Y_s_oldcalib = Y
         Ymax = max(Ymax, max(Y))
 
@@ -974,8 +975,8 @@ if options.doResolution == True:
             X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
             Y.append(histo.GetBinContent(ibin+1))
             X_err.append(histo.GetBinWidth(ibin+1)/2.)
-            Y_err.append(histo.GetBinError(ibin+1))
-        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+            # Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
         X_s_newcalib = X; Y_s_newcalib = Y
         Ymax = max(Ymax, max(Y))
 
@@ -1037,8 +1038,8 @@ if options.doResolution == True:
             X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
             Y.append(histo.GetBinContent(ibin+1))
             X_err.append(histo.GetBinWidth(ibin+1)/2.)
-            Y_err.append(histo.GetBinError(ibin+1))
-        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+            # Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
         X_s_uncalib = X; Y_s_uncalib = Y
         Ymax = max(Y)
 
@@ -1048,8 +1049,8 @@ if options.doResolution == True:
             X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
             Y.append(histo.GetBinContent(ibin+1))
             X_err.append(histo.GetBinWidth(ibin+1)/2.)
-            Y_err.append(histo.GetBinError(ibin+1))
-        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+            # Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
         X_s_oldcalib = X; Y_s_oldcalib = Y
         Ymax = max(Ymax, max(Y))
 
@@ -1059,8 +1060,8 @@ if options.doResolution == True:
             X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
             Y.append(histo.GetBinContent(ibin+1))
             X_err.append(histo.GetBinWidth(ibin+1)/2.)
-            Y_err.append(histo.GetBinError(ibin+1))
-        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+            # Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
         X_s_newcalib = X; Y_s_newcalib = Y
         Ymax = max(Ymax, max(Y))
 
