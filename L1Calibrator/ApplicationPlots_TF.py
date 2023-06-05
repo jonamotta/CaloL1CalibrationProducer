@@ -1,14 +1,14 @@
-import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
 import sys, glob, os
 import pandas as pd
 import math
-sys.path.insert(0,'../L1NtupleReader/')
-
+import warnings
 import mplhep
 plt.style.use(mplhep.style.CMS)
+warnings.simplefilter(action='ignore')
 
+sys.path.insert(0,'../L1NtupleReader/')
 from caloParamsOnTheFly import *
 from NNModelTraining_FullyCustom_GPUdistributed_batchedRate_oldDatasets import * 
 
@@ -260,7 +260,7 @@ def PlotResolutionPtBins(df_jets, odir, v_sample, bin_type):
     plt.xlabel(x_label)
     plt.ylabel('Energy resolution')
     plt.xlim(keyBins[0], keyBins[-1])
-    # plt.ylim(0., Ymax*1.3)
+    plt.ylim(0., 0.7)
     for xtick in ax.xaxis.get_major_ticks():
         xtick.set_pad(10)
     plt.grid()
@@ -346,6 +346,7 @@ if __name__ == "__main__" :
     parser.add_option("--ljetPtcut",    dest="ljetPtcut",   help="Apply lowerjetPt cut [GeV]",          default=None)
     parser.add_option("--ujetPtcut",    dest="ujetPtcut",   help="Apply upperjetPt cut [GeV]",          default=None)
     parser.add_option("--HoEcut",       dest="HoEcut",      help="Apply HoE cut at 0.95",               default=None)
+    parser.add_option("--MinusIem",     dest="MinusIem",    help="Add Iem to the jetPt target",         default=False,   action='store_true')
     # parser.add_option("--EstepECAL",    dest="EstepECAL",   help="Energy step ECAL SFs",                default=2, type=int)
     # parser.add_option("--EstepHCAL",    dest="EstepHCAL",   help="Energy step HCAL SFs",                default=2, type=int)
     (options, args) = parser.parse_args()
@@ -498,8 +499,11 @@ if __name__ == "__main__" :
     df_jets['oldCalib']   = df_Towers.groupby('id').oldCalib_iem.sum() + df_Towers.groupby('id').oldCalib_ihad.sum()
     df_jets['newCalib']   = df_Towers.groupby('id').newCalib_iem.sum() + df_Towers.groupby('id').newCalib_ihad.sum()
     df_jets['unCalib']    = df_Towers.groupby('id').iem.sum() + df_Towers.groupby('id').hcalET.sum()
-    df_jets['jetPt']      = df_Towers.groupby('id').jetPt.median()
     df_jets['modelCalib'] = df_Towers.groupby('id').modelPt.median()
+    if options.MinusIem:
+        df_jets['jetPt']  = df_Towers.groupby('id').jetPt.median() + df_Towers.groupby('id').iem.sum()
+    else:
+        df_jets['jetPt']  = df_Towers.groupby('id').jetPt.median()
     df_jets['jetIEta']    = df_Towers.groupby('id').ieta.first()
     df_jets['jetEta']     = df_jets.apply(lambda row: (TowersEta[row['jetIEta']][0] + TowersEta[row['jetIEta']][1])/2, axis=1)
     df_jets['EoTot']      = df_Towers.groupby('id').iem.sum() / df_jets['unCalib']
@@ -530,7 +534,10 @@ if __name__ == "__main__" :
     if options.v == "ECAL":
         df_jets['new_res_iem'] = df_jets.apply(lambda row: row['newCalib_iem']/row['jetPt'], axis=1)
     if options.v == "HCAL":
-        df_jets['new_res_ihad'] = df_jets.apply(lambda row: row['newCalib_ihad']/row['jetPt'], axis=1)
+        if options.MinusIem:
+            df_jets['new_res_ihad'] = df_jets.apply(lambda row: row['newCalib_ihad']/(df_Towers.groupby('id').jetPt.median()), axis=1)
+        else:
+            df_jets['new_res_ihad'] = df_jets.apply(lambda row: row['newCalib_ihad']/row['jetPt'], axis=1)
     
     # compute MAPE value
     df_jets['old_mape'] = df_jets.apply(lambda row: np.abs(row['oldCalib']-row['jetPt'])/row['jetPt'], axis=1)
