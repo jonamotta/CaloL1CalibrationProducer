@@ -15,6 +15,7 @@ parser.add_option("--addtag",    dest="addtag",                                 
 parser.add_option("--calo",      dest="calo",                                                 default='')
 parser.add_option("--applyECAL", dest="applyECAL",    help="Apply ECAL calibration",          default='True')
 parser.add_option("--applyHCAL", dest="applyHCAL",    help="Apply HCAL calibration",          default='True')
+parser.add_option("--filesLim",  dest="filesLim",     help="Number of tensors for plotting",  default='1000')
 parser.add_option("--onlyRes",   dest="onlyRes",      help="Skip SFs if already existing",    default=False,   action='store_true')
 
 (options, args) = parser.parse_args()
@@ -28,7 +29,7 @@ if not options.onlyRes:
     if options.v == 'HCAL':
         cmd_1 = 'python3 CalibrationFactor.py --indir ' + options.indir + ' --v ' + options.v + ' --tag ' + options.tag + ' --reg HF'
         if options.addtag: cmd_1 = cmd_1 + ' --addtag ' + options.addtag
-        print('\n-------- RUNNING', cmd_1)
+        print('\n-------- RUNNING:', cmd_1)
         os.system(cmd_1)
 
     # produce SFs for caloParams
@@ -39,7 +40,7 @@ if not options.onlyRes:
     if options.v == 'HCAL':
         cmd_2 = 'python3 CalibrationFactor.py --indir ' + options.indir + ' --v ' + options.v + ' --tag ' + options.tag + ' --reg HF --energystep 2'
         if options.addtag: cmd_2 = cmd_2 + ' --addtag ' + options.addtag
-        print('\n-------- RUNNING', cmd_2)
+        print('\n-------- RUNNING:', cmd_2)
         os.system(cmd_2)
 
     # plot SFs energy step 1
@@ -55,7 +56,7 @@ if not options.onlyRes:
     os.system(cmd_4)
 
 # plot Apllication of SFs to 9x9
-cmd_5 = 'python3 ApplicationPlots_TF.py --indir ' + options.indir + ' --v ' + options.v + ' --tag ' + options.tag
+cmd_5 = 'python3 ApplicationPlots_TF.py --indir ' + options.indir + ' --v ' + options.v + ' --tag ' + options.tag + ' --filesLim ' + options.filesLim
 if options.v == 'ECAL':
     # choose to apply or not HCAL SFs
     cmd_5 = cmd_5 + ' --applyHCAL ' + options.applyHCAL
@@ -74,7 +75,7 @@ print('\n-------- RUNNING:', cmd_5)
 os.system(cmd_5)
 
 # plot Apllication of SFs to 9x9
-cmd_6 = 'python3 ApplicationPlots_TF.py --indir ' + options.indir + ' --v ' + options.v + ' --tag ' + options.tag
+cmd_6 = 'python3 ApplicationPlots_TF.py --indir ' + options.indir + ' --v ' + options.v + ' --tag ' + options.tag + ' --filesLim ' + options.filesLim
 if options.v == 'ECAL':
     # choose to apply or not HCAL SFs
     # cmd_6 = cmd_6 + ' --applyHCAL ' + options.applyHCAL # there is a problem of the lost ieta information
