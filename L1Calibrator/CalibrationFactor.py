@@ -5,11 +5,12 @@ import sys
 import copy
 import pandas as pd
 import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings(action='ignore', category=UserWarning)
+
 from NNModelTraining_FullyCustom_GPUdistributed_batchedRate import *
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
-import warnings
-warnings.simplefilter(action='ignore')
 
 #######################################################################
 ######################### SCRIPT BODY #################################
@@ -83,8 +84,8 @@ if __name__ == "__main__" :
         max_energy = options.maxenergy
         min_energy = 1
         energy_step = options.energystep
-        index = np.array(range(0,max_energy,energy_step))
 
+        # index = np.array(range(0,max_energy,energy_step))
         # old method using the mean, but not entirely correct
         # SFs_new = []
         # for i in index:
@@ -99,7 +100,7 @@ if __name__ == "__main__" :
         # new method considering only the odd lines
         SFs_new = []
         SFs_new.append(SFs[0])
-        for i in range(1,max_energy+1):
+        for i in range(1,max_energy):
             if (i%energy_step == 0):
                 SFs_new.append(SFs[i])
 
@@ -107,7 +108,7 @@ if __name__ == "__main__" :
         for i in range(min_energy, max_energy, energy_step):
             head_text = head_text + ' ,{}'.format(i)
         head_text = head_text + " , 256]\n"
-        
+
         head_text = head_text + 'energy bins GeV       = [0'
         for i in range(min_energy, max_energy, energy_step):
             head_text = head_text + ' ,{}'.format(i/2)
@@ -151,8 +152,8 @@ if __name__ == "__main__" :
         max_energy = options.maxenergy
         min_energy = 1
         energy_step = options.energystep
-        index = np.array(range(0,max_energy,energy_step))
 
+        # index = np.array(range(0,max_energy,energy_step))
         # old method using the mean, but not entirely correct
         # SFs_new = []
         # for i in index:
@@ -167,7 +168,7 @@ if __name__ == "__main__" :
         # new method considering only the odd lines
         SFs_new = []
         SFs_new.append(SFs[0])
-        for i in range(1,max_energy+1):
+        for i in range(1,max_energy):
             if (i%energy_step == 0):
                 SFs_new.append(SFs[i])
 
