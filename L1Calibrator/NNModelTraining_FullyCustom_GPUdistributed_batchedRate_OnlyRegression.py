@@ -327,6 +327,7 @@ if __name__ == "__main__" :
     parser.add_option("--no-verbose",       dest="verbose",          help="Deactivate verbose training",                   default=True,  action='store_false')
     parser.add_option("--makeOnlyPlots",    dest="makeOnlyPlots",    help="Do not do the training, just make the plots",   default=False, action='store_true' )
     parser.add_option("--addtag",           dest="addtag",           help="Add tag to distinguish different trainings",    default="",                        )
+    parser.add_option("--MaxLR",            dest="MaxLR",            help="Maximum learning rate",                         default='1E-3')
     (options, args) = parser.parse_args()
     print(options)
 
@@ -356,7 +357,8 @@ if __name__ == "__main__" :
     BATCH_SIZE_PER_REPLICA = options.batch_size
     GLOBAL_BATCH_SIZE = BATCH_SIZE_PER_REPLICA * NGPUS
     EPOCHS = options.epochs
-    MAX_LEARNING_RATE = 1E-5
+    MAX_LEARNING_RATE = float(options.MaxLR)
+    print("MAX_LEARNING_RATE = %f" %MAX_LEARNING_RATE)
     HISTORY = { 'x'        : [],
                 'learning_rate': [[]],
                 'train_loss' : [], 'train_regressionLoss' : [], 'train_weightsLoss' : [], 'train_rateLoss' : [], 'train_RMSE' : [],
