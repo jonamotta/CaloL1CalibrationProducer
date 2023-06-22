@@ -14,7 +14,6 @@ import os
 sys.path.insert(0,'..')
 from L1Calibrator.NNModelTraining_FullyCustom_GPUdistributed_batchedRate import Fgrad
 
-
 # split list l in sublists of length n each
 def splitInBlocks (l, n):
     r = len(l) % n
@@ -116,6 +115,7 @@ if __name__ == "__main__" :
     parser.add_option("--rate_only",              dest="rate_only",              default=0,       type=int,            help="Make only rate datasets to reach this stats value")
     parser.add_option("--filesLim",               dest="filesLim",               default=1000000, type=int,            help="Maximum number of npz files to use")
     parser.add_option("--filesPerRecord",         dest="filesPerRecord",         default=500,     type=int,            help="Maximum number of npz files per TFRecord")
+    parser.add_option("--filesRatePerRecord",     dest="filesRatePerRecord",     default=500,     type=int,            help="Maximum number of npz files per TFRecord")
     parser.add_option("--validation_split",       dest="validation_split",       default=0.20,    type=float,          help="Fraction of events to be used for testing")
     parser.add_option("--flattenEtaDistribution", dest="flattenEtaDistribution", default=False,   action='store_true', help="Flatten eta distribution")
     parser.add_option("--ECALcalib4rate",         dest="ECALcalib4rate",         default=None,                         help="Model for ECAL calibration in HCAL rate proxy dataset ('/data_CMS/cms/motta/CaloL1calibraton/'+options.ECALcalib4rate+'/model_ECAL/TTP')")
@@ -123,6 +123,7 @@ if __name__ == "__main__" :
     parser.add_option("--ljetPtcut",              dest="ljetPtcut",              default=None,                         help="Lower jet pt cut (in iET units)")
     parser.add_option("--ujetPtcut",              dest="ujetPtcut",              default=None,                         help="Upper jet pt cut (in iET units)")
     parser.add_option("--selectResp",             dest="selectResp",             default=False,   action='store_true', help="Apply selections about uncalib response")
+    parser.add_option("--noRate",                 dest="noRate",                 default=False,   action='store_true', help="Do only Train and Test")
     (options, args) = parser.parse_args()
     print(options)
 
@@ -137,8 +138,9 @@ if __name__ == "__main__" :
         InFilesTrain = glob.glob(filedir+'/'+options.batchdir+'/tensors/towers_*.npz')[:options.filesLim]
         InFilesTrainBlocks = splitInBlocks(InFilesTrain, options.filesPerRecord)
 
-    InFilesRate = glob.glob(options.ratedir+'/tensors/towers_*.npz')[:options.filesLim]
-    InFilesRateBlocks = splitInBlocks(InFilesRate, options.filesPerRecord)
+    if not options.noRate:
+        InFilesRate = glob.glob(options.ratedir+'/tensors/towers_*.npz')[:options.filesLim]
+        InFilesRateBlocks = splitInBlocks(InFilesRate, options.filesRatePerRecord)
 
     with tf.device('/CPU:0'):
         if not options.rate_only:
@@ -308,110 +310,112 @@ if __name__ == "__main__" :
 
             print('training sample total domension =', train_total_dimension)
 
-        print('********************************************')
-        print('********************************************')
-        print('CREATING RATE TFRecords')
+        if not options.noRate:
+            print('********************************************')
+            print('********************************************')
+            print('CREATING RATE TFRecords')
 
-        print('\nUsing', len(InFilesRate), 'files batched in', len(InFilesRateBlocks), 'blocks\n')
+            print('\nUsing', len(InFilesRate), 'files batched in', len(InFilesRateBlocks), 'blocks\n')
 
-        if options.rate_only: train_total_dimension = options.rate_only
-        rate_dimensions = []
+            if options.rate_only: train_total_dimension = options.rate_only
+            rate_dimensions = []
 
-        # for each block create a TFRecordDataset
-        for blockIdx, block in enumerate(InFilesRateBlocks):
-            print('--------------------------------------')
-            print('reading block', blockIdx)
-            ZsToConcatenate = []
+            # for each block create a TFRecordDataset
+            for blockIdx, block in enumerate(InFilesRateBlocks):
+                print('--------------------------------------')
+                print('reading block', blockIdx)
+                ZsToConcatenate = []
 
-            for fileIdx, file in enumerate(block):
-                if not fileIdx%10: print('    reading batch', fileIdx)
-                try:
-                    filex = np.load(file, allow_pickle=True)['arr_0']
+                for fileIdx, file in enumerate(block):
+                    if not fileIdx%10: print('    reading batch', fileIdx)
+                    try:
+                        filex = np.load(file, allow_pickle=True)['arr_0']
 
-                except FileNotFoundError:
-                    # DEBUG
-                    print('** INFO: file idx '+str(fileIdx)+' not found --> skipping')
-                    continue
+                    except FileNotFoundError:
+                        # DEBUG
+                        print('** INFO: file idx '+str(fileIdx)+' not found --> skipping')
+                        continue
 
-                except pickle.UnpicklingError:
-                    # DEBUG
-                    print('** INFO: file idx '+str(fileIdx)+' unpickling error --> skipping')
-                    continue
+                    except pickle.UnpicklingError:
+                        # DEBUG
+                        print('** INFO: file idx '+str(fileIdx)+' unpickling error --> skipping')
+                        continue
 
-                except zipfile.BadZipFile:
-                    # DEBUG
-                    print('** INFO: file idx '+str(fileIdx)+' unzipping error --> skipping')
-                    continue
+                    except zipfile.BadZipFile:
+                        # DEBUG
+                        print('** INFO: file idx '+str(fileIdx)+' unzipping error --> skipping')
+                        continue
 
-                except OSError:
-                    # DEBUG
-                    print('** INFO: file idx '+str(fileIdx)+' Failed to interpret file as a pickle --> skipping')
-                    continue
+                    except OSError:
+                        # DEBUG
+                        print('** INFO: file idx '+str(fileIdx)+' Failed to interpret file as a pickle --> skipping')
+                        continue
 
-                if filex.shape[1:] != (81,43):
-                    # DEBUG
-                    print('** INFO: file idx '+str(fileIdx)+' corrupted --> skipping')
-                    continue
+                    if filex.shape[1:] != (81,43):
+                        # DEBUG
+                        print('** INFO: file idx '+str(fileIdx)+' corrupted --> skipping')
+                        continue
 
-                ZsToConcatenate.append(filex)
+                    ZsToConcatenate.append(filex)
 
-            Z = np.concatenate(ZsToConcatenate)
-            del ZsToConcatenate
+                Z = np.concatenate(ZsToConcatenate)
+                del ZsToConcatenate
 
-            # pre-process to have correct shape and entires
-            Z = convert_rate_samples(Z, options.v)
-            _ = np.zeros(len(Z))
+                # pre-process to have correct shape and entires
+                Z = convert_rate_samples(Z, options.v)
+                _ = np.zeros(len(Z))
 
-            if options.ECALcalib4rate and options.v == 'HCAL':
-                ECAL_TTPmodel = keras.models.load_model('/data_CMS/cms/motta/CaloL1calibraton/'+options.ECALcalib4rate+'/model_ECAL/TTP', compile=False, custom_objects={'Fgrad': Fgrad})
-                Z = applyECALcalib(Z, ECAL_TTPmodel)
-                del ECAL_TTPmodel
+                if options.ECALcalib4rate and options.v == 'HCAL':
+                    ECAL_TTPmodel = keras.models.load_model('/data_CMS/cms/motta/CaloL1calibraton/'+options.ECALcalib4rate+'/model_ECAL/TTP', compile=False, custom_objects={'Fgrad': Fgrad})
+                    Z = applyECALcalib(Z, ECAL_TTPmodel)
+                    del ECAL_TTPmodel
 
-            if options.HCALcalib4rate and options.v == 'ECAL':
-                HCAL_TTPmodel = keras.models.load_model('/data_CMS/cms/motta/CaloL1calibraton/'+options.HCALcalib4rate+'/model_HCAL/TTP', compile=False, custom_objects={'Fgrad': Fgrad})
-                Z = applyHCALcalib(Z, HCAL_TTPmodel)
-                del HCAL_TTPmodel
+                if options.HCALcalib4rate and options.v == 'ECAL':
+                    HCAL_TTPmodel = keras.models.load_model('/data_CMS/cms/motta/CaloL1calibraton/'+options.HCALcalib4rate+'/model_HCAL/TTP', compile=False, custom_objects={'Fgrad': Fgrad})
+                    Z = applyHCALcalib(Z, HCAL_TTPmodel)
+                    del HCAL_TTPmodel
 
-            ## DEBUG
-            rate_dimensions.append(len(Z))
-            print('    block dimensions', len(Z))
+                ## DEBUG
+                rate_dimensions.append(len(Z))
+                print('    block dimensions', len(Z))
 
-            # make tensorflow datasets
-            Z = tf.convert_to_tensor(Z, dtype=tf.float32)
-            _ = tf.convert_to_tensor(_, dtype=tf.float32)
-            rate_dataset = tf.data.Dataset.from_tensor_slices((Z, _))
-            del Z, _
+                # make tensorflow datasets
+                Z = tf.convert_to_tensor(Z, dtype=tf.float32)
+                _ = tf.convert_to_tensor(_, dtype=tf.float32)
+                rate_dataset = tf.data.Dataset.from_tensor_slices((Z, _))
+                del Z, _
 
-            # serialize the datasets
-            serialized_rate_dataset = rate_dataset.map(tf_serialize_example)
-            del rate_dataset
+                # serialize the datasets
+                serialized_rate_dataset = rate_dataset.map(tf_serialize_example)
+                del rate_dataset
 
-            # store TFRecords
-            rate_filename = training_folder+'/rateTFRecords/record_'+str(blockIdx)+'.tfrecord'
-            rate_writer = tf.data.experimental.TFRecordWriter(rate_filename)
-            rate_writer.write(serialized_rate_dataset)
-            del serialized_rate_dataset
+                # store TFRecords
+                rate_filename = training_folder+'/rateTFRecords/record_'+str(blockIdx)+'.tfrecord'
+                rate_writer = tf.data.experimental.TFRecordWriter(rate_filename)
+                rate_writer.write(serialized_rate_dataset)
+                del serialized_rate_dataset
 
-            # # directly break as soon as the dimension is met
-            # if np.sum(rate_dimensions) > train_total_dimension: break
-
-        rate_total_dimension = np.sum(rate_dimensions)
-
-        # generally the rate datasets are smaller than the raining datasets therefore we need to 
-        # copy the rate TFRecords to have their final dimenion equal to the train sample
-        repeatIdx = 0
-        records = glob.glob(training_folder+'/rateTFRecords/record_*.tfrecord')
-        print('--------------------------------------------')
-        while rate_total_dimension < train_total_dimension:
-            repeatIdx += 1
-            print('Copying rate datasets '+str(repeatIdx)+'th time')
-            for record, recordDim in zip(records, rate_dimensions):
-                recordCopy = record.replace('.tfrecord', '_'+str(repeatIdx)+'.tfrecord')
-                os.system('cp '+record+' '+recordCopy)
-
-                rate_total_dimension += recordDim
                 # directly break as soon as the dimension is met
-                if rate_total_dimension > train_total_dimension: break
+                print("Sum at this point is: ", np.sum(rate_dimensions))
+                if np.sum(rate_dimensions) > train_total_dimension: break
 
-        print('rate sample total domension =', rate_total_dimension)
+            rate_total_dimension = np.sum(rate_dimensions)
+
+            # generally the rate datasets are smaller than the raining datasets therefore we need to 
+            # copy the rate TFRecords to have their final dimenion equal to the train sample
+            repeatIdx = 0
+            records = glob.glob(training_folder+'/rateTFRecords/record_*.tfrecord')
+            print('--------------------------------------------')
+            while rate_total_dimension < train_total_dimension:
+                repeatIdx += 1
+                print('Copying rate datasets '+str(repeatIdx)+'th time')
+                for record, recordDim in zip(records, rate_dimensions):
+                    recordCopy = record.replace('.tfrecord', '_'+str(repeatIdx)+'.tfrecord')
+                    os.system('cp '+record+' '+recordCopy)
+
+                    rate_total_dimension += recordDim
+                    # directly break as soon as the dimension is met
+                    if rate_total_dimension > train_total_dimension: break
+
+            print('rate sample total domension =', rate_total_dimension)
 
