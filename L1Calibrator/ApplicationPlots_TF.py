@@ -10,7 +10,8 @@ warnings.simplefilter(action='ignore')
 
 sys.path.insert(0,'../L1NtupleReader/')
 from caloParamsOnTheFly import *
-from NNModelTraining_FullyCustom_GPUdistributed_batchedRate_oldDatasets import * 
+from NNModelTraining_FullyCustom_GPUdistributed_batchedRate_OnlyRegressionAndRate import * 
+# from NNModelTraining_FullyCustom_GPUdistributed_batchedRate import * 
 
 c_uncalib = 'black'
 c_oldcalib = 'red'
@@ -95,13 +96,13 @@ def PlotResolutionInclusive(df_jets, odir, v_sample):
 
     if v_sample == "ECAL":
         plt.figure(figsize=(10,10))
-        text_1 = leg_uncalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['unc_res'].mean(), df_jets['unc_res'].std()/df_jets['unc_res'].mean())
-        plt.hist(df_jets['unc_res'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=c_uncalib)
-        text_2 = leg_oldcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['old_res'].mean(), df_jets['old_res'].std()/df_jets['old_res'].mean())
-        plt.hist(df_jets['old_res'], bins=bins_res, label=text_2, histtype='step', stacked=True, linewidth=2, color=c_oldcalib)
+        text_1 = leg_uncalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['unc_res_iem'].mean(), df_jets['unc_res_iem'].std()/df_jets['unc_res_iem'].mean())
+        plt.hist(df_jets['unc_res_iem'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=c_uncalib)
+        text_2 = leg_oldcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['old_res_iem'].mean(), df_jets['old_res_iem'].std()/df_jets['old_res_iem'].mean())
+        plt.hist(df_jets['old_res_iem'], bins=bins_res, label=text_2, histtype='step', stacked=True, linewidth=2, color=c_oldcalib)
         text_3 = leg_newcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['new_res_iem'].mean(), df_jets['new_res_iem'].std()/df_jets['new_res_iem'].mean())
         plt.hist(df_jets['new_res_iem'], bins=bins_res, label=text_3, histtype='step', stacked=True, linewidth=2, color=c_newcalib)
-        plt.xlabel('Response EM')
+        plt.xlabel('Response EM/Target')
         plt.ylabel('a.u.')
         plt.grid(linestyle='dotted')
         plt.legend(fontsize=15, loc='upper left')
@@ -114,13 +115,13 @@ def PlotResolutionInclusive(df_jets, odir, v_sample):
     
     if v_sample == "HCAL":
         plt.figure(figsize=(10,10))
-        text_1 = leg_uncalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['unc_res'].mean(), df_jets['unc_res'].std()/df_jets['unc_res'].mean())
-        plt.hist(df_jets['unc_res'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=c_uncalib)
-        text_2 = leg_oldcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['old_res'].mean(), df_jets['old_res'].std()/df_jets['old_res'].mean())
-        plt.hist(df_jets['old_res'], bins=bins_res, label=text_2, histtype='step', stacked=True, linewidth=2, color=c_oldcalib)
+        text_1 = leg_uncalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['unc_res_ihad'].mean(), df_jets['unc_res_ihad'].std()/df_jets['unc_res_ihad'].mean())
+        plt.hist(df_jets['unc_res_ihad'], bins=bins_res, label=text_1, histtype='step', stacked=True, linewidth=2, color=c_uncalib)
+        text_2 = leg_oldcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['old_res_ihad'].mean(), df_jets['old_res_ihad'].std()/df_jets['old_res_ihad'].mean())
+        plt.hist(df_jets['old_res_ihad'], bins=bins_res, label=text_2, histtype='step', stacked=True, linewidth=2, color=c_oldcalib)
         text_3 = leg_newcalib+r': $\mu={:.3f}, res={:.3f}$'.format(df_jets['new_res_ihad'].mean(), df_jets['new_res_ihad'].std()/df_jets['new_res_ihad'].mean())
         plt.hist(df_jets['new_res_ihad'], bins=bins_res, label=text_3, histtype='step', stacked=True, linewidth=2, color=c_newcalib)
-        plt.xlabel('Response HAD')
+        plt.xlabel('Response HAD/Target')
         plt.ylabel('a.u.')
         plt.grid(linestyle='dotted')
         plt.legend(fontsize=15, loc='upper left')
@@ -341,12 +342,14 @@ if __name__ == "__main__" :
     parser.add_option("--HCALnewSF",    dest="HCALnewSF",   help="New HCAL calibration",                default='/data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV43/HCALtrainingDataReco/data_A/ScaleFactors_HCAL_energystep2iEt.csv')
     parser.add_option("--HFnewSF",      dest="HFnewSF",     help="New HCAL calibration",                default='/data_CMS/cms/motta/CaloL1calibraton/2023_04_29_NtuplesV43/HCALtrainingDataReco/data_A/ScaleFactors_HF_energystep2iEt.csv')
     parser.add_option("--filesLim",     dest="filesLim",    help="Maximum number of npz files to use",  default=1000000, type=int)
+    parser.add_option("--eventLim",     dest="eventLim",    help="Maximum number of events to use",     default=None)
     parser.add_option("--addtag",       dest="addtag",      help="Add tag for different trainings",     default="")
     parser.add_option("--ietacut",      dest="ietacut",     help="Apply ieta cut",                      default=None)
     parser.add_option("--ljetPtcut",    dest="ljetPtcut",   help="Apply lowerjetPt cut [GeV]",          default=None)
     parser.add_option("--ujetPtcut",    dest="ujetPtcut",   help="Apply upperjetPt cut [GeV]",          default=None)
     parser.add_option("--HoEcut",       dest="HoEcut",      help="Apply HoE cut at 0.95",               default=None)
     parser.add_option("--MinusIem",     dest="MinusIem",    help="Add Iem to the jetPt target",         default=False,   action='store_true')
+    parser.add_option("--modelRate",    dest="modelRate",   help="Model structure with rate",           default=False,   action='store_true')
     # parser.add_option("--EstepECAL",    dest="EstepECAL",   help="Energy step ECAL SFs",                default=2, type=int)
     # parser.add_option("--EstepHCAL",    dest="EstepHCAL",   help="Energy step HCAL SFs",                default=2, type=int)
     (options, args) = parser.parse_args()
@@ -372,28 +375,217 @@ if __name__ == "__main__" :
     indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
     odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/plots' + options.addtag + '/Performance_' + str(energystep) + 'iEt'
     os.system('mkdir -p '+ odir)
+
+    # PLOT RATE
+    ######################################################################################
+    ######################################################################################
+
+    print('\n ### Reading TF records from: ' + indir + '/rateTFRecords/record_*.tfrecord')
+    InTestRecords = glob.glob(indir+'/rateTFRecords/record_*.tfrecord')[:options.filesLim]
+    dataset = tf.data.TFRecordDataset(InTestRecords)
+    batch_size = len(list(dataset))
+    parsed_dataset = dataset.map(parse_function)
+    data = parsed_dataset.batch(batch_size).as_numpy_iterator().next()
+    print('\n ### N events in the dataset: ' + str(len(list(dataset))))
+
+    if options.eventLim:
+        print('\n ### Reading {} events'.format(options.eventLim))
+        n_events = int(options.eventLim)
+        Towers = data[0][:n_events]
+    else:
+        print('\n ### Reading {} events'.format(2000))
+        n_events = len(list(dataset))
+        Towers = data[0][:20000] #[FIXME]
+    del data
+
+    print('\n ### Load Dataframes')
+
+    # Extract the iem and hcalET columns from Towers
+    if options.v == 'ECAL':
+        iem = Towers[:, :, 1].reshape(-1)
+        hcalET = Towers[:, :, 0].reshape(-1)
+    elif options.v == 'HCAL':
+        iem = Towers[:, :, 0].reshape(-1)
+        hcalET = Towers[:, :, 1].reshape(-1)
+    # Extract the ieta column from Towers using argmax
+    ieta = np.argmax(Towers[:, :, 2:], axis=2).reshape(-1) + 1
+    # Create arrays for the id and jetPt columns
+    id_arr = np.repeat(np.arange(len(Towers)), Towers.shape[1])
+    iesum = (iem + hcalET)
+    del Towers
+
+    # Combine the arrays into a dictionary and create the dataframe
+    df_Towers_Rate = pd.DataFrame({'id': id_arr, 'iem': iem, 'hcalET': hcalET, 'ieta': ieta, 'iesum': iesum})
+    df_Towers_Rate.groupby('id').apply(lambda x: x.sort_values('iesum', ascending=False))
+
+    if options.ljetPtcut:
+        df_Towers_Rate = df_Towers_Rate[df_Towers_Rate['targetPt'] > float(options.ljetPtcut)*2]
+    if options.ujetPtcut:
+        df_Towers_Rate = df_Towers_Rate[df_Towers_Rate['targetPt'] < float(options.ujetPtcut)*2]
+
+    # apply oldCalib
+    # taken from the caloParams file (always the same)
+    if options.applyECAL == True:
+        print('\n ### Apply current calibration to ECAL')
+        energy_bins = np.array(layer1ECalScaleETBins_currCalib)*2+0.1 # to convert to iEt and shift to center of bin
+        SFs = layer1ECalScaleFactors_currCalib
+        nEtaBins = 28
+
+        df_Towers_Rate['old_iemBin'] = np.digitize(df_Towers_Rate['iem'], energy_bins)
+        df_Towers_Rate['oldESF'] = df_Towers_Rate.apply(lambda row: SFs[int( abs(row['ieta']) + nEtaBins*(row['old_iemBin']-1) ) -1], axis=1)
+        df_Towers_Rate['oldCalib_iem'] = df_Towers_Rate.apply(lambda row: math.floor(row['iem'] * row['oldESF']), axis=1)
+
+    else:
+        df_Towers_Rate['oldCalib_iem'] = df_Towers_Rate['iem']
+
+    if options.applyHCAL == True:
+        print('\n ### Apply current calibration to HCAL')
+        energy_bins = np.array(layer1HCalScaleETBins_currCalib)*2+0.1 # to convert to iEt and shift to center of bin
+        SFs = layer1HCalScaleFactors_currCalib
+        nEtaBins = 40
+
+        df_Towers_Rate['old_ihadBin'] = np.digitize(df_Towers_Rate['hcalET'], energy_bins)
+        df_Towers_Rate['oldHSF'] = df_Towers_Rate.apply(lambda row: SFs[int( abs(row['ieta']) + nEtaBins*(row['old_ihadBin']-1) ) -1], axis=1)
+        df_Towers_Rate['oldCalib_ihad'] = df_Towers_Rate.apply(lambda row: math.floor(row['hcalET'] * row['oldHSF']), axis=1)
+    
+    else:
+        df_Towers_Rate['oldCalib_ihad'] = df_Towers_Rate['hcalET']
+
+    # apply newCalib
+    # taken directly from the SFs extracted from the NN in the "data" folder
+    if options.applyECAL == True:
+        print('\n ### Apply new calibration to ECAL')
+        print(' ### ECAL SFs from: ' + options.ECALnewSF)
+        print(' ### Energy bins:', newECALEnergyBins)
+        # define new SFs
+        file_ECAL = options.ECALnewSF
+        energy_bins = np.array(newECALEnergyBins)*2+0.1 # to convert to iEt and shift to center of bin
+        SFs = GetECALSFs(file_ECAL)
+        nEtaBins = 28 # [FIXME]
+
+        df_Towers_Rate['new_iemBin'] = np.digitize(df_Towers_Rate['iem'], energy_bins)
+        df_Towers_Rate['newESF'] = df_Towers_Rate.apply(lambda row: SFs[int( abs(row['ieta']) + 28*(row['new_iemBin']-1) ) -1], axis=1)
+        df_Towers_Rate['newCalib_iem'] = df_Towers_Rate.apply(lambda row: math.floor(row['iem'] * row['newESF']), axis=1)
+
+    else:
+        df_Towers_Rate['newCalib_iem'] = df_Towers_Rate['iem']
+
+    if options.applyHCAL == True:
+        print('\n ### Apply new calibration to HCAL')
+        print(' ### HCAL SFs from: ' + options.HCALnewSF)
+        print(' ### HF SFs from: ' + options.HFnewSF)
+        print(' ### Energy bins:', newHCALEnergyBins)
+
+        # define new SFs
+        file_HCAL = options.HCALnewSF
+        file_HF = options.HFnewSF
+        energy_bins = np.array(newHCALEnergyBins)*2+0.1 # to convert to iEt and shift to center of bin
+        SFs = GetHCALSFs(file_HCAL, file_HF)
+        nEtaBins = 40 # [FIXME]
+
+        df_Towers_Rate['new_ihadBin'] = np.digitize(df_Towers_Rate['hcalET'], energy_bins)
+        df_Towers_Rate['newHSF'] = df_Towers_Rate.apply(lambda row: SFs[int( abs(row['ieta']) + nEtaBins*(row['new_ihadBin']-1) ) -1], axis=1)
+        df_Towers_Rate['newCalib_ihad'] = df_Towers_Rate.apply(lambda row: math.floor(row['hcalET'] * row['newHSF']), axis=1)
+        
+    else:
+        df_Towers_Rate['newCalib_ihad'] = df_Towers_Rate['hcalET']
+
+    df_rate = pd.DataFrame()
+    df_rate['jetPt_uncalib']   = df_Towers_Rate.groupby('id').iesum.sum() / 2
+    df_rate['jetPt_oldcalib']  = (df_Towers_Rate.groupby('id').oldCalib_iem.sum() + df_Towers_Rate.groupby('id').oldCalib_ihad.sum()) / 2
+    df_rate['jetPt_newcalib']  = (df_Towers_Rate.groupby('id').newCalib_iem.sum() + df_Towers_Rate.groupby('id').newCalib_ihad.sum()) / 2
+    df_rate['jetIEta']         = df_Towers_Rate.groupby('id').ieta.first()
+    df_rate['jetSeed']         = df_Towers_Rate.groupby('id').iesum.max() / 2
+    del df_Towers_Rate
+
+    sel_seed = df_rate['jetSeed'] > 4
+
+    binning = np.linspace(0,200,101)
+    b_center = (binning[:-1] + binning[1:])/2
+    
+    v_sample = options.v
+    fig = plt.figure(figsize = [10,10])
+    e_uncalib, _  = np.histogram(df_rate[sel_seed]['jetPt_uncalib'], bins=binning)
+    e_oldcalib, _ = np.histogram(df_rate[sel_seed]['jetPt_oldcalib'], bins=binning)
+    e_newcalib, _ = np.histogram(df_rate[sel_seed]['jetPt_newcalib'], bins=binning)
+
+    plt.hist(df_rate[sel_seed]['jetPt_uncalib'], bins=binning, histtype='step', stacked=True, linewidth=2, label=leg_uncalib, color=c_uncalib)
+    plt.hist(df_rate[sel_seed]['jetPt_oldcalib'], bins=binning, histtype='step', stacked=True, linewidth=2, label=leg_oldcalib, color=c_oldcalib)
+    plt.hist(df_rate[sel_seed]['jetPt_newcalib'], bins=binning, histtype='step', stacked=True, linewidth=2, label=leg_newcalib, color=c_newcalib)
+    plt.xlabel(r'$p_{T}^{jet, L1} [GeV]$')
+    plt.ylabel('Entries')
+    plt.grid(linestyle='dotted')
+    plt.legend(fontsize=15, loc='upper right')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+    # plt.title('Jets Resolution {}'.format(v_sample))
+    savefile = odir + '/Rate_PtProgression_{}.png'.format(v_sample)
+    plt.savefig(savefile)
+    print(savefile)
+    # plt.yscale("log")
+    # savefile = odir + '/Rate_PtProgressionLog_{}.png'.format(v_sample)
+    # plt.savefig(savefile)
+    # print(savefile)
+    plt.close()
+
+    rate_uncalib  = np.array([np.sum(e_uncalib[b_center > i])/np.sum(e_uncalib) for i in b_center])
+    rate_oldcalib = np.array([np.sum(e_oldcalib[b_center > i])/np.sum(e_oldcalib) for i in b_center])
+    rate_newcalib = np.array([np.sum(e_newcalib[b_center > i])/np.sum(e_newcalib) for i in b_center])
+
+    fig = plt.figure(figsize = [10,10])
+    text_1 = leg_uncalib + ": ProxyRate 50 Gev = {:.4f}".format(np.sum(e_uncalib[b_center > 50])/np.sum(e_uncalib))
+    plt.plot(b_center, rate_uncalib, label=text_1, marker='o', linestyle='dashed', linewidth=2, color=c_uncalib)
+    text_2 = leg_oldcalib + ": ProxyRate 50 Gev = {:.4f}".format(np.sum(e_oldcalib[b_center > 50])/np.sum(e_oldcalib))
+    plt.plot(b_center, rate_oldcalib, label=text_2, marker='o', linestyle='dashed', linewidth=2, color=c_oldcalib)
+    text_3 = leg_newcalib + ": ProxyRate 50 Gev = {:.4f}".format(np.sum(e_newcalib[b_center > 50])/np.sum(e_newcalib))
+    plt.plot(b_center, rate_newcalib, label=text_3, marker='o', linestyle='dashed', linewidth=2, color=c_newcalib)
+    plt.xlabel(r'$p_{T}^{jet, L1} [GeV]$')
+    plt.ylabel('Rate Proxy')
+    plt.grid(linestyle='dotted')
+    plt.legend(fontsize=15, loc='upper right')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+    # plt.title('Jets Resolution {}'.format(v_sample))
+    savefile = odir + '/Rate_Progression_{}.png'.format(v_sample)
+    plt.savefig(savefile)
+    print(savefile)
+    plt.yscale("log")
+    savefile = odir + '/Rate_ProgressionLog_{}.png'.format(v_sample)
+    plt.savefig(savefile)
+    print(savefile)
+    plt.close()
+
+    b_center = np.array(b_center)
+    # Compute turn on proxy for fixed rate
+    thr_un = 50
+    rate_uncalib_fix = rate_uncalib[b_center >= thr_un][0]
+    # thr_old = b_center[np.argmax(rate_oldcalib <= rate_uncalib_fix)]
+    thr_old = thr_un
+    thr_new = b_center[np.argmax(rate_newcalib <= rate_uncalib_fix)]
+
+    print(thr_un, thr_old, thr_new)
+    del df_rate
+
+    ######################################################################################
+    ######################################################################################
+    
     print('\n ### Reading TF records from: ' + indir + '/testTFRecords/record_*.tfrecord')
     InTestRecords = glob.glob(indir+'/testTFRecords/record_*.tfrecord')[:options.filesLim]
     dataset = tf.data.TFRecordDataset(InTestRecords)
     batch_size = len(list(dataset))
     parsed_dataset = dataset.map(parse_function)
     data = parsed_dataset.batch(batch_size).as_numpy_iterator().next()
-    print('\n ### N events: ' + str(len(list(dataset))))
+    print('\n ### N events in the dataset: ' + str(len(list(dataset))))
 
-    Towers = data[0]
-    Jets = data[1]
+    if options.eventLim:
+        print('\n ### Reading {} events'.format(options.eventLim))
+        n_events = int(options.eventLim)
+        Towers = data[0][:int(options.eventLim)]
+        Jets = data[1][:int(options.eventLim)]
+    else:
+        n_events = len(list(dataset))
+        Towers = data[0]
+        Jets = data[1]
 
     print('\n ### Load Dataframes')
-
-# ''' df_Towers_list = []
-#     for i, CD in enumerate(Towers):
-#         if options.v == 'ECAL':
-#             df_CD = pd.DataFrame(data={'id': i, 'jetPt': Jets[i], 'iem': CD[:,1:2].ravel(), 'hcalET': CD[:,0:1].ravel(), 'ieta': np.argmax(CD[:,2:], axis=1).ravel() + 1})
-#         elif options.v == 'HCAL':
-#             df_CD = pd.DataFrame(data={'id': i, 'jetPt': Jets[i], 'iem': CD[:,0:1].ravel(), 'hcalET': CD[:,1:2].ravel(), 'ieta': np.argmax(CD[:,2:], axis=1).ravel() + 1})
-#         df_Towers_list.append(df_CD)
-#     df_Towers = pd.concat(df_Towers_list)
-# '''
 
     # Extract the iem and hcalET columns from Towers
     if options.v == 'ECAL':
@@ -408,24 +600,23 @@ if __name__ == "__main__" :
     id_arr = np.repeat(np.arange(len(Towers)), Towers.shape[1])
     jetPt_arr = np.repeat(Jets, Towers.shape[1])
 
-    if options.v == 'ECAL':
-        # dummy_rateProxy_input = np.repeat([np.zeros(42)], len(list(dataset)), axis=0) # old version 33
-        dummy_rateProxy_input = np.repeat([np.repeat([np.zeros(42)], 81, axis=0)], len(list(dataset)), axis=0)
-    if options.v == 'HCAL':
-        dummy_rateProxy_input = np.repeat([np.repeat([np.zeros(42)], 81, axis=0)], len(list(dataset)), axis=0)
     modeldir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/model_' + options.v + options.addtag
     print('\n ### Reading model from: ' + modeldir)
     model = keras.models.load_model(modeldir + '/model', compile=False, custom_objects={'Fgrad': Fgrad})
-    modelPt = model.predict([Towers, dummy_rateProxy_input])[0]
+    if options.modelRate:
+        dummy_rateProxy_input = np.repeat([np.repeat([np.zeros(42)], 81, axis=0)], n_events, axis=0)
+        modelPt = model.predict([Towers, dummy_rateProxy_input], 1)[0]
+    else:
+        modelPt = model.predict(Towers)
     modelPt_arr = np.repeat(modelPt, Towers.shape[1])
 
     # Combine the arrays into a dictionary and create the dataframe
-    df_Towers = pd.DataFrame({'id': id_arr, 'jetPt': jetPt_arr, 'modelPt': modelPt_arr, 'iem': iem, 'hcalET': hcalET, 'ieta': ieta})
+    df_Towers = pd.DataFrame({'id': id_arr, 'targetPt': jetPt_arr, 'modelPt': modelPt_arr, 'iem': iem, 'hcalET': hcalET, 'ieta': ieta})
 
     if options.ljetPtcut:
-        df_Towers = df_Towers[df_Towers['jetPt'] > float(options.ljetPtcut)*2]
+        df_Towers = df_Towers[df_Towers['targetPt'] > float(options.ljetPtcut)*2]
     if options.ujetPtcut:
-        df_Towers = df_Towers[df_Towers['jetPt'] < float(options.ujetPtcut)*2]
+        df_Towers = df_Towers[df_Towers['targetPt'] < float(options.ujetPtcut)*2]
 
     # apply oldCalib
     # taken from the caloParams file (always the same)
@@ -493,58 +684,57 @@ if __name__ == "__main__" :
         
     else:
         df_Towers['newCalib_ihad'] = df_Towers['hcalET']
+    df_Towers['iesum'] = df_Towers.iem + df_Towers.hcalET
 
     # compute sum of the raw energy 
     df_jets = pd.DataFrame()
+    df_jets['targetPt']   = df_Towers.groupby('id').targetPt.median()
+    df_jets['jetIEta']    = df_Towers.groupby('id').ieta.first()
+    df_jets['jetEta']     = df_jets.apply(lambda row: (TowersEta[row['jetIEta']][0] + TowersEta[row['jetIEta']][1])/2, axis=1)
+    if options.MinusIem: 
+        df_jets['jetPt'] = df_Towers.groupby('id').targetPt.median() + df_Towers.groupby('id').iem.sum()
+    else: 
+        df_jets['jetPt'] = df_jets['targetPt']
+
     df_jets['oldCalib']   = df_Towers.groupby('id').oldCalib_iem.sum() + df_Towers.groupby('id').oldCalib_ihad.sum()
     df_jets['newCalib']   = df_Towers.groupby('id').newCalib_iem.sum() + df_Towers.groupby('id').newCalib_ihad.sum()
     df_jets['unCalib']    = df_Towers.groupby('id').iem.sum() + df_Towers.groupby('id').hcalET.sum()
     df_jets['modelCalib'] = df_Towers.groupby('id').modelPt.median()
-    if options.MinusIem:
-        df_jets['jetPt']  = df_Towers.groupby('id').jetPt.median() + df_Towers.groupby('id').iem.sum()
-    else:
-        df_jets['jetPt']  = df_Towers.groupby('id').jetPt.median()
-    df_jets['jetIEta']    = df_Towers.groupby('id').ieta.first()
-    df_jets['jetEta']     = df_jets.apply(lambda row: (TowersEta[row['jetIEta']][0] + TowersEta[row['jetIEta']][1])/2, axis=1)
     df_jets['EoTot']      = df_Towers.groupby('id').iem.sum() / df_jets['unCalib']
     df_jets['HoTot']      = df_Towers.groupby('id').hcalET.sum() / df_jets['unCalib']
-    if options.v == "ECAL":
-        df_jets['newCalib_iem']   = df_Towers.groupby('id').newCalib_iem.sum()
-    if options.v == "HCAL":
-        df_jets['newCalib_ihad']  = df_Towers.groupby('id').newCalib_ihad.sum()
+    df_jets['jetSeed']    = df_Towers.groupby('id').iesum.max() / 2
 
-    if options.v == 'ECAL':
-        df_jets['SFCalib'] = df_Towers.groupby('id').newCalib_iem.sum()
-    if options.v == 'HCAL':
-        df_jets['SFCalib'] = df_Towers.groupby('id').newCalib_ihad.sum()
-
+    # apply cut if needed
     if options.ietacut:
         df_jets = df_jets[(df_jets['jetIEta'] < float(options.ietacut)) & (df_jets['jetIEta'] > -1*float(options.ietacut))]
-
     if options.HoEcut:
         df_jets['HoE'] = df_Towers.groupby('id').hcalET.sum() / (df_Towers.groupby('id').iem.sum() + df_Towers.groupby('id').hcalET.sum())
         df_jets = df_jets[df_jets['HoE'] >= 0.95]
+
+    if options.v == "ECAL":
+        df_jets['SFCalib']        = df_Towers.groupby('id').newCalib_iem.sum()
+        df_jets['new_res_iem']    = df_Towers.groupby('id').newCalib_iem.sum() / df_jets['targetPt']
+        df_jets['old_res_iem']    = df_Towers.groupby('id').oldCalib_iem.sum() / df_jets['targetPt']
+        df_jets['unc_res_iem']    = df_Towers.groupby('id').iem.sum() / df_jets['targetPt']
+    if options.v == "HCAL":
+        df_jets['SFCalib']        = df_Towers.groupby('id').newCalib_ihad.sum()
+        df_jets['new_res_ihad']   = df_Towers.groupby('id').newCalib_ihad.sum() / df_jets['targetPt']
+        df_jets['old_res_ihad']   = df_Towers.groupby('id').oldCalib_ihad.sum() / df_jets['targetPt']
+        df_jets['unc_res_ihad']   = df_Towers.groupby('id').hcalET.sum() / df_jets['targetPt']
 
     # compute resolution
     df_jets['old_res'] = df_jets.apply(lambda row: row['oldCalib']/row['jetPt'], axis=1)
     df_jets['new_res'] = df_jets.apply(lambda row: row['newCalib']/row['jetPt'], axis=1)
     df_jets['unc_res'] = df_jets.apply(lambda row: row['unCalib']/row['jetPt'], axis=1)
-    df_jets['mod_res'] = df_jets.apply(lambda row: row['modelCalib']/row['jetPt'], axis=1)
-    df_jets['SFs_res'] = df_jets.apply(lambda row: row['SFCalib']/row['jetPt'], axis=1)
-    if options.v == "ECAL":
-        df_jets['new_res_iem'] = df_jets.apply(lambda row: row['newCalib_iem']/row['jetPt'], axis=1)
-    if options.v == "HCAL":
-        if options.MinusIem:
-            df_jets['new_res_ihad'] = df_jets.apply(lambda row: row['newCalib_ihad']/(df_Towers.groupby('id').jetPt.median()), axis=1)
-        else:
-            df_jets['new_res_ihad'] = df_jets.apply(lambda row: row['newCalib_ihad']/row['jetPt'], axis=1)
-    
+    df_jets['mod_res'] = df_jets.apply(lambda row: row['modelCalib']/row['targetPt'], axis=1)
+    df_jets['SFs_res'] = df_jets.apply(lambda row: row['SFCalib']/row['targetPt'], axis=1)
+
     # compute MAPE value
-    df_jets['old_mape'] = df_jets.apply(lambda row: np.abs(row['oldCalib']-row['jetPt'])/row['jetPt'], axis=1)
-    df_jets['new_mape'] = df_jets.apply(lambda row: np.abs(row['newCalib']-row['jetPt'])/row['jetPt'], axis=1)
-    df_jets['unc_mape'] = df_jets.apply(lambda row: np.abs(row['unCalib']-row['jetPt'])/row['jetPt'], axis=1)
-    df_jets['mod_mape'] = df_jets.apply(lambda row: np.abs(row['modelCalib']-row['jetPt'])/row['jetPt'], axis=1)
-    df_jets['SFs_mape'] = df_jets.apply(lambda row: np.abs(row['SFCalib']-row['jetPt'])/row['jetPt'], axis=1)
+    df_jets['old_mape'] = df_jets.apply(lambda row: np.abs(row['oldCalib']-row['targetPt'])/row['targetPt'], axis=1)
+    df_jets['new_mape'] = df_jets.apply(lambda row: np.abs(row['newCalib']-row['targetPt'])/row['targetPt'], axis=1)
+    df_jets['unc_mape'] = df_jets.apply(lambda row: np.abs(row['unCalib']-row['targetPt'])/row['targetPt'], axis=1)
+    df_jets['mod_mape'] = df_jets.apply(lambda row: np.abs(row['modelCalib']-row['targetPt'])/row['targetPt'], axis=1)
+    df_jets['SFs_mape'] = df_jets.apply(lambda row: np.abs(row['SFCalib']-row['targetPt'])/row['targetPt'], axis=1)
 
     print('\n ### Saving plots in: ' + odir)
 
@@ -581,3 +771,87 @@ if __name__ == "__main__" :
         PlotResolutionPtBins(df_jets, odir, options.v, 'EoTot')
     if options.v == 'HCAL':
         PlotResolutionPtBins(df_jets, odir, options.v, 'HoTot')
+
+    # PLOT TURN ON
+    ###################################################################################################
+    ###################################################################################################
+
+    binning = np.linspace(0,200,50)
+    b_center = (binning[:-1] + binning[1:])/2
+    b_center = np.array(b_center)
+
+    df_jets['unCalib_GeV'] = df_jets['unCalib'] / 2
+    df_jets['oldCalib_GeV'] = df_jets['oldCalib'] / 2
+    df_jets['newCalib_GeV'] = df_jets['newCalib'] / 2
+    df_jets['jetPt_GeV'] = df_jets['jetPt'] / 2
+
+    sel_seed = df_jets['jetSeed'] > 4
+
+    sel_unc = df_jets['unCalib_GeV'] > thr_un
+    sel_old = df_jets['oldCalib_GeV'] > thr_old
+    sel_new = df_jets['newCalib_GeV'] > thr_new
+    h_off, _ = np.histogram(df_jets['jetPt_GeV'], bins=binning)
+    h_unc, _ = np.histogram(df_jets[sel_seed & sel_unc]['jetPt_GeV'], bins=binning)
+    h_old, _ = np.histogram(df_jets[sel_seed & sel_old]['jetPt_GeV'], bins=binning)
+    h_new, _ = np.histogram(df_jets[sel_seed & sel_new]['jetPt_GeV'], bins=binning)
+
+    fig = plt.figure(figsize = [10,10])
+    plt.hist(df_jets['jetPt_GeV'], bins=binning, label="Offline Inclusive", histtype='step', linewidth=2, color='Blue')
+    text_1 = leg_uncalib + ": L1 jet Pt > {} Gev ".format(thr_un)
+    plt.hist(df_jets[sel_seed & sel_unc]['jetPt_GeV'], bins=binning, label=text_1, histtype='step', linewidth=2, color=c_uncalib)
+    text_2 = leg_oldcalib + ": L1 jet Pt > {} Gev ".format(int(thr_old))
+    plt.hist(df_jets[sel_seed & sel_old]['jetPt_GeV'], bins=binning, label=text_2, histtype='step', linewidth=2, color=c_oldcalib)
+    text_3 = leg_newcalib + ": L1 jet Pt > {} Gev ".format(int(thr_new))
+    plt.hist(df_jets[sel_seed & sel_new]['jetPt_GeV'], bins=binning, label=text_3, histtype='step', linewidth=2, color=c_newcalib)
+    plt.xlabel(r'$p_{T}^{jet, offline} [GeV]$')
+    plt.ylabel('Entries')
+    plt.grid(linestyle='dotted')
+    plt.legend(fontsize=15, loc='upper left')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+    # plt.title('Jets Resolution {}'.format(v_sample))
+    savefile = odir + '/Efficiency_{}.png'.format(v_sample)
+    plt.savefig(savefile)
+    print(savefile)
+    plt.close() 
+
+    turn_on_unc = np.array([h_unc[i]/h_off[i] for i in range(len(h_off))])
+    turn_on_old = np.array([h_old[i]/h_off[i] for i in range(len(h_off))])
+    turn_on_new = np.array([h_new[i]/h_off[i] for i in range(len(h_off))])
+
+    # thr_80_unc = int(b_center[np.where(turn_on_unc >= 0.8)[0][0]])
+    # thr_80_old = int(b_center[np.where(turn_on_old >= 0.8)[0][0]])
+    # thr_80_new = int(b_center[np.where(turn_on_new >= 0.8)[0][0]])
+
+    # thr_95_unc = int(b_center[np.where(turn_on_unc >= 0.95)[0][0]])
+    # thr_95_old = int(b_center[np.where(turn_on_old >= 0.95)[0][0]])
+    # thr_95_new = int(b_center[np.where(turn_on_new >= 0.95)[0][0]])
+
+    eff_50_unc = turn_on_unc[np.where(b_center >= 50)[0][0]]
+    eff_50_old = turn_on_old[np.where(b_center >= 50)[0][0]]
+    eff_50_new = turn_on_new[np.where(b_center >= 50)[0][0]]
+
+    eff_70_unc = turn_on_unc[np.where(b_center >= 70)[0][0]]
+    eff_70_old = turn_on_old[np.where(b_center >= 70)[0][0]]
+    eff_70_new = turn_on_new[np.where(b_center >= 70)[0][0]]
+
+    fig = plt.figure(figsize = [10,10])
+    # text_1 = leg_uncalib + ": L1 jet Pt > {} Gev \n(80% eff. at {} GeV)\n(95% eff. at {} GeV)".format(thr_un, thr_80_unc, thr_95_unc)
+    text_1 = leg_uncalib + ": L1 jet Pt > {} Gev \n(eff. at 50 GeV {:.4f})\n(eff. at 70 GeV {:.4f})".format(thr_un, eff_50_unc, eff_70_unc)
+    plt.plot(b_center, turn_on_unc, label=text_1, marker='o', linestyle='dashed', linewidth=2, color=c_uncalib)
+    # text_2 = leg_oldcalib + ": L1 jet Pt > {} Gev \n(80% eff. at {} GeV)\n(95% eff. at {} GeV)".format(thr_un, thr_80_old, thr_95_old)
+    text_2 = leg_oldcalib + ": L1 jet Pt > {} Gev \n(eff. at 50 GeV {:.4f})\n(eff. at 70 GeV {:.4f})".format(thr_old, eff_50_old, eff_70_old)
+    plt.plot(b_center, turn_on_old, label=text_2, marker='o', linestyle='dashed', linewidth=2, color=c_oldcalib)
+    # text_3 = leg_newcalib + ": L1 jet Pt > {} Gev \n(80% eff. at {} GeV)\n(95% eff. at {} GeV)".format(thr_un, thr_80_new, thr_95_new)
+    text_3 = leg_newcalib + ": L1 jet Pt > {} Gev \n(eff. at 50 GeV {:.4f})\n(eff. at 70 GeV {:.4f})".format(thr_new, eff_50_new, eff_70_new)
+    plt.plot(b_center, turn_on_new, label=text_3, marker='o', linestyle='dashed', linewidth=2, color=c_newcalib)
+    plt.xlabel(r'$p_{T}^{jet, offline} [GeV]$')
+    plt.ylabel('Efficiency')
+    plt.grid(linestyle='dotted')
+    plt.legend(fontsize=15, loc='lower right')
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+    # plt.title('Jets Resolution {}'.format(v_sample))
+    savefile = odir + '/Efficiency_TurnOn_{}.png'.format(v_sample)
+    plt.savefig(savefile)
+    print(savefile)
+    plt.close()    
+    
