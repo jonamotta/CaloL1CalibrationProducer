@@ -40,6 +40,7 @@ parser.add_option("--doTurnOn",    dest="doTurnOn",                         defa
 parser.add_option("--doRate",      dest="doRate",                           default=True)
 parser.add_option("--do_HoTot",    dest="do_HoTot",    action='store_true', default=False)
 parser.add_option("--do_EoTot",    dest="do_EoTot",    action='store_true', default=False)
+parser.add_option("--er",          dest="er",                               default='2.5') #eta restriction
 (options, args) = parser.parse_args()
 
 # get/create folders
@@ -537,7 +538,7 @@ if options.doResolution == True:
     leg = plt.legend(loc='upper right', fontsize=20)
     leg._legend_box.align = "left"
     plt.xlabel(x_label)
-    plt.ylabel('Energy scale')
+    plt.ylabel('Energy scale (Mean)')
     plt.xlim(0, 200)
     plt.ylim(0.5, 1.5)
     for xtick in ax.xaxis.get_major_ticks():
@@ -562,7 +563,7 @@ if options.doResolution == True:
     leg = plt.legend(loc='upper right', fontsize=20)
     leg._legend_box.align = "left"
     plt.xlabel(x_label)
-    plt.ylabel('Energy scale')
+    plt.ylabel('Energy scale ($\mu \pm \sigma$)')
     plt.xlim(0, 200)
     plt.ylim(0.3, 1.8)
     for xtick in ax.xaxis.get_major_ticks():
@@ -622,7 +623,7 @@ if options.doResolution == True:
     leg = plt.legend(loc='upper right', fontsize=20)
     leg._legend_box.align = "left"
     plt.xlabel(x_label)
-    plt.ylabel('Energy scale')
+    plt.ylabel('Energy scale (Median)')
     plt.xlim(0, 200)
     plt.ylim(0.5, 1.5)
     for xtick in ax.xaxis.get_major_ticks():
@@ -767,7 +768,7 @@ if options.doResolution == True:
     leg = plt.legend(loc='upper center', fontsize=20)
     leg._legend_box.align = "left"
     plt.xlabel(x_label)
-    plt.ylabel('Energy scale')
+    plt.ylabel('Energy scale (Mean)')
     plt.xlim(x_lim)
     plt.ylim(0.5, 1.5)
     for xtick in ax.xaxis.get_major_ticks():
@@ -797,7 +798,7 @@ if options.doResolution == True:
     leg = plt.legend(loc='upper center', fontsize=20)
     leg._legend_box.align = "left"
     plt.xlabel(x_label)
-    plt.ylabel('Energy scale')
+    plt.ylabel('Energy scale ($\mu \pm \sigma$)')
     plt.xlim(x_lim)
     plt.ylim(0.3, 1.8)
     for xtick in ax.xaxis.get_major_ticks():
@@ -862,7 +863,7 @@ if options.doResolution == True:
     leg = plt.legend(loc='upper center', fontsize=20)
     leg._legend_box.align = "left"
     plt.xlabel(x_label)
-    plt.ylabel('Energy scale')
+    plt.ylabel('Energy scale (Median)')
     plt.xlim(x_lim)
     plt.ylim(0.5, 1.5)
     for xtick in ax.xaxis.get_major_ticks():
@@ -985,7 +986,7 @@ if options.doResolution == True:
         leg = plt.legend(loc='upper right', fontsize=20)
         leg._legend_box.align = "left"
         plt.xlabel(x_label)
-        plt.ylabel('Energy scale')
+        plt.ylabel('Energy scale (Mean)')
         plt.xlim(x_lim)
         plt.ylim(0.5, 1.5)
         for xtick in ax.xaxis.get_major_ticks():
@@ -1010,7 +1011,7 @@ if options.doResolution == True:
         leg = plt.legend(loc='upper right', fontsize=20)
         leg._legend_box.align = "left"
         plt.xlabel(x_label)
-        plt.ylabel('Energy scale')
+        plt.ylabel('Energy scale ($\mu \pm \sigma$)')
         plt.xlim(x_lim)
         plt.ylim(0.5, 1.5)
         for xtick in ax.xaxis.get_major_ticks():
@@ -1070,7 +1071,7 @@ if options.doResolution == True:
         leg = plt.legend(loc='upper right', fontsize=20)
         leg._legend_box.align = "left"
         plt.xlabel(x_label)
-        plt.ylabel('Energy scale')
+        plt.ylabel('Energy scale (Median)')
         plt.xlim(x_lim)
         plt.ylim(0.5, 1.5)
         for xtick in ax.xaxis.get_major_ticks():
@@ -1195,7 +1196,7 @@ if options.doResolution == True:
         leg = plt.legend(loc='upper right', fontsize=20)
         leg._legend_box.align = "left"
         plt.xlabel(x_label)
-        plt.ylabel('Energy scale')
+        plt.ylabel('Energy scale (Mean)')
         plt.xlim(x_lim)
         plt.ylim(0.5, 1.5)
         for xtick in ax.xaxis.get_major_ticks():
@@ -1220,7 +1221,7 @@ if options.doResolution == True:
         leg = plt.legend(loc='upper right', fontsize=20)
         leg._legend_box.align = "left"
         plt.xlabel(x_label)
-        plt.ylabel('Energy scale')
+        plt.ylabel('Energy scale ($\mu \pm \sigma$)')
         plt.xlim(x_lim)
         plt.ylim(0.5, 1.5)
         for xtick in ax.xaxis.get_major_ticks():
@@ -1280,7 +1281,7 @@ if options.doResolution == True:
         leg = plt.legend(loc='upper right', fontsize=20)
         leg._legend_box.align = "left"
         plt.xlabel(x_label)
-        plt.ylabel('Energy scale')
+        plt.ylabel('Energy scale (Median)')
         plt.xlim(x_lim)
         plt.ylim(0.5, 1.5)
         for xtick in ax.xaxis.get_major_ticks():
@@ -1459,8 +1460,14 @@ if options.doRate == True:
     # #######
     # DoubleObj rates
 
-    if options.target == 'jet': x_label = r'$E_{T}^{jet, L1}$'
-    if options.target == 'ele': x_label = r'$E_{T}^{e/\gamma, L1}$'
+    if options.target == 'jet': x_label_rate = r'$E_{T}^{jet, L1}$'
+    if options.target == 'ele': x_label_rate = r'$E_{T}^{e/\gamma, L1}$'
+    if options.reco:
+        if options.target == 'jet': x_label_turnon = r'$p_{T}^{jet, offline}$'
+        if options.target == 'ele': x_label_turnon = r'$p_{T}^{e, offline}$'
+    if options.gen:
+        if options.target == 'jet': x_label_turnon = r'$p_{T}^{jet, gen}$'
+        if options.target == 'ele': x_label_turnon = r'$p_{T}^{e, gen}$'
 
     fig, ax = plt.subplots(figsize=(10,10))
 
@@ -1498,8 +1505,8 @@ if options.doRate == True:
         xtick.set_pad(10)
     leg = plt.legend(loc='upper right', fontsize=20)
     leg._legend_box.align = "left"
-    plt.xlabel(x_label)
-    plt.ylabel('Rate [kHz]')
+    plt.xlabel(x_label_rate)
+    plt.ylabel('Rate DiObject [kHz]')
     plt.xlim(0, 120)
     plt.ylim(0.1, 1E5)
     plt.yscale('log')
@@ -1520,13 +1527,6 @@ if options.doTurnOn == True:
     print(" ### INFO: OldCalib file = {}".format(olddir+'/PerformancePlots/'+label+'/ROOTs/efficiency_graphs_'+label+'_'+target+'.root'))
     print(" ### INFO: NewCalib file = {}".format(indir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/efficiency_graphs_'+label+'_'+target+'.root'))
 
-    if options.reco:
-        if options.target == 'jet': x_label = r'$p_{T}^{jet, offline}$'
-        if options.target == 'ele': x_label = r'$p_{T}^{e, offline}$'
-    if options.gen:
-        if options.target == 'jet': x_label = r'$p_{T}^{jet, gen}$'
-        if options.target == 'ele': x_label = r'$p_{T}^{e, gen}$'
-
     for thr in options.thrsFixRate:
         rateOldCalibAtThr = rateDi_oldCalib.GetBinContent(int(thr)+1)
 
@@ -1543,9 +1543,9 @@ if options.doTurnOn == True:
                 break
         
         if thrUnCalib_DiObjAtThr == 0 or thrNewCalib_DiObjAtThr == 0: continue
-        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_DiObjAtThr))+"_by_total")
-        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
-        turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_DiObjAtThr))+"_by_total")
+        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing_"+str(int(thrUnCalib_DiObjAtThr))+"_by_total")
+        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing_"+str(int(thr))+"_by_total")
+        turnon_newCalib = file_turnon_newCalib.Get("divide_passing_"+str(int(thrNewCalib_DiObjAtThr))+"_by_total")
 
         fig, ax = plt.subplots(figsize=(10,10))
 
@@ -1578,9 +1578,9 @@ if options.doTurnOn == True:
 
         for xtick in ax.xaxis.get_major_ticks():
             xtick.set_pad(10)
-        leg = plt.legend(loc='lower right', fontsize=20, title=r'Fixed rate: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
+        leg = plt.legend(loc='lower right', fontsize=17, title=r'Fixed DiObject Rate: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
         leg._legend_box.align = "left"
-        plt.xlabel(x_label)
+        plt.xlabel(x_label_turnon)
         plt.ylabel('Efficiency')
         plt.xlim(0, 60) if int(thr) < 30 else plt.xlim(0, 250)
         plt.ylim(0., 1.05)
@@ -1603,9 +1603,6 @@ if options.doRate == True or options.doTurnOn == True:
     rateDiEr_newCalib = file_rate_newCalib.Get("rateDiProgression0er2p5")
 
 if options.doRate == True:
-
-    if options.target == 'jet': x_label = r'$E_{T}^{jet, L1}$'
-    if options.target == 'ele': x_label = r'$E_{T}^{e/\gamma, L1}$'
 
     fig, ax = plt.subplots(figsize=(10,10))
 
@@ -1643,8 +1640,8 @@ if options.doRate == True:
         xtick.set_pad(10)
     leg = plt.legend(loc='upper right', fontsize=20)
     leg._legend_box.align = "left"
-    plt.xlabel(x_label)
-    plt.ylabel('Rate [kHz]')
+    plt.xlabel(x_label_rate)
+    plt.ylabel('Rate DiObject Er2p5 [kHz]')
     plt.xlim(0, 120)
     plt.ylim(0.1, 1E5)
     plt.yscale('log')
@@ -1659,6 +1656,7 @@ if options.doRate == True:
     plt.close()
 
 if options.doTurnOn == True:
+
     for thr in options.thrsFixRate:
         rateOldCalibAtThr = rateDiEr_oldCalib.GetBinContent(int(thr)+1)
 
@@ -1675,9 +1673,9 @@ if options.doTurnOn == True:
                 break
 
         if thrUnCalib_FixedDiErRate == 0 or thrNewCalib_FixedDiErRate == 0: continue
-        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_FixedDiErRate))+"_by_total")
-        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
-        turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_FixedDiErRate))+"_by_total")
+        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing_Er2p5_"+str(int(thrUnCalib_FixedDiErRate))+"_by_total_Er2p5")
+        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing_Er2p5_"+str(int(thr))+"_by_total_Er2p5")
+        turnon_newCalib = file_turnon_newCalib.Get("divide_passing_Er2p5_"+str(int(thrNewCalib_FixedDiErRate))+"_by_total_Er2p5")
 
         fig, ax = plt.subplots(figsize=(10,10))
 
@@ -1710,9 +1708,9 @@ if options.doTurnOn == True:
 
         for xtick in ax.xaxis.get_major_ticks():
             xtick.set_pad(10)
-        leg = plt.legend(loc='lower right', fontsize=20, title=r'Fixed rate: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
+        leg = plt.legend(loc='lower right', fontsize=17, title=r'Fixed DiObject Rate Er2p5: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
         leg._legend_box.align = "left"
-        plt.xlabel(x_label)
+        plt.xlabel(x_label_turnon)
         plt.ylabel('Efficiency')
         plt.xlim(0, 60) if int(thr) < 30 else plt.xlim(0, 250)
         plt.ylim(0., 1.05)
@@ -1771,8 +1769,8 @@ if options.doRate == True:
         xtick.set_pad(10)
     leg = plt.legend(loc='upper right', fontsize=20)
     leg._legend_box.align = "left"
-    plt.xlabel(x_label)
-    plt.ylabel('Rate [kHz]')
+    plt.xlabel(x_label_rate)
+    plt.ylabel('Rate SingleObject [kHz]')
     plt.xlim(0, 120)
     plt.ylim(0.1, 1E5)
     plt.yscale('log')
@@ -1781,9 +1779,9 @@ if options.doRate == True:
     plt.grid()
     if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
     else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/rate_DiObj_'+label+'_'+target+'.pdf')
-    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/rate_DiObj_'+label+'_'+target+'.png')
-    print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/rate_DiObj_'+label+'_'+target)
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/rate_Obj_'+label+'_'+target+'.pdf')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/rate_Obj_'+label+'_'+target+'.png')
+    print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/rate_Obj_'+label+'_'+target)
     plt.close()
 
 if options.doTurnOn == True:
@@ -1803,9 +1801,9 @@ if options.doTurnOn == True:
                 break
 
         if thrNewCalib_ObjAtThr == 0 or thrUnCalib_ObjAtThr == 0: continue
-        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_ObjAtThr))+"_by_total")
-        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
-        turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_ObjAtThr))+"_by_total")
+        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing_"+str(int(thrUnCalib_ObjAtThr))+"_by_total")
+        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing_"+str(int(thr))+"_by_total")
+        turnon_newCalib = file_turnon_newCalib.Get("divide_passing_"+str(int(thrNewCalib_ObjAtThr))+"_by_total")
 
         fig, ax = plt.subplots(figsize=(10,10))
 
@@ -1838,9 +1836,9 @@ if options.doTurnOn == True:
 
         for xtick in ax.xaxis.get_major_ticks():
             xtick.set_pad(10)
-        leg = plt.legend(loc='lower right', fontsize=20, title=r'Fixed rate: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
+        leg = plt.legend(loc='lower right', fontsize=17, title=r'Fixed Object Rate: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
         leg._legend_box.align = "left"
-        plt.xlabel(x_label)
+        plt.xlabel(x_label_turnon)
         plt.ylabel('Efficiency')
         plt.xlim(0, 60) if int(thr) < 30 else plt.xlim(0, 250)
         plt.ylim(0., 1.05)
@@ -1899,8 +1897,8 @@ if options.doRate == True:
         xtick.set_pad(10)
     leg = plt.legend(loc='upper right', fontsize=20)
     leg._legend_box.align = "left"
-    plt.xlabel(x_label)
-    plt.ylabel('Rate [kHz]')
+    plt.xlabel(x_label_rate)
+    plt.ylabel('Rate SingleObject Er2p5 [kHz]')
     plt.xlim(0, 120)
     plt.ylim(0.1, 1E5)
     plt.yscale('log')
@@ -1931,9 +1929,10 @@ if options.doTurnOn == True:
                 break
 
         if thrNewCalib_FixedErRate == 0 or thrUnCalib_FixedErRate == 0: continue
-        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_FixedErRate))+"_by_total")
-        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
-        turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_FixedErRate))+"_by_total")
+        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing_Er2p5_"+str(int(thrUnCalib_FixedErRate))+"_by_total_Er2p5")
+        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing_Er2p5_"+str(int(thr))+"_by_total_Er2p5")
+        turnon_newCalib = file_turnon_newCalib.Get("divide_passing_Er2p5_"+str(int(thrNewCalib_FixedErRate))+"_by_total_Er2p5")
+        # print("divide_passing_Er2p5_"+str(int(thrNewCalib_FixedErRate))+"_by_total_Er2p5")
 
         fig, ax = plt.subplots(figsize=(10,10))
 
@@ -1966,9 +1965,9 @@ if options.doTurnOn == True:
 
         for xtick in ax.xaxis.get_major_ticks():
             xtick.set_pad(10)
-        leg = plt.legend(loc='lower right', fontsize=20, title=r'Fixed rate: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
+        leg = plt.legend(loc='lower right', fontsize=17, title=r'Fixed Object Rate Er2p5: '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
         leg._legend_box.align = "left"
-        plt.xlabel(x_label)
+        plt.xlabel(x_label_turnon)
         plt.ylabel('Efficiency')
         plt.xlim(0, 60) if int(thr) < 30 else plt.xlim(0, 250)
         plt.ylim(0., 1.05)
@@ -1981,6 +1980,270 @@ if options.doTurnOn == True:
         plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/turnon_fixedObjEr2p5Rate_'+thr+'_'+label+'_'+target+'.png')
         print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/turnon_fixedObjEr2p5Rate_'+thr+'_'+label+'_'+target)
         plt.close()
+
+if options.er:
+    er_label = options.er.replace(".", "p")
+
+    # # DoubleObjEr rates
+    if options.doRate == True or options.doTurnOn == True:
+        rateDiEr_unCalib  = file_rate_unCalib.Get("rateDiProgression0er{}".format(er_label))
+        rateDiEr_oldCalib = file_rate_oldCalib.Get("rateDiProgression0er{}".format(er_label))
+        rateDiEr_newCalib = file_rate_newCalib.Get("rateDiProgression0er{}".format(er_label))
+
+    if options.doRate == True:
+
+        fig, ax = plt.subplots(figsize=(10,10))
+
+        X = [] ; Y = [] ; X_err = [] ; Y_err = []
+        histo = rateDiEr_unCalib
+        for ibin in range(0,histo.GetNbinsX()):
+            X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+            Y.append(histo.GetBinContent(ibin+1))
+            X_err.append(histo.GetBinWidth(ibin+1)/2.)
+            Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+        Ymax = max(Y)
+
+        X = [] ; Y = [] ; X_err = [] ; Y_err = []
+        histo = rateDiEr_oldCalib
+        for ibin in range(0,histo.GetNbinsX()):
+            X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+            Y.append(histo.GetBinContent(ibin+1))
+            X_err.append(histo.GetBinWidth(ibin+1)/2.)
+            Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+        Ymax = max(Ymax, max(Y))
+
+        X = [] ; Y = [] ; X_err = [] ; Y_err = []
+        histo = rateDiEr_newCalib
+        for ibin in range(0,histo.GetNbinsX()):
+            X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+            Y.append(histo.GetBinContent(ibin+1))
+            X_err.append(histo.GetBinWidth(ibin+1)/2.)
+            Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+        Ymax = max(Ymax, max(Y))
+
+        for xtick in ax.xaxis.get_major_ticks():
+            xtick.set_pad(10)
+        leg = plt.legend(loc='upper right', fontsize=20)
+        leg._legend_box.align = "left"
+        plt.xlabel(x_label_rate)
+        plt.ylabel('Rate DiObject Er{} [kHz]'.format(er_label))
+        plt.xlim(0, 120)
+        plt.ylim(0.1, 1E5)
+        plt.yscale('log')
+        for xtick in ax.xaxis.get_major_ticks():
+            xtick.set_pad(10)
+        plt.grid()
+        if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+        else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+        plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/rate_DiObjEr'+er_label+'_'+label+'_'+target+'.pdf')
+        plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/rate_DiObjEr'+er_label+'_'+label+'_'+target+'.png')
+        print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/rate_DiObjEr'+er_label+'_'+label+'_'+target)
+        plt.close()
+
+    if options.doTurnOn == True:
+        for thr in options.thrsFixRate:
+            rateOldCalibAtThr = rateDiEr_oldCalib.GetBinContent(int(thr)+1)
+
+            thrNewCalib_FixedDiErRate = 0
+            for i in range(1,240):
+                if rateDiEr_newCalib.GetBinContent(i) < rateOldCalibAtThr:
+                    thrNewCalib_FixedDiErRate = rateDiEr_newCalib.GetBinLowEdge(i-1)
+                    break
+
+            thrUnCalib_FixedDiErRate = 0
+            for i in range(1,240):
+                if rateDiEr_unCalib.GetBinContent(i) < rateOldCalibAtThr:
+                    thrUnCalib_FixedDiErRate = rateDiEr_unCalib.GetBinLowEdge(i-1)
+                    break
+
+            if thrUnCalib_FixedDiErRate == 0 or thrNewCalib_FixedDiErRate == 0: continue
+            turnon_unCalib  = file_turnon_unCalib.Get("divide_passing_Er"+er_label+"_"+str(int(thrUnCalib_FixedDiErRate))+"_by_total_Er"+er_label)
+            turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing_Er"+er_label+"_"+str(int(thr))+"_by_total_Er"+er_label)
+            turnon_newCalib = file_turnon_newCalib.Get("divide_passing_Er"+er_label+"_"+str(int(thrNewCalib_FixedDiErRate))+"_by_total_Er"+er_label)
+
+            fig, ax = plt.subplots(figsize=(10,10))
+
+            X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+            turnon = turnon_unCalib
+            for ibin in range(0,turnon.GetN()):
+                X.append(turnon.GetPointX(ibin))
+                Y.append(turnon.GetPointY(ibin))
+                Y_low.append(turnon.GetErrorYlow(ibin))
+                Y_high.append(turnon.GetErrorYhigh(ibin))
+            ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'No calibration: $p_{T}^{L1}>$'+str(int(thrUnCalib_FixedDiErRate))+' GeV', lw=2, marker='o', color='black', zorder=0)
+
+            X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+            turnon = turnon_oldCalib
+            for ibin in range(0,turnon.GetN()):
+                X.append(turnon.GetPointX(ibin))
+                Y.append(turnon.GetPointY(ibin))
+                Y_low.append(turnon.GetErrorYlow(ibin))
+                Y_high.append(turnon.GetErrorYhigh(ibin))
+            ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Old calibration: $p_{T}^{L1}>$'+str(int(thr))+' GeV', lw=2, marker='o', color='red', zorder=1)
+
+            X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+            turnon = turnon_newCalib
+            for ibin in range(0,turnon.GetN()):
+                X.append(turnon.GetPointX(ibin))
+                Y.append(turnon.GetPointY(ibin))
+                Y_low.append(turnon.GetErrorYlow(ibin))
+                Y_high.append(turnon.GetErrorYhigh(ibin))
+            ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'New Calibration: $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedDiErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
+
+            for xtick in ax.xaxis.get_major_ticks():
+                xtick.set_pad(10)
+            leg = plt.legend(loc='lower right', fontsize=17, title=r'Fixed DiObject Rate Er'+er_label+': '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
+            leg._legend_box.align = "left"
+            plt.xlabel(x_label_turnon)
+            plt.ylabel('Efficiency')
+            plt.xlim(0, 60) if int(thr) < 30 else plt.xlim(0, 250)
+            plt.ylim(0., 1.05)
+            for xtick in ax.xaxis.get_major_ticks():
+                xtick.set_pad(10)
+            plt.grid()
+            if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+            else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+            plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/turnon_fixedDiObjEr'+er_label+'Rate_'+thr+'_'+label+'_'+target+'.pdf')
+            plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/turnon_fixedDiObjEr'+er_label+'Rate_'+thr+'_'+label+'_'+target+'.png')
+            print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/turnon_fixedDiObjEr'+er_label+'Rate_'+thr+'_'+label+'_'+target)
+            plt.close()
+
+    ###########################
+
+    if options.doRate == True or options.doTurnOn == True:
+        rateEr_unCalib  = file_rate_unCalib.Get("rateProgression0er{}".format(er_label))
+        rateEr_oldCalib = file_rate_oldCalib.Get("rateProgression0er{}".format(er_label))
+        rateEr_newCalib = file_rate_newCalib.Get("rateProgression0er{}".format(er_label))
+
+    # ######
+    # SingleObjEr rates
+    if options.doRate == True:
+
+        fig, ax = plt.subplots(figsize=(10,10))
+
+        X = [] ; Y = [] ; X_err = [] ; Y_err = []
+        histo = rateEr_unCalib
+        for ibin in range(0,histo.GetNbinsX()):
+            X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+            Y.append(histo.GetBinContent(ibin+1))
+            X_err.append(histo.GetBinWidth(ibin+1)/2.)
+            Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='No calibration', ls='None', lw=2, marker='o', color='black', zorder=0)
+        Ymax = max(Y)
+
+        X = [] ; Y = [] ; X_err = [] ; Y_err = []
+        histo = rateEr_oldCalib
+        for ibin in range(0,histo.GetNbinsX()):
+            X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+            Y.append(histo.GetBinContent(ibin+1))
+            X_err.append(histo.GetBinWidth(ibin+1)/2.)
+            Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='Old calibration', ls='None', lw=2, marker='o', color='red', zorder=1)
+        Ymax = max(Ymax, max(Y))
+
+        X = [] ; Y = [] ; X_err = [] ; Y_err = []
+        histo = rateEr_newCalib
+        for ibin in range(0,histo.GetNbinsX()):
+            X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+            Y.append(histo.GetBinContent(ibin+1))
+            X_err.append(histo.GetBinWidth(ibin+1)/2.)
+            Y_err.append(histo.GetBinError(ibin+1))
+        ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label='New Calibration', ls='None', lw=2, marker='o', color='green', zorder=2)
+        Ymax = max(Ymax, max(Y))
+
+        for xtick in ax.xaxis.get_major_ticks():
+            xtick.set_pad(10)
+        leg = plt.legend(loc='upper right', fontsize=20)
+        leg._legend_box.align = "left"
+        plt.xlabel(x_label_rate)
+        plt.ylabel('Rate SingleObject Er{} [kHz]'.format(er_label))
+        plt.xlim(0, 120)
+        plt.ylim(0.1, 1E5)
+        plt.yscale('log')
+        for xtick in ax.xaxis.get_major_ticks():
+            xtick.set_pad(10)
+        plt.grid()
+        if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+        else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+        plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/rate_ObjEr'+er_label+'_'+label+'_'+target+'.pdf')
+        plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/rate_ObjEr'+er_label+'_'+label+'_'+target+'.png')
+        print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/rate_ObjEr'+er_label+'_'+label+'_'+target)
+        plt.close()
+
+    if options.doTurnOn == True:
+        for thr in options.thrsFixRate:
+            rateOldCalibAtThr = rateEr_oldCalib.GetBinContent(int(thr)+1)
+
+            thrNewCalib_FixedErRate = 0
+            for i in range(1,240):
+                if rateEr_newCalib.GetBinContent(i) < rateOldCalibAtThr:
+                    thrNewCalib_FixedErRate = rateEr_newCalib.GetBinLowEdge(i-1)
+                    break
+
+            thrUnCalib_FixedErRate = 0
+            for i in range(1,240):
+                if rateEr_unCalib.GetBinContent(i) < rateOldCalibAtThr:
+                    thrUnCalib_FixedErRate = rateEr_unCalib.GetBinLowEdge(i-1)
+                    break
+
+            if thrNewCalib_FixedErRate == 0 or thrUnCalib_FixedErRate == 0: continue
+            turnon_unCalib  = file_turnon_unCalib.Get("divide_passing_Er"+er_label+"_"+str(int(thrUnCalib_FixedErRate))+"_by_total_Er"+er_label)
+            turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing_Er"+er_label+"_"+str(int(thr))+"_by_total_Er"+er_label)
+            turnon_newCalib = file_turnon_newCalib.Get("divide_passing_Er"+er_label+"_"+str(int(thrNewCalib_FixedErRate))+"_by_total_Er"+er_label)
+
+            fig, ax = plt.subplots(figsize=(10,10))
+
+            X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+            turnon = turnon_unCalib
+            for ibin in range(0,turnon.GetN()):
+                X.append(turnon.GetPointX(ibin))
+                Y.append(turnon.GetPointY(ibin))
+                Y_low.append(turnon.GetErrorYlow(ibin))
+                Y_high.append(turnon.GetErrorYhigh(ibin))
+            ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'No calibration: $p_{T}^{L1}>$'+str(int(thrUnCalib_FixedErRate))+' GeV', lw=2, marker='o', color='black', zorder=0)
+
+            X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+            turnon = turnon_oldCalib
+            for ibin in range(0,turnon.GetN()):
+                X.append(turnon.GetPointX(ibin))
+                Y.append(turnon.GetPointY(ibin))
+                Y_low.append(turnon.GetErrorYlow(ibin))
+                Y_high.append(turnon.GetErrorYhigh(ibin))
+            ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Old calibration: $p_{T}^{L1}>$'+str(int(thr))+' GeV', lw=2, marker='o', color='red', zorder=1)
+
+            X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+            turnon = turnon_newCalib
+            for ibin in range(0,turnon.GetN()):
+                X.append(turnon.GetPointX(ibin))
+                Y.append(turnon.GetPointY(ibin))
+                Y_low.append(turnon.GetErrorYlow(ibin))
+                Y_high.append(turnon.GetErrorYhigh(ibin))
+            ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'New Calibration: $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
+
+            for xtick in ax.xaxis.get_major_ticks():
+                xtick.set_pad(10)
+            leg = plt.legend(loc='lower right', fontsize=17, title=r'Fixed Object Rate Er'+er_label+': '+str(round(rateOldCalibAtThr,2))+' kHz', title_fontsize=18)
+            leg._legend_box.align = "left"
+            plt.xlabel(x_label_turnon)
+            plt.ylabel('Efficiency')
+            plt.xlim(0, 60) if int(thr) < 30 else plt.xlim(0, 250)
+            plt.ylim(0., 1.05)
+            for xtick in ax.xaxis.get_major_ticks():
+                xtick.set_pad(10)
+            plt.grid()
+            if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+            else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+            plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/comparisons_'+label+'_'+target+options.ref+'/turnon_fixedObjEr'+er_label+'Rate_'+thr+'_'+label+'_'+target+'.pdf')
+            plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/turnon_fixedObjEr'+er_label+'Rate_'+thr+'_'+label+'_'+target+'.png')
+            print(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/comparisons_'+label+'_'+target+options.ref+'/turnon_fixedObjEr'+er_label+'Rate_'+thr+'_'+label+'_'+target)
+            plt.close()
+
+
+
+
 
 if options.doRate == True or options.doTurnOn == True:
     file_rate_unCalib.Close()

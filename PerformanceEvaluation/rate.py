@@ -6,6 +6,8 @@ ROOT.gROOT.SetBatch(True)
 import sys
 import os
 from tqdm import tqdm
+import warnings
+warnings.simplefilter(action='ignore')
 
 import matplotlib.pyplot as plt
 import matplotlib
@@ -15,7 +17,6 @@ plt.style.use(mplhep.style.CMS)
 def load_obj(source):
     with open(source,'rb') as f:
         return pickle.load(f)
-
 
 #######################################################################
 ######################### SCRIPT BODY #################################
@@ -49,7 +50,6 @@ else:                level1Tree = ROOT.TChain("l1UpgradeEmuTree/L1UpgradeTree")
 
 # read input files
 level1Tree.Add(indir+"/Ntuple*.root")
-
 nEntries = level1Tree.GetEntries()
 print(nEntries, "entries")
 
@@ -58,22 +58,26 @@ nevents = options.nEvts
 if (nevents > nEntries) or (nevents==-1): nevents = nEntries
 print("will process",nevents,"events...")
 
-thresholds = [0, 20, 35, 50, 100, 150]
-
 denominator = 0.
 nb = 2544.
 scale = 0.001*(nb*11245.6)
 
-er_label = options.er.replace(".", "p")
 ptProgression0 = ROOT.TH1F("ptProgression0","ptProgression0",240,0.,240.)
 ptDiProgression0 = ROOT.TH2F("ptDiProgression0","ptDiProgression0",240,0.,240.,240,0.,240.)
 rateProgression0 = ROOT.TH1F("rateProgression0","rateProgression0",240,0.,240.)
 rateDiProgression0 = ROOT.TH1F("rateDiProgression0","rateDiProgression0",240,0.,240.)
-ptProgression0er2p5 = ROOT.TH1F("ptProgression0er{}".format(er_label),"ptProgression0er{}".format(er_label),240,0.,240.)
-ptDiProgression0er2p5 = ROOT.TH2F("ptDiProgression0er{}".format(er_label),"ptDiProgression0er{}".format(er_label),240,0.,240.,240,0.,240.)
-rateProgression0er2p5 = ROOT.TH1F("rateProgression0er{}".format(er_label),"rateProgression0er{}".format(er_label),240,0.,240.)
-rateDiProgression0er2p5 = ROOT.TH1F("rateDiProgression0er{}".format(er_label),"rateProgression0er{}".format(er_label),240,0.,240.)
+ptProgression0er2p5 = ROOT.TH1F("ptProgression0er2p5","ptProgression0er2p5",240,0.,240.)
+ptDiProgression0er2p5 = ROOT.TH2F("ptDiProgression0er2p5","ptDiProgression0er2p5",240,0.,240.,240,0.,240.)
+rateProgression0er2p5 = ROOT.TH1F("rateProgression0er2p5","rateProgression0er2p5",240,0.,240.)
+rateDiProgression0er2p5 = ROOT.TH1F("rateDiProgression0er2p5","rateProgression0er2p5",240,0.,240.)
+if options.er:
+    er_label = options.er.replace(".", "p")
+    ptProgression0er0p0 = ROOT.TH1F("ptProgression0er{}".format(er_label),"ptProgression0er{}".format(er_label),240,0.,240.)
+    ptDiProgression0er0p0 = ROOT.TH2F("ptDiProgression0er{}".format(er_label),"ptDiProgression0er{}".format(er_label),240,0.,240.,240,0.,240.)
+    rateProgression0er0p0 = ROOT.TH1F("rateProgression0er{}".format(er_label),"rateProgression0er{}".format(er_label),240,0.,240.)
+    rateDiProgression0er0p0 = ROOT.TH1F("rateDiProgression0er{}".format(er_label),"rateProgression0er{}".format(er_label),240,0.,240.)
 
+thresholds = [0, 20, 35, 50, 100, 150]
 offline = options.offline
 if offline:
     mapping_dict = load_obj(outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/online2offline_mapping_'+label+'.pkl')
@@ -84,7 +88,7 @@ for i in tqdm(range(0, nevents)):
     # if i%1000==0: print(i)
     #getting entries
     entry = level1Tree.GetEntry(i)
-
+    
     # skip corrupted entries
     if not entry: continue
 
@@ -92,12 +96,16 @@ for i in tqdm(range(0, nevents)):
 
     filledProgression0  = False
     filledProgression0er2p5  = False
+    if options.er: filledProgression0er0p0  = False
 
     IndexJetsProgression0 = array('f',[-1,-1])
     ptJetsProgression0 = array('f',[-99.,-99.])
 
     IndexJetsProgression0er2p5 = array('f',[-1,-1])
     ptJetsProgression0er2p5 = array('f',[-99.,-99.])
+
+    if options.er: IndexJetsProgression0er0p0 = array('f',[-1,-1])
+    if options.er: ptJetsProgression0er0p0 = array('f',[-99.,-99.])
 
     L1_nObjs = 0
     if options.target == 'jet':
@@ -139,25 +147,43 @@ for i in tqdm(range(0, nevents)):
             ptJetsProgression0[0]=level1Obj.Pt()
         elif level1Obj.Pt()>=ptJetsProgression0[1]:
             IndexJetsProgression0[1]=iL1Obj
-            ptJetsProgression0[1]=level1Obj.Pt()
+            ptJetsProgression0[1]=level1Obj.Pt()                
 
-        if abs(level1Obj.Eta())>float(options.er): continue
+        if abs(level1Obj.Eta())<2.5:
 
-        # single
-        if filledProgression0er2p5==False:
-            if offline: ptProgression0er2p5.Fill(np.interp(level1Obj.Pt(), online_thresholds, mapping_dict[offline]))
-            else:       ptProgression0er2p5.Fill(level1Obj.Pt())
-            filledProgression0er2p5 = True
+            # single
+            if filledProgression0er2p5==False:
+                if offline: ptProgression0er2p5.Fill(np.interp(level1Obj.Pt(), online_thresholds, mapping_dict[offline]))
+                else:       ptProgression0er2p5.Fill(level1Obj.Pt())
+                filledProgression0er2p5 = True
 
-        # di
-        if level1Obj.Pt()>=ptJetsProgression0er2p5[0]:
-            IndexJetsProgression0er2p5[1]=IndexJetsProgression0er2p5[0]
-            ptJetsProgression0er2p5[1]=ptJetsProgression0er2p5[0]
-            IndexJetsProgression0er2p5[0]=iL1Obj
-            ptJetsProgression0er2p5[0]=level1Obj.Pt()
-        elif level1Obj.Pt()>=ptJetsProgression0er2p5[1]:
-            IndexJetsProgression0er2p5[1]=iL1Obj
-            ptJetsProgression0er2p5[1]=level1Obj.Pt()
+            # di
+            if level1Obj.Pt()>=ptJetsProgression0er2p5[0]:
+                IndexJetsProgression0er2p5[1]=IndexJetsProgression0er2p5[0]
+                ptJetsProgression0er2p5[1]=ptJetsProgression0er2p5[0]
+                IndexJetsProgression0er2p5[0]=iL1Obj
+                ptJetsProgression0er2p5[0]=level1Obj.Pt()
+            elif level1Obj.Pt()>=ptJetsProgression0er2p5[1]:
+                IndexJetsProgression0er2p5[1]=iL1Obj
+                ptJetsProgression0er2p5[1]=level1Obj.Pt()
+
+        if options.er:
+            if abs(level1Obj.Eta())<float(options.er):
+                # single
+                if filledProgression0er0p0==False:
+                    if offline: ptProgression0er0p0.Fill(np.interp(level1Obj.Pt(), online_thresholds, mapping_dict[offline]))
+                    else:       ptProgression0er0p0.Fill(level1Obj.Pt())
+                    filledProgression0er0p0 = True
+
+                # di
+                if level1Obj.Pt()>=ptJetsProgression0er0p0[0]:
+                    IndexJetsProgression0er0p0[1]=IndexJetsProgression0er0p0[0]
+                    ptJetsProgression0er0p0[1]=ptJetsProgression0er0p0[0]
+                    IndexJetsProgression0er0p0[0]=iL1Obj
+                    ptJetsProgression0er0p0[0]=level1Obj.Pt()
+                elif level1Obj.Pt()>=ptJetsProgression0er0p0[1]:
+                    IndexJetsProgression0er0p0[1]=iL1Obj
+                    ptJetsProgression0er0p0[1]=level1Obj.Pt()
 
     if IndexJetsProgression0[0]>=0 and IndexJetsProgression0[1]>=0:
         if offline: ptDiProgression0.Fill(np.interp(ptJetsProgression0[0], online_thresholds, mapping_dict[offline]), np.interp(ptJetsProgression0[1], online_thresholds, mapping_dict[offline]))
@@ -167,11 +193,19 @@ for i in tqdm(range(0, nevents)):
         if offline: ptDiProgression0er2p5.Fill(np.interp(ptJetsProgression0er2p5[0], online_thresholds, mapping_dict[offline]), np.interp(ptJetsProgression0er2p5[1], online_thresholds, mapping_dict[offline]))
         else:       ptDiProgression0er2p5.Fill(ptJetsProgression0er2p5[0],ptJetsProgression0er2p5[1])
 
+    if options.er:
+        if IndexJetsProgression0er0p0[0]>=0 and IndexJetsProgression0er0p0[1]>=0:
+            if offline: ptDiProgression0er0p0.Fill(np.interp(ptJetsProgression0er0p0[0], online_thresholds, mapping_dict[offline]), np.interp(ptJetsProgression0er0p0[1], online_thresholds, mapping_dict[offline]))
+            else:       ptDiProgression0er0p0.Fill(ptJetsProgression0er0p0[0],ptJetsProgression0er0p0[1])
+
 for i in range(0,241):
-    rateProgression0.SetBinContent(i+1,ptProgression0.Integral(i+1,241)/denominator*scale);
-    rateDiProgression0.SetBinContent(i+1,ptDiProgression0.Integral(i+1,241,i+1,241)/denominator*scale);
-    rateProgression0er2p5.SetBinContent(i+1,ptProgression0er2p5.Integral(i+1,241)/denominator*scale);
-    rateDiProgression0er2p5.SetBinContent(i+1,ptDiProgression0er2p5.Integral(i+1,241,i+1,241)/denominator*scale);
+    rateProgression0.SetBinContent(i+1,ptProgression0.Integral(i+1,241)/denominator*scale)
+    rateDiProgression0.SetBinContent(i+1,ptDiProgression0.Integral(i+1,241,i+1,241)/denominator*scale)
+    rateProgression0er2p5.SetBinContent(i+1,ptProgression0er2p5.Integral(i+1,241)/denominator*scale)
+    rateDiProgression0er2p5.SetBinContent(i+1,ptDiProgression0er2p5.Integral(i+1,241,i+1,241)/denominator*scale)
+    if options.er:
+        rateProgression0er0p0.SetBinContent(i+1,ptProgression0er0p0.Integral(i+1,241)/denominator*scale)
+        rateDiProgression0er0p0.SetBinContent(i+1,ptDiProgression0er0p0.Integral(i+1,241,i+1,241)/denominator*scale)
 
 
 cmap = matplotlib.cm.get_cmap('Set1')
@@ -225,12 +259,12 @@ plt.close()
 
 
 if options.target == 'jet':
-    label_singleObj = r'Single-jet $|\eta|<{}$'.format(options.er)
-    label_doubleObj = r'Double-jet $|\eta|<{}$'.format(options.er)
+    label_singleObj = r'Single-jet $|\eta|<2.5$'
+    label_doubleObj = r'Double-jet $|\eta|<2.5$'
     x_label = r'$E_{T}^{jet, L1}$'
 if options.target == 'ele':
-    label_singleObj = r'Single-$e/\gamma$ $|\eta|<{}$'.format(options.er)
-    label_doubleObj = r'Double-$e/\gamma$ $|\eta|<{}$'.format(options.er)
+    label_singleObj = r'Single-$e/\gamma$ $|\eta|<2.5$'
+    label_doubleObj = r'Double-$e/\gamma$ $|\eta|<2.5$'
     x_label = r'$E_{T}^{e/\gamma, L1}$'
 
 fig, ax = plt.subplots(figsize=(10,10))
@@ -267,9 +301,59 @@ for xtick in ax.xaxis.get_major_ticks():
     xtick.set_pad(10)
 plt.grid()
 mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
-plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/rate'+er_label+'_'+label+'_'+options.target+'.pdf')
-plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/rate'+er_label+'_'+label+'_'+options.target+'.png')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/rateEr2p5_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/rateEr2p5_'+label+'_'+options.target+'.png')
 plt.close()
+
+
+
+if options.er:
+    if options.target == 'jet':
+        label_singleObj = r'Single-jet $|\eta|<{}$'.format(options.er)
+        label_doubleObj = r'Double-jet $|\eta|<{}$'.format(options.er)
+        x_label = r'$E_{T}^{jet, L1}$'
+    if options.target == 'ele':
+        label_singleObj = r'Single-$e/\gamma$ $|\eta|<{}$'.format(options.er)
+        label_doubleObj = r'Double-$e/\gamma$ $|\eta|<{}$'.format(options.er)
+        x_label = r'$E_{T}^{e/\gamma, L1}$'
+
+    fig, ax = plt.subplots(figsize=(10,10))
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = rateProgression0er0p0
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label=label_singleObj, lw=2, marker='o', color=cmap(0))
+
+    X = [] ; Y = [] ; X_err = [] ; Y_err = []
+    histo = rateDiProgression0er0p0
+    for ibin in range(0,histo.GetNbinsX()):
+        X.append(histo.GetBinLowEdge(ibin+1) + histo.GetBinWidth(ibin+1)/2.)
+        Y.append(histo.GetBinContent(ibin+1))
+        X_err.append(histo.GetBinWidth(ibin+1)/2.)
+        Y_err.append(histo.GetBinError(ibin+1))
+    ax.errorbar(X, Y, xerr=X_err, yerr=Y_err, label=label_doubleObj, lw=2, marker='o', color=cmap(1))
+
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc = 'upper right', fontsize=20)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('Rate [kHz]')
+    plt.xlim(0, 120)
+    # plt.xscale('symlog')
+    plt.ylim(0.1, 1E5)
+    plt.yscale('log')
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/rateEr'+er_label+'_'+label+'_'+options.target+'.pdf')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/rateEr'+er_label+'_'+label+'_'+options.target+'.png')
+    plt.close()
 
 ####################
 
@@ -283,7 +367,11 @@ ptProgression0er2p5.Write()
 ptDiProgression0er2p5.Write()
 rateProgression0er2p5.Write()
 rateDiProgression0er2p5.Write()
-
+if options.er:
+    ptProgression0er0p0.Write()
+    ptDiProgression0er0p0.Write()
+    rateProgression0er0p0.Write()
+    rateDiProgression0er0p0.Write()
 fileout.Close()
 
 

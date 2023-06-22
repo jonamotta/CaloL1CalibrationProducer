@@ -6,6 +6,8 @@ ROOT.gROOT.SetBatch(True)
 import sys
 import os
 from tqdm import tqdm
+import warnings
+warnings.simplefilter(action='ignore')
 
 import matplotlib.pyplot as plt
 import matplotlib
@@ -46,9 +48,9 @@ parser.add_option("--gen",       dest="gen",      action='store_true', default=F
 parser.add_option("--unpacked",  dest="unpacked", action='store_true', default=False)
 parser.add_option("--raw",       dest="raw",      action='store_true', default=False)
 parser.add_option("--jetPtcut",  dest="jetPtcut", type=float, default=None)
-parser.add_option("--etacut",    dest="etacut",   type=float, default=None)
 parser.add_option("--LooseEle",  dest="LooseEle", action='store_true', default=False)
 parser.add_option("--PuppiJet",  dest="PuppiJet", action='store_true', default=False)
+parser.add_option("--er",        dest="er",       default='2.5') #eta restriction
 (options, args) = parser.parse_args()
 
 cmap = matplotlib.colormaps.get_cmap('Set1')
@@ -92,13 +94,24 @@ bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 100, 120, 150, 180
 thresholds = np.linspace(8,150,143).tolist()
 thresholds2plot = [10, 20, 35, 50, 100, 150]
 
+# total histogram (denominator)
+total = ROOT.TH1F("total","total",len(bins)-1, array('f',bins))
+total_Er2p5 = ROOT.TH1F("total_Er2p5","total_Er2p5",len(bins)-1, array('f',bins))
+if options.er:
+    er_label = options.er.replace(".", "p")
+    total_Er0p0 = ROOT.TH1F("total_Er{}".format(er_label),"total_Er{}".format(er_label),len(bins)-1, array('f',bins))
+
 # passing histograms (numerators)
 passing = []
 for threshold in thresholds:
-    passing.append(ROOT.TH1F("passing"+str(int(threshold)),"passing"+str(int(threshold)),len(bins)-1, array('f',bins)))
-
-# total histogram (denominator)
-total = ROOT.TH1F("total","total",len(bins)-1, array('f',bins))
+    passing.append(ROOT.TH1F("passing_"+str(int(threshold)),"passing_"+str(int(threshold)),len(bins)-1, array('f',bins)))
+passing_Er2p5 = []
+for threshold in thresholds:
+    passing_Er2p5.append(ROOT.TH1F("passing_Er2p5_"+str(int(threshold)),"passing_Er2p5_"+str(int(threshold)),len(bins)-1, array('f',bins)))
+if options.er:
+    passing_Er0p0 = []
+    for threshold in thresholds:
+        passing_Er0p0.append(ROOT.TH1F("passing_Er"+er_label+"_"+str(int(threshold)),"passing_Er"+er_label+"_"+str(int(threshold)),len(bins)-1, array('f',bins)))
 
 print("looping on events")
 for i in tqdm(range(0, nevents)):
@@ -176,8 +189,6 @@ for i in tqdm(range(0, nevents)):
         ################# APPLY CUTS #################
         if options.jetPtcut: 
             if targetObj.Pt() < float(options.jetPtcut): continue
-        if options.etacut: 
-            if np.abs(targetObj.Eta()) > float(options.etacut): continue
         if options.target == 'ele' and options.LooseEle:
             if targetTree.Electron.isLooseElectron[iTargetObj] == 0: continue
         #############################################
@@ -217,6 +228,82 @@ for i in tqdm(range(0, nevents)):
             #fill numerator histograms for every thresholds
             for i, thr in enumerate(thresholds): 
                 if matched and highestL1Pt > float(thr): passing[i].Fill(targetObj.Pt())
+        
+        if targetObj.Eta()<2.5:
+
+            total_Er2p5.Fill(targetObj.Pt())
+            # loop on L1 jets to find match
+            matched = False
+            highestL1Pt = -99.
+            myGood_iL1Obj = 0
+            myGoodLevel1Obj = ROOT.TLorentzVector()
+            for iL1Obj in range(0, L1_nObjs):
+                level1Obj = ROOT.TLorentzVector()
+                if options.target == 'jet': 
+                    if options.raw:
+                        # new method of plotting results by just looking at the raw output from the Layer-1
+                        level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetRawEt[iL1Obj]/2, level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
+                    else:
+                        level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
+                if options.target == 'ele': 
+                    if options.raw:
+                        # new method of plotting results by just looking at the raw output from the Layer-1
+                        level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egRawEt[iL1Obj]/2, level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+                    else:
+                        level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+
+                #check matching
+                if targetObj.DeltaR(level1Obj)<0.5:
+                    matched = True
+                    #keep only L1 match with highest pT
+                    if level1Obj.Pt() > highestL1Pt:
+                        myGoodLevel1Obj = level1Obj
+                        myGood_iL1Obj = iL1Obj
+                        highestL1Pt = level1Obj.Pt()
+
+            if matched:
+                #fill numerator histograms for every thresholds
+                for i, thr in enumerate(thresholds): 
+                    if matched and highestL1Pt > float(thr): passing_Er2p5[i].Fill(targetObj.Pt())
+
+        if options.er:
+
+            if targetObj.Eta()<float(options.er):
+
+                total_Er0p0.Fill(targetObj.Pt())
+                # loop on L1 jets to find match
+                matched = False
+                highestL1Pt = -99.
+                myGood_iL1Obj = 0
+                myGoodLevel1Obj = ROOT.TLorentzVector()
+                for iL1Obj in range(0, L1_nObjs):
+                    level1Obj = ROOT.TLorentzVector()
+                    if options.target == 'jet': 
+                        if options.raw:
+                            # new method of plotting results by just looking at the raw output from the Layer-1
+                            level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetRawEt[iL1Obj]/2, level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
+                        else:
+                            level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.jetEt[iL1Obj], level1Tree.L1Upgrade.jetEta[iL1Obj], level1Tree.L1Upgrade.jetPhi[iL1Obj], 0)
+                    if options.target == 'ele': 
+                        if options.raw:
+                            # new method of plotting results by just looking at the raw output from the Layer-1
+                            level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egRawEt[iL1Obj]/2, level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+                        else:
+                            level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+
+                    #check matching
+                    if targetObj.DeltaR(level1Obj)<0.5:
+                        matched = True
+                        #keep only L1 match with highest pT
+                        if level1Obj.Pt() > highestL1Pt:
+                            myGoodLevel1Obj = level1Obj
+                            myGood_iL1Obj = iL1Obj
+                            highestL1Pt = level1Obj.Pt()
+
+                if matched:
+                    #fill numerator histograms for every thresholds
+                    for i, thr in enumerate(thresholds): 
+                        if matched and highestL1Pt > float(thr): passing_Er0p0[i].Fill(targetObj.Pt())
 
 #define TGraphAsymmErrors for efficiency turn-ons
 turnons = []
@@ -249,6 +336,60 @@ for i, thr in enumerate(thresholds):
 
 save_obj(mapping_dict, outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/online2offline_mapping_'+label+'.pkl')
 
+turnons_Er2p5 = []
+
+mapping_dict_Er2p5 = {'threshold':[], 'pt95eff':[], 'pt90eff':[], 'pt50eff':[]}
+for i, thr in enumerate(thresholds):
+    turnons_Er2p5.append(ROOT.TGraphAsymmErrors(passing_Er2p5[i], total_Er2p5, "cp"))
+
+    turnonY_Er2p5 = []
+    shift = 0
+    for ibin in range(0,len(offline_pts)):
+        if turnons_Er2p5[i].GetPointX(ibin-shift) == offline_pts[ibin]:
+            turnonY_Er2p5.append(turnons_Er2p5[i].GetPointY(ibin-shift))
+        else:
+            turnonY_Er2p5.append(0.0)
+            shift += 1
+
+    if len(turnonY_Er2p5) < len(offline_pts):
+        for i in range(len(offline_pts)-len(turnonY_Er2p5)):
+            turnonY_Er2p5.append(1.0)
+
+    mapping_dict_Er2p5['pt95eff'].append(np.interp(0.95, turnonY_Er2p5, offline_pts)) #,right=-99,left=-98)
+    mapping_dict_Er2p5['pt90eff'].append(np.interp(0.90, turnonY_Er2p5, offline_pts)) #,right=-99,left=-98)
+    mapping_dict_Er2p5['pt50eff'].append(np.interp(0.50, turnonY_Er2p5, offline_pts)) #,right=-99,left=-98)
+
+save_obj(mapping_dict, outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/online2offline_mapping_Er2p5'+label+'.pkl')
+
+if options.er:
+        
+    turnons_Er0p0 = []
+
+    mapping_dict_Er0p0 = {'threshold':[], 'pt95eff':[], 'pt90eff':[], 'pt50eff':[]}
+    for i, thr in enumerate(thresholds):
+        turnons_Er0p0.append(ROOT.TGraphAsymmErrors(passing_Er0p0[i], total_Er0p0, "cp"))
+
+        turnonY_Er0p0 = []
+        shift = 0
+        for ibin in range(0,len(offline_pts)):
+            if turnons_Er0p0[i].GetPointX(ibin-shift) == offline_pts[ibin]:
+                turnonY_Er0p0.append(turnons_Er0p0[i].GetPointY(ibin-shift))
+            else:
+                turnonY_Er0p0.append(0.0)
+                shift += 1
+
+        if len(turnonY_Er0p0) < len(offline_pts):
+            for i in range(len(offline_pts)-len(turnonY_Er0p0)):
+                turnonY_Er0p0.append(1.0)
+
+        mapping_dict_Er0p0['pt95eff'].append(np.interp(0.95, turnonY_Er0p0, offline_pts)) #,right=-99,left=-98)
+        mapping_dict_Er0p0['pt90eff'].append(np.interp(0.90, turnonY_Er0p0, offline_pts)) #,right=-99,left=-98)
+        mapping_dict_Er0p0['pt50eff'].append(np.interp(0.50, turnonY_Er0p0, offline_pts)) #,right=-99,left=-98)
+
+    save_obj(mapping_dict, outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/online2offline_mapping_Er'+er_label+label+'.pkl')
+
+# Plot O2O
+
 fig, ax = plt.subplots(figsize=(10,10))
 plt.plot(thresholds, mapping_dict['pt95eff'], label='@ 95% efficiency', linewidth=2, color='blue')
 plt.plot(thresholds, mapping_dict['pt90eff'], label='@ 90% efficiency', linewidth=2, color='red')
@@ -270,6 +411,50 @@ plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/online2offli
 plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/online2offline_mapping_'+label+'_'+options.target+'.png')
 plt.close()
 
+fig, ax = plt.subplots(figsize=(10,10))
+plt.plot(thresholds, mapping_dict_Er2p5['pt95eff'], label='@ 95% efficiency', linewidth=2, color='blue')
+plt.plot(thresholds, mapping_dict_Er2p5['pt90eff'], label='@ 90% efficiency', linewidth=2, color='red')
+plt.plot(thresholds, mapping_dict_Er2p5['pt50eff'], label='@ 50% efficiency', linewidth=2, color='green')
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc = 'lower right', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel('L1 Threshold [GeV]')
+plt.ylabel('Offline threshold [GeV]')
+plt.xlim(20, 100)
+plt.ylim(20, 120)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/online2offline_mapping_Er2p5'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/online2offline_mapping_Er2p5'+label+'_'+options.target+'.png')
+plt.close()
+
+if options.er:
+    fig, ax = plt.subplots(figsize=(10,10))
+    plt.plot(thresholds, mapping_dict_Er0p0['pt95eff'], label='@ 95% efficiency', linewidth=2, color='blue')
+    plt.plot(thresholds, mapping_dict_Er0p0['pt90eff'], label='@ 90% efficiency', linewidth=2, color='red')
+    plt.plot(thresholds, mapping_dict_Er0p0['pt50eff'], label='@ 50% efficiency', linewidth=2, color='green')
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc = 'lower right', fontsize=20)
+    leg._legend_box.align = "left"
+    plt.xlabel('L1 Threshold [GeV]')
+    plt.ylabel('Offline threshold [GeV]')
+    plt.xlim(20, 100)
+    plt.ylim(20, 120)
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/online2offline_mapping_Er'+er_label+label+'_'+options.target+'.pdf')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/online2offline_mapping_Er'+er_label+label+'_'+options.target+'.png')
+    plt.close()
+
+# Plot Turn ons
 
 if options.reco:
     if options.target == 'jet': x_label = '$E_{T}^{jet, offline}$ [GeV]'
@@ -304,11 +489,70 @@ plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/turnOns_'+la
 plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/turnOns_'+label+'_'+options.target+'.png')
 plt.close()
 
+fig, ax = plt.subplots(figsize=(10,10))
+for i, thr in enumerate(thresholds2plot):
+    X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+    turnon = turnons_Er2p5[thresholds.index(thr)]
+    for ibin in range(0,turnon.GetN()):
+        X.append(turnon.GetPointX(ibin))
+        Y.append(turnon.GetPointY(ibin))
+        Y_low.append(turnon.GetErrorYlow(ibin))
+        Y_high.append(turnon.GetErrorYhigh(ibin))
+    ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label="$p_{T}^{L1} > $"+str(thr)+" GeV", lw=2, marker='o', color=cmap(i))
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+leg = plt.legend(loc = 'lower right', fontsize=20)
+leg._legend_box.align = "left"
+plt.xlabel(x_label)
+plt.ylabel('Efficiency')
+plt.xlim(0, 220)
+plt.ylim(0, 1.05)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/turnOns_Er2p5_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/turnOns_Er2p5_'+label+'_'+options.target+'.png')
+plt.close()
+
+if options.er:
+    fig, ax = plt.subplots(figsize=(10,10))
+    for i, thr in enumerate(thresholds2plot):
+        X = [] ; Y = [] ; Y_low = [] ; Y_high = []
+        turnon = turnons_Er0p0[thresholds.index(thr)]
+        for ibin in range(0,turnon.GetN()):
+            X.append(turnon.GetPointX(ibin))
+            Y.append(turnon.GetPointY(ibin))
+            Y_low.append(turnon.GetErrorYlow(ibin))
+            Y_high.append(turnon.GetErrorYhigh(ibin))
+        ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label="$p_{T}^{L1} > $"+str(thr)+" GeV", lw=2, marker='o', color=cmap(i))
+    for xtick in ax.xaxis.get_major_ticks():
+        xtick.set_pad(10)
+    leg = plt.legend(loc = 'lower right', fontsize=20)
+    leg._legend_box.align = "left"
+    plt.xlabel(x_label)
+    plt.ylabel('Efficiency')
+    plt.xlim(0, 220)
+    plt.ylim(0, 1.05)
+    plt.grid()
+    if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+    else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/turnOns_Er'+er_label+'_'+label+'_'+options.target+'.pdf')
+    plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/turnOns_Er'+er_label+'_'+label+'_'+options.target+'.png')
+    plt.close()
+
 print("saving histograms and efficiencies in root file for later plotting if desired")
 fileout = ROOT.TFile(outdir+'/PerformancePlots'+options.tag+'/'+label+'/ROOTs/efficiency_graphs_'+label+'_'+options.target+'.root','RECREATE')
 total.Write()
+total_Er2p5.Write()
+if options.er:
+    total_Er0p0.Write()
 for i, thr in enumerate(thresholds): 
     passing[i].Write()
     turnons[i].Write()
+    passing_Er2p5[i].Write()
+    turnons_Er2p5[i].Write()
+    if options.er:
+        passing_Er0p0[i].Write()
+        turnons_Er0p0[i].Write()       
 
 fileout.Close()
