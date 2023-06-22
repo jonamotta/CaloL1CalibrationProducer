@@ -300,7 +300,7 @@ def padDataFrameWithZeros( dfFlatEJT ):
         
     return padded
 
-def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, applyCut_3_6_9, Ecalcut, \
+def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtcut, iEtacut, iEtacutMin, applyCut_3_6_9, Ecalcut, \
                 Hcalcut, HoTotcut, TTNumberCut, TTNumberCutInverse, trainPtVers, whichECALcalib, whichHCALcalib, \
                 flattenPtDistribution, flattenEtaDistribution, applyOnTheFly, ClusterFilter, applyZS, LooseEle):
     
@@ -405,6 +405,7 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
 
     # For ECAL/HCAL we consider just jets having a chunky donuts completely inside the ECAL/HCAL detector
     if iEtacut != False: dfFlatEJ = dfFlatEJ[abs(dfFlatEJ['jetIeta']) <= int(iEtacut)]
+    if iEtacutMin != False: dfFlatEJ = dfFlatEJ[abs(dfFlatEJ['jetIeta']) >= int(iEtacutMin)]
 
     # join the jet and the towers datasets -> this creates all the possible combination of towers and jets for each event
     # important that dfFlatET is joined to dfFlatEJ and not viceversa --> this because dfFlatEJ contains the safe jets to be used and the safe event numbers
@@ -448,14 +449,19 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
     # drop what is no longer needed
     dfFlatEJT.drop(['event', 'jetId', 'deltaI29', 'deltaIm29', 'deltaI1', 'deltaIm1', 'deltaIphi', 'deltaIeta'], axis=1, inplace=True)
 
-    if Ecalcut != False:
+    if Ecalcut != "False":
+        if Ecalcut == "True":
+            Ecalcut_value = 0.80
+        else:
+            Ecalcut_value = float(Ecalcut)
         # drop all photons that have a deposit in HF
+        print(" ### INFO: Apply E/Tot cut = {}".format(Ecalcut_value))
         dfFlatEJT.drop(dfFlatEJT[(dfFlatEJT['iet']>0)&(dfFlatEJT['ieta']>=30)].index, inplace=True)
 
         # drop all photons for which E/(E+H)<0.8
         group = dfFlatEJT.groupby('uniqueIdx')
         dfFlatEJT['eoh'] = group['iem'].sum()/(group['iem'].sum()+group['hcalET'].sum())
-        dfFlatEJT = dfFlatEJT[dfFlatEJT['eoh']>0.8]
+        dfFlatEJT = dfFlatEJT[dfFlatEJT['eoh']>float(Ecalcut_value)]
 
     # apply ECAL calibration on the fly
     if whichECALcalib != False:
@@ -540,9 +546,16 @@ def mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, uJetPtcut, lJetPtc
         dfFlatEJT['hcalET'] = dfFlatEJT.apply(lambda row: math.floor(row['hcalET'] * SFs[int( abs(row['ieta']) + 40*(row['ihadBin']-1) ) -1]), axis=1)
         dfFlatEJT.set_index('uniqueIdx', inplace=True)
 
+    print("sorting")
+    print(dfFlatEJT) # DEBUG
+    # sort towers in order to have the first one as the seed (highest iet)
+    dfFlatEJT = dfFlatEJT.groupby('uniqueIdx').apply(lambda x: x.sort_values('iet', ascending=False))
+    print(dfFlatEJT) # DEBUG
+
     global n_jets
     n_jets += len(dfFlatEJT.index.unique())
-    print(dfFlatEJT.index.unique()) #DEBUG
+    print("The followings are the first 50 jets:")
+    print(dfFlatEJT.index.unique()[:50]) #DEBUG
 
     # store number of TT fired by the jet
     # dfFlatEJT['nFT'] = dfFlatEJT.groupby('uniqueIdx')['uniqueId'].count()
@@ -680,8 +693,9 @@ if __name__ == "__main__" :
     parser.add_option("--uJetPtCut",   dest="uJetPtCut",   default=False)
     parser.add_option("--lJetPtCut",   dest="lJetPtCut",   default=False)
     parser.add_option("--etacut",      dest="etacut",      default=False)
+    parser.add_option("--etacutmin",   dest="etacutmin",   default=False)
     parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
-    parser.add_option("--ecalcut",     dest="ecalcut",     default=False)
+    parser.add_option("--ecalcut",     dest="ecalcut",     default="False",  type=str)
     parser.add_option("--hcalcut",     dest="hcalcut",     default="False",  type=str)
     parser.add_option("--HoTotcut",    dest="HoTotcut",    default=False)
     parser.add_option("--TTNumberCut", dest="TTNumberCut", default=False)
@@ -854,7 +868,7 @@ if __name__ == "__main__" :
 
         j += 1
 
-        mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.applyCut_3_6_9, \
+        mainReader( dfFlatET, dfFlatEJ, saveToDFs, saveToTensors, options.uJetPtCut, options.lJetPtCut, options.etacut, options.etacutmin, options.applyCut_3_6_9, \
                     options.ecalcut, options.hcalcut, options.HoTotcut, options.TTNumberCut, options.TTNumberCutInverse, options.trainPtVers, \
                     options.calibrateECAL, options.calibrateHCAL, options.flattenPtDistribution, options.flattenEtaDistribution, options.applyOnTheFly, \
                     options.ClusterFilter, options.applyZS, options.LooseEle)

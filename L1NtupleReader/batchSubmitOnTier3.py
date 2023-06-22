@@ -43,6 +43,7 @@ parser.add_option("--chunk_size",         dest="chunk_size",         default=500
 parser.add_option("--uJetPtCut",          dest="uJetPtCut",          default=False)
 parser.add_option("--lJetPtCut",          dest="lJetPtCut",          default=False)
 parser.add_option("--etacut",             dest="etacut",             default=False)
+parser.add_option("--etacutmin",          dest="etacutmin",          default=False)
 parser.add_option("--applyCut_3_6_9",     dest="applyCut_3_6_9",     default=False)
 parser.add_option("--ecalcut",            dest="ecalcut",            default=False)
 parser.add_option("--hcalcut",            dest="hcalcut",            default=False)
@@ -127,6 +128,8 @@ for file in InFiles:
         cmsRun = cmsRun + " --lJetPtCut "+options.lJetPtCut
     if options.etacut != False:
         cmsRun = cmsRun + " --etacut "+options.etacut
+    if options.etacutmin != False:
+        cmsRun = cmsRun + " --etacutmin "+options.etacutmin
     if options.applyCut_3_6_9 != False:
         cmsRun = cmsRun + " --applyCut_3_6_9 "+options.applyCut_3_6_9
     if options.ecalcut != False:
