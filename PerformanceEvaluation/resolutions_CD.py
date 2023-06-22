@@ -13,6 +13,9 @@ import matplotlib
 import mplhep
 plt.style.use(mplhep.style.CMS)
 
+import warnings
+warnings.filterwarnings(action='ignore', category=UserWarning)
+
 sys.path.insert(0,'..')
 from L1NtupleReader.TowerGeometry import *
 
@@ -230,14 +233,16 @@ for i in tqdm(range(0, nevents)):
         ##########################################################################################
             # find Chunky Donut center
             if options.target == 'jet':
-                jetIEta = level1Tree.L1Upgrade.jetIEta[myGood_iL1Obj]
-                jetIPhi = level1Tree.L1Upgrade.jetIPhi[myGood_iL1Obj]
+                # jetIEta = level1Tree.L1Upgrade.jetIEta[myGood_iL1Obj]
+                # jetIPhi = level1Tree.L1Upgrade.jetIPhi[myGood_iL1Obj]
+                jetIEta = FindIeta(targetObj.Eta())
+                jetIPhi = FindIphi(targetObj.Phi())
             if options.target == 'ele':
-                jetIEta = level1Tree.L1Upgrade.egIEta[myGood_iL1Obj]
-                jetIPhi = level1Tree.L1Upgrade.egIPhi[myGood_iL1Obj]
+                # jetIEta = level1Tree.L1Upgrade.egIEta[myGood_iL1Obj]
+                # jetIPhi = level1Tree.L1Upgrade.egIPhi[myGood_iL1Obj]
                 # # to bypass no MP units
-                # jetIEta = FindIeta(targetObj.Eta())
-                # jetIPhi = FindIphi(targetObj.Phi())
+                jetIEta = FindIeta(targetObj.Eta())
+                jetIPhi = FindIphi(targetObj.Phi())
                 # print(jetIEta, level1Tree.L1Upgrade.egIEta[myGood_iL1Obj], "    ", jetIPhi, level1Tree.L1Upgrade.egIPhi[myGood_iL1Obj])
                 # if (FindIeta(myGoodLevel1Obj.Eta()) != jetIEta) or (FindIphi(myGoodLevel1Obj.Phi()) != jetIPhi):
                 #     print(jetIEta, FindIeta(myGoodLevel1Obj.Eta()), jetIPhi, FindIphi(myGoodLevel1Obj.Phi()))

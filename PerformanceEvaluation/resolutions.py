@@ -13,6 +13,12 @@ import matplotlib
 import mplhep
 plt.style.use(mplhep.style.CMS)
 
+sys.path.insert(0,'..')
+from L1NtupleReader.TowerGeometry import *
+
+import warnings
+warnings.filterwarnings(action='ignore', category=UserWarning)
+
 def save_obj(obj,dest):
     with open(dest,'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
@@ -100,12 +106,18 @@ if options.target == 'ele':
     ptBins  = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200]
     etaBins = [0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
     signedEtaBins = [-3.0, -2.5, -2.0, -1.479, -1.305, -1.0, -0.5, 0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
+if options.target == 'met':
+    ptBins  = [10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200, 500]
+    etaBins = [0., 5.191]
+    signedEtaBins = [-5.191, 0., 5.191]
 HoTotBins = [0, 0.4, 0.8, 0.95, 1.0]
 EoTotBins = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
 x_lim_response = (0,3)
 
 # PT RESPONSE - INCLUSIVE HISTOGRAMS
 res_bins = 240
+pt_off_ptInclusive = []
+pt_L1_ptInclusive = []
 pt_response_ptInclusive = ROOT.TH1F("pt_response_ptInclusive","pt_response_ptInclusive",res_bins,0,3)
 pt_barrel_resp_ptInclusive = ROOT.TH1F("pt_barrel_resp_ptInclusive","pt_barrel_resp_ptInclusive",res_bins,0,3)
 pt_endcap_resp_ptInclusive = ROOT.TH1F("pt_endcap_resp_ptInclusive","pt_endcap_resp_ptInclusive",res_bins,0,3)
@@ -165,6 +177,11 @@ for i in tqdm(range(0, nevents)):
     if options.target == 'ele':
         L1_nObjs = level1Tree.L1Upgrade.nEGs
         target_nObjs = targetTree.Electron.nElectrons
+    if options.target == 'met':
+        L1_nObjs = level1Tree.L1Upgrade.nSums #only one MET per event
+        # L1_nObjs = 1
+        target_nObjs = 1 #only one MET per event
+
 
     #loop on generator jets
     for itargJet in range(0,target_nObjs):
@@ -179,6 +196,13 @@ for i in tqdm(range(0, nevents)):
         if options.target == 'ele':
             targetObj = ROOT.TLorentzVector()
             targetObj.SetPtEtaPhiM(targetTree.Electron.et[itargJet], targetTree.Electron.eta[itargJet], targetTree.Electron.phi[itargJet], 0)
+
+        if options.target == 'met':
+            targetObj = ROOT.TLorentzVector()
+            if options.PuppiJet:
+                targetObj.SetPtEtaPhiM(targetTree.Sums.puppi_metNoMu, 0, targetTree.Sums.puppi_metNoMuPhi, 0)
+            else:
+                targetObj.SetPtEtaPhiM(targetTree.Sums.pfMetNoMu, 0, targetTree.Sums.pfMetNoMuPhi, 0)
 
         # skip jets that cannot be reconstructed by L1 (limit is 5.191)
         if targetObj.Eta()>5.0: continue
@@ -202,6 +226,8 @@ for i in tqdm(range(0, nevents)):
         highestL1Pt = -99.
         myGood_iL1Obj = 0
         myGoodLevel1Obj = ROOT.TLorentzVector()
+        # print("Event ", i)
+        # print([level1Tree.L1Upgrade.sumType[iL1Obj] for iL1Obj in range(0, L1_nObjs)])
         for iL1Obj in range(0, L1_nObjs):
             level1Obj = ROOT.TLorentzVector()
             if options.target == 'jet': 
@@ -216,7 +242,21 @@ for i in tqdm(range(0, nevents)):
                     level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egRawEt[iL1Obj]/2, level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
                 else:
                     level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
+            if options.target == 'met':
+                if level1Tree.L1Upgrade.sumType[iL1Obj] == 8:
+                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.sumEt[iL1Obj], 0, 0, 0)
+                    matched = True
+                    myGoodLevel1Obj = level1Obj
+                    break
 
+            # print(targetObj.Pt(), targetObj.Phi())
+            # print(level1Tree.L1Upgrade.nSums)
+            # print(len(level1Tree.L1Upgrade.sumType), level1Tree.L1Upgrade.sumType)
+            # print(len(level1Tree.L1Upgrade.sumEt), level1Tree.L1Upgrade.sumEt)
+            # print(len(level1Tree.L1Upgrade.sumPhi), level1Tree.L1Upgrade.sumPhi)
+            # print(len(level1Tree.L1Upgrade.sumIEt), level1Tree.L1Upgrade.sumIEt)
+            # print(len(level1Tree.L1Upgrade.sumIPhi), level1Tree.L1Upgrade.sumIPhi)
+            
             #check matching
             if targetObj.DeltaR(level1Obj)<0.5:
                 matched = True
@@ -225,19 +265,30 @@ for i in tqdm(range(0, nevents)):
                     myGoodLevel1Obj = level1Obj
                     myGood_iL1Obj = iL1Obj
                     highestL1Pt = level1Obj.Pt()
+    
+        # print(targetObj.Pt(), level1Obj.Pt())
 
         if matched:
 
+            # DEBUG
+            pt_off_ptInclusive.append(targetObj.Pt())
+            pt_L1_ptInclusive.append(myGoodLevel1Obj.Pt())
+
             L1Pt = myGoodLevel1Obj.Pt()
+            # print(L1Pt, targetObj.Pt())
 
             if options.do_HoTot or options.do_EoTot:
                 # find Chunky Donut center
                 if options.target == 'jet':
-                    jetIEta = level1Tree.L1Upgrade.jetIEta[myGood_iL1Obj]
-                    jetIPhi = level1Tree.L1Upgrade.jetIPhi[myGood_iL1Obj]
+                    jetIEta = FindIeta(targetObj.Eta())
+                    jetIPhi = FindIphi(targetObj.Phi())
+                    # jetIEta = level1Tree.L1Upgrade.jetIEta[myGood_iL1Obj] # not working without MP units
+                    # jetIPhi = level1Tree.L1Upgrade.jetIPhi[myGood_iL1Obj] # not working without MP units
                 if options.target == 'ele':
-                    jetIEta = level1Tree.L1Upgrade.egIEta[myGood_iL1Obj]
-                    jetIPhi = level1Tree.L1Upgrade.egIPhi[myGood_iL1Obj]
+                    jetIEta = FindIeta(targetObj.Eta())
+                    jetIPhi = FindIphi(targetObj.Phi())
+                    # jetIEta = level1Tree.L1Upgrade.egIEta[myGood_iL1Obj] # not working without MP units
+                    # jetIPhi = level1Tree.L1Upgrade.egIPhi[myGood_iL1Obj] # not working without MP units
                 max_IEta = NextEtaTower(NextEtaTower(NextEtaTower(NextEtaTower(jetIEta))))
                 min_IEta = PrevEtaTower(PrevEtaTower(PrevEtaTower(PrevEtaTower(jetIEta))))
                 max_IPhi = NextPhiTower(NextPhiTower(NextPhiTower(NextPhiTower(jetIPhi))))
@@ -356,6 +407,44 @@ for i in tqdm(range(0, nevents)):
 #     pt_barrel_resp_ptInclusive.Scale(1.0/pt_barrel_resp_ptInclusive.Integral())
 # if pt_endcap_resp_ptInclusive.Integral() > 0:
 #     pt_endcap_resp_ptInclusive.Scale(1.0/pt_endcap_resp_ptInclusive.Integral())
+
+fig, ax = plt.subplots(figsize=(10,10))
+ax.hist(pt_off_ptInclusive, bins=np.linspace(0,500,50), histtype='step', linewidth=2, color='green', label='Offline')
+ax.hist(pt_L1_ptInclusive, bins=np.linspace(0,500,50), histtype='step', linewidth=2, color='orange', label='L1')
+ax.set_xlabel(r"$p_{T}$ [GeV]")
+ax.set_ylabel(r"Entries")
+
+leg = plt.legend(loc = 'upper right', fontsize=20, title_fontsize=18)
+leg._legend_box.align = "left"
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/pT_distribution_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/pT_distribution_'+label+'_'+options.target+'.png')
+plt.close()
+
+pt_ratio = np.array(pt_L1_ptInclusive)/np.array(pt_off_ptInclusive)
+fig, ax = plt.subplots(figsize=(10,10))
+ax.hist(pt_ratio, bins=np.linspace(0,3,50), histtype='step', linewidth=2, color='orange', label='L1/Offline')
+ax.set_xlabel(r"$p_{T}^{L1}/p_{T}^{Offline}$ [GeV]")
+ax.set_ylabel(r"Entries")
+
+leg = plt.legend(loc = 'upper right', fontsize=20, title_fontsize=18)
+leg._legend_box.align = "left"
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+for xtick in ax.xaxis.get_major_ticks():
+    xtick.set_pad(10)
+plt.grid()
+if options.reco: mplhep.cms.label(data=False, rlabel='(13.6 TeV)')
+else:            mplhep.cms.label('Preliminary', data=True, rlabel=r'110 pb$^{-1}$ (13.6 TeV)') ## 110pb-1 is Run 362617
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PDFs/pT_distribution_ratio_'+label+'_'+options.target+'.pdf')
+plt.savefig(outdir+'/PerformancePlots'+options.tag+'/'+label+'/PNGs/pT_distribution_ratio_'+label+'_'+options.target+'.png')
+plt.close()
 
 for i in range(len(response_ptBins)):
     if response_ptBins[i].Integral() > 0:
@@ -515,6 +604,13 @@ if options.reco:
         legend_label = r'$<|p_{T}^{e, offline}|<$'
         x_label = r'$p_{T}^{e, offline}$'
         x_label_response = r'$E_{T}^{e/\gamma, L1} / p_{T}^{e, offline}$'
+    if options.target == 'met':
+        barrel_label = r'Barrel $|\eta^{MET, offline}|<1.305$'
+        endcap_label = r'Endcap $1.479<|\eta^{MET, offline}|<3.0$'
+        inclusive_label = r'Inclusive $|\eta^{MET, offline}|<3.0$'
+        legend_label = r'$<|MET^{offline}|<$'
+        x_label = r'$MET^{offline}$'
+        x_label_response = r'$MET^{L1} / MET^{offline}$'
 if options.gen:
     if options.target == 'jet':
         barrel_label = r'Barrel $|\eta^{jet, gen}|<1.305$'
@@ -731,6 +827,10 @@ if options.reco:
         x_lim = (-5.2,5.2) # (-3.01,3.01)
         legend_label = r'$<|\eta^{ele, offline}|<$'
         x_label = r'$E_{T}^{e/\gamma, L1} / p_{T}^{e, offline}$'
+    if options.target == 'met':
+        x_lim = (-5.2,5.2) # (-3.01,3.01)
+        legend_label = r'$<|\eta^{MET, offline}|<$'
+        x_label = r'$MET^{L1} / MET^{offline}$'
 if options.gen:
     if options.target == 'jet':
         x_lim = (-5.2,5.2)
