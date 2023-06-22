@@ -187,6 +187,7 @@ if __name__ == "__main__" :
     parser.add_option("--makeOnlyPlots",    dest="makeOnlyPlots",    help="Do not do the training, just make the plots",   default=False, action='store_true' )
     parser.add_option("--addtag",           dest="addtag",           help="Add tag to distinguish different trainings",    default="",                        )
     parser.add_option("--MaxLR",            dest="MaxLR",            help="Maximum learning rate",                         default='1E-3')
+    parser.add_option("--filesLim",         dest="filesLim",         help="Number of TFrecords to analyse",                default=None)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -254,14 +255,19 @@ if __name__ == "__main__" :
             chuncky_donut = tf.io.parse_tensor(example['chuncky_donut'], out_type=tf.float32) # decode byteslist to original 81x43 tensor
             return chuncky_donut, example['trainingPt']
 
+        if options.filesLim:
+            n_files = int(options.filesLim)
+        else:
+            n_files = -1
+
         # read raw training dataset and parse it 
-        InTrainRecords = glob.glob(indir+'/trainTFRecords/record_*.tfrecord')
+        InTrainRecords = glob.glob(indir+'/trainTFRecords/record_*.tfrecord')[:n_files]
         raw_train_dataset = tf.data.TFRecordDataset(InTrainRecords)
         train_dataset = raw_train_dataset.map(parse_function)
         del InTrainRecords, raw_train_dataset
 
         # read raw testing dataset and parse it 
-        InTestRecords = glob.glob(indir+'/testTFRecords/record_*.tfrecord')
+        InTestRecords = glob.glob(indir+'/testTFRecords/record_*.tfrecord')[:n_files]
         raw_test_dataset = tf.data.TFRecordDataset(InTestRecords)
         test_dataset = raw_test_dataset.map(parse_function)
         del InTestRecords, raw_test_dataset
