@@ -6,7 +6,7 @@ import mplhep
 import json
 import time
 import glob
-import os
+import os, sys
 
 from tensorflow.keras.initializers import RandomNormal as RN
 from tensorflow.keras.models import Sequential
@@ -223,9 +223,9 @@ def create_model(version, seedThr=None):
     # The TTP_input is a vector of 9x9 chunky donuts before calibration
     TTP_input = keras.Input(shape=(81,42), dtype=tf.float32, name='chunky_donut')
     
-    layer1 = Dense(82,  name='nn1', input_dim=41, activation='relu', kernel_initializer=RN(mean=1.0, seed=7), use_bias=False)
-    layer2 = Dense(256, name='nn2',               activation='relu', kernel_initializer=RN(mean=1.0, seed=7), use_bias=False)
-    layer3 = Dense(1,   name='nn3',               activation='relu', kernel_initializer=RN(mean=1.0, seed=7), use_bias=False)
+    layer1 = Dense(82,  name='nn1', input_dim=41, activation='relu', kernel_initializer=RN(seed=7), use_bias=False)
+    layer2 = Dense(256, name='nn2',               activation='relu', kernel_initializer=RN(seed=7), use_bias=False)
+    layer3 = Dense(1,   name='nn3',               activation='relu', kernel_initializer=RN(seed=7), use_bias=False)
     layer4 = lay.Lambda(Fgrad)
 
     TTP = Sequential(name="ttp")
@@ -248,58 +248,42 @@ def create_model(version, seedThr=None):
     # for each jet, compute the iesum
     if version == 'HCAL' or version == 'HF':
 
+        ''' it doesn't work
         # for each tower apply sigmoid cut on the seed at seedThr (8): if tower energy > 8 jet_seed_found = 1, else 0
-        jet_em  = lay.Lambda(lambda x : tf.reduce_sum(x, axis=1, keepdims=True)[:,:,0], name='jet_em_deposit')(rate_input)
-        jet_had = make_AddList(TTP, rate_input, name="jet_had_deposit")
-        jet_iesum = lay.Lambda(lambda x : x[0] + x[1], name="seed_tot_energy")((jet_em, jet_had))
+        TT_em  = lay.Lambda(lambda x : x[:,:,0], name='TT_em')(rate_input) # size = (BATCH, 81)
+        TT_had = lay.Lambda(lambda x : x[:,:,1], name='TT_em')(rate_input) # size = (BATCH, 81)
+        TT_had_pred = lay.Lambda(lambda x : TTP(x), name="TT_had_pred")(rate_input)
+        TT_iesum = lay.Lambda(lambda x : x[0] + x[1], name="TT_tot_energy")((TT_em, TT_had)) # size = (81, BATCH, 42)
         
         # for each tower apply sigmoid cut on the seed at seedThr (8): if tower energy > 8 jet_seed_found = 1, else 0
-        jet_seed_found = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, seedThr, 1000.), name="apply_seed_threshold")(jet_iesum)
+        jet_seed_found = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, seedThr, 1000.), name="apply_seed_threshold")(TT_iesum)
         # for each jet compute how many seeds were found
         jet_seed_number = lay.Lambda(lambda x : tf.reduce_sum(x, axis=1, keepdims=True), name='seed_numbers')(jet_seed_found)
         # for each jet check the presence of at least one seed
         jet_seed_passing = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, numThr, 1000.), name="pass_seed_threshold")(jet_seed_number)
 
-        rate_output = lay.Lambda(lambda x : x[0] * x[1], name="thresholds_or")((jet_seed_passing, jet_iesum))
-        # The rate_output is a vector of calibrated L1 jet energies !!! only for jets passing the seed threshold !!!, after the summation layer
+        # rate_output = lay.Lambda(lambda x : x[0] * x[1], name="thresholds_or")((jet_seed_passing, jet_iesum))
+        # The rate_output is a vector of calibrated L1 jet energies !!! only for jets passing the seed threshold !!!
+        '''
+        
+        # Take the first (most energetic) tower as a fixed seed
+        seed_em    = lay.Lambda(lambda x : x[:,0,0:1], name='seed_em')(rate_input) # size = (BATCH, 1)
+        seed_had   = TTP(lay.Lambda(lambda x : x[:,0,1:], name="seed_had")(rate_input)) # size = (BATCH, 1)
+        seed_iesum = lay.Lambda(lambda x : x[0] + x[1], name="seed_iesum")((seed_em, seed_had)) # size = (BATCH, 1)
+        seed_found = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, seedThr, 1000.), name="apply_seed_threshold")(seed_iesum)
+
+        # Predict jet energy 
+        jet_em     = lay.Lambda(lambda x : tf.reduce_sum(x, axis=1, keepdims=True)[:,:,0], name='jet_em_deposit')(rate_input)
+        jet_had_   = make_AddList(TTP, rate_input, name="rate_")
+        jet_had    = lay.Add(name="jet_had_deposit")(jet_had_)
+        jet_pred   = lay.Lambda(lambda x : x[0] + x[1], name="jet_tot_deposit")((jet_had, jet_em))
+
+        rate_output = lay.Lambda(lambda x : x[0] * x[1], name="thresholds")((seed_found, jet_pred))
+        # The rate_output is a vector of calibrated L1 jet energies !!! only for jets passing the seed threshold !!!
 
     # [FIXME] HERE WE NEED TO CHANGE THE WAY OF COMPUTING THE RATE PROXY
     if version == 'ECAL':
-        # # 'hardcoded' threshold on hcal over ecal deposit
-        # hasEBthr = lay.Lambda(lambda x : tf.reduce_sum(x[:,2:30], axis=1, keepdims=True) * pow(2, -hoeThrEB), name='has_hoe_eb_thr')(rate_input)
-        # hasEEthr = lay.Lambda(lambda x : tf.reduce_sum(x[:,30:], axis=1, keepdims=True) * pow(2, -hoeThrEE), name='has_hoe_ee_thr')(rate_input)
-        # hoeThr = lay.Lambda(lambda x : x[0] + x[1], name="has_hoe_thr")((hasEBthr, hasEEthr))
-
-        # # hadronic deposit behind the ecal one
-        # TT_had = lay.Lambda(lambda x : x[:,0:1], name='tt_had_deposit')(rate_input)
-
-        # # # predict TT energy, add correspondong non-calibrated had part, and apply threshold
-        # TT_em_pred = TTP(lay.Lambda(lambda x : x[:,1:], name="tt_em_pred")(rate_input))
-        # TT_pred = lay.Lambda(lambda x : x[0] + x[1], name="tt_tot_energy")((TT_em_pred, TT_had))
-        # TT_eAT = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, egThr, 10.), name="apply_eg_threshold")(TT_pred) # sharpness 10. means +/-0.5 GeV tunron region
-
-        # # # calculate HoE for each TT and apply threshold (this is a <= threshold so need 1-sigmoid)
-        # TT_hoe = lay.Lambda(lambda x : tf.math.divide_no_nan(x[0], x[1]), name="compute_tt_hoe")((TT_had, TT_em_pred))
-        # TT_hoeAT = lay.Lambda(lambda x : threshold_relaxation_inverseSigmoid(x[0], x[1], 1000.), name="apply_hoe_threshold")((TT_hoe,hoeThr)) # sharpness 1000. means +/-0.005 tunron region
-
-        # # do logical AND between TT_eAT and TT_hoeAT
-        # rate_output = lay.Lambda(lambda x : x[0] * x[1], name="thresholds_or")((TT_eAT, TT_hoeAT))
-
-        # no need to apply the hoe cut anymore, since it's intrinsically included in the cluster
-        # new structure of the rate input for ECAL
-
-        egThr = 10
-        # predict jet energy and apply threshold: sum all the ihad energies z[:,:,0] of the 9x9 and all the iem energies z[:,:,1] of the 9x9
-        # sum hadronic deposit behind the ecal one
-        eg_had = lay.Lambda(lambda x : tf.reduce_sum(x, axis=1, keepdims=True)[:,:,0], name='eg_had_deposit')(rate_input)
-        # apply model to the em component
-        RatePredictionList = make_AddList(TTP, rate_input, name="rate_")
-        eg_em_pred = lay.Add(name="rate_predicted_energy")(RatePredictionList)
-        # sum had energy and calibrated em energy
-        eg_pred = lay.Lambda(lambda x : x[0] + x[1], name="eg_tot_energy")((eg_em_pred, eg_had))
-        # apply threshold
-        eg_AT = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, egThr, 10.), name="apply_eg_threshold")(eg_pred) # sharpness 10. means +/-0.5 GeV tunron region
-        rate_output = eg_AT
+        sys.exit("Rate proxy not implemented for ECAL")
 
     model = keras.Model(inputs=[TTP_input, rate_input], outputs=[TTP_output, rate_output], name='Layer1Calibrator')
 
@@ -326,6 +310,8 @@ if __name__ == "__main__" :
     parser.add_option("--makeOnlyPlots",    dest="makeOnlyPlots",    help="Do not do the training, just make the plots",   default=False, action='store_true' )
     parser.add_option("--addtag",           dest="addtag",           help="Add tag to distinguish different trainings",    default="",                        )
     parser.add_option("--MaxLR",            dest="MaxLR",            help="Maximum learning rate",                         default='1E-3')
+    parser.add_option("--ThrRate",          dest="ThrRate",          help="Threshold for rate proxy",                      default=40)
+    parser.add_option("--TargetRate",       dest="TargetRate",       help="Target for rate proxy",                         default=0.13216800105640258)
     (options, args) = parser.parse_args()
     print(options)
 
@@ -436,32 +422,44 @@ if __name__ == "__main__" :
         # part of the loss that controls the regression of teh energy
         def regressionLoss(y, y_pred):
             MAPE = tf.keras.losses.MeanAbsolutePercentageError(reduction=tf.keras.losses.Reduction.NONE)
-            return tf.reshape(MAPE(y, y_pred), (1, 1)) * 100 # FIXME: scaling to be defined
+            return tf.reshape(MAPE(y, y_pred), (1, 1)) * 50 # FIXME: scaling to be defined
 
         # part of the loss that controls the rate
-        def rateLoss(z_pred, jetThr, targetRate):
-            jetThr = jetThr - 0.1
+        def rateLoss(z, z_pred, jetThr, targetRate):
+
+            # z_unc = (tf.reduce_sum(z[:,:,1], axis=1, keepdims=True) + tf.reduce_sum(z[:,:,0], axis=1, keepdims=True))
+            # z_response = z_pred / z_unc
+            # scale = tf.reduce_sum(z_response, axis=0) / BATCH_SIZE_PER_REPLICA
+            # print(z_unc.shape, z_pred.shape, z_response.shape, scale.shape) # DEBUG
+            
+            scale = 1.
+            jetThr = scale*jetThr - 0.1
             # compute fraction of passing events and multiply by rate scaling
             jets_passing_threshold = threshold_relaxation_sigmoid(z_pred, jetThr, 10.)
             proxyRate = tf.reduce_sum(jets_passing_threshold, keepdims=True) / BATCH_SIZE_PER_REPLICA
-            realtive_diff = (proxyRate - targetRate)
-            return tf.cosh(1.5 * realtive_diff) # FIXME: scaling to be optimized
+            realtive_diff = (proxyRate - targetRate) / targetRate
+            return tf.cosh(1.0 * realtive_diff) * 200
             # sharpness of 10 corresponds to +/- 1 kHz
             # return threshold_relaxation_sigmoid(proxyRate, targetRate, 0.1) # FIXME: scaling to be optimized
 
         # GPU distribution friendly loss computation
-        def compute_losses(y, y_pred, z_pred):
+        def compute_losses(y, y_pred, z, z_pred):
             regressionLoss_value = regressionLoss(y, y_pred)
 
             # normal regions computed on ZeroBias
             if VERSION == 'ECAL': 
                 rateLoss_value = rateLoss(z_pred, 44.63708) # [FIXME]
             if VERSION == 'HCAL': 
-                rateLoss_value_50 = rateLoss(z_pred, 100, 0.05906486977242875)
-                # rateLoss_value_40 = rateLoss(z_pred, 80, 0.13216800071384716)
-                # rateLoss_value_30 = rateLoss(z_pred, 60, 0.43565990767259705)
-                # rateLoss_value = (rateLoss_value_50 + rateLoss_value_40 + rateLoss_value_30) * 100
-                rateLoss_value = rateLoss_value_50 * 10000
+                # rateLoss_value_30 = rateLoss(z, z_pred, 60,  0.4356599158939274)
+                # rateLoss_value_35 = rateLoss(z, z_pred, 70,  0.22529068041121822)
+                # rateLoss_value_40 = rateLoss(z, z_pred, 80,  0.13216800071384716)
+                # rateLoss_value_45 = rateLoss(z, z_pred, 80,  0.08504652219085858)
+                # rateLoss_value_50 = rateLoss(z, z_pred, 100, 0.05906486977242875)
+                # rateLoss_value_100 = rateLoss(z, z_pred, 200, 0.0049346173905995975)
+                # rateLoss_value = (rateLoss_value_50 + rateLoss_value_40 + rateLoss_value_30)
+                ThrRate = int(options.ThrRate)
+                TargetRate = float(options.TargetRate)
+                rateLoss_value = rateLoss(z, z_pred, ThrRate*2,  TargetRate)
 
             fullLoss = regressionLoss_value + rateLoss_value
 
@@ -485,7 +483,7 @@ if __name__ == "__main__" :
         z, _ = rate_inputs
         with tf.GradientTape() as tape:
             y_pred, z_pred = model([x, z], training=True)
-            losses = compute_losses(y, y_pred, z_pred)
+            losses = compute_losses(y, y_pred, z, z_pred)
 
         # grads = tape.gradient([losses[1], losses[2], losses[3]], model.trainable_weights)
         # suggested by Frederic but it doesn't work
@@ -499,7 +497,7 @@ if __name__ == "__main__" :
         x, y = inputs
         z, _ = rate_inputs
         y_pred, z_pred = model([x, z], training=False)
-        losses = compute_losses(y, y_pred, z_pred)
+        losses = compute_losses(y, y_pred, z, z_pred)
         test_acc_metric.update_state(y, y_pred)
 
         return losses
