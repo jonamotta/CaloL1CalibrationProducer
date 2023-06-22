@@ -614,6 +614,60 @@
 #  --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
 #  --old 2023_05_20_NtuplesV47/NtuplesVcur_Raw_Puppi_Barrel_Pt30 --unc 2023_05_20_NtuplesV47/NtuplesVunc_Raw_Puppi_Barrel_Pt30 --do_HoTot
 
+# # UnCalib
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json
+# python3 resolutions.py --indir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json/GoodNtuples \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVunc_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --reco --nEvts 100000 --target jet --raw --PuppiJet --etacut 1.305 --jetPtcut 30 --do_HoTot
+# python3 turnOn.py --indir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data_reco_json/GoodNtuples \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVunc_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --reco --nEvts 100000 --target jet --raw --PuppiJet --jetPtcut 15 --er 1.305
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362617__RAW__GT130XdataRun3Promptv3_CaloParams2023v02_noL1Calib_data \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVunc_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --nEvts 100000 --target jet --raw --er 1.305
+# # OldCalib
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v02_data_reco_json
+# python3 resolutions.py --indir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v02_data_reco_json/GoodNtuples \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVcur_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --reco --nEvts 100000 --target jet --raw --PuppiJet --etacut 1.305 --jetPtcut 30 --do_HoTot
+# python3 turnOn.py --indir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v02_data_reco_json/GoodNtuples \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVcur_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --reco --nEvts 100000 --target jet --raw --PuppiJet --jetPtcut 15 --er 1.305
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362617__RAW__GT130XdataRun3Promptv3_CaloParams2023v02_data \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVcur_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --nEvts 100000 --target jet --raw --er 1.305
+
+# # NewCalib A
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v48A_data_reco_json
+# python3 resolutions.py --indir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v48A_data_reco_json/GoodNtuples \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVnew48A_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --reco --nEvts 100000 --target jet --raw --PuppiJet --etacut 1.305 --jetPtcut 30 --do_HoTot
+# python3 turnOn.py --indir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v48A_data_reco_json/GoodNtuples \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVnew48A_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --reco --nEvts 100000 --target jet --raw --PuppiJet --jetPtcut 15 --er 1.305
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362617__RAW__GT130XdataRun3Promptv3_CaloParams2023v48AnewCalib_data \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVnew48A_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --nEvts 100000 --target jet --raw --er 1.305
+# python3 comparisonPlots.py --indir 2023_06_03_NtuplesV48/NtuplesVnew48A_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco  --target jet --reco \
+#  --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
+#  --old 2023_06_03_NtuplesV48/NtuplesVcur_Raw_Puppi_Barrel_Pt30 --unc 2023_06_03_NtuplesV48/NtuplesVunc_Raw_Puppi_Barrel_Pt30 --do_HoTot --er 1.305
+
+# # NewCalib B
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v48B_data_reco_json
+# python3 resolutions.py --indir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v48B_data_reco_json/GoodNtuples \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVnew48B_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --reco --nEvts 100000 --target jet --raw --PuppiJet --etacut 1.305 --jetPtcut 30 --do_HoTot
+# python3 turnOn.py --indir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v48B_data_reco_json/GoodNtuples \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVnew48B_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --reco --nEvts 100000 --target jet --raw --PuppiJet --jetPtcut 15 --er 1.305
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362617__RAW__GT130XdataRun3Promptv3_CaloParams2023v48BnewCalib_data \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVnew48B_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --nEvts 100000 --target jet --raw --er 1.305
+# python3 comparisonPlots.py --indir 2023_06_03_NtuplesV48/NtuplesVnew48B_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco  --target jet --reco \
+#  --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
+#  --old 2023_06_03_NtuplesV48/NtuplesVcur_Raw_Puppi_Barrel_Pt30 --unc 2023_06_03_NtuplesV48/NtuplesVunc_Raw_Puppi_Barrel_Pt30 --do_HoTot --er 1.305
+
+# # NewCalib C
+# python3 RemoveBadNtuples_Muon.py /data_CMS/cms/motta/CaloL1calibraton/L1NTuples/JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v48C_data_reco_json
+# python3 resolutions.py --indir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v48C_data_reco_json/GoodNtuples \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVnew48C_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --reco --nEvts 100000 --target jet --raw --PuppiJet --etacut 1.305 --jetPtcut 30 --do_HoTot
+# python3 turnOn.py --indir JetMET__Run2022G-PromptReco-v1__Run362617__AOD__GT130XdataRun3Promptv3_CaloParams2023v48C_data_reco_json/GoodNtuples \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVnew48C_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --reco --nEvts 100000 --target jet --raw --PuppiJet --jetPtcut 15 --er 1.305
+# python3 rate.py --indir EphemeralZeroBias0__Run2022G-v1__Run362617__RAW__GT130XdataRun3Promptv3_CaloParams2023v48CnewCalib_data \
+#  --outdir 2023_06_03_NtuplesV48/NtuplesVnew48C_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco --nEvts 100000 --target jet --raw --er 1.305
+# python3 comparisonPlots.py --indir 2023_06_03_NtuplesV48/NtuplesVnew48C_Raw_Puppi_Barrel_Pt30 --label Muon_data_reco  --target jet --reco \
+#  --thrsFixRate 60 --thrsFixRate 80 --thrsFixRate 100 \
+#  --old 2023_06_03_NtuplesV48/NtuplesVcur_Raw_Puppi_Barrel_Pt30 --unc 2023_06_03_NtuplesV48/NtuplesVunc_Raw_Puppi_Barrel_Pt30 --do_HoTot --er 1.305
+
+
 ###############################################################################################################################################################################################################################################################################################
 ###############################################################################################################################################################################################################################################################################################
 ## OLD COMMANDS FOR OLD SCRIPTS
