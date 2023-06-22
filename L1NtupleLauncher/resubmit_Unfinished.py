@@ -15,7 +15,7 @@ empty_log = []
 resubmit_log = []
 bad_log = []
 for LogFile in tqdm(LogFiles):
-    ans1 = os.popen("tail -n 1 {}".format(LogFile)).read()
+    ans1 = os.popen("tail -n 2 {}".format(LogFile)).read()
     # print(ans1)
     if "Closed file root:" in ans1:
         if len(os.popen("grep -l 'Begin processing the 2nd record.' {}".format(LogFile)).read()):
@@ -37,7 +37,7 @@ print(" ### INFO : Number of bad files = {}".format(len(bad_log)))
 print(" ### INFO : Number of empty files = {}".format(len(empty_log)))
 print(" ### INFO : Number of files to resubmit = {}".format(len(resubmit_log)))
 print(" ### INFO : Number of good files = {}".format(len(good_log)))
-print(good_log)
+print(resubmit_log)
 
 
 print("\n ### INFO : Looping on log files to find the bad ones")
@@ -54,7 +54,7 @@ if do_resubmit == "y":
                 number = LogFile.split("/log_")[1].split(".txt")[0]
                 job = LogFile.split("/log_")[0] + "/job_" + number + ".sh"
                 if do_resubmit == "y":
-                    command = ('/data_CMS/cms/motta/CaloL1calibraton/t3submit -long \'' + job +"\'")
+                    command = ('/data_CMS/cms/motta/CaloL1calibraton/t3submit -short \'' + job +"\'")
                     print(command)
                     os.system(command)
                 else:
