@@ -56,10 +56,12 @@ parser.add_option("--calibECALOnTheFly",  dest="calibECALOnTheFly",  default=Fal
 parser.add_option("--calibHCALOnTheFly",  dest="calibHCALOnTheFly",  default=False, help="oldCalib or currCalib; not specified == noCalib")
 parser.add_option("--trainPtVers",        dest="trainPtVers",        default=False)
 parser.add_option("--applyOnTheFly",      dest="applyOnTheFly",      default=False)
-parser.add_option("--ClusterFilter",      dest="ClusterFilter",      default=False)
+parser.add_option("--ClusterFilter",      dest="ClusterFilter",      default=False, action='store_true')
 parser.add_option("--applyZS",            dest="applyZS",            default=False)
 parser.add_option("--LooseEle",           dest="LooseEle",           default=False, action='store_true')
 parser.add_option("--PuppiJet",           dest="PuppiJet",           default=False, action='store_true')
+parser.add_option("--matching",           dest="matching",           default=False, action='store_true')
+parser.add_option("--sizeHF",             dest="sizeHF",             default=False)
 parser.add_option("--resubmit_failed",    dest="resubmit_failed",    default=False, action='store_true')
 parser.add_option("--no_exec",            dest="no_exec",            default=False, action='store_true')
 (options, args) = parser.parse_args()
@@ -155,13 +157,17 @@ for file in InFiles:
     if options.applyOnTheFly != False:
         cmsRun = cmsRun + " --applyOnTheFly "+options.applyOnTheFly
     if options.ClusterFilter != False:
-        cmsRun = cmsRun + " --ClusterFilter "+options.ClusterFilter
+        cmsRun = cmsRun + " --ClusterFilter"
     if options.applyZS != False:
         cmsRun = cmsRun + " --applyZS "+options.applyZS
     if options.LooseEle != False:
         cmsRun = cmsRun + " --LooseEle"
     if options.PuppiJet != False:
         cmsRun = cmsRun + " --PuppiJet"
+    if options.matching != False:
+        cmsRun = cmsRun + " --matching"
+    if options.sizeHF != False:
+        cmsRun = cmsRun + " --sizeHF "+options.sizeHF
 
     cmsRun = cmsRun + " >& "+outLogName
 
