@@ -175,6 +175,7 @@ if options.doResponse == True:
     # ptBins responses
 
     for i in range(len(ptBins)-1):
+        print(" ### DEBUG: ", "pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
         ptBins_resp_unCalib = file_unCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
         ptBins_resp_oldCalib = file_oldCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
         ptBins_resp_newCalib = file_newCalib.Get("pt_resp_ptBin"+str(ptBins[i])+"to"+str(ptBins[i+1]))
@@ -1550,9 +1551,14 @@ if options.doTurnOn == True:
                 break
         
         if thrUnCalib_DiObjAtThr == 0 or thrNewCalib_DiObjAtThr == 0: continue
-        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing_"+str(int(thrUnCalib_DiObjAtThr))+"_by_total")
-        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing_"+str(int(thr))+"_by_total")
-        turnon_newCalib = file_turnon_newCalib.Get("divide_passing_"+str(int(thrNewCalib_DiObjAtThr))+"_by_total")
+        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_DiObjAtThr))+"_by_total")
+        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
+        turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_DiObjAtThr))+"_by_total")
+
+        print(" ### DEBUG: ")
+        print(" ### thr:", thr)
+        print(" ### thrUnCalib_DiObjAtThr:", thrUnCalib_DiObjAtThr)
+        print(" ### thrNewCalib_DiObjAtThr:", thrNewCalib_DiObjAtThr)
 
         fig, ax = plt.subplots(figsize=(10,10))
 
@@ -1581,7 +1587,7 @@ if options.doTurnOn == True:
             Y.append(turnon.GetPointY(ibin))
             Y_low.append(turnon.GetErrorYlow(ibin))
             Y_high.append(turnon.GetErrorYhigh(ibin))
-        ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Calibraton: $p_{T}^{L1}>$'+str(int(thrNewCalib_DiObjAtThr))+' GeV', lw=2, marker='o', color='green', zorder=2)
+        ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=newcalib_label+R': $p_{T}^{L1}>$'+str(int(thrNewCalib_DiObjAtThr))+' GeV', lw=2, marker='o', color='green', zorder=2)
 
         for xtick in ax.xaxis.get_major_ticks():
             xtick.set_pad(10)
@@ -1680,9 +1686,9 @@ if options.doTurnOn == True:
                 break
 
         if thrUnCalib_FixedDiErRate == 0 or thrNewCalib_FixedDiErRate == 0: continue
-        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing_Er2p5_"+str(int(thrUnCalib_FixedDiErRate))+"_by_total_Er2p5")
-        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing_Er2p5_"+str(int(thr))+"_by_total_Er2p5")
-        turnon_newCalib = file_turnon_newCalib.Get("divide_passing_Er2p5_"+str(int(thrNewCalib_FixedDiErRate))+"_by_total_Er2p5")
+        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_FixedDiErRate))+"_by_total")
+        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
+        turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_FixedDiErRate))+"_by_total")
 
         fig, ax = plt.subplots(figsize=(10,10))
 
@@ -1711,7 +1717,7 @@ if options.doTurnOn == True:
             Y.append(turnon.GetPointY(ibin))
             Y_low.append(turnon.GetErrorYlow(ibin))
             Y_high.append(turnon.GetErrorYhigh(ibin))
-        ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Calibraton: $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedDiErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
+        ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=newcalib_label+R': $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedDiErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
 
         for xtick in ax.xaxis.get_major_ticks():
             xtick.set_pad(10)
@@ -1808,9 +1814,9 @@ if options.doTurnOn == True:
                 break
 
         if thrNewCalib_ObjAtThr == 0 or thrUnCalib_ObjAtThr == 0: continue
-        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing_"+str(int(thrUnCalib_ObjAtThr))+"_by_total")
-        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing_"+str(int(thr))+"_by_total")
-        turnon_newCalib = file_turnon_newCalib.Get("divide_passing_"+str(int(thrNewCalib_ObjAtThr))+"_by_total")
+        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_ObjAtThr))+"_by_total")
+        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
+        turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_ObjAtThr))+"_by_total")
 
         fig, ax = plt.subplots(figsize=(10,10))
 
@@ -1839,7 +1845,7 @@ if options.doTurnOn == True:
             Y.append(turnon.GetPointY(ibin))
             Y_low.append(turnon.GetErrorYlow(ibin))
             Y_high.append(turnon.GetErrorYhigh(ibin))
-        ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Calibraton: $p_{T}^{L1}>$'+str(int(thrNewCalib_ObjAtThr))+' GeV', lw=2, marker='o', color='green', zorder=2)
+        ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=newcalib_label+R': $p_{T}^{L1}>$'+str(int(thrNewCalib_ObjAtThr))+' GeV', lw=2, marker='o', color='green', zorder=2)
 
         for xtick in ax.xaxis.get_major_ticks():
             xtick.set_pad(10)
@@ -1936,9 +1942,9 @@ if options.doTurnOn == True:
                 break
 
         if thrNewCalib_FixedErRate == 0 or thrUnCalib_FixedErRate == 0: continue
-        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing_Er2p5_"+str(int(thrUnCalib_FixedErRate))+"_by_total_Er2p5")
-        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing_Er2p5_"+str(int(thr))+"_by_total_Er2p5")
-        turnon_newCalib = file_turnon_newCalib.Get("divide_passing_Er2p5_"+str(int(thrNewCalib_FixedErRate))+"_by_total_Er2p5")
+        turnon_unCalib  = file_turnon_unCalib.Get("divide_passing"+str(int(thrUnCalib_FixedErRate))+"_by_total")
+        turnon_oldCalib = file_turnon_oldCalib.Get("divide_passing"+str(int(thr))+"_by_total")
+        turnon_newCalib = file_turnon_newCalib.Get("divide_passing"+str(int(thrNewCalib_FixedErRate))+"_by_total")
         # print("divide_passing"+str(int(thrNewCalib_FixedErRate))+"_by_total")
 
         fig, ax = plt.subplots(figsize=(10,10))
@@ -1968,7 +1974,7 @@ if options.doTurnOn == True:
             Y.append(turnon.GetPointY(ibin))
             Y_low.append(turnon.GetErrorYlow(ibin))
             Y_high.append(turnon.GetErrorYhigh(ibin))
-        ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Calibraton: $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
+        ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=newcalib_label+R': $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
 
         for xtick in ax.xaxis.get_major_ticks():
             xtick.set_pad(10)
@@ -2098,7 +2104,7 @@ if options.er:
                 Y.append(turnon.GetPointY(ibin))
                 Y_low.append(turnon.GetErrorYlow(ibin))
                 Y_high.append(turnon.GetErrorYhigh(ibin))
-            ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Calibraton: $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedDiErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
+            ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=newcalib_label+R': $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedDiErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
 
             for xtick in ax.xaxis.get_major_ticks():
                 xtick.set_pad(10)
@@ -2228,7 +2234,7 @@ if options.er:
                 Y.append(turnon.GetPointY(ibin))
                 Y_low.append(turnon.GetErrorYlow(ibin))
                 Y_high.append(turnon.GetErrorYhigh(ibin))
-            ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=R'Calibraton: $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
+            ax.errorbar(X, Y, xerr=1, yerr=[Y_low, Y_high], label=newcalib_label+R': $p_{T}^{L1}>$'+str(int(thrNewCalib_FixedErRate))+' GeV', lw=2, marker='o', color='green', zorder=2)
 
             for xtick in ax.xaxis.get_major_ticks():
                 xtick.set_pad(10)

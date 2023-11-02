@@ -5,8 +5,8 @@ import os,sys
 #######################################################################
 
 '''
-python3 ProduceCaloParams.py --name caloParams_2023_v51B_newCalib_cfi \
-    --HCAL /data_CMS/cms/motta/CaloL1calibraton/2023_06_21_NtuplesV51/JetMET_PuppiJet_BarrelEndcap_Pt30_HoTot95/HCALtrainingDataReco/data_A/ScaleFactors_HCAL_energystep2iEt.csv \
+python3 ProduceCaloParams.py --name caloParams_2023_v51A_newCalib_cfi \
+    --ECAL /data_CMS/cms/motta/CaloL1calibraton/2023_06_21_NtuplesV51/JetMET_PuppiJet_BarrelEndcap_Pt30_HoTot95/HCALtrainingDataReco/data_A/ScaleFactors_HCAL_energystep2iEt.csv \
     --HF /data_CMS/cms/motta/CaloL1calibraton/2023_06_21_NtuplesV51/JetMET_PuppiJet_BarrelEndcap_Pt30_HoTot95/HCALtrainingDataReco/data_A/ScaleFactors_HF_energystep2iEt.csv \
     --HCAL /data_CMS/cms/motta/CaloL1calibraton/2023_06_21_NtuplesV51/JetMET_PuppiJet_BarrelEndcap_Pt30_HoTot95/HCALtrainingDataReco_A/ScaleFactors_HCAL_energystep2iEt.csv \
 '''
@@ -40,9 +40,9 @@ f_base = open(base_file)
 Old_Lines = f_base.readlines()
 New_Lines = []
 
-start_ECAL = [index for index, value in enumerate(Old_Lines) if 'layer1ECalScaleFactors = cms.vdouble([' in value][0]+1
-start_HCAL = [index for index, value in enumerate(Old_Lines) if 'layer1HCalScaleFactors = cms.vdouble([' in value][0]+1
-start_HF   = [index for index, value in enumerate(Old_Lines) if 'layer1HFScaleFactors = cms.vdouble([' in value][0]+1
+start_ECAL = [index for index, value in enumerate(Old_Lines) if 'layer1ECalScaleETBins = cms.' in value][0]
+start_HCAL = [index for index, value in enumerate(Old_Lines) if 'layer1HCalScaleETBins = cms.' in value][0]
+start_HF   = [index for index, value in enumerate(Old_Lines) if 'layer1HFScaleETBins = cms.' in value][0]
 end_ECAL = [index for index, value in enumerate(Old_Lines) if '    ]),' in value][0]
 end_HCAL = [index for index, value in enumerate(Old_Lines) if '    ]),' in value][1]
 end_HF   = [index for index, value in enumerate(Old_Lines) if '    ]),' in value][2]
@@ -52,6 +52,8 @@ for line in Old_Lines[:start_ECAL]:
 
 print('### INFO: Adding ECAL')
 if options.ECAL:
+    New_Lines.append("    layer1ECalScaleETBins = cms.vint32([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 256]),\n")
+    New_Lines.append("    layer1ECalScaleFactors = cms.vdouble([\n")
     f_ECAL = options.ECAL
     with open(f_ECAL) as f:
         for line in f.readlines():
@@ -66,6 +68,8 @@ for line in Old_Lines[end_ECAL:start_HCAL]:
 
 print('### INFO: Adding ECAL')
 if options.HCAL:
+    New_Lines.append("    layer1HCalScaleETBins = cms.vint32([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 256]),\n")
+    New_Lines.append("    layer1HCalScaleFactors = cms.vdouble([\n")
     f_HCAL = options.HCAL
     with open(f_HCAL) as f:
         for line in f.readlines():
@@ -80,6 +84,8 @@ for line in Old_Lines[end_HCAL:start_HF]:
 
 print('### INFO: Adding HF')
 if options.HF:
+    New_Lines.append("    layer1HFScaleETBins = cms.vint32([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 256]),\n")
+    New_Lines.append("    layer1HFScaleFactors = cms.vdouble([\n")
     f_HF = options.HF
     with open(f_HF) as f:
         for line in f.readlines():

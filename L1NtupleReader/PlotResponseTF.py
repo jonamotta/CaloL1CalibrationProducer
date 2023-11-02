@@ -68,7 +68,7 @@ def PlotEtaIesum(df_Towers, odir, v_sample, type):
     bins_y = np.linspace(0,50,50)
     hist, _, _ = np.histogram2d(df_Towers[sel]['ieta'], df_Towers[sel][x_label], bins=[bins_x,bins_y])
     hist[hist == 0] = -1
-    cmap = matplotlib.cm.get_cmap("viridis").copy()
+    cmap = matplotlib.cm.get_cmap("viridis")
     cmap.set_under(color='white') 
     plt.imshow(hist.T, cmap=cmap, origin='lower', aspect='auto', vmin=0.1)
     # plt.hist2d(df_Towers[sel]['ieta'], df_Towers[sel][x_label], bins=[bins_x,bins_y], cmap='plasma', vmin=1)
@@ -82,8 +82,6 @@ def PlotEtaIesum(df_Towers, odir, v_sample, type):
     print(savefile)
     plt.close()  
 
-    if v_sample == 'ECAL': x_label = 'iem'
-    if v_sample == 'HCAL': x_label = 'hcalET'
     plt.figure(figsize = [10,10])
     plt.title(type)
     sel = df_Towers[x_label] > 1
@@ -93,7 +91,7 @@ def PlotEtaIesum(df_Towers, odir, v_sample, type):
     bins_y = np.linspace(0,50,50)
     hist, _, _ = np.histogram2d(df_Towers[sel]['ieta'], df_Towers[sel][x_label], bins=[bins_x,bins_y])
     hist[hist == 0] = -1
-    cmap = matplotlib.cm.get_cmap("viridis").copy()
+    cmap = matplotlib.cm.get_cmap("viridis")
     cmap.set_under(color='white') 
     plt.imshow(hist.T, cmap=cmap, origin='lower', aspect='auto', vmin=0.1)
     plt.colorbar()
@@ -105,6 +103,29 @@ def PlotEtaIesum(df_Towers, odir, v_sample, type):
     plt.savefig(savefile)
     print(savefile)
     plt.close()    
+
+    plt.figure(figsize = [10,10])
+    plt.title(type)
+    sel = df_Towers[x_label] >= 10
+    max_eta = df_Towers['ieta'].max()
+    min_eta = df_Towers['ieta'].min()
+    bins_x = np.arange(min_eta,max_eta+1)
+    bins_y = np.linspace(0,50,50)
+    hist, _, _ = np.histogram2d(df_Towers[sel]['ieta'], df_Towers[sel][x_label], bins=[bins_x,bins_y])
+    hist[hist == 0] = -1
+    cmap = matplotlib.cm.get_cmap("viridis")
+    cmap.set_under(color='white') 
+    plt.imshow(hist.T, cmap=cmap, origin='lower', aspect='auto', vmin=0.1)
+    plt.colorbar()
+    plt.xlabel('Eta')
+    plt.ylabel(x_label)
+    mplhep.cms.label(data=False, rlabel='(13.6 TeV)', fontsize=20)
+    # plt.title('Jets Resolution {}'.format(v_sample))
+    savefile = odir + '/{}_{}_vs_ieta_{}_From10.png'.format(type, x_label, v_sample)
+    plt.savefig(savefile)
+    print(savefile)
+    plt.close()    
+
 
 def PlotRate(df_jets, odir, v_sample):
 
@@ -408,8 +429,8 @@ if __name__ == "__main__" :
     indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
     odir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag + '/plots' + options.addtag + '/PerformancePlots_Uncalib'
     os.system('mkdir -p '+ odir)
-    print('\n ### Reading TF records from: ' + indir + '/t*TFRecords/record_*.tfrecord')
-    InTestRecords = glob.glob(indir+'/t*TFRecords/record_*.tfrecord')[:options.filesLim]
+    print('\n ### Reading TF records from: ' + indir + '/trainTFRecords/record_*.tfrecord')
+    InTestRecords = glob.glob(indir+'/trainTFRecords/record_*.tfrecord')[:options.filesLim]
     dataset = tf.data.TFRecordDataset(InTestRecords)
     batch_size = len(list(dataset))
     parsed_dataset = dataset.map(parse_function)
@@ -482,6 +503,8 @@ if __name__ == "__main__" :
     PlotResolutionPtBins(df_jets, odir, options.v, 'pt')
     PlotResolutionPtBins(df_jets, odir, options.v, 'eta')
 
+    del df_jets, df_Towers
+
     if options.PlotRate:
 
         print('\n ### Reading TF records for Rate Plots from: ' + indir + '/rateTFRecords/record_*.tfrecord')
@@ -521,7 +544,10 @@ if __name__ == "__main__" :
 
         # compute sum of the raw energy
         df_jets = pd.DataFrame()
-        df_jets['jetPtRate']  = df_Towers.groupby('id').iesum.sum()
+        if options.v == 'HCAL':
+            df_jets['jetPtRate']  = df_Towers.groupby('id').iesum.sum()
+        if options.v == 'ECAL':
+            df_jets['jetPtRate']  = df_Towers.groupby('id').iem.sum()
         df_jets['jetIEta']    = df_Towers.groupby('id').ieta.first()
         df_jets['jetSeed']    = df_Towers.groupby('id').iesum.max()
 

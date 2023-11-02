@@ -280,4 +280,10 @@ Training of HCAL in data for barrel only: ieta <-15, pt > 30, NO ZeroSuppression
 - HCALtrainingDataReco
     - model_HCAL_A  : regression term only      LR=10^-3        Nodes_1=82      Nodes_2=256     epochs=20
 
+    - model_HCAL_C1 : regression term only      LR=10^-4        Nodes_1=82      Nodes_2=256     epochs=20
+    - model_HCAL_C2 : regression term only      LR=10^-3        Nodes_1=82      Nodes_2=256     epochs=20
+    - model_HCAL_C3 : regression term only      LR=10^-3        Nodes_1=82      Nodes_2=256     epochs=100
+    - model_HCAL_C4 : regression term only      LR=10^-3        Nodes_1=82      Nodes_2=256     epochs=40       HiddenLayers
+    - model_HCAL_C5 : regression term only      LR=10^-3        Nodes_1=82      Nodes_2=256     epochs=200      HiddenLayers
+    - model_HCAL_C6 : regression term only      LR=10^-3        Nodes_1=82      Nodes_2=256     epochs=100      HiddenLayers
 

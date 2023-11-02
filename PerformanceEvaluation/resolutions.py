@@ -103,7 +103,7 @@ if options.target == 'jet':
     etaBins = [0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.191]
     signedEtaBins = [-5.191, -4.5, -4.0, -3.5, -3.0, -2.5, -2.0, -1.479, -1.305, -1.0, -0.5, 0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.191]
 if options.target == 'ele':
-    ptBins  = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200]
+    ptBins  = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 90, 110, 130, 160, 200]
     etaBins = [0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
     signedEtaBins = [-3.0, -2.5, -2.0, -1.479, -1.305, -1.0, -0.5, 0., 0.5, 1.0, 1.305, 1.479, 2.0, 2.5, 3.0]
 if options.target == 'met':
@@ -244,7 +244,8 @@ for i in tqdm(range(0, nevents)):
                     level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.egEt[iL1Obj], level1Tree.L1Upgrade.egEta[iL1Obj], level1Tree.L1Upgrade.egPhi[iL1Obj], 0)
             if options.target == 'met':
                 if level1Tree.L1Upgrade.sumType[iL1Obj] == 8:
-                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.sumEt[iL1Obj], 0, 0, 0)
+                    # level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.sumEt[iL1Obj], 0, 0, 0)
+                    level1Obj.SetPtEtaPhiM(level1Tree.L1Upgrade.sumIEt[iL1Obj]/2, 0, 0, 0)
                     matched = True
                     myGoodLevel1Obj = level1Obj
                     break

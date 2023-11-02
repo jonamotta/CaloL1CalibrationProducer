@@ -280,10 +280,14 @@ def create_model(version, seedThr=None):
 
         rate_output = lay.Lambda(lambda x : x[0] * x[1], name="thresholds")((seed_found, jet_pred))
         # The rate_output is a vector of calibrated L1 jet energies !!! only for jets passing the seed threshold !!!
-
-    # [FIXME] HERE WE NEED TO CHANGE THE WAY OF COMPUTING THE RATE PROXY
     if version == 'ECAL':
-        sys.exit("Rate proxy not implemented for ECAL")
+        
+        eg_had     = lay.Lambda(lambda x : tf.reduce_sum(x, axis=1, keepdims=True)[:,:,0], name='eg_had_deposit')(rate_input)
+        eg_em_     = make_AddList(TTP, rate_input, name="rate_")
+        eg_em      = lay.Add(name="eg_em_deposit")(eg_em_)
+        # rate_output = lay.Lambda(lambda x : x[0] + x[1], name="eg_tot_energy")((eg_em, eg_had)) #[FIXME] is the seed applied only on iem?
+        rate_output = eg_em
+        # The rate_output is a vector of calibrated L1 jet energies !!! only for jets passing the seed threshold !!!
 
     model = keras.Model(inputs=[TTP_input, rate_input], outputs=[TTP_output, rate_output], name='Layer1Calibrator')
 
@@ -447,19 +451,12 @@ if __name__ == "__main__" :
             regressionLoss_value = regressionLoss(y, y_pred)
 
             # normal regions computed on ZeroBias
+            ThrRate = int(options.ThrRate)
+            TargetRate = float(options.TargetRate)
             if VERSION == 'ECAL': 
-                rateLoss_value = rateLoss(z_pred, 44.63708) # [FIXME]
-            if VERSION == 'HCAL': 
-                # rateLoss_value_30 = rateLoss(z, z_pred, 60,  0.4356599158939274)
-                # rateLoss_value_35 = rateLoss(z, z_pred, 70,  0.22529068041121822)
-                # rateLoss_value_40 = rateLoss(z, z_pred, 80,  0.13216800071384716)
-                # rateLoss_value_45 = rateLoss(z, z_pred, 80,  0.08504652219085858)
-                # rateLoss_value_50 = rateLoss(z, z_pred, 100, 0.05906486977242875)
-                # rateLoss_value_100 = rateLoss(z, z_pred, 200, 0.0049346173905995975)
-                # rateLoss_value = (rateLoss_value_50 + rateLoss_value_40 + rateLoss_value_30)
-                ThrRate = int(options.ThrRate)
-                TargetRate = float(options.TargetRate)
-                rateLoss_value = rateLoss(z, z_pred, ThrRate*2,  TargetRate)
+                rateLoss_value = rateLoss(z, z_pred, ThrRate*2, TargetRate)
+            if VERSION == 'HCAL':
+                rateLoss_value = rateLoss(z, z_pred, ThrRate*2, TargetRate)
 
             fullLoss = regressionLoss_value + rateLoss_value
 

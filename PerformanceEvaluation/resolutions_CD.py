@@ -30,10 +30,14 @@ def PrevPhiTower(iphi):
     if iphi == 1: return 72
     else:         return iphi - 1
 def NextEtaTower(ieta):
-    if ieta == -1: return 1
+    if ieta == -1:    return 1
+    elif ieta == 28:  return 30
+    elif ieta == -30: return -28
     else:          return ieta + 1
 def PrevEtaTower(ieta):
-    if ieta == 1: return -1
+    if ieta == 1:     return -1
+    elif ieta == 30:  return 28
+    elif ieta == -28: return -30
     else:         return ieta - 1
 
 #######################################################################
@@ -93,6 +97,9 @@ towersTree = ROOT.TChain("l1CaloTowerEmuTree/L1CaloTowerTree")
 targetTree.Add(indir+"/Ntuple*.root")
 level1Tree.Add(indir+"/Ntuple*.root")
 towersTree.Add(indir+"/Ntuple*.root")
+# targetTree.Add(indir+"/Ntuple_100.root")
+# level1Tree.Add(indir+"/Ntuple_100.root")
+# towersTree.Add(indir+"/Ntuple_100.root")
 
 nEntries = targetTree.GetEntries()
 print("got",nEntries,"entries")
@@ -228,6 +235,10 @@ for i in tqdm(range(0, nevents)):
                     myGood_iL1Obj = iL1Obj
                     highestL1Pt = level1Obj.Pt()
 
+        # if matched:
+        #     print("offline jet, pT = ",targetObj.Pt(),", eta = ",targetObj.Eta(), ", phi = ",targetObj.Phi())
+        #     print("L1      jet, pT = ",level1Tree.L1Upgrade.jetRawEt[myGood_iL1Obj]/2.,", eta = ",level1Tree.L1Upgrade.jetEta[myGood_iL1Obj], ", phi = ",level1Tree.L1Upgrade.jetPhi[myGood_iL1Obj])
+
         if matched:
         # redefinition of L1 Et from the CD
         ##########################################################################################
@@ -255,20 +266,34 @@ for i in tqdm(range(0, nevents)):
             iem_sum = 0
             ihad_sum = 0
 
+            # if abs(level1Tree.L1Upgrade.jetEta[myGood_iL1Obj])>3.:
+            #     print("offline jet, pT = ",targetObj.Pt(),", eta = ",targetObj.Eta(), ", phi = ",targetObj.Phi())
+            #     print("L1      jet, pT = ",level1Tree.L1Upgrade.jetRawEt[myGood_iL1Obj]/2.,", eta = ",level1Tree.L1Upgrade.jetEta[myGood_iL1Obj], ", phi = ",level1Tree.L1Upgrade.jetPhi[myGood_iL1Obj])
+            #     print("L1 jet center, ieta = ",jetIEta,", iphi = ",jetIPhi,", maxIEta = ",max_IEta,", minIEta = ",min_IEta,", maxIPhi = ",max_IPhi,", minIPhi = ",min_IPhi)
+
             if min_IPhi <= max_IPhi:
                 for iTower in range(0, nTowers):
                     ieta = towersTree.L1CaloTower.ieta[iTower]
                     iphi = towersTree.L1CaloTower.iphi[iTower]
                     if ((ieta <= max_IEta) & (ieta >= min_IEta) & (iphi <= max_IPhi) & (iphi >= min_IPhi)):
-                        iem_sum += towersTree.L1CaloTower.iem[iTower]
-                        ihad_sum += towersTree.L1CaloTower.ihad[iTower]
+                        # if abs(level1Tree.L1Upgrade.jetEta[myGood_iL1Obj])>3.:
+                        #     print("     tower iEta = ",ieta,", iPhi = ",iphi,", ET = ",towersTree.L1CaloTower.ihad[iTower])
+                        if ieta > 28:
+                            ihad_sum += towersTree.L1CaloTower.iet[iTower]
+                        else:
+                            iem_sum += towersTree.L1CaloTower.iem[iTower]
+                            ihad_sum += towersTree.L1CaloTower.ihad[iTower]
             else: # when iphi > 72
                 for iTower in range(0, nTowers):
                     ieta = towersTree.L1CaloTower.ieta[iTower]
                     iphi = towersTree.L1CaloTower.iphi[iTower]
                     if ((ieta <= max_IEta) & (ieta >= min_IEta) & ((iphi >= min_IPhi) | (iphi <= max_IPhi))):
-                        iem_sum += towersTree.L1CaloTower.iem[iTower]
-                        ihad_sum += towersTree.L1CaloTower.ihad[iTower]
+                        if ieta > 28:
+                            ihad_sum += towersTree.L1CaloTower.iet[iTower]
+                        else:
+                            iem_sum += towersTree.L1CaloTower.iem[iTower]
+                            ihad_sum += towersTree.L1CaloTower.ihad[iTower]
+    
             # print(ihad_sum, iem_sum)
             if ihad_sum+iem_sum != 0:
                 HoTot = ihad_sum/(ihad_sum+iem_sum)
@@ -285,6 +310,8 @@ for i in tqdm(range(0, nevents)):
                 L1Pt = (ihad_sum)/2
             else:
                 L1Pt = (ihad_sum + iem_sum)/2
+
+
 
             # print("Res = {:2f}".format(L1Pt/targetObj.Pt()))
             

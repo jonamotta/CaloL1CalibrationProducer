@@ -63,34 +63,7 @@ def makePlots(HISTORY, odir):
     plt.savefig(odir+'/plots/regressionLoss.pdf')
     plt.close()
 
-    plt.plot(HISTORY['x'], HISTORY['train_weightsLoss'], label='Training', lw=2, ls='-', marker='o', color=cmap(0))
-    plt.plot(HISTORY['x'], HISTORY['test_weightsLoss'], label='Testing', lw=2, ls='-', marker='o', color=cmap(1))
-    plt.ylabel('Weights loss')
-    plt.xlabel('Epoch')
-    plt.grid()
-    leg = plt.legend(loc='upper right', fontsize=20)
-    leg._legend_box.align = "left"
-    mplhep.cms.label('Preliminary', data=True, rlabel=r'')
-    plt.savefig(odir+'/plots/weightsLoss.pdf')
-    plt.close()
-
-    plt.plot(HISTORY['x'], HISTORY['train_rateLoss'], label='Training', lw=2, ls='-', marker='o', color=cmap(0))
-    plt.plot(HISTORY['x'], HISTORY['test_rateLoss'], label='Testing', lw=2, ls='-', marker='o', color=cmap(1))
-    plt.ylabel('Rate loss')
-    plt.xlabel('Epoch')
-    plt.grid()
-    plt.yscale('log')
-    # plt.ylim(0.000475,0.0007)
-    plt.subplots_adjust(left=0.17)
-    leg = plt.legend(loc='upper right', fontsize=20)
-    leg._legend_box.align = "left"
-    mplhep.cms.label('Preliminary', data=True, rlabel=r'')
-    plt.savefig(odir+'/plots/rateLoss.pdf')
-    plt.close()
-
     plt.plot(HISTORY['x'], HISTORY['train_regressionLoss'], label='Regression loss', lw=2, ls='-', marker='o', color=cmap(0))
-    plt.plot(HISTORY['x'], HISTORY['train_weightsLoss'], label='Weights loss', lw=2, ls='-', marker='o', color=cmap(1))
-    plt.plot(HISTORY['x'], HISTORY['train_rateLoss'], label='Rate loss', lw=2, ls='-', marker='o', color=cmap(2))
     plt.ylabel('Loss breakdown')
     plt.xlabel('Epoch')
     plt.grid()
@@ -103,8 +76,6 @@ def makePlots(HISTORY, odir):
     plt.close()
 
     plt.plot(HISTORY['x'], HISTORY['test_regressionLoss'], label='Regression loss', lw=2, ls='-', marker='o', color=cmap(0))
-    plt.plot(HISTORY['x'], HISTORY['test_weightsLoss'], label='Weights loss', lw=2, ls='-', marker='o', color=cmap(1))
-    plt.plot(HISTORY['x'], HISTORY['test_rateLoss'], label='Rate loss', lw=2, ls='-', marker='o', color=cmap(2))
     plt.ylabel('Loss breakdown')
     plt.xlabel('Epoch')
     plt.grid()
@@ -230,10 +201,6 @@ def create_model(version, seedThr=None, jetThr=None, hoeThrEB=None, hoeThrEE=Non
         exit()
 
     TTP_input = keras.Input(shape=(81,42), dtype=tf.float32, name='chunky_donut')
-    # if version == 'ECAL':                    rate_input = keras.Input(shape=42, dtype=tf.float32, name='rate_proxy')
-    # in the new rate proxy for ECAL we keep the full cluster in a 9x9 matrix
-    if version == 'ECAL':                    rate_input = keras.Input(shape=(81,42), dtype=tf.float32, name='rate_proxy')
-    if version == 'HCAL' or version == 'HF': rate_input = keras.Input(shape=(81,42), dtype=tf.float32, name='rate_proxy')
     
     layer1 = Dense(82,  name='nn1', input_dim=41, activation='relu', kernel_initializer=RN(seed=7), use_bias=False)
     layer2 = Dense(256, name='nn2',               activation='relu', kernel_initializer=RN(seed=7), use_bias=False)
@@ -249,61 +216,7 @@ def create_model(version, seedThr=None, jetThr=None, hoeThrEB=None, hoeThrEE=Non
     MainPredictionList = make_AddList(TTP, TTP_input)
     TTP_output = lay.Add(name="main_predicted_energy")(MainPredictionList)
     
-    # [FIXME] HERE WE NEED TO CHANGE THE WAY OF COMPUTING THE RATE PROXY
-    if version == 'ECAL':
-        # # 'hardcoded' threshold on hcal over ecal deposit
-        # hasEBthr = lay.Lambda(lambda x : tf.reduce_sum(x[:,2:30], axis=1, keepdims=True) * pow(2, -hoeThrEB), name='has_hoe_eb_thr')(rate_input)
-        # hasEEthr = lay.Lambda(lambda x : tf.reduce_sum(x[:,30:], axis=1, keepdims=True) * pow(2, -hoeThrEE), name='has_hoe_ee_thr')(rate_input)
-        # hoeThr = lay.Lambda(lambda x : x[0] + x[1], name="has_hoe_thr")((hasEBthr, hasEEthr))
-
-        # # hadronic deposit behind the ecal one
-        # TT_had = lay.Lambda(lambda x : x[:,0:1], name='tt_had_deposit')(rate_input)
-
-        # # # predict TT energy, add correspondong non-calibrated had part, and apply threshold
-        # TT_em_pred = TTP(lay.Lambda(lambda x : x[:,1:], name="tt_em_pred")(rate_input))
-        # TT_pred = lay.Lambda(lambda x : x[0] + x[1], name="tt_tot_energy")((TT_em_pred, TT_had))
-        # TT_eAT = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, egThr, 10.), name="apply_eg_threshold")(TT_pred) # sharpness 10. means +/-0.5 GeV tunron region
-
-        # # # calculate HoE for each TT and apply threshold (this is a <= threshold so need 1-sigmoid)
-        # TT_hoe = lay.Lambda(lambda x : tf.math.divide_no_nan(x[0], x[1]), name="compute_tt_hoe")((TT_had, TT_em_pred))
-        # TT_hoeAT = lay.Lambda(lambda x : threshold_relaxation_inverseSigmoid(x[0], x[1], 1000.), name="apply_hoe_threshold")((TT_hoe,hoeThr)) # sharpness 1000. means +/-0.005 tunron region
-
-        # # do logical AND between TT_eAT and TT_hoeAT
-        # rate_output = lay.Lambda(lambda x : x[0] * x[1], name="thresholds_or")((TT_eAT, TT_hoeAT))
-
-        # no need to apply the hoe cut anymore, since it's intrinsically included in the cluster
-        # new structure of the rate input for ECAL
-
-        # predict jet energy and apply threshold: sum all the ihad energies z[:,:,0] of the 9x9 and all the iem energies z[:,:,1] of the 9x9
-        # sum hadronic deposit behind the ecal one
-        eg_had = lay.Lambda(lambda x : tf.reduce_sum(x, axis=1, keepdims=True)[:,:,0], name='eg_had_deposit')(rate_input)
-        # apply model to the em component
-        RatePredictionList = make_AddList(TTP, rate_input, name="rate_")
-        eg_em_pred = lay.Add(name="rate_predicted_energy")(RatePredictionList)
-        # sum had energy and calibrated em energy
-        eg_pred = lay.Lambda(lambda x : x[0] + x[1], name="eg_tot_energy")((eg_em_pred, eg_had))
-        # apply threshold
-        eg_AT = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, egThr, 10.), name="apply_eg_threshold")(eg_pred) # sharpness 10. means +/-0.5 GeV tunron region
-        rate_output = eg_AT
-
-    if version == 'HCAL' or version == 'HF':
-        # predict seed energy (including the correspondong EM TT part) and apply threshold
-        TT_seed_had_pred = TTP(lay.Lambda(lambda x : x[:,40,1:], name="seed_had_pred")(rate_input))
-        TT_seed_em = lay.Lambda(lambda x : x[:,40,0:1], name='seed_em_deposit')(rate_input)
-        TT_seed_pred = lay.Lambda(lambda x : x[0] + x[1], name="seed_tot_energy")((TT_seed_had_pred, TT_seed_em))
-        TT_seed_AT = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, seedThr, 100.), name="apply_seed_threshold")(TT_seed_pred) # sharpness 10. means +/-0.05 GeV tunron region
-
-        # predict jet energy (including the correspondong non-calibrated TTs part) and apply threshold
-        jet_em = lay.Lambda(lambda x : tf.reduce_sum(x, axis=1, keepdims=True)[:,:,0], name='jet_em_deposit')(rate_input)
-        RatePredictionList = make_AddList(TTP, rate_input, name="rate_")
-        jet_had_pred = lay.Add(name="rate_predicted_energy")(RatePredictionList)
-        jet_pred = lay.Lambda(lambda x : x[0] + x[1], name="jet_tot_energy")((jet_had_pred, jet_em))
-        jet_AT = lay.Lambda(lambda x : threshold_relaxation_sigmoid(x, jetThr, 10.), name="apply_jet_threshold")(jet_pred) # sharpness 10. means +/-0.5 GeV tunron region
-        
-        # do logical AND between TT_eAT and TT_hoeAT
-        rate_output = lay.Lambda(lambda x : x[0] * x[1], name="thresholds_or")((TT_seed_AT, jet_AT))
-
-    model = keras.Model(inputs=[TTP_input, rate_input], outputs=[TTP_output, rate_output], name='Layer1Calibrator')
+    model = keras.Model(inputs=TTP_input, outputs=TTP_output, name='Layer1Calibrator')
 
     return model, TTP
 
@@ -361,22 +274,11 @@ if __name__ == "__main__" :
     print("MAX_LEARNING_RATE = %f" %MAX_LEARNING_RATE)
     HISTORY = { 'x'        : [],
                 'learning_rate': [[]],
-                'train_loss' : [], 'train_regressionLoss' : [], 'train_weightsLoss' : [], 'train_rateLoss' : [], 'train_RMSE' : [],
-                'test_loss'  : [], 'test_regressionLoss'  : [], 'test_weightsLoss'  : [], 'test_rateLoss'  : [], 'test_RMSE'  : []
+                'train_loss' : [], 'train_regressionLoss' : [], 'train_RMSE' : [],
+                'test_loss'  : [], 'test_regressionLoss'  : [], 'test_RMSE'  : []
               }
     # new method to change learning rate over time (not to miss local minima)
     lr_schedule = keras.optimizers.schedules.ExponentialDecay(initial_learning_rate=MAX_LEARNING_RATE, decay_steps=5, decay_rate=0.1)
-    # will stop the training the monito doesn't improve after the patience step
-    # tf.keras.callbacks.EarlyStopping(
-    #     monitor='val_loss',
-    #     min_delta=0,
-    #     patience=0,
-    #     verbose=0,
-    #     mode='auto',
-    #     baseline=None,
-    #     restore_best_weights=False,
-    #     start_from_epoch=0
-    # )
 
     ##############################################################################
     ################################# LOAD INPUTS ################################
@@ -407,16 +309,9 @@ if __name__ == "__main__" :
         test_dataset = raw_test_dataset.map(parse_function)
         del InTestRecords, raw_test_dataset
 
-        # read raw rate dataset and parse it 
-        InRateRecords = glob.glob(indir+'/rateTFRecords/record_*.tfrecord')
-        raw_rate_dataset = tf.data.TFRecordDataset(InRateRecords)
-        rate_dataset = raw_rate_dataset.map(parse_function)
-        del InRateRecords, raw_rate_dataset
-
         print('** INFO : batching TensorFlow datasets')
         train_dataset = train_dataset.shuffle(BUFFER_SIZE).batch(GLOBAL_BATCH_SIZE, drop_remainder=True)
         test_dataset = test_dataset.batch(GLOBAL_BATCH_SIZE, drop_remainder=True)
-        rate_dataset = rate_dataset.shuffle(BUFFER_SIZE).batch(GLOBAL_BATCH_SIZE, drop_remainder=True)
         print('** INFO : done batching TensorFlow datasets')
 
 
@@ -439,8 +334,7 @@ if __name__ == "__main__" :
     print('** INFO : distributing training datasets')
     train_dist_dataset = mirrored_strategy.experimental_distribute_dataset(train_dataset, options=DISTRIBUTION_OPTS)
     test_dist_dataset = mirrored_strategy.experimental_distribute_dataset(test_dataset, options=DISTRIBUTION_OPTS)
-    rate_dist_dataset = mirrored_strategy.experimental_distribute_dataset(rate_dataset, options=DISTRIBUTION_OPTS)
-    del train_dataset, test_dataset, rate_dataset
+    del train_dataset, test_dataset
     print('** INFO : done distributing training datasets')
 
 
@@ -454,55 +348,14 @@ if __name__ == "__main__" :
             MAPE = tf.keras.losses.MeanAbsolutePercentageError(reduction=tf.keras.losses.Reduction.NONE)
             return tf.reshape(MAPE(y, y_pred), (1, 1)) * 100 # FIXME: scaling to be defined
 
-        # part of the loss that controls the weights overtraining
-        def weightsLoss():
-            modelWeights = model.trainable_weights
-            # modelWeights_ss = float( tf.math.reduce_sum(tf.math.square(modelWeights[0]), keepdims=True) +
-            #                          tf.math.reduce_sum(tf.math.square(modelWeights[1]), keepdims=True) +
-            #                          tf.math.reduce_sum(tf.math.square(modelWeights[2]), keepdims=True)
-            #                         )
-            # Suggested be Frederic
-            modelWeights_ss = float( tf.math.reduce_sum(tf.math.abs(modelWeights[0]), keepdims=True) +
-                                     tf.math.reduce_sum(tf.math.abs(modelWeights[1]), keepdims=True) +
-                                     tf.math.reduce_sum(tf.math.abs(modelWeights[2]), keepdims=True)
-                                    )            
-            return  modelWeights_ss * 1 # FIXME: scaling to be optimized
-
-        # part of the loss that controls the rate
-        def rateLoss(z_pred, targetRate):
-            # compute fraction of passing events and multiply by rate scaling
-            scale_to_rate = 0.001*2500*11245.6 * 0.016549667686051477
-            proxyRate = tf.reduce_sum(z_pred, keepdims=True) / BATCH_SIZE_PER_REPLICA * scale_to_rate
-            # realtive_diff = (proxyRate - targetRate) / targetRate
-            # return tf.cosh(1.5 * realtive_diff) * 1 # FIXME: scaling to be optimized
-            # sharpness of 10 corresponds to +/- 1 kHz
-            return threshold_relaxation_sigmoid(proxyRate, targetRate, 10) * 1 # FIXME: scaling to be optimized
-
         # GPU distribution friendly loss computation
-        def compute_losses(y, y_pred, z_pred):
+        def compute_losses(y, y_pred):
             regressionLoss_value = regressionLoss(y, y_pred)
-            weightsLoss_value = weightsLoss()
-            
-            # split regions computed on SingleNeutrino
-            # if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 3636.454)
-            # if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 150.26064)
-            # if VERSION == 'HF':   rateLoss_value = rateLoss(z_pred, 175.66269)
-            
-            # normal regions computed on SingleNeutrino
-            # if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 3756.696)
-            # if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 191.8348)
-
-            # normal regions computed on ZeroBias
-            # if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 2610.6602)
-            if VERSION == 'ECAL': rateLoss_value = rateLoss(z_pred, 44.63708)
-            if VERSION == 'HCAL': rateLoss_value = rateLoss(z_pred, 751.14514)
 
             fullLoss = regressionLoss_value
 
             return [tf.nn.compute_average_loss(fullLoss,             global_batch_size=GLOBAL_BATCH_SIZE),
-                    tf.nn.compute_average_loss(regressionLoss_value, global_batch_size=GLOBAL_BATCH_SIZE),
-                    tf.nn.compute_average_loss(weightsLoss_value,    global_batch_size=GLOBAL_BATCH_SIZE),
-                    tf.nn.compute_average_loss(rateLoss_value,       global_batch_size=GLOBAL_BATCH_SIZE)]
+                    tf.nn.compute_average_loss(regressionLoss_value, global_batch_size=GLOBAL_BATCH_SIZE)]
 
         # define model and related stuff
         if VERSION == 'ECAL':                    model, TTP = create_model(VERSION, hoeThrEB=3., hoeThrEE=4., egThr=50.)
@@ -516,12 +369,11 @@ if __name__ == "__main__" :
     # print(model.summary())
     # exit()
 
-    def custom_train_step(inputs, rate_inputs):
+    def custom_train_step(inputs):
         x, y = inputs
-        z, _ = rate_inputs
         with tf.GradientTape() as tape:
-            y_pred, z_pred = model([x, z], training=True)
-            losses = compute_losses(y, y_pred, z_pred)
+            y_pred = model(x, training=True)
+            losses = compute_losses(y, y_pred)
 
         # grads = tape.gradient([losses[1], losses[2], losses[3]], model.trainable_weights)
         # suggested by Frederic but it doesn't work
@@ -531,31 +383,25 @@ if __name__ == "__main__" :
 
         return losses
 
-    def custom_test_step(inputs, rate_inputs):
+    def custom_test_step(inputs):
         x, y = inputs
-        z, _ = rate_inputs
-        y_pred, z_pred = model([x, z], training=False)
-        losses = compute_losses(y, y_pred, z_pred)
+        y_pred = model(x, training=False)
+        losses = compute_losses(y, y_pred)
         test_acc_metric.update_state(y, y_pred)
 
         return losses
 
     @tf.function
-    def distributed_train_step(dataset_inputs, rate_inputs):
-        per_replica_losses = mirrored_strategy.run(custom_train_step, args=(dataset_inputs, rate_inputs,))
+    def distributed_train_step(dataset_inputs):
+        per_replica_losses = mirrored_strategy.run(custom_train_step, args=(dataset_inputs))
         return [mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[0], axis=None),
-                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[1], axis=None),
-                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[2], axis=None),
-                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[3], axis=None)]
+                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[1], axis=None)]
 
     @tf.function
-    def distributed_test_step(dataset_inputs, rate_inputs):
-        per_replica_losses = mirrored_strategy.run(custom_test_step, args=(dataset_inputs, rate_inputs,))
+    def distributed_test_step(dataset_inputs):
+        per_replica_losses = mirrored_strategy.run(custom_test_step, args=(dataset_inputs))
         return [mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[0], axis=None),
-                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[1], axis=None),
-                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[2], axis=None),
-                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[3], axis=None)]
-
+                mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses[1], axis=None)]
 
     # run training loop
     for epoch in range(EPOCHS):
@@ -563,49 +409,45 @@ if __name__ == "__main__" :
         print('\nStart of epoch %d' % (epoch+1,))
 
         # TRAIN LOOP
-        train_losses = np.array([0., 0., 0., 0.])
-        train_losses_avg = np.array([0., 0., 0., 0.])
+        train_losses = np.array([0., 0.])
+        train_losses_avg = np.array([0., 0.])
         num_batches = 0
-        for batch, rate_batch in zip(train_dist_dataset, rate_dist_dataset):
-            train_losses = distributed_train_step(batch, rate_batch)
+        for batch in zip(train_dist_dataset):
+            train_losses = distributed_train_step(batch)
             train_losses_avg += train_losses
             num_batches += 1
 
             # Log every N batches
             if VERBOSE and num_batches % 1 == 0:
                 print(
-                      '    At batch %d (seen %d samples so far) : loss = %.4f ; regressionLoss = %.4f ; weightsLoss = %.4f ; rateLoss = %.4f ; RMSE = %.4f'
+                      '    At batch %d (seen %d samples so far) : loss = %.4f ; regressionLoss = %.4f ; RMSE = %.4f'
                       %
-                      (num_batches, num_batches*GLOBAL_BATCH_SIZE, float(train_losses[0]), float(train_losses[1]), float(train_losses[2]), float(train_losses[3]), float(train_acc_metric.result()))
+                      (num_batches, num_batches*GLOBAL_BATCH_SIZE, float(train_losses[0]), float(train_losses[1]), float(train_acc_metric.result()))
                      )
 
         train_losses_avg = train_losses_avg / num_batches
 
         # TEST LOOP
-        test_losses = np.array([0., 0., 0., 0.])
+        test_losses = np.array([0., 0.])
         num_batches = 0
-        for batch, rate_batch in zip(test_dist_dataset, rate_dist_dataset):
-            test_losses += distributed_test_step(batch, rate_batch)
+        for batch in zip(test_dist_dataset):
+            test_losses += distributed_test_step(batch)
             num_batches += 1
 
         test_losses = test_losses / num_batches
 
         train_RMSE = train_acc_metric.result()
         test_RMSE = test_acc_metric.result()
-        print('Training : loss = %.4f ; regressionLoss = %.4f ; weightsLoss = %.4f ; rateLoss = %.4f ; RMSE = %.4f' % (float(train_losses_avg[0]), float(train_losses_avg[1]), float(train_losses_avg[2]), float(train_losses_avg[3]), float(train_RMSE)) )
-        print('Testing  : loss = %.4f ; regressionLoss = %.4f ; weightsLoss = %.4f ; rateLoss = %.4f ; RMSE = %.4f' % (float(test_losses[0]), float(test_losses[1]), float(test_losses[2]), float(test_losses[3]), float(test_RMSE)) )
+        print('Training : loss = %.4f ; regressionLoss = %.4f ; RMSE = %.4f' % (float(train_losses_avg[0]), float(train_losses_avg[1]), float(train_RMSE)) )
+        print('Testing  : loss = %.4f ; regressionLoss = %.4f ; RMSE = %.4f' % (float(test_losses[0]), float(test_losses[1]), float(test_RMSE)) )
 
         HISTORY['x'].append(epoch+1)
         if epoch < EPOCHS-1: HISTORY['learning_rate'].append([])
         HISTORY['train_loss'].append(float(train_losses_avg[0]))
         HISTORY['train_regressionLoss'].append(float(train_losses_avg[1]))
-        HISTORY['train_weightsLoss'].append(float(train_losses_avg[2]))
-        HISTORY['train_rateLoss'].append(float(train_losses_avg[3]))
         HISTORY['train_RMSE'].append(float(train_RMSE))
         HISTORY['test_loss'].append(float(test_losses[0]))
         HISTORY['test_regressionLoss'].append(float(test_losses[1]))
-        HISTORY['test_weightsLoss'].append(float(test_losses[2]))
-        HISTORY['test_rateLoss'].append(float(train_losses[3]))
         HISTORY['test_RMSE'].append(float(test_RMSE))
 
         # Reset metrics at the end of each epoch

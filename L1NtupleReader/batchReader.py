@@ -428,7 +428,7 @@ def mainReader( dfFlatET, dfFlatEJ, dfFlatEL, saveToDFs, saveToTensors, uJetPtcu
     #########################################################################
 
     ########################## Application of cuts ##########################
-    print('starting cuts') # DEBUG
+    # print('starting cuts') # DEBUG
 
     if LooseEle != False:
         dfFlatEJ = dfFlatEJ[dfFlatEJ['LooseEle'] == 1]
@@ -439,11 +439,6 @@ def mainReader( dfFlatET, dfFlatEJ, dfFlatEL, saveToDFs, saveToTensors, uJetPtcu
         dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] < float(uJetPtcut)]
     if lJetPtcut != False:
         dfFlatEJ = dfFlatEJ[dfFlatEJ['jetPt'] > float(lJetPtcut)]
-
-    # Apply cut on HoTot (ony for the Private MC L1Ntuples)
-    if HoTotcut != False:
-        print("Applying cut HoTot > ", HoTotcut)
-        dfFlatEJ = dfFlatEJ[dfFlatEJ['HoTot'] > float(HoTotcut)]
 
     # flatten the pT distribution of the QCD samples
     # ideally this flattening would go after the hoe cut by I was not able to make it work there :(
@@ -460,6 +455,11 @@ def mainReader( dfFlatET, dfFlatEJ, dfFlatEL, saveToDFs, saveToTensors, uJetPtcu
         dfFlatEJBalanced = dfFlatEJ.groupby('jetPtBin', as_index = False, group_keys=False).apply(lambda s: s.sample( min(len(s),size))) # select the same number of events for each pT bin
         dfFlatEJ = dfFlatEJBalanced.copy(deep=True)
         del dfFlatEJBalanced
+
+    # Apply cut on HoTot (ony for the Private MC L1Ntuples)
+    if HoTotcut != False:
+        print("Applying cut HoTot > ", HoTotcut)
+        dfFlatEJ = dfFlatEJ[dfFlatEJ['HoTot'] > float(HoTotcut)]
 
     # transform jetPt in hardware units
     dfFlatEJ['trainingPt'] = dfFlatEJ['jetPt'].copy(deep=True) * 2

@@ -52,6 +52,19 @@ def RateProxyJets (cd, seedThr, jetThr):
 
     return jet_passing / cd.shape[0]
 
+def RateProxyEGs (cd, egThr):
+
+    egThr = egThr - 0.1
+
+    # predict eg energy and apply threshold: sum all the iem energies cd[:,:,1] of the 9x9
+    eg_sum = tf.reduce_sum(cd[:,:,1], axis=1, keepdims=True) + tf.reduce_sum(cd[:,:,0], axis=1, keepdims=True)
+    # for each entry of eg, apply sigmoid cut on the sum at egThr (10): if eg_sum > 10 eg_sum_passing = 1, else 0
+    eg_sum_passing = threshold_relaxation_sigmoid(eg_sum, egThr, 10.)
+    # compute the number of jets passing both selections
+    eg_passing = tf.reduce_sum(eg_sum_passing, keepdims=False)
+    # print("### INFO: " + str(jet_passing) + " / " + str(cd.shape[0]) + " = " + str(jet_passing/cd.shape[0]))
+    return eg_passing / cd.shape[0]
+
 # python3 TestRateProxy.py --indir 2023_06_08_NtuplesV50/JetMET_PuppiJet_Barrel_Pt30_HoTot95 --v HCAL --tag DataReco
 
 ##############################################################################
@@ -67,7 +80,7 @@ parser.add_option("--filesLim", dest="filesLim", help="Maximum number of files t
 (options, args) = parser.parse_args()
 
 indir = '/data_CMS/cms/motta/CaloL1calibraton/' + options.indir + '/' + options.v + 'training' + options.tag
-if options.v == 'ECAL':                      sys.exit("Rate proxy not implemented")
+if options.v == 'ECAL':                      batch_size = 150
 if options.v == 'HCAL' or options.v == 'HF': batch_size = 500
 
 # read raw rate dataset and parse it 
@@ -79,34 +92,51 @@ train_dataset = train_dataset.batch(batch_size, drop_remainder=True)
 del InTrainRecords, raw_train_dataset
 
 num_batches = 0
-rateLoss_value = 0
-jet_passing_100 = 0
-jet_passing_80 = 0
-jet_passing_50 = 0
-jet_passing_45 = 0
-jet_passing_40 = 0
-jet_passing_35 = 0
-jet_passing_30 = 0
-jet_total = 0
+if options.v == 'HCAL' or options.v == 'HF':
+    jet_passing_100 = 0
+    jet_passing_80 = 0
+    jet_passing_50 = 0
+    jet_passing_45 = 0
+    jet_passing_40 = 0
+    jet_passing_35 = 0
+    jet_passing_30 = 0
+if options.v == 'ECAL':
+    eg_passing_10 = 0
+    eg_passing_15 = 0
+    eg_passing_20 = 0
+    eg_passing_25 = 0
+
 # remember the thresholds are in HW units!)
 for train_batch in train_dataset:
     if not num_batches%100: print('at batch', num_batches)
     num_batches += 1
     cd, _ = train_batch
-    jet_passing_100 += float(RateProxyJets(cd, 8, 200))
-    jet_passing_80 += float(RateProxyJets(cd, 8, 160))
-    jet_passing_50 += float(RateProxyJets(cd, 8, 100))
-    jet_passing_45 += float(RateProxyJets(cd, 8, 90))
-    jet_passing_40 += float(RateProxyJets(cd, 8, 80))
-    jet_passing_35 += float(RateProxyJets(cd, 8, 70))
-    jet_passing_30 += float(RateProxyJets(cd, 8, 60))
+    if options.v == 'HCAL' or options.v == 'HF':
+        jet_passing_100 += float(RateProxyJets(cd, 8, 200))
+        jet_passing_80 += float(RateProxyJets(cd, 8, 160))
+        jet_passing_50 += float(RateProxyJets(cd, 8, 100))
+        jet_passing_45 += float(RateProxyJets(cd, 8, 90))
+        jet_passing_40 += float(RateProxyJets(cd, 8, 80))
+        jet_passing_35 += float(RateProxyJets(cd, 8, 70))
+        jet_passing_30 += float(RateProxyJets(cd, 8, 60))
+    if options.v == 'ECAL':
+        eg_passing_10 += float(RateProxyEGs(cd, 20))
+        eg_passing_15 += float(RateProxyEGs(cd, 30))
+        eg_passing_20 += float(RateProxyEGs(cd, 40))
+        eg_passing_25 += float(RateProxyEGs(cd, 50))      
 
-print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 30 GeV : ", jet_passing_30/num_batches)
-print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 35 GeV : ", jet_passing_35/num_batches)
-print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 40 GeV : ", jet_passing_40/num_batches)
-print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 45 GeV : ", jet_passing_45/num_batches)
-print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 50 GeV : ", jet_passing_50/num_batches)
-print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 80 GeV : ", jet_passing_80/num_batches)
-print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 100 GeV : ", jet_passing_100/num_batches)
+if options.v == 'HCAL' or options.v == 'HF':
+    print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 30 GeV : ", jet_passing_30/num_batches)
+    print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 35 GeV : ", jet_passing_35/num_batches)
+    print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 40 GeV : ", jet_passing_40/num_batches)
+    print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 45 GeV : ", jet_passing_45/num_batches)
+    print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 50 GeV : ", jet_passing_50/num_batches)
+    print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 80 GeV : ", jet_passing_80/num_batches)
+    print("### INFO: Compute percentage of jets passing seed at 4 GeV & sum > 100 GeV : ", jet_passing_100/num_batches)
 
+if options.v == 'ECAL':
+    print("### INFO: Compute percentage of jets passing sum > 10 GeV : ", eg_passing_10/num_batches)
+    print("### INFO: Compute percentage of jets passing sum > 15 GeV : ", eg_passing_15/num_batches)
+    print("### INFO: Compute percentage of jets passing sum > 20 GeV : ", eg_passing_20/num_batches)
+    print("### INFO: Compute percentage of jets passing sum > 25 GeV : ", eg_passing_25/num_batches)
 
